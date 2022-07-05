@@ -1,0 +1,9 @@
+[workspace]
+members = [
+  "quazal",
+  "quazal-macros",
+  "quazal-tools",
+  "quazal-tools-macros",
+  "dedicated_server",
+  "wireshark-dissector",
+]

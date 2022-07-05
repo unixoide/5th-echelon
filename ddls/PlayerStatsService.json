@@ -1,0 +1,3953 @@
+{
+  "__class__": "Namespace",
+  "elements": [
+    {
+      "__class__": "DDLUnitDeclaration",
+      "name1": "PlayerStatsService",
+      "name2": "PlayerStatsService",
+      "name3": "PlayerStatsService",
+      "elements": {
+        "__class__": "Namespace",
+        "elements": []
+      },
+      "name4": "PlayerStatsService",
+      "location": ""
+    },
+    {
+      "__class__": "TemplateInstance",
+      "name1": "qlist<uint32>",
+      "name2": "qlist<uint32>",
+      "u1": 0,
+      "u2": 0,
+      "templ_name": "qlist",
+      "parameters": [
+        "uint32"
+      ]
+    },
+    {
+      "__class__": "TemplateInstance",
+      "name1": "qlist<PropertyVariant>",
+      "name2": "qlist<PropertyVariant>",
+      "u1": 0,
+      "u2": 0,
+      "templ_name": "qlist",
+      "parameters": [
+        "PropertyVariant"
+      ]
+    },
+    {
+      "__class__": "ClassDeclaration",
+      "name1": "PlayerStatUpdate",
+      "name2": "PlayerStatUpdate",
+      "namespace": "PlayerStatsService",
+      "properties": [
+        {
+          "__class__": "PropertyDeclaration",
+          "name1": "exportable",
+          "name2": "exportable",
+          "name3": "OnlineCore",
+          "u1": 0,
+          "u2": 1,
+          "u3": 4
+        }
+      ],
+      "maybe_base": "",
+      "variables": [
+        {
+          "__class__": "Variable",
+          "name1": "m_boardID",
+          "name2": "m_boardID",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_contextIDs",
+          "name2": "m_contextIDs",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "TemplateType",
+              "name": "qlist<uint32>",
+              "templ_name": "qlist",
+              "parameters": [
+                {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                }
+              ]
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_stats",
+          "name2": "m_stats",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "TemplateType",
+              "name": "qlist<PropertyVariant>",
+              "templ_name": "qlist",
+              "parameters": [
+                {
+                  "__class__": "SimpleType",
+                  "name": "PropertyVariant"
+                }
+              ]
+            },
+            "unknown": 1
+          }
+        }
+      ]
+    },
+    {
+      "__class__": "ClassDeclaration",
+      "name1": "PlayerStatSortCriteria",
+      "name2": "PlayerStatSortCriteria",
+      "namespace": "PlayerStatsService",
+      "properties": [
+        {
+          "__class__": "PropertyDeclaration",
+          "name1": "exportable",
+          "name2": "exportable",
+          "name3": "OnlineCore",
+          "u1": 0,
+          "u2": 1,
+          "u3": 4
+        }
+      ],
+      "maybe_base": "",
+      "variables": [
+        {
+          "__class__": "Variable",
+          "name1": "m_sortStatID",
+          "name2": "m_sortStatID",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_sortOrder",
+          "name2": "m_sortOrder",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        }
+      ]
+    },
+    {
+      "__class__": "TemplateInstance",
+      "name1": "qlist<PlayerStatSortCriteria>",
+      "name2": "qlist<PlayerStatSortCriteria>",
+      "u1": 0,
+      "u2": 0,
+      "templ_name": "qlist",
+      "parameters": [
+        "PlayerStatSortCriteria"
+      ]
+    },
+    {
+      "__class__": "ClassDeclaration",
+      "name1": "StatboardQuery",
+      "name2": "StatboardQuery",
+      "namespace": "PlayerStatsService",
+      "properties": [],
+      "maybe_base": "",
+      "variables": [
+        {
+          "__class__": "Variable",
+          "name1": "m_boardID",
+          "name2": "m_boardID",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_contextIDs",
+          "name2": "m_contextIDs",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "TemplateType",
+              "name": "qlist<uint32>",
+              "templ_name": "qlist",
+              "parameters": [
+                {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                }
+              ]
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_resetFrequency",
+          "name2": "m_resetFrequency",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_statIDs",
+          "name2": "m_statIDs",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "TemplateType",
+              "name": "qlist<uint32>",
+              "templ_name": "qlist",
+              "parameters": [
+                {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                }
+              ]
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_sortCriterias",
+          "name2": "m_sortCriterias",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "TemplateType",
+              "name": "qlist<PlayerStatSortCriteria>",
+              "templ_name": "qlist",
+              "parameters": [
+                {
+                  "__class__": "SimpleType",
+                  "name": "PlayerStatSortCriteria"
+                }
+              ]
+            },
+            "unknown": 1
+          }
+        }
+      ]
+    },
+    {
+      "__class__": "ClassDeclaration",
+      "name1": "LeaderboardQuery",
+      "name2": "LeaderboardQuery",
+      "namespace": "PlayerStatsService",
+      "properties": [],
+      "maybe_base": "",
+      "variables": [
+        {
+          "__class__": "Variable",
+          "name1": "m_boardID",
+          "name2": "m_boardID",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_contextID",
+          "name2": "m_contextID",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_resetFrequency",
+          "name2": "m_resetFrequency",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_statIDs",
+          "name2": "m_statIDs",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "TemplateType",
+              "name": "qlist<uint32>",
+              "templ_name": "qlist",
+              "parameters": [
+                {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                }
+              ]
+            },
+            "unknown": 1
+          }
+        }
+      ]
+    },
+    {
+      "__class__": "ClassDeclaration",
+      "name1": "LeaderboardQuery2",
+      "name2": "LeaderboardQuery2",
+      "namespace": "PlayerStatsService",
+      "properties": [],
+      "maybe_base": "",
+      "variables": [
+        {
+          "__class__": "Variable",
+          "name1": "m_boardID",
+          "name2": "m_boardID",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_contextID",
+          "name2": "m_contextID",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_resetFrequency",
+          "name2": "m_resetFrequency",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_statIDs",
+          "name2": "m_statIDs",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "TemplateType",
+              "name": "qlist<uint32>",
+              "templ_name": "qlist",
+              "parameters": [
+                {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                }
+              ]
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_estimatedPIDs",
+          "name2": "m_estimatedPIDs",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "TemplateType",
+              "name": "qlist<uint32>",
+              "templ_name": "qlist",
+              "parameters": [
+                {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                }
+              ]
+            },
+            "unknown": 1
+          }
+        }
+      ]
+    },
+    {
+      "__class__": "ClassDeclaration",
+      "name1": "PlayerStatSet",
+      "name2": "PlayerStatSet",
+      "namespace": "PlayerStatsService",
+      "properties": [
+        {
+          "__class__": "PropertyDeclaration",
+          "name1": "exportable",
+          "name2": "exportable",
+          "name3": "OnlineCore",
+          "u1": 0,
+          "u2": 1,
+          "u3": 4
+        }
+      ],
+      "maybe_base": "",
+      "variables": [
+        {
+          "__class__": "Variable",
+          "name1": "m_playerPID",
+          "name2": "m_playerPID",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_playerName",
+          "name2": "m_playerName",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "string"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_submittedTime",
+          "name2": "m_submittedTime",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "datetime"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_stats",
+          "name2": "m_stats",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "TemplateType",
+              "name": "qlist<PropertyVariant>",
+              "templ_name": "qlist",
+              "parameters": [
+                {
+                  "__class__": "SimpleType",
+                  "name": "PropertyVariant"
+                }
+              ]
+            },
+            "unknown": 1
+          }
+        }
+      ]
+    },
+    {
+      "__class__": "TemplateInstance",
+      "name1": "qlist<PlayerStatSet>",
+      "name2": "qlist<PlayerStatSet>",
+      "u1": 0,
+      "u2": 0,
+      "templ_name": "qlist",
+      "parameters": [
+        "PlayerStatSet"
+      ]
+    },
+    {
+      "__class__": "ClassDeclaration",
+      "name1": "StatboardResult",
+      "name2": "StatboardResult",
+      "namespace": "PlayerStatsService",
+      "properties": [],
+      "maybe_base": "",
+      "variables": [
+        {
+          "__class__": "Variable",
+          "name1": "m_boardID",
+          "name2": "m_boardID",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_contextID",
+          "name2": "m_contextID",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_resetFrequency",
+          "name2": "m_resetFrequency",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_playerStatSets",
+          "name2": "m_playerStatSets",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "TemplateType",
+              "name": "qlist<PlayerStatSet>",
+              "templ_name": "qlist",
+              "parameters": [
+                {
+                  "__class__": "SimpleType",
+                  "name": "PlayerStatSet"
+                }
+              ]
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_defaultStatValues",
+          "name2": "m_defaultStatValues",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "TemplateType",
+              "name": "qlist<PropertyVariant>",
+              "templ_name": "qlist",
+              "parameters": [
+                {
+                  "__class__": "SimpleType",
+                  "name": "PropertyVariant"
+                }
+              ]
+            },
+            "unknown": 1
+          }
+        }
+      ]
+    },
+    {
+      "__class__": "ClassDeclaration",
+      "name1": "PlayerRank",
+      "name2": "PlayerRank",
+      "namespace": "PlayerStatsService",
+      "properties": [
+        {
+          "__class__": "PropertyDeclaration",
+          "name1": "exportable",
+          "name2": "exportable",
+          "name3": "OnlineCore",
+          "u1": 0,
+          "u2": 1,
+          "u3": 4
+        }
+      ],
+      "maybe_base": "",
+      "variables": [
+        {
+          "__class__": "Variable",
+          "name1": "m_playerStatSet",
+          "name2": "m_playerStatSet",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "PlayerStatSet"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_rankStatus",
+          "name2": "m_rankStatus",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_rank",
+          "name2": "m_rank",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_score",
+          "name2": "m_score",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "variant"
+            },
+            "unknown": 1
+          }
+        }
+      ]
+    },
+    {
+      "__class__": "TemplateInstance",
+      "name1": "qlist<PlayerRank>",
+      "name2": "qlist<PlayerRank>",
+      "u1": 0,
+      "u2": 0,
+      "templ_name": "qlist",
+      "parameters": [
+        "PlayerRank"
+      ]
+    },
+    {
+      "__class__": "ClassDeclaration",
+      "name1": "LeaderboardResult",
+      "name2": "LeaderboardResult",
+      "namespace": "PlayerStatsService",
+      "properties": [],
+      "maybe_base": "",
+      "variables": [
+        {
+          "__class__": "Variable",
+          "name1": "m_boardID",
+          "name2": "m_boardID",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_contextID",
+          "name2": "m_contextID",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_resetFrequency",
+          "name2": "m_resetFrequency",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_leaderboardTotalPlayerCount",
+          "name2": "m_leaderboardTotalPlayerCount",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_playerRanks",
+          "name2": "m_playerRanks",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "TemplateType",
+              "name": "qlist<PlayerRank>",
+              "templ_name": "qlist",
+              "parameters": [
+                {
+                  "__class__": "SimpleType",
+                  "name": "PlayerRank"
+                }
+              ]
+            },
+            "unknown": 1
+          }
+        }
+      ]
+    },
+    {
+      "__class__": "ClassDeclaration",
+      "name1": "DateRange",
+      "name2": "DateRange",
+      "namespace": "PlayerStatsService",
+      "properties": [
+        {
+          "__class__": "PropertyDeclaration",
+          "name1": "exportable",
+          "name2": "exportable",
+          "name3": "OnlineCore",
+          "u1": 0,
+          "u2": 1,
+          "u3": 4
+        }
+      ],
+      "maybe_base": "",
+      "variables": [
+        {
+          "__class__": "Variable",
+          "name1": "m_startingDatetime",
+          "name2": "m_startingDatetime",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "datetime"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_endingDatetime",
+          "name2": "m_endingDatetime",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "datetime"
+            },
+            "unknown": 1
+          }
+        }
+      ]
+    },
+    {
+      "__class__": "TemplateInstance",
+      "name1": "qlist<DateRange>",
+      "name2": "qlist<DateRange>",
+      "u1": 0,
+      "u2": 0,
+      "templ_name": "qlist",
+      "parameters": [
+        "DateRange"
+      ]
+    },
+    {
+      "__class__": "ClassDeclaration",
+      "name1": "StatboardHistoryQuery",
+      "name2": "StatboardHistoryQuery",
+      "namespace": "PlayerStatsService",
+      "properties": [],
+      "maybe_base": "",
+      "variables": [
+        {
+          "__class__": "Variable",
+          "name1": "m_playerPIDs",
+          "name2": "m_playerPIDs",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "TemplateType",
+              "name": "qlist<uint32>",
+              "templ_name": "qlist",
+              "parameters": [
+                {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                }
+              ]
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_boardID",
+          "name2": "m_boardID",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_contextIDs",
+          "name2": "m_contextIDs",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "TemplateType",
+              "name": "qlist<uint32>",
+              "templ_name": "qlist",
+              "parameters": [
+                {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                }
+              ]
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_statIDs",
+          "name2": "m_statIDs",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "TemplateType",
+              "name": "qlist<uint32>",
+              "templ_name": "qlist",
+              "parameters": [
+                {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                }
+              ]
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_resultRange",
+          "name2": "m_resultRange",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "ResultRange"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_playerStats",
+          "name2": "m_playerStats",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "TemplateType",
+              "name": "qlist<PropertyVariant>",
+              "templ_name": "qlist",
+              "parameters": [
+                {
+                  "__class__": "SimpleType",
+                  "name": "PropertyVariant"
+                }
+              ]
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_dateRanges",
+          "name2": "m_dateRanges",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "TemplateType",
+              "name": "qlist<DateRange>",
+              "templ_name": "qlist",
+              "parameters": [
+                {
+                  "__class__": "SimpleType",
+                  "name": "DateRange"
+                }
+              ]
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_sortCriterias",
+          "name2": "m_sortCriterias",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "TemplateType",
+              "name": "qlist<PlayerStatSortCriteria>",
+              "templ_name": "qlist",
+              "parameters": [
+                {
+                  "__class__": "SimpleType",
+                  "name": "PlayerStatSortCriteria"
+                }
+              ]
+            },
+            "unknown": 1
+          }
+        }
+      ]
+    },
+    {
+      "__class__": "ClassDeclaration",
+      "name1": "StatboardHistoryAggregatedQuery",
+      "name2": "StatboardHistoryAggregatedQuery",
+      "namespace": "PlayerStatsService",
+      "properties": [],
+      "maybe_base": "",
+      "variables": [
+        {
+          "__class__": "Variable",
+          "name1": "m_playerPIDs",
+          "name2": "m_playerPIDs",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "TemplateType",
+              "name": "qlist<uint32>",
+              "templ_name": "qlist",
+              "parameters": [
+                {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                }
+              ]
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_boardID",
+          "name2": "m_boardID",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_contextIDs",
+          "name2": "m_contextIDs",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "TemplateType",
+              "name": "qlist<uint32>",
+              "templ_name": "qlist",
+              "parameters": [
+                {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                }
+              ]
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_statIDs",
+          "name2": "m_statIDs",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "TemplateType",
+              "name": "qlist<uint32>",
+              "templ_name": "qlist",
+              "parameters": [
+                {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                }
+              ]
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_resultRange",
+          "name2": "m_resultRange",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "ResultRange"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_playerStats",
+          "name2": "m_playerStats",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "TemplateType",
+              "name": "qlist<PropertyVariant>",
+              "templ_name": "qlist",
+              "parameters": [
+                {
+                  "__class__": "SimpleType",
+                  "name": "PropertyVariant"
+                }
+              ]
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_dateRanges",
+          "name2": "m_dateRanges",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "TemplateType",
+              "name": "qlist<DateRange>",
+              "templ_name": "qlist",
+              "parameters": [
+                {
+                  "__class__": "SimpleType",
+                  "name": "DateRange"
+                }
+              ]
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_sortCriterias",
+          "name2": "m_sortCriterias",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "TemplateType",
+              "name": "qlist<PlayerStatSortCriteria>",
+              "templ_name": "qlist",
+              "parameters": [
+                {
+                  "__class__": "SimpleType",
+                  "name": "PlayerStatSortCriteria"
+                }
+              ]
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_filterOption",
+          "name2": "m_filterOption",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        }
+      ]
+    },
+    {
+      "__class__": "ClassDeclaration",
+      "name1": "LeaderboardHistoryQuery",
+      "name2": "LeaderboardHistoryQuery",
+      "namespace": "PlayerStatsService",
+      "properties": [],
+      "maybe_base": "",
+      "variables": [
+        {
+          "__class__": "Variable",
+          "name1": "m_playerPIDs",
+          "name2": "m_playerPIDs",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "TemplateType",
+              "name": "qlist<uint32>",
+              "templ_name": "qlist",
+              "parameters": [
+                {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                }
+              ]
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_boardID",
+          "name2": "m_boardID",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_contextID",
+          "name2": "m_contextID",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_resultRange",
+          "name2": "m_resultRange",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "ResultRange"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_dateRanges",
+          "name2": "m_dateRanges",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "TemplateType",
+              "name": "qlist<DateRange>",
+              "templ_name": "qlist",
+              "parameters": [
+                {
+                  "__class__": "SimpleType",
+                  "name": "DateRange"
+                }
+              ]
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_filterOption",
+          "name2": "m_filterOption",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        }
+      ]
+    },
+    {
+      "__class__": "ClassDeclaration",
+      "name1": "PopulationStatQuery",
+      "name2": "PopulationStatQuery",
+      "namespace": "PlayerStatsService",
+      "properties": [],
+      "maybe_base": "",
+      "variables": [
+        {
+          "__class__": "Variable",
+          "name1": "m_boardID",
+          "name2": "m_boardID",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_contextID",
+          "name2": "m_contextID",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_statIDs",
+          "name2": "m_statIDs",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "TemplateType",
+              "name": "qlist<uint32>",
+              "templ_name": "qlist",
+              "parameters": [
+                {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                }
+              ]
+            },
+            "unknown": 1
+          }
+        }
+      ]
+    },
+    {
+      "__class__": "ClassDeclaration",
+      "name1": "PopulationStatResult",
+      "name2": "PopulationStatResult",
+      "namespace": "PlayerStatsService",
+      "properties": [],
+      "maybe_base": "",
+      "variables": [
+        {
+          "__class__": "Variable",
+          "name1": "m_boardID",
+          "name2": "m_boardID",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_contextID",
+          "name2": "m_contextID",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_statID",
+          "name2": "m_statID",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_sum",
+          "name2": "m_sum",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "double"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_average",
+          "name2": "m_average",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "double"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_standardDeviation",
+          "name2": "m_standardDeviation",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "double"
+            },
+            "unknown": 1
+          }
+        }
+      ]
+    },
+    {
+      "__class__": "TemplateInstance",
+      "name1": "qlist<PlayerStatUpdate>",
+      "name2": "qlist<PlayerStatUpdate>",
+      "u1": 0,
+      "u2": 0,
+      "templ_name": "qlist",
+      "parameters": [
+        "PlayerStatUpdate"
+      ]
+    },
+    {
+      "__class__": "TemplateInstance",
+      "name1": "qlist<StatboardQuery>",
+      "name2": "qlist<StatboardQuery>",
+      "u1": 0,
+      "u2": 0,
+      "templ_name": "qlist",
+      "parameters": [
+        "StatboardQuery"
+      ]
+    },
+    {
+      "__class__": "TemplateInstance",
+      "name1": "qlist<StatboardResult>",
+      "name2": "qlist<StatboardResult>",
+      "u1": 0,
+      "u2": 0,
+      "templ_name": "qlist",
+      "parameters": [
+        "StatboardResult"
+      ]
+    },
+    {
+      "__class__": "TemplateInstance",
+      "name1": "qlist<LeaderboardQuery>",
+      "name2": "qlist<LeaderboardQuery>",
+      "u1": 0,
+      "u2": 0,
+      "templ_name": "qlist",
+      "parameters": [
+        "LeaderboardQuery"
+      ]
+    },
+    {
+      "__class__": "TemplateInstance",
+      "name1": "qlist<LeaderboardResult>",
+      "name2": "qlist<LeaderboardResult>",
+      "u1": 0,
+      "u2": 0,
+      "templ_name": "qlist",
+      "parameters": [
+        "LeaderboardResult"
+      ]
+    },
+    {
+      "__class__": "TemplateInstance",
+      "name1": "qlist<StatboardHistoryQuery>",
+      "name2": "qlist<StatboardHistoryQuery>",
+      "u1": 0,
+      "u2": 0,
+      "templ_name": "qlist",
+      "parameters": [
+        "StatboardHistoryQuery"
+      ]
+    },
+    {
+      "__class__": "TemplateInstance",
+      "name1": "qlist<LeaderboardHistoryQuery>",
+      "name2": "qlist<LeaderboardHistoryQuery>",
+      "u1": 0,
+      "u2": 0,
+      "templ_name": "qlist",
+      "parameters": [
+        "LeaderboardHistoryQuery"
+      ]
+    },
+    {
+      "__class__": "TemplateInstance",
+      "name1": "qlist<StatboardHistoryAggregatedQuery>",
+      "name2": "qlist<StatboardHistoryAggregatedQuery>",
+      "u1": 0,
+      "u2": 0,
+      "templ_name": "qlist",
+      "parameters": [
+        "StatboardHistoryAggregatedQuery"
+      ]
+    },
+    {
+      "__class__": "TemplateInstance",
+      "name1": "qlist<LeaderboardQuery2>",
+      "name2": "qlist<LeaderboardQuery2>",
+      "u1": 0,
+      "u2": 0,
+      "templ_name": "qlist",
+      "parameters": [
+        "LeaderboardQuery2"
+      ]
+    },
+    {
+      "__class__": "TemplateInstance",
+      "name1": "qlist<PopulationStatQuery>",
+      "name2": "qlist<PopulationStatQuery>",
+      "u1": 0,
+      "u2": 0,
+      "templ_name": "qlist",
+      "parameters": [
+        "PopulationStatQuery"
+      ]
+    },
+    {
+      "__class__": "TemplateInstance",
+      "name1": "qlist<PopulationStatResult>",
+      "name2": "qlist<PopulationStatResult>",
+      "u1": 0,
+      "u2": 0,
+      "templ_name": "qlist",
+      "parameters": [
+        "PopulationStatResult"
+      ]
+    },
+    {
+      "__class__": "ProtocolDeclaration",
+      "name1": "PlayerStatsProtocol",
+      "name2": "PlayerStatsProtocol",
+      "namespace": "PlayerStatsService",
+      "u1": 0,
+      "methods": [
+        {
+          "__class__": "Method",
+          "name1": "WriteStats",
+          "name2": "WriteStats",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "playerStatUpdates",
+              "name2": "playerStatUpdates",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<PlayerStatUpdate>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "PlayerStatUpdate"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<PlayerStatUpdate>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "PlayerStatUpdate"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "playerStatUpdates",
+              "name2": "playerStatUpdates",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<PlayerStatUpdate>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "PlayerStatUpdate"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<PlayerStatUpdate>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "PlayerStatUpdate"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "ReadStatsByPlayers",
+          "name2": "ReadStatsByPlayers",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "playerPIDs",
+              "name2": "playerPIDs",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<uint32>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<uint32>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "queries",
+              "name2": "queries",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<StatboardQuery>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "StatboardQuery"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<StatboardQuery>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "StatboardQuery"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "results",
+              "name2": "results",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<StatboardResult>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "StatboardResult"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<StatboardResult>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "StatboardResult"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "playerPIDs",
+              "name2": "playerPIDs",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<uint32>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<uint32>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "queries",
+              "name2": "queries",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<StatboardQuery>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "StatboardQuery"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<StatboardQuery>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "StatboardQuery"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "results",
+              "name2": "results",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<StatboardResult>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "StatboardResult"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<StatboardResult>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "StatboardResult"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "ReadLeaderboardsNearPlayer",
+          "name2": "ReadLeaderboardsNearPlayer",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "playerPID",
+              "name2": "playerPID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "count",
+              "name2": "count",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "queries",
+              "name2": "queries",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardQuery>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardQuery"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardQuery>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardQuery"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "results",
+              "name2": "results",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardResult>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardResult"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardResult>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardResult"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "playerPID",
+              "name2": "playerPID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "count",
+              "name2": "count",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "queries",
+              "name2": "queries",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardQuery>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardQuery"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardQuery>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardQuery"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "results",
+              "name2": "results",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardResult>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardResult"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardResult>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardResult"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "ReadLeaderboardsByRank",
+          "name2": "ReadLeaderboardsByRank",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "startingRank",
+              "name2": "startingRank",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "count",
+              "name2": "count",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "queries",
+              "name2": "queries",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardQuery>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardQuery"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardQuery>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardQuery"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "results",
+              "name2": "results",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardResult>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardResult"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardResult>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardResult"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "startingRank",
+              "name2": "startingRank",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "count",
+              "name2": "count",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "queries",
+              "name2": "queries",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardQuery>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardQuery"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardQuery>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardQuery"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "results",
+              "name2": "results",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardResult>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardResult"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardResult>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardResult"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "ReadLeaderboardsByPlayers",
+          "name2": "ReadLeaderboardsByPlayers",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "playerPIDs",
+              "name2": "playerPIDs",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<uint32>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<uint32>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "queries",
+              "name2": "queries",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardQuery>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardQuery"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardQuery>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardQuery"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "results",
+              "name2": "results",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardResult>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardResult"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardResult>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardResult"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "playerPIDs",
+              "name2": "playerPIDs",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<uint32>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<uint32>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "queries",
+              "name2": "queries",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardQuery>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardQuery"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardQuery>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardQuery"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "results",
+              "name2": "results",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardResult>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardResult"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardResult>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardResult"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "ReadStatboardHistory",
+          "name2": "ReadStatboardHistory",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "queries",
+              "name2": "queries",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<StatboardHistoryQuery>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "StatboardHistoryQuery"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<StatboardHistoryQuery>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "StatboardHistoryQuery"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "results",
+              "name2": "results",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<StatboardResult>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "StatboardResult"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<StatboardResult>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "StatboardResult"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "queries",
+              "name2": "queries",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<StatboardHistoryQuery>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "StatboardHistoryQuery"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<StatboardHistoryQuery>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "StatboardHistoryQuery"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "results",
+              "name2": "results",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<StatboardResult>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "StatboardResult"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<StatboardResult>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "StatboardResult"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "ReadLeaderboardHistory",
+          "name2": "ReadLeaderboardHistory",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "queries",
+              "name2": "queries",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardHistoryQuery>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardHistoryQuery"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardHistoryQuery>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardHistoryQuery"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "results",
+              "name2": "results",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardResult>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardResult"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardResult>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardResult"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "queries",
+              "name2": "queries",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardHistoryQuery>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardHistoryQuery"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardHistoryQuery>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardHistoryQuery"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "results",
+              "name2": "results",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardResult>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardResult"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardResult>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardResult"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "ReadStatboardHistoryAggregated",
+          "name2": "ReadStatboardHistoryAggregated",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "queries",
+              "name2": "queries",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<StatboardHistoryAggregatedQuery>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "StatboardHistoryAggregatedQuery"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<StatboardHistoryAggregatedQuery>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "StatboardHistoryAggregatedQuery"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "results",
+              "name2": "results",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<StatboardResult>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "StatboardResult"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<StatboardResult>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "StatboardResult"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "queries",
+              "name2": "queries",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<StatboardHistoryAggregatedQuery>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "StatboardHistoryAggregatedQuery"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<StatboardHistoryAggregatedQuery>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "StatboardHistoryAggregatedQuery"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "results",
+              "name2": "results",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<StatboardResult>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "StatboardResult"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<StatboardResult>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "StatboardResult"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "GetStatboardNextPurgeDate",
+          "name2": "GetStatboardNextPurgeDate",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "boardID",
+              "name2": "boardID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "resetFrequency",
+              "name2": "resetFrequency",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "purgeDate",
+              "name2": "purgeDate",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "datetime"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "datetime"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "boardID",
+              "name2": "boardID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "resetFrequency",
+              "name2": "resetFrequency",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "purgeDate",
+              "name2": "purgeDate",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "datetime"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "datetime"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "ReadLeaderboardsNearPlayer2",
+          "name2": "ReadLeaderboardsNearPlayer2",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "playerPID",
+              "name2": "playerPID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "count",
+              "name2": "count",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "queries",
+              "name2": "queries",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardQuery2>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardQuery2"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardQuery2>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardQuery2"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "results",
+              "name2": "results",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardResult>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardResult"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardResult>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardResult"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "playerPID",
+              "name2": "playerPID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "count",
+              "name2": "count",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "queries",
+              "name2": "queries",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardQuery2>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardQuery2"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardQuery2>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardQuery2"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "results",
+              "name2": "results",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardResult>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardResult"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardResult>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardResult"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "ReadLeaderboardsByRank2",
+          "name2": "ReadLeaderboardsByRank2",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "startingRank",
+              "name2": "startingRank",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "count",
+              "name2": "count",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "queries",
+              "name2": "queries",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardQuery2>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardQuery2"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardQuery2>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardQuery2"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "results",
+              "name2": "results",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardResult>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardResult"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardResult>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardResult"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "startingRank",
+              "name2": "startingRank",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "count",
+              "name2": "count",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "queries",
+              "name2": "queries",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardQuery2>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardQuery2"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardQuery2>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardQuery2"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "results",
+              "name2": "results",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardResult>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardResult"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardResult>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardResult"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "ReadLeaderboardsByPlayers2",
+          "name2": "ReadLeaderboardsByPlayers2",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "queries",
+              "name2": "queries",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardQuery2>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardQuery2"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardQuery2>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardQuery2"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "results",
+              "name2": "results",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardResult>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardResult"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardResult>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardResult"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "queries",
+              "name2": "queries",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardQuery2>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardQuery2"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardQuery2>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardQuery2"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "results",
+              "name2": "results",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardResult>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardResult"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<LeaderboardResult>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "LeaderboardResult"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "ReadPopulationStats",
+          "name2": "ReadPopulationStats",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "queries",
+              "name2": "queries",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<PopulationStatQuery>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "PopulationStatQuery"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<PopulationStatQuery>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "PopulationStatQuery"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "results",
+              "name2": "results",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<PopulationStatResult>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "PopulationStatResult"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<PopulationStatResult>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "PopulationStatResult"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "queries",
+              "name2": "queries",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<PopulationStatQuery>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "PopulationStatQuery"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<PopulationStatQuery>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "PopulationStatQuery"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "results",
+              "name2": "results",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<PopulationStatResult>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "PopulationStatResult"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<PopulationStatResult>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "PopulationStatResult"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ]
+        }
+      ],
+      "_id": null
+    }
+  ]
+}

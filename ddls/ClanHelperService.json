@@ -1,0 +1,975 @@
+{
+  "__class__": "Namespace",
+  "elements": [
+    {
+      "__class__": "DDLUnitDeclaration",
+      "name1": "ClanHelperService",
+      "name2": "ClanHelperService",
+      "name3": "ClanHelperService",
+      "elements": {
+        "__class__": "Namespace",
+        "elements": []
+      },
+      "name4": "ClanHelperService",
+      "location": ""
+    },
+    {
+      "__class__": "TemplateInstance",
+      "name1": "qlist<uint32>",
+      "name2": "qlist<uint32>",
+      "u1": 0,
+      "u2": 0,
+      "templ_name": "qlist",
+      "parameters": [
+        "uint32"
+      ]
+    },
+    {
+      "__class__": "TemplateInstance",
+      "name1": "qlist<FriendChallenge>",
+      "name2": "qlist<FriendChallenge>",
+      "u1": 0,
+      "u2": 0,
+      "templ_name": "qlist",
+      "parameters": [
+        "FriendChallenge"
+      ]
+    },
+    {
+      "__class__": "TemplateInstance",
+      "name1": "qlist<OnlineChallenge>",
+      "name2": "qlist<OnlineChallenge>",
+      "u1": 0,
+      "u2": 0,
+      "templ_name": "qlist",
+      "parameters": [
+        "OnlineChallenge"
+      ]
+    },
+    {
+      "__class__": "ClassDeclaration",
+      "name1": "ClanInfo",
+      "name2": "ClanInfo",
+      "namespace": "ClanHelperService",
+      "properties": [
+        {
+          "__class__": "PropertyDeclaration",
+          "name1": "concrete",
+          "name2": "concrete",
+          "name3": "OnlineCore",
+          "u1": 0,
+          "u2": 1,
+          "u3": 5
+        }
+      ],
+      "maybe_base": "",
+      "variables": [
+        {
+          "__class__": "Variable",
+          "name1": "m_CLID",
+          "name2": "m_CLID",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_Tag",
+          "name2": "m_Tag",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "string"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_Title",
+          "name2": "m_Title",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "string"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_Motto",
+          "name2": "m_Motto",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "string"
+            },
+            "unknown": 1
+          }
+        }
+      ]
+    },
+    {
+      "__class__": "ProtocolDeclaration",
+      "name1": "ClanHelperProtocol",
+      "name2": "ClanHelperProtocol",
+      "namespace": "ClanHelperService",
+      "u1": 0,
+      "methods": [
+        {
+          "__class__": "Method",
+          "name1": "SetClanInfo",
+          "name2": "SetClanInfo",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "newInfo",
+              "name2": "newInfo",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "ClanInfo"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "ClanInfo"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "newInfo",
+              "name2": "newInfo",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "ClanInfo"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "ClanInfo"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "AddPIDToCLID",
+          "name2": "AddPIDToCLID",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "targetPID",
+              "name2": "targetPID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "CLID",
+              "name2": "CLID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "targetPID",
+              "name2": "targetPID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "CLID",
+              "name2": "CLID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "RemoveMemberByPID",
+          "name2": "RemoveMemberByPID",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "targetPID",
+              "name2": "targetPID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "targetPID",
+              "name2": "targetPID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "DisbandEntireCLID",
+          "name2": "DisbandEntireCLID",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "targetCLID",
+              "name2": "targetCLID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "targetCLID",
+              "name2": "targetCLID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "GetClanInfoByPID",
+          "name2": "GetClanInfoByPID",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "targetPID",
+              "name2": "targetPID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "clanInfo",
+              "name2": "clanInfo",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "ClanInfo"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "ClanInfo"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "targetPID",
+              "name2": "targetPID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "clanInfo",
+              "name2": "clanInfo",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "ClanInfo"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "ClanInfo"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "GetClanInfoByCLID",
+          "name2": "GetClanInfoByCLID",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "targetCLID",
+              "name2": "targetCLID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "clanInfo",
+              "name2": "clanInfo",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "ClanInfo"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "ClanInfo"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "targetCLID",
+              "name2": "targetCLID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "clanInfo",
+              "name2": "clanInfo",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "ClanInfo"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "ClanInfo"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "GetMemberListByPID",
+          "name2": "GetMemberListByPID",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "targetPID",
+              "name2": "targetPID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "members",
+              "name2": "members",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<uint32>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<uint32>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "targetPID",
+              "name2": "targetPID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "members",
+              "name2": "members",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<uint32>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<uint32>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "GetMemberListByCLID",
+          "name2": "GetMemberListByCLID",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "targetCLID",
+              "name2": "targetCLID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "members",
+              "name2": "members",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<uint32>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<uint32>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "targetCLID",
+              "name2": "targetCLID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "members",
+              "name2": "members",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<uint32>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<uint32>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "GenerateClanChallenges",
+          "name2": "GenerateClanChallenges",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "targetPID",
+              "name2": "targetPID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "result",
+              "name2": "result",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<FriendChallenge>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "FriendChallenge"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<FriendChallenge>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "FriendChallenge"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "targetPID",
+              "name2": "targetPID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "result",
+              "name2": "result",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<FriendChallenge>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "FriendChallenge"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<FriendChallenge>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "FriendChallenge"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ]
+        }
+      ],
+      "_id": null
+    }
+  ]
+}

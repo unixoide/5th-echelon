@@ -1,0 +1,1020 @@
+{
+  "__class__": "Namespace",
+  "elements": [
+    {
+      "__class__": "DDLUnitDeclaration",
+      "name1": "PrivilegesService",
+      "name2": "PrivilegesService",
+      "name3": "PrivilegesService",
+      "elements": {
+        "__class__": "Namespace",
+        "elements": []
+      },
+      "name4": "PrivilegesService",
+      "location": ""
+    },
+    {
+      "__class__": "ClassDeclaration",
+      "name1": "Privilege",
+      "name2": "Privilege",
+      "namespace": "PrivilegesService",
+      "properties": [
+        {
+          "__class__": "PropertyDeclaration",
+          "name1": "exportable",
+          "name2": "exportable",
+          "name3": "OnlineCore",
+          "u1": 0,
+          "u2": 1,
+          "u3": 4
+        }
+      ],
+      "maybe_base": "",
+      "variables": [
+        {
+          "__class__": "Variable",
+          "name1": "m_ID",
+          "name2": "m_ID",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_description",
+          "name2": "m_description",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "string"
+            },
+            "unknown": 1
+          }
+        }
+      ]
+    },
+    {
+      "__class__": "ClassDeclaration",
+      "name1": "PrivilegeEx",
+      "name2": "PrivilegeEx",
+      "namespace": "PrivilegesService",
+      "properties": [],
+      "maybe_base": "",
+      "variables": [
+        {
+          "__class__": "Variable",
+          "name1": "m_ID",
+          "name2": "m_ID",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_description",
+          "name2": "m_description",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "string"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_duration",
+          "name2": "m_duration",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "int32"
+            },
+            "unknown": 1
+          }
+        }
+      ]
+    },
+    {
+      "__class__": "TemplateInstance",
+      "name1": "qlist<Privilege>",
+      "name2": "qlist<Privilege>",
+      "u1": 0,
+      "u2": 0,
+      "templ_name": "qlist",
+      "parameters": [
+        "Privilege"
+      ]
+    },
+    {
+      "__class__": "ClassDeclaration",
+      "name1": "PrivilegeGroup",
+      "name2": "PrivilegeGroup",
+      "namespace": "PrivilegesService",
+      "properties": [],
+      "maybe_base": "",
+      "variables": [
+        {
+          "__class__": "Variable",
+          "name1": "m_description",
+          "name2": "m_description",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "string"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_privileges",
+          "name2": "m_privileges",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "TemplateType",
+              "name": "qlist<Privilege>",
+              "templ_name": "qlist",
+              "parameters": [
+                {
+                  "__class__": "SimpleType",
+                  "name": "Privilege"
+                }
+              ]
+            },
+            "unknown": 1
+          }
+        }
+      ]
+    },
+    {
+      "__class__": "TemplateInstance",
+      "name1": "std_map<uint32,Privilege>",
+      "name2": "std_map<uint32,Privilege>",
+      "u1": 0,
+      "u2": 0,
+      "templ_name": "std_map",
+      "parameters": [
+        "uint32",
+        "Privilege"
+      ]
+    },
+    {
+      "__class__": "TemplateInstance",
+      "name1": "qlist<uint32>",
+      "name2": "qlist<uint32>",
+      "u1": 0,
+      "u2": 0,
+      "templ_name": "qlist",
+      "parameters": [
+        "uint32"
+      ]
+    },
+    {
+      "__class__": "TemplateInstance",
+      "name1": "qlist<PrivilegeEx>",
+      "name2": "qlist<PrivilegeEx>",
+      "u1": 0,
+      "u2": 0,
+      "templ_name": "qlist",
+      "parameters": [
+        "PrivilegeEx"
+      ]
+    },
+    {
+      "__class__": "ProtocolDeclaration",
+      "name1": "PrivilegesProtocol",
+      "name2": "PrivilegesProtocol",
+      "namespace": "PrivilegesService",
+      "u1": 0,
+      "methods": [
+        {
+          "__class__": "Method",
+          "name1": "GetPrivileges",
+          "name2": "GetPrivileges",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "localeCode",
+              "name2": "localeCode",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "privileges",
+              "name2": "privileges",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_map<uint32,Privilege>",
+                  "templ_name": "std_map",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    },
+                    {
+                      "__class__": "SimpleType",
+                      "name": "Privilege"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_map<uint32,Privilege>",
+                  "templ_name": "std_map",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    },
+                    {
+                      "__class__": "SimpleType",
+                      "name": "Privilege"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "localeCode",
+              "name2": "localeCode",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "privileges",
+              "name2": "privileges",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_map<uint32,Privilege>",
+                  "templ_name": "std_map",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    },
+                    {
+                      "__class__": "SimpleType",
+                      "name": "Privilege"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_map<uint32,Privilege>",
+                  "templ_name": "std_map",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    },
+                    {
+                      "__class__": "SimpleType",
+                      "name": "Privilege"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "ActivateKey",
+          "name2": "ActivateKey",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "uniqueKey",
+              "name2": "uniqueKey",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "languageCode",
+              "name2": "languageCode",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "privilege",
+              "name2": "privilege",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "PrivilegeGroup"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "PrivilegeGroup"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "uniqueKey",
+              "name2": "uniqueKey",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "languageCode",
+              "name2": "languageCode",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "privilege",
+              "name2": "privilege",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "PrivilegeGroup"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "PrivilegeGroup"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "ActivateKeyWithExpectedPrivileges",
+          "name2": "ActivateKeyWithExpectedPrivileges",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "uniqueKey",
+              "name2": "uniqueKey",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "languageCode",
+              "name2": "languageCode",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "expectedPrivilegeIDs",
+              "name2": "expectedPrivilegeIDs",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<uint32>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<uint32>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "privilege",
+              "name2": "privilege",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "PrivilegeGroup"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "PrivilegeGroup"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "uniqueKey",
+              "name2": "uniqueKey",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "languageCode",
+              "name2": "languageCode",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "expectedPrivilegeIDs",
+              "name2": "expectedPrivilegeIDs",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<uint32>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<uint32>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "privilege",
+              "name2": "privilege",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "PrivilegeGroup"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "PrivilegeGroup"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "GetPrivilegeRemainDuration",
+          "name2": "GetPrivilegeRemainDuration",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "privilegeID",
+              "name2": "privilegeID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "seconds",
+              "name2": "seconds",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "int32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "int32"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "privilegeID",
+              "name2": "privilegeID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "seconds",
+              "name2": "seconds",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "int32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "int32"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "GetExpiredPrivileges",
+          "name2": "GetExpiredPrivileges",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "expiredPrivileges",
+              "name2": "expiredPrivileges",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<PrivilegeEx>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "PrivilegeEx"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<PrivilegeEx>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "PrivilegeEx"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "expiredPrivileges",
+              "name2": "expiredPrivileges",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<PrivilegeEx>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "PrivilegeEx"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<PrivilegeEx>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "PrivilegeEx"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "GetPrivilegesEx",
+          "name2": "GetPrivilegesEx",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "localeCode",
+              "name2": "localeCode",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "privilegesEx",
+              "name2": "privilegesEx",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<PrivilegeEx>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "PrivilegeEx"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<PrivilegeEx>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "PrivilegeEx"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "localeCode",
+              "name2": "localeCode",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "privilegesEx",
+              "name2": "privilegesEx",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<PrivilegeEx>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "PrivilegeEx"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<PrivilegeEx>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "PrivilegeEx"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ]
+        }
+      ],
+      "_id": null
+    }
+  ]
+}

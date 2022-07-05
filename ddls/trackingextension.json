@@ -1,0 +1,264 @@
+{
+  "__class__": "Namespace",
+  "elements": [
+    {
+      "__class__": "DDLUnitDeclaration",
+      "name1": "trackingextension",
+      "name2": "trackingextension",
+      "name3": "trackingextension",
+      "elements": {
+        "__class__": "Namespace",
+        "elements": []
+      },
+      "name4": "trackingextension",
+      "location": ""
+    },
+    {
+      "__class__": "TemplateInstance",
+      "name1": "qvector<string>",
+      "name2": "qvector<string>",
+      "u1": 0,
+      "u2": 0,
+      "templ_name": "qvector",
+      "parameters": [
+        "string"
+      ]
+    },
+    {
+      "__class__": "ProtocolDeclaration",
+      "name1": "TrackingExtensionProtocol",
+      "name2": "TrackingExtensionProtocol",
+      "namespace": "trackingextension",
+      "u1": 0,
+      "methods": [
+        {
+          "__class__": "Method",
+          "name1": "GetTrackingUserGroup",
+          "name2": "GetTrackingUserGroup",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "pid",
+              "name2": "pid",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "usergroup",
+              "name2": "usergroup",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "pid",
+              "name2": "pid",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "usergroup",
+              "name2": "usergroup",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "GetTrackingUserGroupTags",
+          "name2": "GetTrackingUserGroupTags",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "usergroup",
+              "name2": "usergroup",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "tags",
+              "name2": "tags",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qvector<string>",
+                  "templ_name": "qvector",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qvector<string>",
+                  "templ_name": "qvector",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "usergroup",
+              "name2": "usergroup",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "tags",
+              "name2": "tags",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qvector<string>",
+                  "templ_name": "qvector",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qvector<string>",
+                  "templ_name": "qvector",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ]
+        }
+      ],
+      "_id": null
+    }
+  ]
+}

@@ -1,0 +1,406 @@
+{
+  "__class__": "Namespace",
+  "elements": [
+    {
+      "__class__": "DDLUnitDeclaration",
+      "name1": "HealthService",
+      "name2": "HealthService",
+      "name3": "HealthService",
+      "elements": {
+        "__class__": "Namespace",
+        "elements": []
+      },
+      "name4": "HealthService",
+      "location": ""
+    },
+    {
+      "__class__": "ProtocolDeclaration",
+      "name1": "HealthProtocol",
+      "name2": "HealthProtocol",
+      "namespace": "HealthService",
+      "u1": 0,
+      "methods": [
+        {
+          "__class__": "Method",
+          "name1": "PingDaemon",
+          "name2": "PingDaemon",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "ReturnValue",
+              "name1": "%retval%",
+              "name2": "%retval%",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "bool"
+                },
+                "unknown": 0
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "bool"
+                },
+                "unknown": 0
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "ReturnValue",
+              "name1": "%retval%",
+              "name2": "%retval%",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "bool"
+                },
+                "unknown": 0
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "bool"
+                },
+                "unknown": 0
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "PingDatabase",
+          "name2": "PingDatabase",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "ReturnValue",
+              "name1": "%retval%",
+              "name2": "%retval%",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "bool"
+                },
+                "unknown": 0
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "bool"
+                },
+                "unknown": 0
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "ReturnValue",
+              "name1": "%retval%",
+              "name2": "%retval%",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "bool"
+                },
+                "unknown": 0
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "bool"
+                },
+                "unknown": 0
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "RunSanityCheck",
+          "name2": "RunSanityCheck",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "ReturnValue",
+              "name1": "%retval%",
+              "name2": "%retval%",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "bool"
+                },
+                "unknown": 0
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "bool"
+                },
+                "unknown": 0
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "ReturnValue",
+              "name1": "%retval%",
+              "name2": "%retval%",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "bool"
+                },
+                "unknown": 0
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "bool"
+                },
+                "unknown": 0
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "FixSanityErrors",
+          "name2": "FixSanityErrors",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "ReturnValue",
+              "name1": "%retval%",
+              "name2": "%retval%",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "bool"
+                },
+                "unknown": 0
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "bool"
+                },
+                "unknown": 0
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "ReturnValue",
+              "name1": "%retval%",
+              "name2": "%retval%",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "bool"
+                },
+                "unknown": 0
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "bool"
+                },
+                "unknown": 0
+              },
+              "type": 2
+            }
+          ]
+        }
+      ],
+      "_id": 18
+    },
+    {
+      "__class__": "TemplateInstance",
+      "name1": "std_list<string>",
+      "name2": "std_list<string>",
+      "u1": 0,
+      "u2": 0,
+      "templ_name": "std_list",
+      "parameters": [
+        "string"
+      ]
+    },
+    {
+      "__class__": "ProtocolDeclaration",
+      "name1": "MonitoringProtocol",
+      "name2": "MonitoringProtocol",
+      "namespace": "HealthService",
+      "u1": 0,
+      "methods": [
+        {
+          "__class__": "Method",
+          "name1": "PingDaemon",
+          "name2": "PingDaemon",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "ReturnValue",
+              "name1": "%retval%",
+              "name2": "%retval%",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "bool"
+                },
+                "unknown": 0
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "bool"
+                },
+                "unknown": 0
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "ReturnValue",
+              "name1": "%retval%",
+              "name2": "%retval%",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "bool"
+                },
+                "unknown": 0
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "bool"
+                },
+                "unknown": 0
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "GetClusterMembers",
+          "name2": "GetClusterMembers",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "strValues",
+              "name2": "strValues",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_list<string>",
+                  "templ_name": "std_list",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_list<string>",
+                  "templ_name": "std_list",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "strValues",
+              "name2": "strValues",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_list<string>",
+                  "templ_name": "std_list",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_list<string>",
+                  "templ_name": "std_list",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ]
+        }
+      ],
+      "_id": 19
+    }
+  ]
+}

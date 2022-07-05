@@ -1,0 +1,2849 @@
+{
+  "__class__": "Namespace",
+  "elements": [
+    {
+      "__class__": "DDLUnitDeclaration",
+      "name1": "UserStorageAdmin",
+      "name2": "UserStorageAdmin",
+      "name3": "UserStorageAdmin",
+      "elements": {
+        "__class__": "Namespace",
+        "elements": []
+      },
+      "name4": "UserStorageAdmin",
+      "location": ""
+    },
+    {
+      "__class__": "TemplateInstance",
+      "name1": "qlist<ContentProperty>",
+      "name2": "qlist<ContentProperty>",
+      "u1": 0,
+      "u2": 0,
+      "templ_name": "qlist",
+      "parameters": [
+        "ContentProperty"
+      ]
+    },
+    {
+      "__class__": "TemplateInstance",
+      "name1": "qlist<UserContent>",
+      "name2": "qlist<UserContent>",
+      "u1": 0,
+      "u2": 0,
+      "templ_name": "qlist",
+      "parameters": [
+        "UserContent"
+      ]
+    },
+    {
+      "__class__": "TemplateInstance",
+      "name1": "qvector<string>",
+      "name2": "qvector<string>",
+      "u1": 0,
+      "u2": 0,
+      "templ_name": "qvector",
+      "parameters": [
+        "string"
+      ]
+    },
+    {
+      "__class__": "TemplateInstance",
+      "name1": "qlist<uint32>",
+      "name2": "qlist<uint32>",
+      "u1": 0,
+      "u2": 0,
+      "templ_name": "qlist",
+      "parameters": [
+        "uint32"
+      ]
+    },
+    {
+      "__class__": "TemplateInstance",
+      "name1": "qlist<WeightedTag>",
+      "name2": "qlist<WeightedTag>",
+      "u1": 0,
+      "u2": 0,
+      "templ_name": "qlist",
+      "parameters": [
+        "WeightedTag"
+      ]
+    },
+    {
+      "__class__": "ClassDeclaration",
+      "name1": "AdminContent",
+      "name2": "AdminContent",
+      "namespace": "UserStorageAdmin",
+      "properties": [
+        {
+          "__class__": "PropertyDeclaration",
+          "name1": "concrete",
+          "name2": "concrete",
+          "name3": "OnlineCore",
+          "u1": 0,
+          "u2": 1,
+          "u3": 5
+        }
+      ],
+      "maybe_base": "UserContent",
+      "variables": [
+        {
+          "__class__": "Variable",
+          "name1": "m_tags",
+          "name2": "m_tags",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "TemplateType",
+              "name": "qlist<WeightedTag>",
+              "templ_name": "qlist",
+              "parameters": [
+                {
+                  "__class__": "SimpleType",
+                  "name": "WeightedTag"
+                }
+              ]
+            },
+            "unknown": 1
+          }
+        }
+      ]
+    },
+    {
+      "__class__": "ClassDeclaration",
+      "name1": "BannedUser",
+      "name2": "BannedUser",
+      "namespace": "UserStorageAdmin",
+      "properties": [
+        {
+          "__class__": "PropertyDeclaration",
+          "name1": "concrete",
+          "name2": "concrete",
+          "name3": "OnlineCore",
+          "u1": 0,
+          "u2": 1,
+          "u3": 5
+        }
+      ],
+      "maybe_base": "",
+      "variables": [
+        {
+          "__class__": "Variable",
+          "name1": "m_pid",
+          "name2": "m_pid",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_reason",
+          "name2": "m_reason",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "string"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_dateBanned",
+          "name2": "m_dateBanned",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "datetime"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_expiration",
+          "name2": "m_expiration",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "datetime"
+            },
+            "unknown": 1
+          }
+        }
+      ]
+    },
+    {
+      "__class__": "TemplateInstance",
+      "name1": "qlist<AdminContent>",
+      "name2": "qlist<AdminContent>",
+      "u1": 0,
+      "u2": 0,
+      "templ_name": "qlist",
+      "parameters": [
+        "AdminContent"
+      ]
+    },
+    {
+      "__class__": "TemplateInstance",
+      "name1": "qlist<BannedUser>",
+      "name2": "qlist<BannedUser>",
+      "u1": 0,
+      "u2": 0,
+      "templ_name": "qlist",
+      "parameters": [
+        "BannedUser"
+      ]
+    },
+    {
+      "__class__": "ProtocolDeclaration",
+      "name1": "UserStorageAdminProtocol",
+      "name2": "UserStorageAdminProtocol",
+      "namespace": "UserStorageAdmin",
+      "u1": 0,
+      "methods": [
+        {
+          "__class__": "Method",
+          "name1": "GetContentsToModerate",
+          "name2": "GetContentsToModerate",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "typeID",
+              "name2": "typeID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "offset",
+              "name2": "offset",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "size",
+              "name2": "size",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "contents",
+              "name2": "contents",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<UserContent>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "UserContent"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<UserContent>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "UserContent"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "totalResults",
+              "name2": "totalResults",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "typeID",
+              "name2": "typeID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "offset",
+              "name2": "offset",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "size",
+              "name2": "size",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "contents",
+              "name2": "contents",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<UserContent>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "UserContent"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<UserContent>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "UserContent"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "totalResults",
+              "name2": "totalResults",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "FlagContentAsVerified",
+          "name2": "FlagContentAsVerified",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "contentKey",
+              "name2": "contentKey",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "UserContentKey"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "UserContentKey"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "contentKey",
+              "name2": "contentKey",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "UserContentKey"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "UserContentKey"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "BanContent",
+          "name2": "BanContent",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "contentKey",
+              "name2": "contentKey",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "UserContentKey"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "UserContentKey"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "contentKey",
+              "name2": "contentKey",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "UserContentKey"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "UserContentKey"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "BanUser",
+          "name2": "BanUser",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "pid",
+              "name2": "pid",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "reason",
+              "name2": "reason",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "banContents",
+              "name2": "banContents",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "bool"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "bool"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "expireDate",
+              "name2": "expireDate",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "datetime"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "datetime"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "pid",
+              "name2": "pid",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "reason",
+              "name2": "reason",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "banContents",
+              "name2": "banContents",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "bool"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "bool"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "expireDate",
+              "name2": "expireDate",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "datetime"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "datetime"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "BanUserFromContentType",
+          "name2": "BanUserFromContentType",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "typeID",
+              "name2": "typeID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "pid",
+              "name2": "pid",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "reason",
+              "name2": "reason",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "banContents",
+              "name2": "banContents",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "bool"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "bool"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "expireDate",
+              "name2": "expireDate",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "datetime"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "datetime"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "typeID",
+              "name2": "typeID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "pid",
+              "name2": "pid",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "reason",
+              "name2": "reason",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "banContents",
+              "name2": "banContents",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "bool"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "bool"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "expireDate",
+              "name2": "expireDate",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "datetime"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "datetime"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "UnbanUser",
+          "name2": "UnbanUser",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "pid",
+              "name2": "pid",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "pid",
+              "name2": "pid",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "UnbanUserFromContentType",
+          "name2": "UnbanUserFromContentType",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "typeID",
+              "name2": "typeID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "pid",
+              "name2": "pid",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "typeID",
+              "name2": "typeID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "pid",
+              "name2": "pid",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "GetContentsToModerateWithThreshold",
+          "name2": "GetContentsToModerateWithThreshold",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "typeID",
+              "name2": "typeID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "threshold",
+              "name2": "threshold",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "offset",
+              "name2": "offset",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "size",
+              "name2": "size",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "contents",
+              "name2": "contents",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<UserContent>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "UserContent"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<UserContent>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "UserContent"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "totalResults",
+              "name2": "totalResults",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "typeID",
+              "name2": "typeID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "threshold",
+              "name2": "threshold",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "offset",
+              "name2": "offset",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "size",
+              "name2": "size",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "contents",
+              "name2": "contents",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<UserContent>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "UserContent"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<UserContent>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "UserContent"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "totalResults",
+              "name2": "totalResults",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "UpdateMetaData",
+          "name2": "UpdateMetaData",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "contentKey",
+              "name2": "contentKey",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "UserContentKey"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "UserContentKey"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "properties",
+              "name2": "properties",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<ContentProperty>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "ContentProperty"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<ContentProperty>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "ContentProperty"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "contentKey",
+              "name2": "contentKey",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "UserContentKey"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "UserContentKey"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "properties",
+              "name2": "properties",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<ContentProperty>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "ContentProperty"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<ContentProperty>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "ContentProperty"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "UpdateContentDB",
+          "name2": "UpdateContentDB",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "contentKey",
+              "name2": "contentKey",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "UserContentKey"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "UserContentKey"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "properties",
+              "name2": "properties",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<ContentProperty>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "ContentProperty"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<ContentProperty>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "ContentProperty"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "data",
+              "name2": "data",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "contentKey",
+              "name2": "contentKey",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "UserContentKey"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "UserContentKey"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "properties",
+              "name2": "properties",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<ContentProperty>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "ContentProperty"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<ContentProperty>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "ContentProperty"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "data",
+              "name2": "data",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "UpdateContentAndGetUploadInfo",
+          "name2": "UpdateContentAndGetUploadInfo",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "contentKey",
+              "name2": "contentKey",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "UserContentKey"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "UserContentKey"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "properties",
+              "name2": "properties",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<ContentProperty>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "ContentProperty"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<ContentProperty>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "ContentProperty"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "size",
+              "name2": "size",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "uploadInfo",
+              "name2": "uploadInfo",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "UserContentURL"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "UserContentURL"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "pendingID",
+              "name2": "pendingID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint64"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint64"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "headers",
+              "name2": "headers",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qvector<string>",
+                  "templ_name": "qvector",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qvector<string>",
+                  "templ_name": "qvector",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "contentKey",
+              "name2": "contentKey",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "UserContentKey"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "UserContentKey"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "properties",
+              "name2": "properties",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<ContentProperty>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "ContentProperty"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<ContentProperty>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "ContentProperty"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "size",
+              "name2": "size",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "uploadInfo",
+              "name2": "uploadInfo",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "UserContentURL"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "UserContentURL"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "pendingID",
+              "name2": "pendingID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint64"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint64"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "headers",
+              "name2": "headers",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qvector<string>",
+                  "templ_name": "qvector",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qvector<string>",
+                  "templ_name": "qvector",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "DeleteContent",
+          "name2": "DeleteContent",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "contentKey",
+              "name2": "contentKey",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "UserContentKey"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "UserContentKey"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "contentKey",
+              "name2": "contentKey",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "UserContentKey"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "UserContentKey"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "BrowseContents",
+          "name2": "BrowseContents",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "typeID",
+              "name2": "typeID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "offset",
+              "name2": "offset",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "size",
+              "name2": "size",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "contents",
+              "name2": "contents",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<AdminContent>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "AdminContent"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<AdminContent>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "AdminContent"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "totalResults",
+              "name2": "totalResults",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "typeID",
+              "name2": "typeID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "offset",
+              "name2": "offset",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "size",
+              "name2": "size",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "contents",
+              "name2": "contents",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<AdminContent>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "AdminContent"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<AdminContent>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "AdminContent"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "totalResults",
+              "name2": "totalResults",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "IsUserbanned",
+          "name2": "IsUserbanned",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "typeID",
+              "name2": "typeID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "pid",
+              "name2": "pid",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "banned",
+              "name2": "banned",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "bool"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "bool"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "reason",
+              "name2": "reason",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "typeID",
+              "name2": "typeID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "pid",
+              "name2": "pid",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "banned",
+              "name2": "banned",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "bool"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "bool"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "reason",
+              "name2": "reason",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "GetBannedUsers",
+          "name2": "GetBannedUsers",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "typeID",
+              "name2": "typeID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "offset",
+              "name2": "offset",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "size",
+              "name2": "size",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "bannedUsers",
+              "name2": "bannedUsers",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<BannedUser>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "BannedUser"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<BannedUser>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "BannedUser"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "totalBannedUsers",
+              "name2": "totalBannedUsers",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "typeID",
+              "name2": "typeID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "offset",
+              "name2": "offset",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "size",
+              "name2": "size",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "bannedUsers",
+              "name2": "bannedUsers",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<BannedUser>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "BannedUser"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<BannedUser>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "BannedUser"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "totalBannedUsers",
+              "name2": "totalBannedUsers",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ]
+        }
+      ],
+      "_id": null
+    }
+  ]
+}

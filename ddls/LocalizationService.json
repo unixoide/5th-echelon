@@ -1,0 +1,137 @@
+{
+  "__class__": "Namespace",
+  "elements": [
+    {
+      "__class__": "DDLUnitDeclaration",
+      "name1": "LocalizationService",
+      "name2": "LocalizationService",
+      "name3": "LocalizationService",
+      "elements": {
+        "__class__": "Namespace",
+        "elements": []
+      },
+      "name4": "LocalizationService",
+      "location": ""
+    },
+    {
+      "__class__": "ProtocolDeclaration",
+      "name1": "LocalizationProtocol",
+      "name2": "LocalizationProtocol",
+      "namespace": "LocalizationService",
+      "u1": 0,
+      "methods": [
+        {
+          "__class__": "Method",
+          "name1": "GetLocaleCode",
+          "name2": "GetLocaleCode",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "localCode",
+              "name2": "localCode",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "localCode",
+              "name2": "localCode",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "SetLocaleCode",
+          "name2": "SetLocaleCode",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "localCode",
+              "name2": "localCode",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "localCode",
+              "name2": "localCode",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            }
+          ]
+        }
+      ],
+      "_id": null
+    }
+  ]
+}

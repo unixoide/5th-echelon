@@ -1,0 +1,144 @@
+{
+  "__class__": "Namespace",
+  "elements": [
+    {
+      "__class__": "DDLUnitDeclaration",
+      "name1": "WebNotificationsStorageService",
+      "name2": "WebNotificationsStorageService",
+      "name3": "WebNotificationsStorageService",
+      "elements": {
+        "__class__": "Namespace",
+        "elements": []
+      },
+      "name4": "WebNotificationsStorageService",
+      "location": ""
+    },
+    {
+      "__class__": "ProtocolDeclaration",
+      "name1": "WebNotificationsStorageProtocol",
+      "name2": "WebNotificationsStorageProtocol",
+      "namespace": "WebNotificationsStorageService",
+      "u1": 0,
+      "methods": [
+        {
+          "__class__": "Method",
+          "name1": "RegisterUser",
+          "name2": "RegisterUser",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [],
+          "elements2": []
+        },
+        {
+          "__class__": "Method",
+          "name1": "PollNotifications",
+          "name2": "PollNotifications",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "listNotifications",
+              "name2": "listNotifications",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "nbNotifications",
+              "name2": "nbNotifications",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "int32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "int32"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "listNotifications",
+              "name2": "listNotifications",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "nbNotifications",
+              "name2": "nbNotifications",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "int32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "int32"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "UnregisterUser",
+          "name2": "UnregisterUser",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [],
+          "elements2": []
+        }
+      ],
+      "_id": null
+    }
+  ]
+}

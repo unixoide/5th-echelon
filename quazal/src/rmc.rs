@@ -1,0 +1,368 @@
+use crate::prudp::packet;
+use crate::prudp::packet::StreamHandler;
+use crate::ClientInfo;
+use crate::Context;
+use byteorder::{LittleEndian, ReadBytesExt};
+use derive_more::{Display, Error as DeriveError, From};
+use slog::Logger;
+use std::collections::HashMap;
+use std::io::{Cursor, Read};
+
+pub mod basic;
+pub mod result;
+pub mod types;
+// pub mod protocols;
+
+#[derive(Debug, Display, DeriveError, From)]
+pub enum Error {
+    #[display(fmt = "Not enough data. Expected {} bytes, got {}", _0, _1)]
+    MissingData(#[error(not(source))] usize, #[error(not(source))] usize),
+
+    ParsingError,
+    UnknownProtocol,
+    UnknownMethod,
+    UnimplementedMethod,
+    InvalidPacketType,
+
+    IO(#[error(source)] std::io::Error),
+}
+
+type Result<T> = std::result::Result<T, Error>;
+
+#[derive(Debug)]
+pub struct Request {
+    pub protocol_id: u16,
+    pub call_id: u32,
+    pub method_id: u32,
+    pub parameters: Vec<u8>,
+}
+
+impl Request {
+    pub fn from_bytes(data: &[u8]) -> Result<Self> {
+        let mut rdr = Cursor::new(data);
+        let size = rdr.read_u32::<LittleEndian>()?;
+        if (size as usize) < data.len() - 4 {
+            return Err(Error::MissingData(size as usize, data.len() - 4));
+        }
+        let protocol_id = rdr.read_u8()?;
+        let protocol_id = if protocol_id == 0xff {
+            rdr.read_u16::<LittleEndian>()?
+        } else {
+            (protocol_id & !0x80) as u16
+        };
+        let call_id = rdr.read_u32::<LittleEndian>()?;
+        let method_id = rdr.read_u32::<LittleEndian>()?;
+        let mut parameters = vec![];
+        rdr.read_to_end(&mut parameters)?;
+        Ok(Self {
+            protocol_id,
+            call_id,
+            method_id,
+            parameters,
+        })
+    }
+}
+
+#[derive(Debug)]
+pub struct ResponseData {
+    pub call_id: u32,
+    pub method_id: u32,
+    pub data: Vec<u8>,
+}
+
+impl ResponseData {
+    pub fn from_reader<R: Read>(rdr: &mut R) -> Result<Self> {
+        let call_id = rdr.read_u32::<LittleEndian>()?;
+        let method_id = rdr.read_u32::<LittleEndian>()? & !0x8000;
+
+        let mut data = Vec::new();
+        rdr.read_to_end(&mut data)?;
+
+        Ok(Self {
+            call_id,
+            method_id,
+            data,
+        })
+    }
+
+    pub fn to_bytes(&self) -> Vec<u8> {
+        let mut data = vec![];
+        data.extend_from_slice(&self.call_id.to_le_bytes());
+        data.extend_from_slice(&(self.method_id | 0x8000).to_le_bytes());
+        data.extend_from_slice(&self.data);
+        data
+    }
+}
+
+#[derive(Debug)]
+pub struct ResponseError {
+    pub error_code: u32,
+    pub call_id: u32,
+}
+
+impl ResponseError {
+    pub fn from_reader<R: Read>(rdr: &mut R) -> Result<Self> {
+        let error_code = rdr.read_u32::<LittleEndian>()?;
+        let call_id = rdr.read_u32::<LittleEndian>()?;
+        Ok(Self {
+            error_code,
+            call_id,
+        })
+    }
+
+    pub fn to_bytes(&self) -> Vec<u8> {
+        let mut data = vec![];
+        data.extend_from_slice(&self.error_code.to_le_bytes());
+        data.extend_from_slice(&self.call_id.to_le_bytes());
+        data
+    }
+}
+
+#[derive(Debug)]
+pub struct Response {
+    pub protocol_id: u16,
+    pub result: std::result::Result<ResponseData, ResponseError>,
+}
+
+impl Response {
+    pub fn from_bytes(data: &[u8]) -> Result<Self> {
+        let mut rdr = Cursor::new(data);
+
+        let _size = rdr.read_u32::<LittleEndian>()?;
+        // assert_eq!(size as usize, data.len() - 4);
+
+        let protocol_id = rdr.read_u8()?;
+        let protocol_id = if protocol_id == 0x7f {
+            rdr.read_u16::<LittleEndian>()?
+        } else {
+            protocol_id as u16
+        };
+        let status = rdr.read_u8()?;
+        let result = match status {
+            0 => Err(ResponseError::from_reader(&mut rdr)?),
+            1 => Ok(ResponseData::from_reader(&mut rdr)?),
+            _v => return Err(Error::InvalidPacketType),
+        };
+
+        Ok(Self {
+            protocol_id,
+            result,
+        })
+    }
+
+    pub fn to_bytes(&self) -> Vec<u8> {
+        let mut data = vec![0, 0, 0, 0];
+        if self.protocol_id < 0x7f {
+            data.push(self.protocol_id as u8);
+        } else {
+            data.push(0x7f);
+            data.push((self.protocol_id & 0xff) as u8);
+            data.push((self.protocol_id >> 8) as u8);
+        }
+        match self.result {
+            Ok(ref rd) => {
+                data.push(1);
+                data.append(&mut rd.to_bytes())
+            }
+            Err(ref re) => {
+                data.push(0);
+                data.append(&mut re.to_bytes())
+            }
+        };
+        let len = (data.len() - 4) as u32;
+        let sz = &mut data[..4];
+        sz.copy_from_slice(&len.to_le_bytes());
+        data
+    }
+}
+
+#[derive(Debug)]
+pub enum Packet {
+    Request(Request),
+    Response(Response),
+}
+
+impl Packet {
+    pub fn from_bytes(data: &[u8]) -> Result<Self> {
+        if data.len() < 5 {
+            return Err(Error::MissingData(5, data.len()));
+        }
+        if data[4] & 0x80 != 0 {
+            Ok(Packet::Request(Request::from_bytes(data)?))
+        } else {
+            Ok(Packet::Response(Response::from_bytes(data)?))
+        }
+    }
+}
+
+pub trait Protocol<T> {
+    fn id(&self) -> u16;
+    fn name(&self) -> String;
+    fn num_methods(&self) -> u32;
+    fn handle(
+        &self,
+        logger: &Logger,
+        ctx: &Context,
+        ci: &mut ClientInfo<T>,
+        request: &Request,
+    ) -> std::result::Result<Vec<u8>, Error>;
+    fn method_name(&self, method_id: u32) -> Option<String>;
+}
+
+pub struct RVSecHandler<T> {
+    logger: slog::Logger,
+    rmc_registry: HashMap<u16, Box<dyn Protocol<T>>>,
+}
+
+impl<T> RVSecHandler<T> {
+    pub fn new(logger: slog::Logger) -> Self {
+        Self {
+            logger,
+            rmc_registry: Default::default(),
+        }
+    }
+
+    pub fn register_protocol(&mut self, protocol: Box<dyn Protocol<T>>) {
+        debug!(
+            self.logger,
+            "Registering handler for protocol {} ({})",
+            protocol.id(),
+            protocol.name(),
+        );
+        self.rmc_registry.insert(protocol.id(), protocol);
+    }
+}
+
+impl<T> StreamHandler<T> for RVSecHandler<T> {
+    fn handle(
+        &self,
+        logger: &Logger,
+        ctx: &Context,
+        ci: &mut ClientInfo<T>,
+        data: &[u8],
+        // packet: QPacket,
+        // _client: &SocketAddr,
+    ) -> std::result::Result<Vec<u8>, packet::Error> {
+        let rmc_packet = Packet::from_bytes(data);
+
+        let rmc_packet = if let Ok(p) = rmc_packet {
+            p
+        } else {
+            let err = rmc_packet.err().unwrap();
+            error!(logger, "Parsing RMC packet failed"; "error" => %err);
+            return Err(packet::Error::StreamHandler(Box::new(err)));
+        };
+
+        let rmc_packet = match rmc_packet {
+            Packet::Request(r) => r,
+            Packet::Response(_r) => {
+                error!(logger, "RMC response not supported here. Data: {:#?}", data);
+                return Err(packet::Error::Unimplemented);
+            }
+        };
+
+        info!(
+            logger,
+            "Looking for protocol {}, method {}", rmc_packet.protocol_id, rmc_packet.method_id
+        );
+
+        let logger = logger
+            .new(o!("protocol_id" => rmc_packet.protocol_id, "method_id" => rmc_packet.method_id, "call" => rmc_packet.call_id));
+
+        let protocol = self.rmc_registry.get(&rmc_packet.protocol_id);
+
+        let maybe_protocol = match protocol {
+            Some(protocol) => {
+                info!(
+                    logger,
+                    "Calling {}.{}",
+                    protocol.name(),
+                    protocol
+                        .method_name(rmc_packet.method_id)
+                        .unwrap_or_default(),
+                );
+
+                protocol.handle(&logger, ctx, ci, &rmc_packet)
+            }
+            None => {
+                warn!(logger, "no handler available");
+                Err(Error::UnknownProtocol)
+            }
+        };
+
+        let result = match maybe_protocol {
+            Err(e) => Err(ResponseError {
+                error_code: match e {
+                    // https://github.com/kinnay/NintendoClients/blob/13a5bdc3723bcc6cd5d0c8bb106250efbce7c165/nintendo/nex/errors.py
+                    Error::MissingData(_, _) => 0x80010009,
+                    Error::ParsingError => 0x8001000A,
+                    Error::InvalidPacketType => 0x8001000A,
+                    Error::UnknownProtocol => 0x80010001,
+                    Error::UnknownMethod => 0x80010001,
+                    Error::UnimplementedMethod => 0x80010001,
+                    Error::IO(_) => 0x8001000A,
+                },
+                call_id: rmc_packet.call_id,
+            }),
+            Ok(data) => Ok(ResponseData {
+                call_id: rmc_packet.call_id,
+                method_id: rmc_packet.method_id,
+                data,
+            }),
+        };
+
+        let resp = Response {
+            protocol_id: rmc_packet.protocol_id,
+            result,
+        };
+        trace!(logger, "<- {:?}", resp);
+        Ok(resp.to_bytes())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_response() {
+        assert_eq!(
+            Response {
+                protocol_id: 1,
+                result: Ok(ResponseData {
+                    call_id: 2,
+                    method_id: 3,
+                    data: b"Hello".to_vec(),
+                }),
+            }
+            .to_bytes(),
+            b"\x0f\x00\x00\x00\x01\x01\x02\x00\x00\x00\x03\x80\x00\x00Hello".to_vec()
+        );
+
+        assert_eq!(
+            Response {
+                protocol_id: 1,
+                result: Err(ResponseError {
+                    call_id: 2,
+                    error_code: 3,
+                }),
+            }
+            .to_bytes(),
+            b"\x0a\x00\x00\x00\x01\x00\x03\x00\x00\x00\x02\x00\x00\x00".to_vec()
+        );
+    }
+
+    #[test]
+    fn test_request() {
+        let data = [
+            0x48, 0x00, 0x00, 0x00, 0x8a, 0x08, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x03,
+            0x00, 0x77, 0x76, 0x00, 0x21, 0x00, 0x55, 0x62, 0x69, 0x41, 0x75, 0x74, 0x68, 0x65,
+            0x6e, 0x74, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x4c, 0x6f, 0x67, 0x69, 0x6e,
+            0x43, 0x75, 0x73, 0x74, 0x6f, 0x6d, 0x44, 0x61, 0x74, 0x61, 0x00, 0x13, 0x00, 0x00,
+            0x00, 0x0f, 0x00, 0x00, 0x00, 0x03, 0x00, 0x77, 0x76, 0x00, 0x01, 0x00, 0x00, 0x05,
+            0x00, 0x74, 0x65, 0x73, 0x74, 0x00,
+        ];
+
+        let _req = dbg!(Request::from_bytes(&data)).unwrap();
+    }
+}

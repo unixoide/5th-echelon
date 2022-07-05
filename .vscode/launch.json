@@ -1,0 +1,39 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "cppdbg",
+      "request": "launch",
+      "name": "run quazal",
+      "program": "${workspaceFolder}/target/debug/quazal",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "sourceFileMap": {},
+      "env": {
+        "RUST_BACKTRACE": "short",
+      },
+      "MIMode": "gdb",
+      "miDebuggerPath": "/usr/bin/rust-gdb"
+    },
+    {
+      "type": "cppdbg",
+      "request": "launch",
+      "name": "run core config parser",
+      "program": "${workspaceFolder}/target/debug/core-config-parser",
+      "args": [
+        "testdata/overlord_core_config.bin"
+      ],
+      "cwd": "${workspaceFolder}",
+      "sourceFileMap": {},
+      "env": {
+        "RUST_BACKTRACE": "short",
+      },
+      "MIMode": "gdb",
+      "miDebuggerPath": "/usr/bin/rust-gdb",
+      "miDebuggerArgs": "--nh -q"
+    }
+  ]
+}

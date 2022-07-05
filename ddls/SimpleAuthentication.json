@@ -1,0 +1,2607 @@
+{
+  "__class__": "Namespace",
+  "elements": [
+    {
+      "__class__": "DDLUnitDeclaration",
+      "name1": "SimpleAuthentication",
+      "name2": "SimpleAuthentication",
+      "name3": "SimpleAuthentication",
+      "elements": {
+        "__class__": "Namespace",
+        "elements": []
+      },
+      "name4": "SimpleAuthentication",
+      "location": ""
+    },
+    {
+      "__class__": "TemplateInstance",
+      "name1": "std_list<byte>",
+      "name2": "std_list<byte>",
+      "u1": 0,
+      "u2": 0,
+      "templ_name": "std_list",
+      "parameters": [
+        "byte"
+      ]
+    },
+    {
+      "__class__": "ClassDeclaration",
+      "name1": "RVConnectionData",
+      "name2": "RVConnectionData",
+      "namespace": "SimpleAuthentication",
+      "properties": [
+        {
+          "__class__": "PropertyDeclaration",
+          "name1": "concrete",
+          "name2": "concrete",
+          "name3": "OnlineCore",
+          "u1": 0,
+          "u2": 1,
+          "u3": 5
+        }
+      ],
+      "maybe_base": "",
+      "variables": [
+        {
+          "__class__": "Variable",
+          "name1": "m_urlRegularProtocols",
+          "name2": "m_urlRegularProtocols",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "stationurl"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_lstSpecialProtocols",
+          "name2": "m_lstSpecialProtocols",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "TemplateType",
+              "name": "std_list<byte>",
+              "templ_name": "std_list",
+              "parameters": [
+                {
+                  "__class__": "SimpleType",
+                  "name": "byte"
+                }
+              ]
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_urlSpecialProtocols",
+          "name2": "m_urlSpecialProtocols",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "stationurl"
+            },
+            "unknown": 1
+          }
+        }
+      ]
+    },
+    {
+      "__class__": "ClassDeclaration",
+      "name1": "LoginData",
+      "name2": "LoginData",
+      "namespace": "SimpleAuthentication",
+      "properties": [
+        {
+          "__class__": "PropertyDeclaration",
+          "name1": "concrete",
+          "name2": "concrete",
+          "name3": "OnlineCore",
+          "u1": 0,
+          "u2": 1,
+          "u3": 5
+        },
+        {
+          "__class__": "PropertyDeclaration",
+          "name1": "auto_type_inheritable",
+          "name2": "auto_type_inheritable",
+          "name3": "OnlineCore",
+          "u1": 0,
+          "u2": 1,
+          "u3": 5
+        }
+      ],
+      "maybe_base": "Data",
+      "variables": [
+        {
+          "__class__": "Variable",
+          "name1": "m_principalType",
+          "name2": "m_principalType",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "int8"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_userName",
+          "name2": "m_userName",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "string"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_context",
+          "name2": "m_context",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint64"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_similarConnection",
+          "name2": "m_similarConnection",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        }
+      ]
+    },
+    {
+      "__class__": "TemplateInstance",
+      "name1": "any<Data,string>",
+      "name2": "any<Data,string>",
+      "u1": 0,
+      "u2": 0,
+      "templ_name": "any",
+      "parameters": [
+        "Data",
+        "string"
+      ]
+    },
+    {
+      "__class__": "TemplateInstance",
+      "name1": "std_list<stationurl>",
+      "name2": "std_list<stationurl>",
+      "u1": 0,
+      "u2": 0,
+      "templ_name": "std_list",
+      "parameters": [
+        "stationurl"
+      ]
+    },
+    {
+      "__class__": "ProtocolDeclaration",
+      "name1": "SimpleAuthenticationProtocol",
+      "name2": "SimpleAuthenticationProtocol",
+      "namespace": "SimpleAuthentication",
+      "u1": 0,
+      "methods": [
+        {
+          "__class__": "Method",
+          "name1": "Authenticate",
+          "name2": "Authenticate",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "strUserName",
+              "name2": "strUserName",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "pidPrincipal",
+              "name2": "pidPrincipal",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "pConnectionData",
+              "name2": "pConnectionData",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "RVConnectionData"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "RVConnectionData"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "strReturnMsg",
+              "name2": "strReturnMsg",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "ReturnValue",
+              "name1": "%retval%",
+              "name2": "%retval%",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "qresult"
+                },
+                "unknown": 0
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "qresult"
+                },
+                "unknown": 0
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "strUserName",
+              "name2": "strUserName",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "pidPrincipal",
+              "name2": "pidPrincipal",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "pConnectionData",
+              "name2": "pConnectionData",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "RVConnectionData"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "RVConnectionData"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "strReturnMsg",
+              "name2": "strReturnMsg",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "ReturnValue",
+              "name1": "%retval%",
+              "name2": "%retval%",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "qresult"
+                },
+                "unknown": 0
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "qresult"
+                },
+                "unknown": 0
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "LoginWithToken",
+          "name2": "LoginWithToken",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "strToken",
+              "name2": "strToken",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "pidPrincipal",
+              "name2": "pidPrincipal",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "pConnectionData",
+              "name2": "pConnectionData",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "RVConnectionData"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "RVConnectionData"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "strReturnMsg",
+              "name2": "strReturnMsg",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "ReturnValue",
+              "name1": "%retval%",
+              "name2": "%retval%",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "qresult"
+                },
+                "unknown": 0
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "qresult"
+                },
+                "unknown": 0
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "strToken",
+              "name2": "strToken",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "pidPrincipal",
+              "name2": "pidPrincipal",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "pConnectionData",
+              "name2": "pConnectionData",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "RVConnectionData"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "RVConnectionData"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "strReturnMsg",
+              "name2": "strReturnMsg",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "ReturnValue",
+              "name1": "%retval%",
+              "name2": "%retval%",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "qresult"
+                },
+                "unknown": 0
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "qresult"
+                },
+                "unknown": 0
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "LoginWithTokenEx",
+          "name2": "LoginWithTokenEx",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "strToken",
+              "name2": "strToken",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "pidPrincipal",
+              "name2": "pidPrincipal",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "pConnectionData",
+              "name2": "pConnectionData",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "RVConnectionData"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "RVConnectionData"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "oAnyData",
+              "name2": "oAnyData",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "any<Data,string>",
+                  "templ_name": "any",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "Data"
+                    },
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "any<Data,string>",
+                  "templ_name": "any",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "Data"
+                    },
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "strReturnMsg",
+              "name2": "strReturnMsg",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "ReturnValue",
+              "name1": "%retval%",
+              "name2": "%retval%",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "qresult"
+                },
+                "unknown": 0
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "qresult"
+                },
+                "unknown": 0
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "strToken",
+              "name2": "strToken",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "pidPrincipal",
+              "name2": "pidPrincipal",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "pConnectionData",
+              "name2": "pConnectionData",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "RVConnectionData"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "RVConnectionData"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "oAnyData",
+              "name2": "oAnyData",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "any<Data,string>",
+                  "templ_name": "any",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "Data"
+                    },
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "any<Data,string>",
+                  "templ_name": "any",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "Data"
+                    },
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "strReturnMsg",
+              "name2": "strReturnMsg",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "ReturnValue",
+              "name1": "%retval%",
+              "name2": "%retval%",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "qresult"
+                },
+                "unknown": 0
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "qresult"
+                },
+                "unknown": 0
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "Login",
+          "name2": "Login",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "strUsername",
+              "name2": "strUsername",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "strPassword",
+              "name2": "strPassword",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "pidPrincipal",
+              "name2": "pidPrincipal",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "pConnectionData",
+              "name2": "pConnectionData",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "RVConnectionData"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "RVConnectionData"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "strReturnMsg",
+              "name2": "strReturnMsg",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "ReturnValue",
+              "name1": "%retval%",
+              "name2": "%retval%",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "qresult"
+                },
+                "unknown": 0
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "qresult"
+                },
+                "unknown": 0
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "strUsername",
+              "name2": "strUsername",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "strPassword",
+              "name2": "strPassword",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "pidPrincipal",
+              "name2": "pidPrincipal",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "pConnectionData",
+              "name2": "pConnectionData",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "RVConnectionData"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "RVConnectionData"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "strReturnMsg",
+              "name2": "strReturnMsg",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "ReturnValue",
+              "name1": "%retval%",
+              "name2": "%retval%",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "qresult"
+                },
+                "unknown": 0
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "qresult"
+                },
+                "unknown": 0
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "LoginWithSubAccount",
+          "name2": "LoginWithSubAccount",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "loginData",
+              "name2": "loginData",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "any<Data,string>",
+                  "templ_name": "any",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "Data"
+                    },
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "any<Data,string>",
+                  "templ_name": "any",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "Data"
+                    },
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "pidPrincipal",
+              "name2": "pidPrincipal",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "pConnectionData",
+              "name2": "pConnectionData",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "RVConnectionData"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "RVConnectionData"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "strReturnMsg",
+              "name2": "strReturnMsg",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "ReturnValue",
+              "name1": "%retval%",
+              "name2": "%retval%",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "qresult"
+                },
+                "unknown": 0
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "qresult"
+                },
+                "unknown": 0
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "loginData",
+              "name2": "loginData",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "any<Data,string>",
+                  "templ_name": "any",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "Data"
+                    },
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "any<Data,string>",
+                  "templ_name": "any",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "Data"
+                    },
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "pidPrincipal",
+              "name2": "pidPrincipal",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "pConnectionData",
+              "name2": "pConnectionData",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "RVConnectionData"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "RVConnectionData"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "strReturnMsg",
+              "name2": "strReturnMsg",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "ReturnValue",
+              "name1": "%retval%",
+              "name2": "%retval%",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "qresult"
+                },
+                "unknown": 0
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "qresult"
+                },
+                "unknown": 0
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "Register",
+          "name2": "Register",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "vecMyURLs",
+              "name2": "vecMyURLs",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_list<stationurl>",
+                  "templ_name": "std_list",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "stationurl"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_list<stationurl>",
+                  "templ_name": "std_list",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "stationurl"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "pidConnectionID",
+              "name2": "pidConnectionID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "urlPublic",
+              "name2": "urlPublic",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "stationurl"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "stationurl"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "ReturnValue",
+              "name1": "%retval%",
+              "name2": "%retval%",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "qresult"
+                },
+                "unknown": 0
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "qresult"
+                },
+                "unknown": 0
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "vecMyURLs",
+              "name2": "vecMyURLs",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_list<stationurl>",
+                  "templ_name": "std_list",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "stationurl"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_list<stationurl>",
+                  "templ_name": "std_list",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "stationurl"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "pidConnectionID",
+              "name2": "pidConnectionID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "urlPublic",
+              "name2": "urlPublic",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "stationurl"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "stationurl"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "ReturnValue",
+              "name1": "%retval%",
+              "name2": "%retval%",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "qresult"
+                },
+                "unknown": 0
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "qresult"
+                },
+                "unknown": 0
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "RegisterEx",
+          "name2": "RegisterEx",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "vecMyURLs",
+              "name2": "vecMyURLs",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_list<stationurl>",
+                  "templ_name": "std_list",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "stationurl"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_list<stationurl>",
+                  "templ_name": "std_list",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "stationurl"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "pidConnectionID",
+              "name2": "pidConnectionID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "urlPublic",
+              "name2": "urlPublic",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "stationurl"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "stationurl"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "hCustomData",
+              "name2": "hCustomData",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "any<Data,string>",
+                  "templ_name": "any",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "Data"
+                    },
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "any<Data,string>",
+                  "templ_name": "any",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "Data"
+                    },
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "ReturnValue",
+              "name1": "%retval%",
+              "name2": "%retval%",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "qresult"
+                },
+                "unknown": 0
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "qresult"
+                },
+                "unknown": 0
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "vecMyURLs",
+              "name2": "vecMyURLs",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_list<stationurl>",
+                  "templ_name": "std_list",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "stationurl"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_list<stationurl>",
+                  "templ_name": "std_list",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "stationurl"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "pidConnectionID",
+              "name2": "pidConnectionID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "urlPublic",
+              "name2": "urlPublic",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "stationurl"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "stationurl"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "hCustomData",
+              "name2": "hCustomData",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "any<Data,string>",
+                  "templ_name": "any",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "Data"
+                    },
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "any<Data,string>",
+                  "templ_name": "any",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "Data"
+                    },
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "ReturnValue",
+              "name1": "%retval%",
+              "name2": "%retval%",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "qresult"
+                },
+                "unknown": 0
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "qresult"
+                },
+                "unknown": 0
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "LoginWithTokenCafe",
+          "name2": "LoginWithTokenCafe",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "strNintendoToken",
+              "name2": "strNintendoToken",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "pidPrincipal",
+              "name2": "pidPrincipal",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "pConnectionData",
+              "name2": "pConnectionData",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "RVConnectionData"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "RVConnectionData"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "strReturnMsg",
+              "name2": "strReturnMsg",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "ReturnValue",
+              "name1": "%retval%",
+              "name2": "%retval%",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "qresult"
+                },
+                "unknown": 0
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "qresult"
+                },
+                "unknown": 0
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "strNintendoToken",
+              "name2": "strNintendoToken",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "pidPrincipal",
+              "name2": "pidPrincipal",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "pConnectionData",
+              "name2": "pConnectionData",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "RVConnectionData"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "RVConnectionData"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "strReturnMsg",
+              "name2": "strReturnMsg",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "ReturnValue",
+              "name1": "%retval%",
+              "name2": "%retval%",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "qresult"
+                },
+                "unknown": 0
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "qresult"
+                },
+                "unknown": 0
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "LoginWithTokenCafeEx",
+          "name2": "LoginWithTokenCafeEx",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "strNintendoToken",
+              "name2": "strNintendoToken",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "pidPrincipal",
+              "name2": "pidPrincipal",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "pConnectionData",
+              "name2": "pConnectionData",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "RVConnectionData"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "RVConnectionData"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "oAnyData",
+              "name2": "oAnyData",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "any<Data,string>",
+                  "templ_name": "any",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "Data"
+                    },
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "any<Data,string>",
+                  "templ_name": "any",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "Data"
+                    },
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "strReturnMsg",
+              "name2": "strReturnMsg",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "ReturnValue",
+              "name1": "%retval%",
+              "name2": "%retval%",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "qresult"
+                },
+                "unknown": 0
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "qresult"
+                },
+                "unknown": 0
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "strNintendoToken",
+              "name2": "strNintendoToken",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "pidPrincipal",
+              "name2": "pidPrincipal",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "pConnectionData",
+              "name2": "pConnectionData",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "RVConnectionData"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "RVConnectionData"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "oAnyData",
+              "name2": "oAnyData",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "any<Data,string>",
+                  "templ_name": "any",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "Data"
+                    },
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "any<Data,string>",
+                  "templ_name": "any",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "Data"
+                    },
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "strReturnMsg",
+              "name2": "strReturnMsg",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 2
+            },
+            {
+              "__class__": "ReturnValue",
+              "name1": "%retval%",
+              "name2": "%retval%",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "qresult"
+                },
+                "unknown": 0
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "qresult"
+                },
+                "unknown": 0
+              },
+              "type": 2
+            }
+          ]
+        }
+      ],
+      "_id": 16
+    }
+  ]
+}

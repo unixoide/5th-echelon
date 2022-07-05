@@ -1,0 +1,1442 @@
+{
+  "__class__": "Namespace",
+  "elements": [
+    {
+      "__class__": "DDLUnitDeclaration",
+      "name1": "UserAccountManagementService",
+      "name2": "UserAccountManagementService",
+      "name3": "UserAccountManagementService",
+      "elements": {
+        "__class__": "Namespace",
+        "elements": []
+      },
+      "name4": "UserAccountManagementService",
+      "location": ""
+    },
+    {
+      "__class__": "TemplateInstance",
+      "name1": "std_list<uint32>",
+      "name2": "std_list<uint32>",
+      "u1": 0,
+      "u2": 0,
+      "templ_name": "std_list",
+      "parameters": [
+        "uint32"
+      ]
+    },
+    {
+      "__class__": "TemplateInstance",
+      "name1": "std_map<uint32,qBuffer>",
+      "name2": "std_map<uint32,qBuffer>",
+      "u1": 0,
+      "u2": 0,
+      "templ_name": "std_map",
+      "parameters": [
+        "uint32",
+        "qBuffer"
+      ]
+    },
+    {
+      "__class__": "TemplateInstance",
+      "name1": "std_list<string>",
+      "name2": "std_list<string>",
+      "u1": 0,
+      "u2": 0,
+      "templ_name": "std_list",
+      "parameters": [
+        "string"
+      ]
+    },
+    {
+      "__class__": "TemplateInstance",
+      "name1": "std_map<string,uint32>",
+      "name2": "std_map<string,uint32>",
+      "u1": 0,
+      "u2": 0,
+      "templ_name": "std_map",
+      "parameters": [
+        "string",
+        "uint32"
+      ]
+    },
+    {
+      "__class__": "TemplateInstance",
+      "name1": "std_map<uint32,string>",
+      "name2": "std_map<uint32,string>",
+      "u1": 0,
+      "u2": 0,
+      "templ_name": "std_map",
+      "parameters": [
+        "uint32",
+        "string"
+      ]
+    },
+    {
+      "__class__": "TemplateInstance",
+      "name1": "std_map<string,bool>",
+      "name2": "std_map<string,bool>",
+      "u1": 0,
+      "u2": 0,
+      "templ_name": "std_map",
+      "parameters": [
+        "string",
+        "bool"
+      ]
+    },
+    {
+      "__class__": "ProtocolDeclaration",
+      "name1": "UserAccountManagementProtocol",
+      "name2": "UserAccountManagementProtocol",
+      "namespace": "UserAccountManagementService",
+      "u1": 0,
+      "methods": [
+        {
+          "__class__": "Method",
+          "name1": "LookupSceNpIds",
+          "name2": "LookupSceNpIds",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "pids",
+              "name2": "pids",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_list<uint32>",
+                  "templ_name": "std_list",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_list<uint32>",
+                  "templ_name": "std_list",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "npids",
+              "name2": "npids",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_map<uint32,qBuffer>",
+                  "templ_name": "std_map",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    },
+                    {
+                      "__class__": "SimpleType",
+                      "name": "qBuffer"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_map<uint32,qBuffer>",
+                  "templ_name": "std_map",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    },
+                    {
+                      "__class__": "SimpleType",
+                      "name": "qBuffer"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "pids",
+              "name2": "pids",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_list<uint32>",
+                  "templ_name": "std_list",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_list<uint32>",
+                  "templ_name": "std_list",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "npids",
+              "name2": "npids",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_map<uint32,qBuffer>",
+                  "templ_name": "std_map",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    },
+                    {
+                      "__class__": "SimpleType",
+                      "name": "qBuffer"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_map<uint32,qBuffer>",
+                  "templ_name": "std_map",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    },
+                    {
+                      "__class__": "SimpleType",
+                      "name": "qBuffer"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "LookupPrincipalIDs",
+          "name2": "LookupPrincipalIDs",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "firstPartyIds",
+              "name2": "firstPartyIds",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_list<string>",
+                  "templ_name": "std_list",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_list<string>",
+                  "templ_name": "std_list",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "platformId",
+              "name2": "platformId",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "pids",
+              "name2": "pids",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_map<string,uint32>",
+                  "templ_name": "std_map",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    },
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_map<string,uint32>",
+                  "templ_name": "std_map",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    },
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "firstPartyIds",
+              "name2": "firstPartyIds",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_list<string>",
+                  "templ_name": "std_list",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_list<string>",
+                  "templ_name": "std_list",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "platformId",
+              "name2": "platformId",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "pids",
+              "name2": "pids",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_map<string,uint32>",
+                  "templ_name": "std_map",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    },
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_map<string,uint32>",
+                  "templ_name": "std_map",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    },
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "LookupFirstPartyIds",
+          "name2": "LookupFirstPartyIds",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "pids",
+              "name2": "pids",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_list<uint32>",
+                  "templ_name": "std_list",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_list<uint32>",
+                  "templ_name": "std_list",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "platformId",
+              "name2": "platformId",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "firstPartyIds",
+              "name2": "firstPartyIds",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_map<uint32,string>",
+                  "templ_name": "std_map",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    },
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_map<uint32,string>",
+                  "templ_name": "std_map",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    },
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "pids",
+              "name2": "pids",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_list<uint32>",
+                  "templ_name": "std_list",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_list<uint32>",
+                  "templ_name": "std_list",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "platformId",
+              "name2": "platformId",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "firstPartyIds",
+              "name2": "firstPartyIds",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_map<uint32,string>",
+                  "templ_name": "std_map",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    },
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_map<uint32,string>",
+                  "templ_name": "std_map",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    },
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "UserHasPlayed",
+          "name2": "UserHasPlayed",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "FirstPartyIds",
+              "name2": "FirstPartyIds",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_list<string>",
+                  "templ_name": "std_list",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_list<string>",
+                  "templ_name": "std_list",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "platformId",
+              "name2": "platformId",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "UserPresence",
+              "name2": "UserPresence",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_map<string,bool>",
+                  "templ_name": "std_map",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    },
+                    {
+                      "__class__": "SimpleType",
+                      "name": "bool"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_map<string,bool>",
+                  "templ_name": "std_map",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    },
+                    {
+                      "__class__": "SimpleType",
+                      "name": "bool"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "FirstPartyIds",
+              "name2": "FirstPartyIds",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_list<string>",
+                  "templ_name": "std_list",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_list<string>",
+                  "templ_name": "std_list",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "platformId",
+              "name2": "platformId",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "UserPresence",
+              "name2": "UserPresence",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_map<string,bool>",
+                  "templ_name": "std_map",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    },
+                    {
+                      "__class__": "SimpleType",
+                      "name": "bool"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_map<string,bool>",
+                  "templ_name": "std_map",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    },
+                    {
+                      "__class__": "SimpleType",
+                      "name": "bool"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "IsUserPlaying",
+          "name2": "IsUserPlaying",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "firstPartyIds",
+              "name2": "firstPartyIds",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_list<string>",
+                  "templ_name": "std_list",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_list<string>",
+                  "templ_name": "std_list",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "platformId",
+              "name2": "platformId",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "UserPresence",
+              "name2": "UserPresence",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_map<string,bool>",
+                  "templ_name": "std_map",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    },
+                    {
+                      "__class__": "SimpleType",
+                      "name": "bool"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_map<string,bool>",
+                  "templ_name": "std_map",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    },
+                    {
+                      "__class__": "SimpleType",
+                      "name": "bool"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "firstPartyIds",
+              "name2": "firstPartyIds",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_list<string>",
+                  "templ_name": "std_list",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_list<string>",
+                  "templ_name": "std_list",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "platformId",
+              "name2": "platformId",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "UserPresence",
+              "name2": "UserPresence",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_map<string,bool>",
+                  "templ_name": "std_map",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    },
+                    {
+                      "__class__": "SimpleType",
+                      "name": "bool"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_map<string,bool>",
+                  "templ_name": "std_map",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    },
+                    {
+                      "__class__": "SimpleType",
+                      "name": "bool"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "updateSonyAccountInfo",
+          "name2": "updateSonyAccountInfo",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "ticketData",
+              "name2": "ticketData",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "qBuffer"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "qBuffer"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "ticketSize",
+              "name2": "ticketSize",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "ticketData",
+              "name2": "ticketData",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "qBuffer"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "qBuffer"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "ticketSize",
+              "name2": "ticketSize",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "LookupUsernames",
+          "name2": "LookupUsernames",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "pids",
+              "name2": "pids",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_list<uint32>",
+                  "templ_name": "std_list",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_list<uint32>",
+                  "templ_name": "std_list",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "platformId",
+              "name2": "platformId",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "UserNames",
+              "name2": "UserNames",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_map<uint32,string>",
+                  "templ_name": "std_map",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    },
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_map<uint32,string>",
+                  "templ_name": "std_map",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    },
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "pids",
+              "name2": "pids",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_list<uint32>",
+                  "templ_name": "std_list",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_list<uint32>",
+                  "templ_name": "std_list",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "platformId",
+              "name2": "platformId",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "UserNames",
+              "name2": "UserNames",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_map<uint32,string>",
+                  "templ_name": "std_map",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    },
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "std_map<uint32,string>",
+                  "templ_name": "std_map",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    },
+                    {
+                      "__class__": "SimpleType",
+                      "name": "string"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ]
+        }
+      ],
+      "_id": null
+    }
+  ]
+}

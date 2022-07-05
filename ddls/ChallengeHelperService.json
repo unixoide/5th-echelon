@@ -1,0 +1,667 @@
+{
+  "__class__": "Namespace",
+  "elements": [
+    {
+      "__class__": "DDLUnitDeclaration",
+      "name1": "ChallengeHelperService",
+      "name2": "ChallengeHelperService",
+      "name3": "ChallengeHelperService",
+      "elements": {
+        "__class__": "Namespace",
+        "elements": []
+      },
+      "name4": "ChallengeHelperService",
+      "location": ""
+    },
+    {
+      "__class__": "ClassDeclaration",
+      "name1": "FriendChallenge",
+      "name2": "FriendChallenge",
+      "namespace": "ChallengeHelperService",
+      "properties": [
+        {
+          "__class__": "PropertyDeclaration",
+          "name1": "concrete",
+          "name2": "concrete",
+          "name3": "OnlineCore",
+          "u1": 0,
+          "u2": 1,
+          "u3": 5
+        }
+      ],
+      "maybe_base": "",
+      "variables": [
+        {
+          "__class__": "Variable",
+          "name1": "m_ChallengeType",
+          "name2": "m_ChallengeType",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_MapID",
+          "name2": "m_MapID",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_FriendToBeatPID",
+          "name2": "m_FriendToBeatPID",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_ValueOnHand",
+          "name2": "m_ValueOnHand",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_ValueToBeat",
+          "name2": "m_ValueToBeat",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        }
+      ]
+    },
+    {
+      "__class__": "ClassDeclaration",
+      "name1": "OnlineChallenge",
+      "name2": "OnlineChallenge",
+      "namespace": "ChallengeHelperService",
+      "properties": [
+        {
+          "__class__": "PropertyDeclaration",
+          "name1": "concrete",
+          "name2": "concrete",
+          "name3": "OnlineCore",
+          "u1": 0,
+          "u2": 1,
+          "u3": 5
+        }
+      ],
+      "maybe_base": "",
+      "variables": [
+        {
+          "__class__": "Variable",
+          "name1": "m_ChallengeID",
+          "name2": "m_ChallengeID",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_StaticData",
+          "name2": "m_StaticData",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "string"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_StartTime",
+          "name2": "m_StartTime",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "datetime"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_EndTime",
+          "name2": "m_EndTime",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "datetime"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_isComplete",
+          "name2": "m_isComplete",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "bool"
+            },
+            "unknown": 1
+          }
+        }
+      ]
+    },
+    {
+      "__class__": "TemplateInstance",
+      "name1": "qlist<uint32>",
+      "name2": "qlist<uint32>",
+      "u1": 0,
+      "u2": 0,
+      "templ_name": "qlist",
+      "parameters": [
+        "uint32"
+      ]
+    },
+    {
+      "__class__": "TemplateInstance",
+      "name1": "qlist<FriendChallenge>",
+      "name2": "qlist<FriendChallenge>",
+      "u1": 0,
+      "u2": 0,
+      "templ_name": "qlist",
+      "parameters": [
+        "FriendChallenge"
+      ]
+    },
+    {
+      "__class__": "TemplateInstance",
+      "name1": "qlist<OnlineChallenge>",
+      "name2": "qlist<OnlineChallenge>",
+      "u1": 0,
+      "u2": 0,
+      "templ_name": "qlist",
+      "parameters": [
+        "OnlineChallenge"
+      ]
+    },
+    {
+      "__class__": "ProtocolDeclaration",
+      "name1": "ChallengeHelperProtocol",
+      "name2": "ChallengeHelperProtocol",
+      "namespace": "ChallengeHelperService",
+      "u1": 0,
+      "methods": [
+        {
+          "__class__": "Method",
+          "name1": "GenerateMyFriendChallenges",
+          "name2": "GenerateMyFriendChallenges",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "friendPIDs",
+              "name2": "friendPIDs",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<uint32>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<uint32>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "result",
+              "name2": "result",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<FriendChallenge>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "FriendChallenge"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<FriendChallenge>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "FriendChallenge"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "friendPIDs",
+              "name2": "friendPIDs",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<uint32>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<uint32>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "result",
+              "name2": "result",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<FriendChallenge>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "FriendChallenge"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<FriendChallenge>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "FriendChallenge"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "GenerateFriendChallenges",
+          "name2": "GenerateFriendChallenges",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "targetPID",
+              "name2": "targetPID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "friendPIDs",
+              "name2": "friendPIDs",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<uint32>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<uint32>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "result",
+              "name2": "result",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<FriendChallenge>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "FriendChallenge"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<FriendChallenge>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "FriendChallenge"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "targetPID",
+              "name2": "targetPID",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "uint32"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "friendPIDs",
+              "name2": "friendPIDs",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<uint32>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<uint32>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "uint32"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 1
+            },
+            {
+              "__class__": "Parameter",
+              "name1": "result",
+              "name2": "result",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<FriendChallenge>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "FriendChallenge"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<FriendChallenge>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "FriendChallenge"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ]
+        },
+        {
+          "__class__": "Method",
+          "name1": "GetOnlineChallenges",
+          "name2": "GetOnlineChallenges",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "onlineChallenges",
+              "name2": "onlineChallenges",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<OnlineChallenge>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "OnlineChallenge"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<OnlineChallenge>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "OnlineChallenge"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "onlineChallenges",
+              "name2": "onlineChallenges",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<OnlineChallenge>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "OnlineChallenge"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "TemplateType",
+                  "name": "qlist<OnlineChallenge>",
+                  "templ_name": "qlist",
+                  "parameters": [
+                    {
+                      "__class__": "SimpleType",
+                      "name": "OnlineChallenge"
+                    }
+                  ]
+                },
+                "unknown": 1
+              },
+              "type": 2
+            }
+          ]
+        }
+      ],
+      "_id": null
+    }
+  ]
+}

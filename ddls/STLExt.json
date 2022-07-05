@@ -1,0 +1,83 @@
+{
+  "__class__": "Namespace",
+  "elements": [
+    {
+      "__class__": "DDLUnitDeclaration",
+      "name1": "STLExt",
+      "name2": "STLExt",
+      "name3": "STLExt",
+      "elements": {
+        "__class__": "Namespace",
+        "elements": []
+      },
+      "name4": "STLExt",
+      "location": ""
+    },
+    {
+      "__class__": "SimpleDeclaration",
+      "name1": "std_bitset8",
+      "name2": "std_bitset8",
+      "namespace": "STLExt",
+      "u1": 0
+    },
+    {
+      "__class__": "SimpleDeclaration",
+      "name1": "std_bitset16",
+      "name2": "std_bitset16",
+      "namespace": "STLExt",
+      "u1": 0
+    },
+    {
+      "__class__": "SimpleDeclaration",
+      "name1": "std_bitset32",
+      "name2": "std_bitset32",
+      "namespace": "STLExt",
+      "u1": 0
+    },
+    {
+      "__class__": "SimpleDeclaration",
+      "name1": "std_char16string",
+      "name2": "std_char16string",
+      "namespace": "STLExt",
+      "u1": 0
+    },
+    {
+      "__class__": "SimpleDeclaration",
+      "name1": "std_char8string",
+      "name2": "std_char8string",
+      "namespace": "STLExt",
+      "u1": 0
+    },
+    {
+      "__class__": "SimpleDeclaration",
+      "name1": "std_string",
+      "name2": "std_string",
+      "namespace": "STLExt",
+      "u1": 0
+    },
+    {
+      "__class__": "TemplateDeclaration",
+      "name1": "std_vector",
+      "name2": "std_vector",
+      "namespace": "STLExt",
+      "u1": 0,
+      "u2": 1
+    },
+    {
+      "__class__": "TemplateDeclaration",
+      "name1": "std_list",
+      "name2": "std_list",
+      "namespace": "STLExt",
+      "u1": 0,
+      "u2": 1
+    },
+    {
+      "__class__": "TemplateDeclaration",
+      "name1": "std_map",
+      "name2": "std_map",
+      "namespace": "STLExt",
+      "u1": 0,
+      "u2": 2
+    }
+  ]
+}

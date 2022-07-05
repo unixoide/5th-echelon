@@ -1,0 +1,16 @@
+[package]
+name = "dedicated_server"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+quazal = { path = "../quazal" }
+quazal-macros = { path = "../quazal-macros" }
+num_enum = "0.5"
+byteorder = "1.4"
+hmac = "0.12"
+md-5 = "0.10"
+slog = { version = "2.7", features = [ "max_level_trace" ] }
+sloggers = { version = "2.0", features = ["json"] }

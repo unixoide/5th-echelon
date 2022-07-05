@@ -1,0 +1,626 @@
+{
+  "__class__": "Namespace",
+  "elements": [
+    {
+      "__class__": "DDLUnitDeclaration",
+      "name1": "ProtocolFoundation",
+      "name2": "ProtocolFoundation",
+      "name3": "ProtocolFoundation",
+      "elements": {
+        "__class__": "Namespace",
+        "elements": []
+      },
+      "name4": "ProtocolFoundation",
+      "location": ""
+    },
+    {
+      "__class__": "ClassDeclaration",
+      "name1": "MessageRecipient",
+      "name2": "MessageRecipient",
+      "namespace": "ProtocolFoundation",
+      "properties": [],
+      "maybe_base": "",
+      "variables": [
+        {
+          "__class__": "Variable",
+          "name1": "m_idRecipient",
+          "name2": "m_idRecipient",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_uiRecipientType",
+          "name2": "m_uiRecipientType",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        }
+      ]
+    },
+    {
+      "__class__": "ClassDeclaration",
+      "name1": "NotificationEvent",
+      "name2": "NotificationEvent",
+      "namespace": "ProtocolFoundation",
+      "properties": [],
+      "maybe_base": "",
+      "variables": [
+        {
+          "__class__": "Variable",
+          "name1": "m_pidSource",
+          "name2": "m_pidSource",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_uiType",
+          "name2": "m_uiType",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_uiParam1",
+          "name2": "m_uiParam1",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_uiParam2",
+          "name2": "m_uiParam2",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_strParam",
+          "name2": "m_strParam",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "string"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_uiParam3",
+          "name2": "m_uiParam3",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        }
+      ]
+    },
+    {
+      "__class__": "ProtocolDeclaration",
+      "name1": "NotificationProtocol",
+      "name2": "NotificationProtocol",
+      "namespace": "ProtocolFoundation",
+      "u1": 0,
+      "methods": [
+        {
+          "__class__": "Method",
+          "name1": "ProcessNotificationEvent",
+          "name2": "ProcessNotificationEvent",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "oEvent",
+              "name2": "oEvent",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "NotificationEvent"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "NotificationEvent"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "oEvent",
+              "name2": "oEvent",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "NotificationEvent"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "NotificationEvent"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            }
+          ]
+        }
+      ],
+      "_id": null
+    },
+    {
+      "__class__": "PropertyDeclaration",
+      "name1": "dataclass_methods",
+      "name2": "dataclass_methods",
+      "name3": "ProtocolFoundation",
+      "u1": 0,
+      "u2": 6,
+      "u3": 4
+    },
+    {
+      "__class__": "ClassDeclaration",
+      "name1": "Data",
+      "name2": "Data",
+      "namespace": "ProtocolFoundation",
+      "properties": [
+        {
+          "__class__": "PropertyDeclaration",
+          "name1": "exportable",
+          "name2": "exportable",
+          "name3": "OnlineCore",
+          "u1": 0,
+          "u2": 1,
+          "u3": 4
+        },
+        {
+          "__class__": "PropertyDeclaration",
+          "name1": "dataclass_methods",
+          "name2": "dataclass_methods",
+          "name3": "ProtocolFoundation",
+          "u1": 0,
+          "u2": 6,
+          "u3": 4
+        }
+      ],
+      "maybe_base": "",
+      "variables": []
+    },
+    {
+      "__class__": "ClassDeclaration",
+      "name1": "DynamicData",
+      "name2": "DynamicData",
+      "namespace": "ProtocolFoundation",
+      "properties": [],
+      "maybe_base": "Data",
+      "variables": [
+        {
+          "__class__": "Variable",
+          "name1": "m_bufTail",
+          "name2": "m_bufTail",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "buffertail"
+            },
+            "unknown": 1
+          }
+        }
+      ]
+    },
+    {
+      "__class__": "ClassDeclaration",
+      "name1": "UserMessage",
+      "name2": "UserMessage",
+      "namespace": "ProtocolFoundation",
+      "properties": [
+        {
+          "__class__": "PropertyDeclaration",
+          "name1": "exportable",
+          "name2": "exportable",
+          "name3": "OnlineCore",
+          "u1": 0,
+          "u2": 1,
+          "u3": 4
+        },
+        {
+          "__class__": "PropertyDeclaration",
+          "name1": "auto_type_inheritable",
+          "name2": "auto_type_inheritable",
+          "name3": "OnlineCore",
+          "u1": 0,
+          "u2": 1,
+          "u3": 5
+        }
+      ],
+      "maybe_base": "Data",
+      "variables": [
+        {
+          "__class__": "Variable",
+          "name1": "m_uiID",
+          "name2": "m_uiID",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_idRecipient",
+          "name2": "m_idRecipient",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_uiRecipientType",
+          "name2": "m_uiRecipientType",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_uiParentID",
+          "name2": "m_uiParentID",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_pidSender",
+          "name2": "m_pidSender",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_receptiontime",
+          "name2": "m_receptiontime",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "datetime"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_uiLifeTime",
+          "name2": "m_uiLifeTime",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_uiFlags",
+          "name2": "m_uiFlags",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_strSubject",
+          "name2": "m_strSubject",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "string"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_strSender",
+          "name2": "m_strSender",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "string"
+            },
+            "unknown": 1
+          }
+        }
+      ]
+    },
+    {
+      "__class__": "ClassDeclaration",
+      "name1": "ResultRange",
+      "name2": "ResultRange",
+      "namespace": "ProtocolFoundation",
+      "properties": [
+        {
+          "__class__": "PropertyDeclaration",
+          "name1": "exportable",
+          "name2": "exportable",
+          "name3": "OnlineCore",
+          "u1": 0,
+          "u2": 1,
+          "u3": 4
+        }
+      ],
+      "maybe_base": "",
+      "variables": [
+        {
+          "__class__": "Variable",
+          "name1": "m_uiOffset",
+          "name2": "m_uiOffset",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_uiSize",
+          "name2": "m_uiSize",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        }
+      ]
+    },
+    {
+      "__class__": "ClassDeclaration",
+      "name1": "Property",
+      "name2": "Property",
+      "namespace": "ProtocolFoundation",
+      "properties": [
+        {
+          "__class__": "PropertyDeclaration",
+          "name1": "exportable",
+          "name2": "exportable",
+          "name3": "OnlineCore",
+          "u1": 0,
+          "u2": 1,
+          "u3": 4
+        }
+      ],
+      "maybe_base": "",
+      "variables": [
+        {
+          "__class__": "Variable",
+          "name1": "m_ID",
+          "name2": "m_ID",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_value",
+          "name2": "m_value",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "int32"
+            },
+            "unknown": 1
+          }
+        }
+      ]
+    },
+    {
+      "__class__": "ClassDeclaration",
+      "name1": "PropertyVariant",
+      "name2": "PropertyVariant",
+      "namespace": "ProtocolFoundation",
+      "properties": [],
+      "maybe_base": "",
+      "variables": [
+        {
+          "__class__": "Variable",
+          "name1": "m_ID",
+          "name2": "m_ID",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "uint32"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_value",
+          "name2": "m_value",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "variant"
+            },
+            "unknown": 1
+          }
+        }
+      ]
+    },
+    {
+      "__class__": "ProtocolDeclaration",
+      "name1": "RemoteLogDeviceProtocol",
+      "name2": "RemoteLogDeviceProtocol",
+      "namespace": "ProtocolFoundation",
+      "u1": 0,
+      "methods": [
+        {
+          "__class__": "Method",
+          "name1": "Log",
+          "name2": "Log",
+          "u1": 0,
+          "u2": 0,
+          "elements1": [
+            {
+              "__class__": "Parameter",
+              "name1": "strLine",
+              "name2": "strLine",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            }
+          ],
+          "elements2": [
+            {
+              "__class__": "Parameter",
+              "name1": "strLine",
+              "name2": "strLine",
+              "dtype1": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "dtype2": {
+                "__class__": "PType",
+                "type": {
+                  "__class__": "SimpleType",
+                  "name": "string"
+                },
+                "unknown": 1
+              },
+              "type": 1
+            }
+          ]
+        }
+      ],
+      "_id": null
+    },
+    {
+      "__class__": "TemplateDeclaration",
+      "name1": "any",
+      "name2": "any",
+      "namespace": "ProtocolFoundation",
+      "u1": 0,
+      "u2": 2
+    }
+  ]
+}

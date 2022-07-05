@@ -1,0 +1,66 @@
+{
+  "__class__": "Namespace",
+  "elements": [
+    {
+      "__class__": "DDLUnitDeclaration",
+      "name1": "UbiAuthentication",
+      "name2": "UbiAuthentication",
+      "name3": "UbiAuthentication",
+      "elements": {
+        "__class__": "Namespace",
+        "elements": []
+      },
+      "name4": "UbiAuthentication",
+      "location": ""
+    },
+    {
+      "__class__": "ClassDeclaration",
+      "name1": "UbiAuthenticationLoginCustomData",
+      "name2": "UbiAuthenticationLoginCustomData",
+      "namespace": "UbiAuthentication",
+      "properties": [],
+      "maybe_base": "Data",
+      "variables": [
+        {
+          "__class__": "Variable",
+          "name1": "m_userName",
+          "name2": "m_userName",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "string"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_onlineKey",
+          "name2": "m_onlineKey",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "string"
+            },
+            "unknown": 1
+          }
+        },
+        {
+          "__class__": "Variable",
+          "name1": "m_password",
+          "name2": "m_password",
+          "type": {
+            "__class__": "PType",
+            "type": {
+              "__class__": "SimpleType",
+              "name": "string"
+            },
+            "unknown": 1
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,272 @@
+{
+  "__class__": "Namespace",
+  "elements": [
+    {
+      "__class__": "DDLUnitDeclaration",
+      "name1": "OnlineCore",
+      "name2": "OnlineCore",
+      "name3": "OnlineCore",
+      "elements": {
+        "__class__": "Namespace",
+        "elements": []
+      },
+      "name4": "OnlineCore",
+      "location": "OnlineCore/src/DDLTypes"
+    },
+    {
+      "__class__": "PropertyDeclaration",
+      "name1": "concrete",
+      "name2": "concrete",
+      "name3": "OnlineCore",
+      "u1": 0,
+      "u2": 1,
+      "u3": 5
+    },
+    {
+      "__class__": "PropertyDeclaration",
+      "name1": "loopback",
+      "name2": "loopback",
+      "name3": "OnlineCore",
+      "u1": 0,
+      "u2": 1,
+      "u3": 1
+    },
+    {
+      "__class__": "PropertyDeclaration",
+      "name1": "auto_type_inheritable",
+      "name2": "auto_type_inheritable",
+      "name3": "OnlineCore",
+      "u1": 0,
+      "u2": 1,
+      "u3": 5
+    },
+    {
+      "__class__": "PropertyDeclaration",
+      "name1": "auto_type",
+      "name2": "auto_type",
+      "name3": "OnlineCore",
+      "u1": 0,
+      "u2": 1,
+      "u3": 5
+    },
+    {
+      "__class__": "PropertyDeclaration",
+      "name1": "custom_type",
+      "name2": "custom_type",
+      "name3": "OnlineCore",
+      "u1": 0,
+      "u2": 1,
+      "u3": 5
+    },
+    {
+      "__class__": "PropertyDeclaration",
+      "name1": "exportable",
+      "name2": "exportable",
+      "name3": "OnlineCore",
+      "u1": 0,
+      "u2": 1,
+      "u3": 4
+    },
+    {
+      "__class__": "PropertyDeclaration",
+      "name1": "globaldo",
+      "name2": "globaldo",
+      "name3": "OnlineCore",
+      "u1": 0,
+      "u2": 2,
+      "u3": 2
+    },
+    {
+      "__class__": "SimpleDeclaration",
+      "name1": "int64",
+      "name2": "int64",
+      "namespace": "",
+      "u1": 0
+    },
+    {
+      "__class__": "SimpleDeclaration",
+      "name1": "uint64",
+      "name2": "uint64",
+      "namespace": "",
+      "u1": 0
+    },
+    {
+      "__class__": "SimpleDeclaration",
+      "name1": "int32",
+      "name2": "int32",
+      "namespace": "",
+      "u1": 0
+    },
+    {
+      "__class__": "SimpleDeclaration",
+      "name1": "uint32",
+      "name2": "uint32",
+      "namespace": "",
+      "u1": 0
+    },
+    {
+      "__class__": "SimpleDeclaration",
+      "name1": "int16",
+      "name2": "int16",
+      "namespace": "",
+      "u1": 0
+    },
+    {
+      "__class__": "SimpleDeclaration",
+      "name1": "uint16",
+      "name2": "uint16",
+      "namespace": "",
+      "u1": 0
+    },
+    {
+      "__class__": "SimpleDeclaration",
+      "name1": "int8",
+      "name2": "int8",
+      "namespace": "",
+      "u1": 0
+    },
+    {
+      "__class__": "SimpleDeclaration",
+      "name1": "byte",
+      "name2": "byte",
+      "namespace": "",
+      "u1": 0
+    },
+    {
+      "__class__": "SimpleDeclaration",
+      "name1": "bool",
+      "name2": "bool",
+      "namespace": "",
+      "u1": 0
+    },
+    {
+      "__class__": "SimpleDeclaration",
+      "name1": "float",
+      "name2": "float",
+      "namespace": "",
+      "u1": 0
+    },
+    {
+      "__class__": "SimpleDeclaration",
+      "name1": "double",
+      "name2": "double",
+      "namespace": "",
+      "u1": 0
+    },
+    {
+      "__class__": "SimpleDeclaration",
+      "name1": "real",
+      "name2": "real",
+      "namespace": "",
+      "u1": 0
+    },
+    {
+      "__class__": "SimpleDeclaration",
+      "name1": "char",
+      "name2": "char",
+      "namespace": "",
+      "u1": 0
+    },
+    {
+      "__class__": "SimpleDeclaration",
+      "name1": "char16",
+      "name2": "char16",
+      "namespace": "",
+      "u1": 0
+    },
+    {
+      "__class__": "SimpleDeclaration",
+      "name1": "char8",
+      "name2": "char8",
+      "namespace": "",
+      "u1": 0
+    },
+    {
+      "__class__": "SimpleDeclaration",
+      "name1": "string",
+      "name2": "string",
+      "namespace": "",
+      "u1": 0
+    },
+    {
+      "__class__": "SimpleDeclaration",
+      "name1": "buffer",
+      "name2": "buffer",
+      "namespace": "",
+      "u1": 0
+    },
+    {
+      "__class__": "SimpleDeclaration",
+      "name1": "buffertail",
+      "name2": "buffertail",
+      "namespace": "",
+      "u1": 0
+    },
+    {
+      "__class__": "SimpleDeclaration",
+      "name1": "cstr",
+      "name2": "cstr",
+      "namespace": "",
+      "u1": 0
+    },
+    {
+      "__class__": "SimpleDeclaration",
+      "name1": "datetime",
+      "name2": "datetime",
+      "namespace": "",
+      "u1": 0
+    },
+    {
+      "__class__": "SimpleDeclaration",
+      "name1": "qresult",
+      "name2": "qresult",
+      "namespace": "",
+      "u1": 0
+    },
+    {
+      "__class__": "SimpleDeclaration",
+      "name1": "variant",
+      "name2": "variant",
+      "namespace": "",
+      "u1": 0
+    },
+    {
+      "__class__": "TemplateDeclaration",
+      "name1": "qvector",
+      "name2": "qvector",
+      "namespace": "",
+      "u1": 0,
+      "u2": 1
+    },
+    {
+      "__class__": "TemplateDeclaration",
+      "name1": "qlist",
+      "name2": "qlist",
+      "namespace": "",
+      "u1": 0,
+      "u2": 1
+    },
+    {
+      "__class__": "TemplateDeclaration",
+      "name1": "qqueue",
+      "name2": "qqueue",
+      "namespace": "",
+      "u1": 0,
+      "u2": 1
+    },
+    {
+      "__class__": "SimpleDeclaration",
+      "name1": "qBuffer",
+      "name2": "qBuffer",
+      "namespace": "",
+      "u1": 0
+    },
+    {
+      "__class__": "SimpleDeclaration",
+      "name1": "stationurl",
+      "name2": "stationurl",
+      "namespace": "",
+      "u1": 0
+    }
+  ]
+}
