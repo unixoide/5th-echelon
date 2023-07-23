@@ -1,4 +1,7 @@
-use super::types::*;
+#![allow(clippy::wildcard_imports, clippy::module_name_repetitions)]
+
+use std::convert::TryFrom;
+
 use num_enum::TryFromPrimitive;
 use quazal::rmc::basic::FromStream;
 use quazal::rmc::basic::ToStream;
@@ -8,7 +11,9 @@ use quazal::rmc::Request;
 use quazal::ClientInfo;
 use quazal::Context;
 use slog::Logger;
-use std::convert::TryFrom;
+
+use super::types::*;
+
 #[derive(Debug, TryFromPrimitive)]
 #[repr(u32)]
 enum TicketGrantingProtocolMethod {
@@ -87,7 +92,7 @@ pub struct TicketGrantingProtocol<T: TicketGrantingProtocolTrait<CI>, CI>(
 );
 impl<T: TicketGrantingProtocolTrait<CI>, CI> TicketGrantingProtocol<T, CI> {
     pub fn new(implementation: T) -> Self {
-        Self(implementation, ::std::marker::PhantomData::default())
+        Self(implementation, ::std::marker::PhantomData)
     }
 }
 impl<T: TicketGrantingProtocolTrait<CI>, CI> Protocol<CI> for TicketGrantingProtocol<T, CI> {

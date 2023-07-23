@@ -7,6 +7,7 @@ use quazal::ClientInfo;
 use quazal::Context;
 use slog::Logger;
 
+use crate::login_required;
 use crate::protocols::user_storage::types::ContentProperty;
 use crate::protocols::user_storage::types::UserContent;
 use crate::protocols::user_storage::types::UserContentKey;
@@ -25,9 +26,12 @@ impl<CI> UserStorageProtocolTrait<CI> for UserStorageProtocolImpl {
         &self,
         _logger: &Logger,
         _ctx: &Context,
-        _ci: &mut ClientInfo<CI>,
+        ci: &mut ClientInfo<CI>,
         request: SearchContentsRequest,
     ) -> Result<SearchContentsResponse, Error> {
+        #![allow(clippy::unreadable_literal)]
+
+        login_required(&*ci)?;
         if request.query.type_id == 0x8000_0002 {
             let search_results = QList(vec![UserContent {
                 key: UserContentKey {
@@ -57,7 +61,7 @@ impl<CI> UserStorageProtocolTrait<CI> for UserStorageProtocolImpl {
             Ok(SearchContentsResponse { search_results })
         } else {
             Ok(SearchContentsResponse {
-                search_results: Default::default(),
+                search_results: QList::default(),
             })
         }
     }
@@ -66,14 +70,14 @@ impl<CI> UserStorageProtocolTrait<CI> for UserStorageProtocolImpl {
         &self,
         _logger: &Logger,
         ctx: &Context,
-        _ci: &mut ClientInfo<CI>,
+        ci: &mut ClientInfo<CI>,
         _request: GetContentUrlRequest,
     ) -> Result<GetContentUrlResponse, Error> {
+        login_required(&*ci)?;
         let protocol = ctx
             .settings
             .get("content_protocol")
-            .map(String::as_str)
-            .unwrap_or("http://")
+            .map_or("http://", String::as_str)
             .to_owned();
         let host = ctx
             .settings

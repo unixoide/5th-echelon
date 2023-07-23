@@ -1,49 +1,83 @@
-pub use crate::protocols::authentication_foundation::ticket_granting_protocol::*;
-pub use crate::protocols::authentication_foundation::types::*;
+use std::sync::Arc;
+
 use quazal::kerberos::KerberosTicket;
 use quazal::kerberos::KerberosTicketInternal;
 use quazal::kerberos::SESSION_KEY_SIZE;
-use quazal::rmc::types::*;
+use quazal::rmc::types::QResult;
+use quazal::rmc::types::StationURL;
 use quazal::rmc::Protocol;
 use quazal::Context;
+use rand::RngCore;
 
-const SERVER_PID: u32 = 0x1000;
+pub use crate::protocols::authentication_foundation::ticket_granting_protocol::*;
+pub use crate::protocols::authentication_foundation::types::*;
+use crate::protocols::ubi_authentication::types::UbiAuthenticationLoginCustomData;
+use crate::storage::Storage;
+use crate::SERVER_PID;
 
-struct TicketGrantingProtocolImpl;
+struct TicketGrantingProtocolImpl {
+    storage: Arc<Storage>,
+}
 
 impl TicketGrantingProtocolImpl {
-    fn get_session_key() -> [u8; SESSION_KEY_SIZE] {
-        // TODO: use random key
-        [1; SESSION_KEY_SIZE]
+    fn get_session_key(&self, user_id: u32) -> [u8; SESSION_KEY_SIZE] {
+        let mut key = [0u8; SESSION_KEY_SIZE];
+        rand::rngs::OsRng.fill_bytes(&mut key);
+
+        if false {
+            self.storage.create_user_session(user_id, &key);
+        }
+
+        key
     }
 
-    fn get_password_by_pid(&self, pid: u32) -> Option<&'static str> {
-        if pid == 105 {
-            Some("JaDe!")
-        } else {
-            None
-        }
+    #[allow(unreachable_code)]
+    fn get_password_by_pid(&self, pid: u32) -> quazal::rmc::Result<Option<String>> {
+        self.storage.find_password_for_user(pid).map_err(|e| {
+            todo!("handle error: {}", e);
+            quazal::rmc::Error::InternalError
+        })
     }
 
-    fn get_password_by_username(&self, username: &str) -> Option<&'static str> {
-        if username == "Tracking" {
-            Some("JaDe!")
-        } else {
-            None
-        }
+    fn get_password_by_username(&self, username: &str) -> quazal::rmc::Result<Option<String>> {
+        Ok(self
+            .get_pid_by_username(username)?
+            .map(|uid| self.get_password_by_pid(uid))
+            .transpose()?
+            .flatten())
     }
 
-    fn get_pid_by_username(&self, username: &str) -> u32 {
-        match username {
-            "Tracking" => 105,
-            _ => 0x1234,
-        }
+    #[allow(unreachable_code)]
+    fn get_pid_by_username(&self, username: &str) -> quazal::rmc::Result<Option<u32>> {
+        self.storage.find_user_id_by_name(username).map_err(|e| {
+            todo!("handle error: {}", e);
+            quazal::rmc::Error::InternalError
+        })
+    }
+
+    #[allow(unreachable_code)]
+    fn login(&self, username: &str, password: &str) -> quazal::rmc::Result<Option<u32>> {
+        self.storage.login_user(username, password).map_err(|e| {
+            todo!("handle error: {}", e);
+            quazal::rmc::Error::InternalError
+        })
     }
 }
 
 fn get_connection_data(ctx: &Context, pid: u32) -> RVConnectionData {
-    ctx.secure_server_addr
-        .map(|a| RVConnectionData {
+    ctx.secure_server_addr.map_or_else(
+        || RVConnectionData {
+            url_regular_protocols: format!(
+                "prudp:/address={};port={};CID=1;PID={};sid=2;stream=3;type=2",
+                ctx.listen.ip(),
+                ctx.listen.port(),
+                pid
+            )
+            .into(),
+            lst_special_protocols: vec![],
+            url_special_protocols: StationURL::default(),
+        },
+        |a| RVConnectionData {
             url_regular_protocols: format!(
                 // CID => ConnectionID
                 // PID => PrincipalID
@@ -58,32 +92,33 @@ fn get_connection_data(ctx: &Context, pid: u32) -> RVConnectionData {
             .into(),
             lst_special_protocols: vec![],
             url_special_protocols: StationURL::default(),
-        })
-        .unwrap_or_else(|| RVConnectionData {
-            url_regular_protocols: format!(
-                "prudp:/address={};port={};CID=1;PID={};sid=2;stream=3;type=2",
-                ctx.listen.ip(),
-                ctx.listen.port(),
-                pid
-            )
-            .into(),
-            lst_special_protocols: vec![],
-            url_special_protocols: StationURL::default(),
-        })
+        },
+    )
 }
 
 impl<T> TicketGrantingProtocolTrait<T> for TicketGrantingProtocolImpl {
     fn login(
         &self,
-        _logger: &slog::Logger,
+        logger: &slog::Logger,
         ctx: &Context,
         ci: &mut quazal::ClientInfo<T>,
         request: LoginRequest,
     ) -> Result<LoginResponse, quazal::rmc::Error> {
-        let password = self.get_password_by_username(&request.str_user_name);
-        let user_id = self.get_pid_by_username(&request.str_user_name);
+        let Some(user_id) = self.get_pid_by_username(&request.str_user_name)? else {
+            warn!(logger, "user {} not found", request.str_user_name);
+            return Err(quazal::rmc::Error::AccessDenied);
+        };
+        let password = self
+            .get_password_by_username(&request.str_user_name)?
+            .or_else(|| {
+                warn!(
+                    logger,
+                    "user {} has no plaintext password", request.str_user_name
+                );
+                None
+            });
         ci.user_id = Some(user_id);
-        let session_key = Self::get_session_key();
+        let session_key = self.get_session_key(user_id);
         let ticket = KerberosTicket {
             session_key,
             pid: SERVER_PID,
@@ -96,7 +131,7 @@ impl<T> TicketGrantingProtocolTrait<T> for TicketGrantingProtocolImpl {
         Ok(LoginResponse {
             return_value: QResult::Ok,
             pid_principal: user_id,
-            pbuf_response: ticket.as_bytes(user_id, password),
+            pbuf_response: ticket.as_bytes(user_id, password.as_deref(), &ctx.ticket_key),
             p_connection_data: get_connection_data(ctx, 2),
             str_return_msg: String::new(),
         })
@@ -104,14 +139,36 @@ impl<T> TicketGrantingProtocolTrait<T> for TicketGrantingProtocolImpl {
 
     fn login_ex(
         &self,
-        _logger: &slog::Logger,
+        logger: &slog::Logger,
         ctx: &Context,
         ci: &mut quazal::ClientInfo<T>,
-        _request: LoginExRequest,
+        request: LoginExRequest,
     ) -> Result<LoginExResponse, quazal::rmc::Error> {
-        let user_id = self.get_pid_by_username("TODO");
+        let username = request.str_user_name;
+        let mut registry = quazal::rmc::types::ClassRegistry::default();
+        registry
+            .register_class::<UbiAuthenticationLoginCustomData>("UbiAuthenticationLoginCustomData");
+        let ubi_data = request.o_extra_data.into_inner(&registry)?;
+        let ubi_data: Option<&UbiAuthenticationLoginCustomData> = ubi_data.as_any().downcast_ref();
+        let Some(UbiAuthenticationLoginCustomData {
+            user_name: ubi_username,
+            password,
+            ..
+        }) = ubi_data
+        else {
+            return Err(quazal::rmc::Error::ParsingError);
+        };
+
+        info!(logger, "LoginEx attempt by {} ({})", ubi_username, username);
+
+        let Some(user_id) = self.login(ubi_username, password)? else {
+            warn!(logger, "login failed for {}", ubi_username);
+            return Err(quazal::rmc::Error::AccessDenied);
+        };
+        info!(logger, "login successful for {}", ubi_username);
+
         ci.user_id = Some(user_id);
-        let session_key = Self::get_session_key();
+        let session_key = self.get_session_key(user_id);
         let ticket = KerberosTicket {
             session_key,
             pid: SERVER_PID,
@@ -124,7 +181,7 @@ impl<T> TicketGrantingProtocolTrait<T> for TicketGrantingProtocolImpl {
         Ok(LoginExResponse {
             return_value: QResult::Ok,
             pid_principal: user_id,
-            pbuf_response: ticket.as_bytes(user_id, None),
+            pbuf_response: ticket.as_bytes(user_id, None, &ctx.ticket_key),
             p_connection_data: get_connection_data(ctx, SERVER_PID),
             str_return_msg: String::new(),
         })
@@ -132,14 +189,21 @@ impl<T> TicketGrantingProtocolTrait<T> for TicketGrantingProtocolImpl {
 
     fn request_ticket(
         &self,
-        _logger: &slog::Logger,
-        _ctx: &Context,
-        _ci: &mut quazal::ClientInfo<T>,
+        logger: &slog::Logger,
+        ctx: &Context,
+        ci: &mut quazal::ClientInfo<T>,
         request: RequestTicketRequest,
     ) -> Result<RequestTicketResponse, quazal::rmc::Error> {
         let user_id = request.id_source;
         let server_id = request.id_target;
-        let session_key = Self::get_session_key();
+        if !matches!(ci.user_id, Some(uid) if uid == user_id) {
+            warn!(
+                logger,
+                "Ticket request for {} to {} denied (user: {:?})", user_id, server_id, ci.user_id
+            );
+            return Err(quazal::rmc::Error::AccessDenied);
+        }
+        let session_key = self.get_session_key(user_id);
         let ticket = KerberosTicket {
             session_key,
             pid: server_id,
@@ -151,11 +215,17 @@ impl<T> TicketGrantingProtocolTrait<T> for TicketGrantingProtocolImpl {
         };
         Ok(RequestTicketResponse {
             return_value: QResult::Ok,
-            buf_response: ticket.as_bytes(user_id, self.get_password_by_pid(user_id)),
+            buf_response: ticket.as_bytes(
+                user_id,
+                self.get_password_by_pid(user_id)?.as_deref(),
+                &ctx.ticket_key,
+            ),
         })
     }
 }
 
-pub fn new_protocol<T: 'static>() -> Box<dyn Protocol<T>> {
-    Box::new(TicketGrantingProtocol::new(TicketGrantingProtocolImpl))
+pub fn new_protocol<T: 'static>(storage: Arc<Storage>) -> Box<dyn Protocol<T>> {
+    Box::new(TicketGrantingProtocol::new(TicketGrantingProtocolImpl {
+        storage,
+    }))
 }

@@ -1,53 +1,66 @@
-use crate::{ClientInfo, Context};
-use byteorder::{LittleEndian, ReadBytesExt};
-use derive_more::{Display, Error as DeriveError, From};
-use enumflags2::{bitflags, BitFlags};
-use hmac::{Hmac, Mac};
-use md5::{Digest, Md5};
-use miniz_oxide::deflate::compress_to_vec_zlib;
-use miniz_oxide::inflate::{decompress_to_vec_zlib, TINFLStatus};
-use num_enum::{IntoPrimitive, TryFromPrimitive};
-use slog::Logger;
 use std::collections::HashMap;
 use std::convert::TryFrom;
-use std::io::{Cursor, Read, Seek};
+use std::io::Cursor;
+use std::io::Read;
+use std::io::Seek;
 use std::iter;
-
 use std::num::Wrapping;
+
+use byteorder::LittleEndian;
+use byteorder::ReadBytesExt;
+use derive_more::Display;
+use derive_more::Error as DeriveError;
+use derive_more::From;
+use enumflags2::bitflags;
+use enumflags2::BitFlags;
+use hmac::Hmac;
+use hmac::Mac;
+use md5::Digest;
+use md5::Md5;
+use miniz_oxide::deflate::compress_to_vec_zlib;
+use miniz_oxide::inflate::decompress_to_vec_zlib;
+use miniz_oxide::inflate::DecompressError;
+use num_enum::IntoPrimitive;
+use num_enum::TryFromPrimitive;
+use slog::Logger;
+
+use crate::ClientInfo;
+use crate::Context;
 
 #[derive(Debug, Display, DeriveError, From)]
 pub enum Error {
-    #[display(fmt = "Invalid Flag {}", _0)]
+    #[display(fmt = "Invalid Flag {_0}")]
     #[from(ignore)]
     InvalidFlag(#[error(ignore)] u8),
 
     #[display(fmt = "Invalid checksum")]
     InvalidChecksum,
 
-    #[display(fmt = "Decompression failed {:?}", _0)]
-    DecompressFailed(#[error(ignore)] TINFLStatus),
+    #[display(fmt = "Decompression failed {_0:?}")]
+    DecompressFailed(#[error(ignore)] DecompressError),
 
-    #[display(fmt = "Invalid Packet Type {}", _0)]
+    #[display(fmt = "Invalid Packet Type {_0}")]
     #[from(ignore)]
     InvalidPacketType(#[error(ignore)] u8),
 
-    #[display(fmt = "Invalid Stream Type {}", _0)]
+    #[display(fmt = "Invalid Stream Type {_0}")]
     #[from(ignore)]
     InvalidStreamType(#[error(ignore)] u8),
 
-    #[display(fmt = "I/O error {}", _0)]
+    #[display(fmt = "I/O error {_0}")]
     IO(#[error(source)] std::io::Error),
 
-    #[display(fmt = "Stream handler error {}", _0)]
+    #[display(fmt = "Stream handler error {_0}")]
     #[from(ignore)]
     StreamHandler(#[error(ignore)] Box<dyn std::error::Error>),
 
     Unimplemented,
 }
 
-#[derive(Debug, TryFromPrimitive, IntoPrimitive, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, TryFromPrimitive, IntoPrimitive, Clone, Copy, PartialEq, Eq, Hash, Default)]
 #[repr(u8)]
 pub enum StreamType {
+    #[default]
     DO = 1,
     RV = 2,
     RVSec = 3,
@@ -57,12 +70,6 @@ pub enum StreamType {
     NATEcho = 7,
     Routing = 8,
     // Game = 9,
-}
-
-impl Default for StreamType {
-    fn default() -> Self {
-        StreamType::DO
-    }
 }
 
 pub trait StreamHandler<T> {
@@ -83,10 +90,11 @@ pub struct StreamHandlerRegistry<T> {
 }
 
 impl<T> StreamHandlerRegistry<T> {
+    #[must_use]
     pub fn new(logger: slog::Logger) -> Self {
         Self {
             logger,
-            handlers: Default::default(),
+            handlers: HashMap::default(),
         }
     }
 
@@ -130,15 +138,18 @@ impl VPort {
         })
     }
 
+    #[must_use]
     pub fn to_bytes(&self) -> Vec<u8> {
         let st: u8 = self.stream_type.into();
         vec![self.port | (st << 4)]
     }
 }
 
-#[derive(Debug, TryFromPrimitive, IntoPrimitive, Clone, Copy)]
+#[allow(clippy::module_name_repetitions)]
+#[derive(Debug, TryFromPrimitive, IntoPrimitive, Clone, Copy, Default)]
 #[repr(u8)]
 pub enum PacketType {
+    #[default]
     Syn = 0,
     Connect = 1,
     Data = 2,
@@ -149,12 +160,7 @@ pub enum PacketType {
     Raw = 7,
 }
 
-impl Default for PacketType {
-    fn default() -> Self {
-        PacketType::Syn
-    }
-}
-
+#[allow(clippy::module_name_repetitions)]
 #[bitflags]
 #[repr(u8)]
 #[derive(Debug, Copy, Clone)]
@@ -165,6 +171,7 @@ pub enum PacketFlag {
     HasSize = 0b1000,  // 8
 }
 
+#[allow(clippy::module_name_repetitions)]
 #[derive(Debug, Default, Clone)]
 pub struct QPacket {
     pub source: VPort,
@@ -194,6 +201,8 @@ impl QPacket {
     where
         R: ReadBytesExt + std::io::Seek,
     {
+        #![allow(clippy::cast_possible_truncation)]
+
         let source = VPort::from_reader(rdr)?;
         let destination = VPort::from_reader(rdr)?;
         let type_flag = rdr.read_u8()?;
@@ -263,6 +272,7 @@ impl QPacket {
         })
     }
 
+    #[must_use]
     pub fn calc_checksum(&self, ctx: &Context) -> u8 {
         calc_checksum_from_data(
             ctx.key(self.destination.stream_type),
@@ -270,6 +280,7 @@ impl QPacket {
         )
     }
 
+    #[must_use]
     pub fn calc_signature(&self, ctx: &Context, payload: &[u8]) -> u32 {
         match self.packet_type {
             PacketType::Data => {
@@ -318,14 +329,18 @@ impl QPacket {
             PacketType::Data => {
                 data.push(self.fragment_id.expect("fragment id required"));
             }
-            PacketType::Disconnect | PacketType::Ping => {}
-            PacketType::User | PacketType::Route | PacketType::Raw => {}
+            PacketType::Disconnect
+            | PacketType::Ping
+            | PacketType::User
+            | PacketType::Route
+            | PacketType::Raw => {}
         }
 
         let payload = if self.payload.is_empty() {
             vec![]
         } else if self.use_compression {
             let mut tmp = compress_to_vec_zlib(&self.payload, 6);
+            #[allow(clippy::cast_possible_truncation)]
             tmp.insert(0, (self.payload.len() / tmp.len() + 1) as u8);
             tmp
         } else {
@@ -343,6 +358,7 @@ impl QPacket {
         };
 
         if self.flags.contains(PacketFlag::HasSize) {
+            #[allow(clippy::cast_possible_truncation)]
             let s = payload.len() as u16;
             data.extend_from_slice(&s.to_le_bytes());
         }
@@ -351,6 +367,7 @@ impl QPacket {
         data
     }
 
+    #[must_use]
     pub fn to_bytes(&self, ctx: &Context) -> Vec<u8> {
         let mut data = self.to_data_bytes(ctx);
         data.push(calc_checksum_from_data(
@@ -374,7 +391,6 @@ impl QPacket {
 }
 
 fn calc_checksum_from_data(key: u32, data: &[u8]) -> u8 {
-    // let key_sum = key.iter().fold(Wrapping(0), |acc, x| acc + Wrapping(*x));
     let l = data.len();
     let l = l - (l % 4);
     let mut rdr = Cursor::new(&data[..l]);
@@ -391,6 +407,7 @@ fn calc_checksum_from_data(key: u32, data: &[u8]) -> u8 {
         .iter()
         .fold(Wrapping(0u8), |acc, x| acc + Wrapping(*x));
 
+    #[allow(clippy::cast_possible_truncation)]
     let res = data_sum + Wrapping(key as u8) + trailer_sum;
     res.0
 }
@@ -399,26 +416,24 @@ fn crypt(ctx: &Context, data: &[u8]) -> Vec<u8> {
     crypt_key(&ctx.crypto_key, data)
 }
 
+#[must_use]
 pub fn crypt_key(key: &[u8], data: &[u8]) -> Vec<u8> {
     let rc4 = Rc4::new(key);
     rc4.zip(data).map(|(a, b)| a ^ b).collect()
 }
 
-#[derive(Copy)]
+#[derive(Clone)]
 pub struct Rc4 {
     i: u8,
     j: u8,
     state: [u8; 256],
 }
 
-impl Clone for Rc4 {
-    fn clone(&self) -> Rc4 {
-        *self
-    }
-}
-
 impl Rc4 {
+    #[must_use]
     pub fn new(key: &[u8]) -> Rc4 {
+        #![allow(clippy::cast_possible_truncation)]
+
         assert!(!key.is_empty() && key.len() <= 256);
         let mut rc4 = Rc4 {
             i: 0,
@@ -460,6 +475,7 @@ pub fn parse<R: std::io::Read + std::io::Seek>(
     let pkt = QPacket::from_reader(ctx, rdr)?;
     let end = rdr.stream_position()?;
     rdr.seek(std::io::SeekFrom::Start(start))?;
+    #[allow(clippy::cast_possible_truncation)]
     let mut data = vec![0u8; (end - start) as usize];
     rdr.read_exact(&mut data)?;
     pkt.validate(ctx, &data)?;
@@ -505,6 +521,8 @@ mod tests {
 
     #[test]
     fn nat_packet() {
+        #![allow(clippy::cast_possible_truncation)]
+
         let ctx = &Context::splinter_cell_blacklist();
         let data = *b"qq\x05\x00\x00\x00\x00\x00\x00\x00\x01\x053\x00\x00\x00\x00\xdcJ\x8d{\x80\x00\x01\x03\xd4";
         let (pkt, l) = dbg!(QPacket::from_bytes(ctx, &data).unwrap());

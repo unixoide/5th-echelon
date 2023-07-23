@@ -1,5 +1,8 @@
 #![allow(clippy::enum_variant_names, clippy::upper_case_acronyms)]
-use super::types::*;
+#![allow(clippy::wildcard_imports, clippy::module_name_repetitions)]
+
+use std::convert::TryFrom;
+
 use num_enum::TryFromPrimitive;
 use quazal::rmc::basic::FromStream;
 use quazal::rmc::basic::ToStream;
@@ -9,7 +12,8 @@ use quazal::rmc::Request;
 use quazal::ClientInfo;
 use quazal::Context;
 use slog::Logger;
-use std::convert::TryFrom;
+
+use super::types::*;
 #[derive(Debug, TryFromPrimitive)]
 #[repr(u32)]
 enum ChallengeHelperProtocolMethod {
@@ -46,7 +50,7 @@ pub struct ChallengeHelperProtocol<T: ChallengeHelperProtocolTrait<CI>, CI>(
 );
 impl<T: ChallengeHelperProtocolTrait<CI>, CI> ChallengeHelperProtocol<T, CI> {
     pub fn new(implementation: T) -> Self {
-        Self(implementation, ::std::marker::PhantomData::default())
+        Self(implementation, ::std::marker::PhantomData)
     }
 }
 impl<T: ChallengeHelperProtocolTrait<CI>, CI> Protocol<CI> for ChallengeHelperProtocol<T, CI> {

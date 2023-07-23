@@ -1,8 +1,13 @@
-use crate::protocols::secure_connection_service::secure_connection_protocol::{
-    RegisterExRequest, RegisterExResponse, RegisterRequest, RegisterResponse,
-    SecureConnectionProtocol, SecureConnectionProtocolTrait,
-};
-use quazal::rmc::{types::QResult, Protocol};
+use quazal::rmc::types::QResult;
+use quazal::rmc::Protocol;
+
+use crate::login_required;
+use crate::protocols::secure_connection_service::secure_connection_protocol::RegisterExRequest;
+use crate::protocols::secure_connection_service::secure_connection_protocol::RegisterExResponse;
+use crate::protocols::secure_connection_service::secure_connection_protocol::RegisterRequest;
+use crate::protocols::secure_connection_service::secure_connection_protocol::RegisterResponse;
+use crate::protocols::secure_connection_service::secure_connection_protocol::SecureConnectionProtocol;
+use crate::protocols::secure_connection_service::secure_connection_protocol::SecureConnectionProtocolTrait;
 
 struct SecureConnectionProtocolImpl;
 
@@ -14,9 +19,10 @@ impl<T> SecureConnectionProtocolTrait<T> for SecureConnectionProtocolImpl {
         ci: &mut quazal::ClientInfo<T>,
         _request: RegisterRequest,
     ) -> Result<RegisterResponse, quazal::rmc::Error> {
+        let user_id = login_required(&*ci)?;
         Ok(RegisterResponse {
             return_value: QResult::Ok,
-            pid_connection_id: 1234,
+            pid_connection_id: user_id, // probably wrong
             url_public: format!(
                 "prudp:/address={};port={};sid={};type=2",
                 ci.address().ip(),
@@ -34,11 +40,12 @@ impl<T> SecureConnectionProtocolTrait<T> for SecureConnectionProtocolImpl {
         ci: &mut quazal::ClientInfo<T>,
         _request: RegisterExRequest,
     ) -> Result<RegisterExResponse, quazal::rmc::Error> {
+        let user_id = login_required(&*ci)?;
         Ok(RegisterExResponse {
             return_value: QResult::Ok,
-            pid_connection_id: 1234,
+            pid_connection_id: user_id, // probably wrong
             url_public: format!(
-                "prudp:/address={};port={};sid={}",
+                "prudp:/address={};port={};sid={};type=3",
                 ci.address().ip(),
                 ci.address().port(),
                 15

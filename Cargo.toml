@@ -1,9 +1,15 @@
 [workspace]
 members = [
-  "quazal",
-  "quazal-macros",
-  "quazal-tools",
-  "quazal-tools-macros",
   "dedicated_server",
-  "wireshark-dissector",
+  "hooks",
+  "hooks/hooks-proc",
+  "hooks/shim-gen",
+  "quazal-macros",
+  "quazal",
+  "tools/quazal-tools-macros",
+  "tools/quazal-tools",
+  # "tools/wireshark-dissector",
 ]
+# v2 panics with
+# activated_features for invalid package: features did not find PackageId { name: "windows_i686_msvc", version: "0.48.0", source: "registry `crates-io`" } NormalOrDev
+resolver = "1"

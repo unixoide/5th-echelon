@@ -1,4 +1,10 @@
-use super::types::*;
+#![allow(
+    clippy::wildcard_imports,
+    clippy::module_name_repetitions,
+    clippy::too_many_lines
+)]
+use std::convert::TryFrom;
+
 use num_enum::TryFromPrimitive;
 use quazal::rmc::basic::FromStream;
 use quazal::rmc::basic::ToStream;
@@ -8,7 +14,8 @@ use quazal::rmc::Request;
 use quazal::ClientInfo;
 use quazal::Context;
 use slog::Logger;
-use std::convert::TryFrom;
+
+use super::types::*;
 #[derive(Debug, TryFromPrimitive)]
 #[repr(u32)]
 enum PrivilegesProtocolMethod {
@@ -74,7 +81,7 @@ pub struct PrivilegesProtocol<T: PrivilegesProtocolTrait<CI>, CI>(
 );
 impl<T: PrivilegesProtocolTrait<CI>, CI> PrivilegesProtocol<T, CI> {
     pub fn new(implementation: T) -> Self {
-        Self(implementation, ::std::marker::PhantomData::default())
+        Self(implementation, ::std::marker::PhantomData)
     }
 }
 impl<T: PrivilegesProtocolTrait<CI>, CI> Protocol<CI> for PrivilegesProtocol<T, CI> {

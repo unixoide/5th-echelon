@@ -1,2 +1,6 @@
 [toolchain]
-channel = "nightly"
+channel = "nightly-2023-09-06"
+targets = [
+    # for the hooks dll
+    "i686-pc-windows-msvc",
+]

@@ -1,4 +1,11 @@
-use super::types::*;
+#![allow(
+    clippy::wildcard_imports,
+    clippy::module_name_repetitions,
+    clippy::too_many_lines
+)]
+
+use std::convert::TryFrom;
+
 use num_enum::TryFromPrimitive;
 use quazal::rmc::basic::FromStream;
 use quazal::rmc::basic::ToStream;
@@ -8,7 +15,7 @@ use quazal::rmc::Request;
 use quazal::ClientInfo;
 use quazal::Context;
 use slog::Logger;
-use std::convert::TryFrom;
+
 #[derive(Debug, TryFromPrimitive)]
 #[repr(u32)]
 enum NatTraversalProtocolMethod {
@@ -41,12 +48,12 @@ pub struct NatTraversalProtocol<T: NatTraversalProtocolTrait<CI>, CI>(
 );
 impl<T: NatTraversalProtocolTrait<CI>, CI> NatTraversalProtocol<T, CI> {
     pub fn new(implementation: T) -> Self {
-        Self(implementation, ::std::marker::PhantomData::default())
+        Self(implementation, ::std::marker::PhantomData)
     }
 }
 impl<T: NatTraversalProtocolTrait<CI>, CI> Protocol<CI> for NatTraversalProtocol<T, CI> {
     fn id(&self) -> u16 {
-        todo!()
+        3
     }
     fn name(&self) -> String {
         "NatTraversalProtocol".to_string()

@@ -1,14 +1,19 @@
-use quazal::{
-    rmc::{Error, Protocol},
-    ClientInfo, Context,
-};
+use quazal::rmc::types::QList;
+use quazal::rmc::Error;
+use quazal::rmc::Protocol;
+use quazal::ClientInfo;
+use quazal::Context;
 use slog::Logger;
 
-use crate::protocols::uplay_win_service::uplay_win_protocol::{
-    GetActionsCompletedRequest, GetActionsCompletedResponse, GetRewardsPurchasedRequest,
-    GetRewardsPurchasedResponse, UplayWelcomeRequest, UplayWelcomeResponse, UplayWinProtocol,
-    UplayWinProtocolTrait,
-};
+use crate::login_required;
+use crate::protocols::uplay_win_service::uplay_win_protocol::GetActionsCompletedRequest;
+use crate::protocols::uplay_win_service::uplay_win_protocol::GetActionsCompletedResponse;
+use crate::protocols::uplay_win_service::uplay_win_protocol::GetRewardsPurchasedRequest;
+use crate::protocols::uplay_win_service::uplay_win_protocol::GetRewardsPurchasedResponse;
+use crate::protocols::uplay_win_service::uplay_win_protocol::UplayWelcomeRequest;
+use crate::protocols::uplay_win_service::uplay_win_protocol::UplayWelcomeResponse;
+use crate::protocols::uplay_win_service::uplay_win_protocol::UplayWinProtocol;
+use crate::protocols::uplay_win_service::uplay_win_protocol::UplayWinProtocolTrait;
 
 struct UplayWinProtocolImpl;
 
@@ -17,22 +22,24 @@ impl<CI> UplayWinProtocolTrait<CI> for UplayWinProtocolImpl {
         &self,
         _logger: &Logger,
         _ctx: &Context,
-        _ci: &mut ClientInfo<CI>,
+        ci: &mut ClientInfo<CI>,
         _request: UplayWelcomeRequest,
     ) -> Result<UplayWelcomeResponse, Error> {
+        login_required(&*ci)?;
         Ok(UplayWelcomeResponse {
-            action_list: Default::default(),
+            action_list: QList::default(),
         })
     }
     fn get_actions_completed(
         &self,
         _logger: &Logger,
         _ctx: &Context,
-        _ci: &mut ClientInfo<CI>,
+        ci: &mut ClientInfo<CI>,
         _request: GetActionsCompletedRequest,
     ) -> Result<GetActionsCompletedResponse, Error> {
+        login_required(&*ci)?;
         Ok(GetActionsCompletedResponse {
-            action_list: Default::default(),
+            action_list: QList::default(),
         })
     }
 
@@ -40,11 +47,12 @@ impl<CI> UplayWinProtocolTrait<CI> for UplayWinProtocolImpl {
         &self,
         _logger: &Logger,
         _ctx: &Context,
-        _ci: &mut ClientInfo<CI>,
+        ci: &mut ClientInfo<CI>,
         _request: GetRewardsPurchasedRequest,
     ) -> Result<GetRewardsPurchasedResponse, Error> {
+        login_required(&*ci)?;
         Ok(GetRewardsPurchasedResponse {
-            reward_list: Default::default(),
+            reward_list: QList::default(),
         })
     }
 }

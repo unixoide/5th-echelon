@@ -1,18 +1,22 @@
 extern crate proc_macro;
-use crate::what_crate;
 use quote::quote;
-use syn::*;
+use syn::Data;
+use syn::DeriveInput;
+
+use crate::what_crate;
 
 pub fn to_stream_derive_impl(input: DeriveInput) -> proc_macro2::TokenStream {
     let crt = what_crate();
     let name = input.ident;
-    let input = match input.data {
-        Data::Struct(input) => input,
-        _ => panic!(),
+    let (impl_generics, type_generics, where_generics) = input.generics.split_for_impl();
+    let Data::Struct(input) = input.data else {
+        panic!()
     };
     let fields = input.fields.into_iter().map(|f| f.ident);
     quote! {
-        impl #crt::rmc::basic::ToStream for #name {
+        impl #impl_generics #crt::rmc::basic::ToStream for #name #type_generics
+        #where_generics
+        {
             fn to_stream<W>(&self, stream: &mut #crt::rmc::basic::WriteStream<W>) -> ::std::result::Result<usize, ::std::io::Error>
             where
                 W: ::byteorder::WriteBytesExt,
@@ -30,13 +34,15 @@ pub fn to_stream_derive_impl(input: DeriveInput) -> proc_macro2::TokenStream {
 pub fn from_stream_derive_impl(input: DeriveInput) -> proc_macro2::TokenStream {
     let crt = what_crate();
     let name = input.ident;
-    let input = match input.data {
-        Data::Struct(input) => input,
-        _ => panic!(),
+    let (impl_generics, type_generics, where_generics) = input.generics.split_for_impl();
+    let Data::Struct(input) = input.data else {
+        panic!()
     };
     let fields = input.fields.into_iter().map(|f| f.ident);
     quote! {
-        impl #crt::rmc::basic::FromStream for #name {
+        impl #impl_generics #crt::rmc::basic::FromStream for #name #type_generics
+        #where_generics
+        {
             fn from_stream<R>(stream: &mut #crt::rmc::basic::ReadStream<R>) -> ::std::result::Result<Self, ::std::io::Error>
             where
                 R: ::byteorder::ReadBytesExt,
@@ -53,6 +59,8 @@ pub fn from_stream_derive_impl(input: DeriveInput) -> proc_macro2::TokenStream {
 
 #[cfg(test)]
 mod tests {
+    use syn::parse_quote;
+
     use super::*;
 
     #[test]
@@ -65,6 +73,6 @@ mod tests {
         };
 
         let out = dbg!(to_stream_derive_impl(ts));
-        println!("{}", out);
+        println!("{out}");
     }
 }

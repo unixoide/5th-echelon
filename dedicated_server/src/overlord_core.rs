@@ -5,6 +5,9 @@ use quazal::rmc::types::Variant;
 use quazal::rmc::Protocol;
 use quazal::Context;
 
+use crate::login_required;
+
+#[allow(clippy::module_name_repetitions)]
 pub struct OverlordCoreProtocol;
 
 impl<T> Protocol<T> for OverlordCoreProtocol {
@@ -24,16 +27,18 @@ impl<T> Protocol<T> for OverlordCoreProtocol {
         &self,
         _logger: &slog::Logger,
         _ctx: &Context,
-        _ci: &mut quazal::ClientInfo<T>,
+        ci: &mut quazal::ClientInfo<T>,
         request: &quazal::rmc::Request,
     ) -> std::result::Result<Vec<u8>, quazal::rmc::Error> {
+        #[allow(clippy::enum_glob_use)]
+        use Variant::*;
+
+        login_required(&*ci)?;
         if request.method_id != 1 {
             return Err(quazal::rmc::Error::UnknownMethod);
         }
 
-        use Variant::*;
-
-        let cfg: HashMap<std::string::String, Variant> = [
+        let cfg: Vec<(std::string::String, Variant)> = vec![
             ("VER_SERVER_STAGE".to_owned(), I64(10)),
             ("2593515025".to_owned(), I64(1)),
             ("2626349757".to_owned(), I64(1)),
@@ -86,10 +91,15 @@ impl<T> Protocol<T> for OverlordCoreProtocol {
             ("3804368594".to_owned(), I64(1)),
             ("NC_CONNECTION_CLOSING_TIMEOUT".to_owned(), F64(2.0)),
             ("NC_CONNECTION_ESTABLISHED_TIMEOUT".to_owned(), F64(10.0)),
-        ]
-        .iter()
+        ];
+
+        /* Alternative with hashmap:
+         let cfg: HashMap<std::string::String, Variant> = [
+            ...
+        ].iter()
         .cloned()
         .collect();
+        */
         Ok(cfg.as_bytes())
     }
 
@@ -115,6 +125,7 @@ mod tests {
         let logger = slog::Logger::root(slog::Discard, slog::o!());
         let ctx = quazal::Context::default();
         let mut ci = quazal::ClientInfo::<()>::new("127.0.0.1:2".parse().unwrap());
+        ci.user_id = Some(1);
         let prot = OverlordCoreProtocol;
         let request = quazal::rmc::Request {
             protocol_id: Protocol::<()>::id(&prot),
@@ -126,6 +137,19 @@ mod tests {
 
         let expected = include_bytes!("../../testdata/overlord_core_config.bin");
         assert_eq!(expected.len(), resp.len());
-        assert_eq!(expected.as_ref(), resp.as_slice());
+        if expected.as_ref() != resp.as_slice() {
+            panic!(
+                "{}",
+                diff::slice(expected.as_ref(), resp.as_slice())
+                    .into_iter()
+                    .map(|diff| match diff {
+                        diff::Result::Left(l) => format!("-{l:02x}"),
+                        diff::Result::Both(l, _) => format!(" {l:02x}"),
+                        diff::Result::Right(r) => format!("+{r:02x}"),
+                    })
+                    .collect::<Vec<_>>()
+                    .join("\n")
+            );
+        }
     }
 }

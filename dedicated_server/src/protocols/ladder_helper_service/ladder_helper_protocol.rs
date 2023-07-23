@@ -1,3 +1,11 @@
+#![allow(
+    clippy::wildcard_imports,
+    clippy::module_name_repetitions,
+    clippy::too_many_lines
+)]
+
+use std::convert::TryFrom;
+
 use num_enum::TryFromPrimitive;
 use quazal::rmc::basic::FromStream;
 use quazal::rmc::basic::ToStream;
@@ -7,7 +15,6 @@ use quazal::rmc::Request;
 use quazal::ClientInfo;
 use quazal::Context;
 use slog::Logger;
-use std::convert::TryFrom;
 #[derive(Debug, TryFromPrimitive)]
 #[repr(u32)]
 enum LadderHelperProtocolMethod {
@@ -51,7 +58,7 @@ pub struct LadderHelperProtocol<T: LadderHelperProtocolTrait<CI>, CI>(
 );
 impl<T: LadderHelperProtocolTrait<CI>, CI> LadderHelperProtocol<T, CI> {
     pub fn new(implementation: T) -> Self {
-        Self(implementation, ::std::marker::PhantomData::default())
+        Self(implementation, ::std::marker::PhantomData)
     }
 }
 impl<T: LadderHelperProtocolTrait<CI>, CI> Protocol<CI> for LadderHelperProtocol<T, CI> {

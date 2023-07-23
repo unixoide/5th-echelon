@@ -1,9 +1,15 @@
-use super::basic::{FromStream, ReadStream, ToStream, WriteStream};
-use byteorder::{ReadBytesExt, WriteBytesExt};
 use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::io;
 use std::marker::PhantomData;
+
+use byteorder::ReadBytesExt;
+use byteorder::WriteBytesExt;
+
+use super::basic::FromStream;
+use super::basic::ReadStream;
+use super::basic::ToStream;
+use super::basic::WriteStream;
 
 #[derive(Debug, Default)]
 pub struct StationURL(pub String);
@@ -62,15 +68,19 @@ impl FromStream for QResult {
 
         Ok(match code {
             0x10001 => Self::Ok,
-            c => super::result::Error::try_from(c)
-                .map(Self::Error)
-                .unwrap_or_else(|_| Self::Unknown(c)),
+            c => super::result::Error::try_from(c).map_or_else(|_| Self::Unknown(c), Self::Error),
         })
     }
 }
 
 pub trait AnyClass: FromStream {
     fn as_any(&self) -> &dyn std::any::Any;
+}
+
+impl<T: std::any::Any + FromStream> AnyClass for T {
+    fn as_any(&self) -> &dyn std::any::Any {
+        self
+    }
 }
 
 pub type ClassPtr = Box<dyn AnyClass>;
@@ -80,8 +90,8 @@ pub type ClassFactory = fn(&[u8]) -> io::Result<ClassPtr>;
 pub struct ClassRegistry(HashMap<String, ClassFactory>);
 
 impl ClassRegistry {
-    pub fn register_class<T: AnyClass + 'static>(&mut self, name: String) {
-        self.0.insert(name, |data: &[u8]| {
+    pub fn register_class<T: AnyClass + 'static>(&mut self, name: impl Into<String>) {
+        self.0.insert(name.into(), |data: &[u8]| {
             T::from_bytes(data).map(|v| Box::new(v) as ClassPtr)
         });
     }
@@ -125,7 +135,7 @@ impl<V: std::fmt::Debug, K: FromStream> FromStream for Any<V, K> {
         Ok(Self {
             type_name,
             data,
-            pd: PhantomData::default(),
+            pd: PhantomData,
         })
     }
 }
@@ -182,7 +192,7 @@ impl FromStream for Variant {
             6 => Ok(Variant::U64(stream.read()?)),
             t => Err(io::Error::new(
                 io::ErrorKind::InvalidData,
-                format!("invalid variant type {}", t),
+                format!("invalid variant type {t}"),
             )),
         }
     }
@@ -222,6 +232,7 @@ pub struct ResultRange {
 pub struct QList<T: std::fmt::Debug>(pub Vec<T>);
 
 impl<T: std::fmt::Debug> QList<T> {
+    #[must_use]
     pub fn new() -> Self {
         Self(Vec::new())
     }
@@ -229,7 +240,7 @@ impl<T: std::fmt::Debug> QList<T> {
 
 impl<T: std::fmt::Debug> std::default::Default for QList<T> {
     fn default() -> Self {
-        Self(Default::default())
+        Self(Vec::default())
     }
 }
 
@@ -262,8 +273,9 @@ where
     {
         // Looks like it's using 32bit after all?
         // let mut total = stream.u16(self.0.len() as u16)?;
+        #[allow(clippy::cast_possible_truncation)]
         let mut total = stream.u32(self.0.len() as u32)?;
-        for item in self.0.iter() {
+        for item in &self.0 {
             total += stream.write(item)?;
         }
         Ok(total)

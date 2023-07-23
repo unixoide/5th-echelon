@@ -1,16 +1,27 @@
 [package]
 name = "dedicated_server"
 version = "0.1.0"
-edition = "2018"
+edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+default-run = "dedicated_server"
 
 [dependencies]
 quazal = { path = "../quazal" }
 quazal-macros = { path = "../quazal-macros" }
-num_enum = "0.5"
+num_enum = "0.7"
 byteorder = "1.4"
 hmac = "0.12"
 md-5 = "0.10"
-slog = { version = "2.7", features = [ "max_level_trace" ] }
+slog = { version = "2.7", features = ["max_level_trace"] }
 sloggers = { version = "2.0", features = ["json"] }
+sqlx = { version = "0.7.1", features = ["runtime-tokio", "sqlite"] }
+eyre = "0.6.8"
+tokio = { version = "1.32.0", features = ["rt"] }
+argon2 = "0.5.2"
+color-eyre = "0.6.2"
+argh = "0.1.12"
+rand = "0.8.5"
+
+[dev-dependencies]
+diff = "0.1.13"

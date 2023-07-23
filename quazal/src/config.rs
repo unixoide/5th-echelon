@@ -1,19 +1,22 @@
-use serde::de;
-use serde::Deserialize;
-use serde::Deserializer;
-use serde::Serialize;
 use std::collections::HashMap;
 use std::net::SocketAddr;
 use std::num::Wrapping;
 use std::path::PathBuf;
 
+use serde::de;
+use serde::Deserialize;
+use serde::Deserializer;
+use serde::Serialize;
+use sodiumoxide::crypto::secretbox;
 use toml::Value;
 
 use crate::prudp::packet::StreamType;
 use crate::Error;
 
 mod bytes {
-    use serde::{de::Visitor, Deserializer, Serializer};
+    use serde::de::Visitor;
+    use serde::Deserializer;
+    use serde::Serializer;
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<Vec<u8>, D::Error>
     where
@@ -83,6 +86,7 @@ pub struct Context {
     pub vport: u8,
     pub secure_server_addr: Option<SocketAddr>,
     pub settings: HashMap<String, String>,
+    pub ticket_key: secretbox::Key,
 }
 
 impl Default for Context {
@@ -95,11 +99,13 @@ impl Default for Context {
             vport: 1,
             secure_server_addr: None,
             settings: HashMap::new(),
+            ticket_key: secretbox::gen_key(),
         }
     }
 }
 
 impl Context {
+    #[must_use]
     pub fn splinter_cell_blacklist() -> Context {
         Context {
             access_key: b"yl4NG7qZ".to_vec(),
@@ -107,14 +113,17 @@ impl Context {
         }
     }
 
+    #[must_use]
     pub fn key(&self, stype: StreamType) -> u32 {
         let sum = || {
             let key_sum = self
                 .access_key
                 .iter()
-                .fold(Wrapping(0u32), |acc, x| acc + Wrapping(*x as u32));
+                .fold(Wrapping(0u32), |acc, x| acc + Wrapping(u32::from(*x)));
             key_sum.0
         };
+
+        #[allow(clippy::match_same_arms)]
         match stype {
             StreamType::DO => 0,
             StreamType::RV => 0,
@@ -144,6 +153,7 @@ pub struct OnlineConfig {
 }
 
 #[cfg(not(feature = "typed_online_config"))]
+#[allow(clippy::module_name_repetitions)]
 #[derive(Serialize, Deserialize, Debug)]
 pub struct OnlineConfig {
     pub listen: SocketAddr,
@@ -249,23 +259,25 @@ impl<'de> Deserialize<'de> for Service {
 }
 
 #[derive(Serialize, Deserialize, Default)]
-pub struct Config<'a> {
-    pub services: std::collections::HashSet<&'a str>,
-    #[serde(borrow)]
-    pub service: std::collections::HashMap<&'a str, Service>,
+pub struct Config {
+    pub services: std::collections::HashSet<String>,
+    pub service: std::collections::HashMap<String, Service>,
 }
 
-impl<'a> Config<'a> {
+impl Config {
     pub fn load_from_file<P: AsRef<std::path::Path>>(
         path: P,
-    ) -> Result<Vec<(String, Service)>, Box<dyn std::error::Error>> {
-        let data = std::fs::read(path)?;
-        let w: Config = toml::from_slice(&data)?;
+    ) -> Result<Self, Box<dyn std::error::Error>> {
+        let data = std::fs::read_to_string(path)?;
+        let w: Config = toml::from_str(&data)?;
+        Ok(w)
+    }
 
+    pub fn into_services(self) -> Result<Vec<(String, Service)>, Error> {
         let Config {
             mut services,
             service,
-        } = w;
+        } = self;
         let service_contexts = service
             .into_iter()
             .filter_map(|(ref name, ctx)| {
@@ -276,16 +288,12 @@ impl<'a> Config<'a> {
                 }
             })
             .collect();
-        if !services.is_empty() {
-            Err(Box::new(Error::ServiceNotFound(
-                services
-                    .into_iter()
-                    .map(str::to_string)
-                    .collect::<Vec<_>>()
-                    .join("/"),
-            )))
-        } else {
+        if services.is_empty() {
             Ok(service_contexts)
+        } else {
+            Err(Error::ServiceNotFound(
+                services.into_iter().collect::<Vec<_>>().join("/"),
+            ))
         }
     }
 
@@ -293,7 +301,7 @@ impl<'a> Config<'a> {
         &self,
         path: P,
     ) -> Result<(), Box<dyn std::error::Error>> {
-        let data = toml::to_vec(self)?;
+        let data = toml::to_string_pretty(self)?;
         std::fs::write(path, data)?;
         Ok(())
     }

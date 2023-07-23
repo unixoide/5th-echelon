@@ -1,6 +1,12 @@
-use quazal::rmc::Packet;
+#![deny(clippy::pedantic)]
+
 use std::env::args;
-use std::io::{stdin, stdout, Read, Write};
+use std::io::stdin;
+use std::io::stdout;
+use std::io::Read;
+use std::io::Write;
+
+use quazal::rmc::Packet;
 
 fn main() {
     let mut data = vec![];

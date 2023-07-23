@@ -1,6 +1,7 @@
-use crate::protocols::challenge_helper_service::types::FriendChallenge;
+#![allow(clippy::wildcard_imports, clippy::module_name_repetitions)]
 
-use super::types::*;
+use std::convert::TryFrom;
+
 use num_enum::TryFromPrimitive;
 use quazal::rmc::basic::FromStream;
 use quazal::rmc::basic::ToStream;
@@ -10,7 +11,9 @@ use quazal::rmc::Request;
 use quazal::ClientInfo;
 use quazal::Context;
 use slog::Logger;
-use std::convert::TryFrom;
+
+use super::types::*;
+use crate::protocols::challenge_helper_service::types::FriendChallenge;
 #[derive(Debug, TryFromPrimitive)]
 #[repr(u32)]
 enum ClanHelperProtocolMethod {
@@ -95,7 +98,7 @@ pub struct ClanHelperProtocol<T: ClanHelperProtocolTrait<CI>, CI>(
 );
 impl<T: ClanHelperProtocolTrait<CI>, CI> ClanHelperProtocol<T, CI> {
     pub fn new(implementation: T) -> Self {
-        Self(implementation, ::std::marker::PhantomData::default())
+        Self(implementation, ::std::marker::PhantomData)
     }
 }
 impl<T: ClanHelperProtocolTrait<CI>, CI> Protocol<CI> for ClanHelperProtocol<T, CI> {

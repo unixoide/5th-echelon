@@ -1,0 +1,17 @@
+[package]
+name = "wireshark-dissector"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "prudp_rmc_plugin"
+crate-type = ["cdylib"]
+
+[dependencies]
+const-cstr = "0.3"
+quazal = {path = "../quazal"}
+lazy_static = "1.4"
+
+[build-dependencies]
+bindgen = "0.66"
+pkg-config = "0.3"

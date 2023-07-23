@@ -1,8 +1,10 @@
-use quazal::rmc::Protocol;
-use quazal::Context;
 use std::time::Duration;
 use std::time::SystemTime;
 
+use quazal::rmc::Protocol;
+use quazal::Context;
+
+use crate::login_required;
 use crate::protocols::ladder_helper_service::ladder_helper_protocol::GetUnixUtcRequest;
 use crate::protocols::ladder_helper_service::ladder_helper_protocol::GetUnixUtcResponse;
 use crate::protocols::ladder_helper_service::ladder_helper_protocol::LadderHelperProtocol;
@@ -15,9 +17,12 @@ impl<T> LadderHelperProtocolTrait<T> for LadderHelperProtocolImpl {
         &self,
         _logger: &slog::Logger,
         _ctx: &Context,
-        _ci: &mut quazal::ClientInfo<T>,
+        ci: &mut quazal::ClientInfo<T>,
         _request: GetUnixUtcRequest,
     ) -> Result<GetUnixUtcResponse, quazal::rmc::Error> {
+        login_required(&*ci)?;
+
+        #[allow(clippy::cast_possible_truncation)]
         Ok(GetUnixUtcResponse {
             time: SystemTime::now()
                 .duration_since(SystemTime::UNIX_EPOCH)

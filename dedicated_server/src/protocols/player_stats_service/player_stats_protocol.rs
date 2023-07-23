@@ -1,4 +1,10 @@
-use super::types::*;
+#![allow(
+    clippy::wildcard_imports,
+    clippy::module_name_repetitions,
+    clippy::too_many_lines
+)]
+use std::convert::TryFrom;
+
 use num_enum::TryFromPrimitive;
 use quazal::rmc::basic::FromStream;
 use quazal::rmc::basic::ToStream;
@@ -8,7 +14,8 @@ use quazal::rmc::Request;
 use quazal::ClientInfo;
 use quazal::Context;
 use slog::Logger;
-use std::convert::TryFrom;
+
+use super::types::*;
 #[derive(Debug, TryFromPrimitive)]
 #[repr(u32)]
 enum PlayerStatsProtocolMethod {
@@ -145,7 +152,7 @@ pub struct PlayerStatsProtocol<T: PlayerStatsProtocolTrait<CI>, CI>(
 );
 impl<T: PlayerStatsProtocolTrait<CI>, CI> PlayerStatsProtocol<T, CI> {
     pub fn new(implementation: T) -> Self {
-        Self(implementation, ::std::marker::PhantomData::default())
+        Self(implementation, ::std::marker::PhantomData)
     }
 }
 impl<T: PlayerStatsProtocolTrait<CI>, CI> Protocol<CI> for PlayerStatsProtocol<T, CI> {

@@ -1,9 +1,15 @@
-use sloggers::Build;
+#![deny(clippy::pedantic)]
+#![allow(clippy::cast_possible_truncation)]
+
 use std::env::args;
-use std::io::{stdin, stdout, Read, Write};
+use std::io::stdin;
+use std::io::stdout;
+use std::io::Read;
+use std::io::Write;
 
 use quazal::prudp::packet::QPacket;
 use quazal::Context;
+use sloggers::Build;
 
 fn main() {
     let mut builder = sloggers::terminal::TerminalLoggerBuilder::new();

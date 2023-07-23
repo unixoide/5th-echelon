@@ -1,10 +1,16 @@
-use crate::protocols::tracking_service::tracking_protocol_3::*;
-
 use quazal::rmc::Error;
 use quazal::rmc::Protocol;
 use quazal::ClientInfo;
 use quazal::Context;
 use slog::Logger;
+
+use crate::login_required;
+use crate::protocols::tracking_service::tracking_protocol_3::GetConfigurationRequest;
+use crate::protocols::tracking_service::tracking_protocol_3::GetConfigurationResponse;
+use crate::protocols::tracking_service::tracking_protocol_3::SendTagsRequest;
+use crate::protocols::tracking_service::tracking_protocol_3::SendTagsResponse;
+use crate::protocols::tracking_service::tracking_protocol_3::TrackingProtocol3;
+use crate::protocols::tracking_service::tracking_protocol_3::TrackingProtocol3Trait;
 
 struct TrackingProtocol3Impl;
 
@@ -24,9 +30,10 @@ impl<T> TrackingProtocol3Trait<T> for TrackingProtocol3Impl {
         &self,
         _logger: &Logger,
         _ctx: &Context,
-        _ci: &mut ClientInfo<T>,
+        ci: &mut ClientInfo<T>,
         _request: GetConfigurationRequest,
     ) -> Result<GetConfigurationResponse, Error> {
+        login_required(&*ci)?;
         Ok(GetConfigurationResponse {
             tags: vec![
                 "ADVCLIENT_STOP".to_string(),
@@ -105,9 +112,10 @@ impl<T> TrackingProtocol3Trait<T> for TrackingProtocol3Impl {
         &self,
         _logger: &Logger,
         _ctx: &Context,
-        _ci: &mut ClientInfo<T>,
+        ci: &mut ClientInfo<T>,
         _request: SendTagsRequest,
     ) -> Result<SendTagsResponse, Error> {
+        login_required(&*ci)?;
         Ok(SendTagsResponse)
     }
 }

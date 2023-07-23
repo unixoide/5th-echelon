@@ -3,6 +3,8 @@ use quazal::rmc::types::DateTime;
 use quazal::rmc::Protocol;
 use quazal::Context;
 
+use crate::login_required;
+
 #[derive(Debug, ToStream, FromStream)]
 struct NewsItem {
     maybe_id: u32,
@@ -18,6 +20,7 @@ struct NewsItem {
     description: String,
 }
 
+#[allow(clippy::module_name_repetitions)]
 pub struct OverlordNewsProtocol;
 
 impl<T> Protocol<T> for OverlordNewsProtocol {
@@ -37,9 +40,10 @@ impl<T> Protocol<T> for OverlordNewsProtocol {
         &self,
         logger: &slog::Logger,
         _ctx: &Context,
-        _ci: &mut quazal::ClientInfo<T>,
+        ci: &mut quazal::ClientInfo<T>,
         request: &quazal::rmc::Request,
     ) -> std::result::Result<Vec<u8>, quazal::rmc::Error> {
+        login_required(&*ci)?;
         match request.method_id {
             1 => {
                 let news: Vec<NewsItem> = vec![];
@@ -130,6 +134,6 @@ mod tests {
             \x65\x72\x68\xc3\xa4\x6c\x74\x6c\x69\x63\x68\x21\x00";
 
         let parsed: Vec<NewsItem> = FromStream::from_bytes(data).unwrap();
-        println!("{:#?}", parsed);
+        println!("{parsed:#?}");
     }
 }

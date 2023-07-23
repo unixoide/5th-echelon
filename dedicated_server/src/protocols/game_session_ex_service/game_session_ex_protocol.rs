@@ -1,6 +1,7 @@
-use crate::protocols::game_session_service::types::GameSessionQuery;
+#![allow(clippy::wildcard_imports, clippy::module_name_repetitions)]
 
-use super::types::*;
+use std::convert::TryFrom;
+
 use num_enum::TryFromPrimitive;
 use quazal::rmc::basic::FromStream;
 use quazal::rmc::basic::ToStream;
@@ -10,7 +11,9 @@ use quazal::rmc::Request;
 use quazal::ClientInfo;
 use quazal::Context;
 use slog::Logger;
-use std::convert::TryFrom;
+
+use super::types::*;
+use crate::protocols::game_session_service::types::GameSessionQuery;
 #[derive(Debug, TryFromPrimitive)]
 #[repr(u32)]
 enum GameSessionExProtocolMethod {
@@ -30,7 +33,7 @@ pub struct GameSessionExProtocol<T: GameSessionExProtocolTrait<CI>, CI>(
 );
 impl<T: GameSessionExProtocolTrait<CI>, CI> GameSessionExProtocol<T, CI> {
     pub fn new(implementation: T) -> Self {
-        Self(implementation, ::std::marker::PhantomData::default())
+        Self(implementation, ::std::marker::PhantomData)
     }
 }
 impl<T: GameSessionExProtocolTrait<CI>, CI> Protocol<CI> for GameSessionExProtocol<T, CI> {

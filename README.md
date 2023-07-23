@@ -8,7 +8,7 @@ similar for previous games as well.
 
 ## Build
 
-Last tested rust version: 1.64 nightly
+Last tested rust version: 1.74 nightly
 
 ```shell
 # debug mode (builds faster)
@@ -17,22 +17,35 @@ $ cargo build
 $ cargo build --release
 ```
 
-## Usage
+## Usage (precompiled from the releases page)
 
-1. Add `onlineconfigservice.ubi.com` pointing to your server IP to `C:\Windows\System32\drivers\etc\hosts`
+1. Rename `uplay_r1_loader.dll` in the game directory to `uplay_r1_loader.orig.dll`
+2. Copy `uplay_r1_loader.dll` from the release to the game directory
 2. Adjust `service.toml` to your needs (update the IP, everything else should be fine)
-3. Start the server `./target/debug/dedicated_server` or `./target/release/dedicated_server`
+3. Start the server `dedicated_server.exe`
 4. Start the game and try to enter online mode
+
+
+## Usage (from source)
+
+1. Rename `uplay_r1_loader.dll` in the game directory to `uplay_r1_loader.orig.dll`
+2. Run ``.\scripts\uplay_r1_loader.bat`
+3. Adjust `service.toml` to your needs (update the IP, everything else should be fine)
+4. Start the server `.\scripts\run.bat`
+5. Start the game and try to enter online mode
 
 ### What works
 
 - Entering online mode (successful authenticate and fetch settings etc.)
+- Entering the COOP lobby
+- Starting a COOP game
+- Starting a Spy vs Merc game
 
 ### What doesn't work
 
-- Entering the COOP lobby (game hangs while trying to do so; probably some missing/incorrect response from the server)
-- Starting a COOP game (because of the one above)
-- Spy vs Merc
+- Invite other players (requires additional APIs to talk to)
+- Matchmaking (requires additional APIs to talk to)
+- NAT Traversal (required for actual play)
 
 ## Additional Tools
 
@@ -48,13 +61,16 @@ $ cargo run --release -p quazal-tools --bin ddl-parser -- -i mapping.json -o ddl
 
 ### Wireshark dissector
 
-There is a rudimentary wireshark dissector available. You can build and install it via
+There is a rudimentary wireshark dissector in rust available. You can build and install it on linux via
 
 ```shell
-$ ./build_dissector.sh
+$ ./scripts/build_dissector.sh
 ```
 
-And use it for example with `tshark`:
+Alternatively there is also a lua based dissector. To install, put `.\tools\quazal.lua` and `.\tools\rmc.txt` into the 
+wireshark plugin user directory.
+
+You can use both dissectors with `tshark` as well:
 
 ```
 $ tshark -r pcaps/sc_bl.pcapng -d udp.port==3074,prudp -d udp.port==13000,prudp -V -Y udp -x -O prudp,rmc -Y 'udp.port==3074'

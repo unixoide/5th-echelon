@@ -1,12 +1,18 @@
+use std::collections::HashMap;
+use std::io::Cursor;
+use std::io::Read;
+
+use byteorder::LittleEndian;
+use byteorder::ReadBytesExt;
+use derive_more::Display;
+use derive_more::Error as DeriveError;
+use derive_more::From;
+use slog::Logger;
+
 use crate::prudp::packet;
 use crate::prudp::packet::StreamHandler;
 use crate::ClientInfo;
 use crate::Context;
-use byteorder::{LittleEndian, ReadBytesExt};
-use derive_more::{Display, Error as DeriveError, From};
-use slog::Logger;
-use std::collections::HashMap;
-use std::io::{Cursor, Read};
 
 pub mod basic;
 pub mod result;
@@ -15,7 +21,7 @@ pub mod types;
 
 #[derive(Debug, Display, DeriveError, From)]
 pub enum Error {
-    #[display(fmt = "Not enough data. Expected {} bytes, got {}", _0, _1)]
+    #[display(fmt = "Not enough data. Expected {_0} bytes, got {_1}")]
     MissingData(#[error(not(source))] usize, #[error(not(source))] usize),
 
     ParsingError,
@@ -23,11 +29,29 @@ pub enum Error {
     UnknownMethod,
     UnimplementedMethod,
     InvalidPacketType,
+    InternalError,
+    AccessDenied,
 
     IO(#[error(source)] std::io::Error),
 }
 
-type Result<T> = std::result::Result<T, Error>;
+impl Error {
+    #[must_use]
+    pub fn to_error_code(&self) -> u32 {
+        let code = match self {
+            // https://github.com/kinnay/NintendoClients/blob/13a5bdc3723bcc6cd5d0c8bb106250efbce7c165/nintendo/nex/errors.py
+            Error::UnknownProtocol | Error::UnknownMethod => 0x0001_0001,
+            Error::UnimplementedMethod => 0x0001_0002,
+            Error::AccessDenied => 0x0001_0006,
+            Error::MissingData(_, _) => 0x0001_0009,
+            Error::ParsingError | Error::InvalidPacketType | Error::IO(_) => 0x0001_000A,
+            Error::InternalError => 0x0001_0012,
+        };
+        code | 0x8000_0000
+    }
+}
+
+pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Debug)]
 pub struct Request {
@@ -48,7 +72,7 @@ impl Request {
         let protocol_id = if protocol_id == 0xff {
             rdr.read_u16::<LittleEndian>()?
         } else {
-            (protocol_id & !0x80) as u16
+            u16::from(protocol_id & !0x80)
         };
         let call_id = rdr.read_u32::<LittleEndian>()?;
         let method_id = rdr.read_u32::<LittleEndian>()?;
@@ -85,6 +109,7 @@ impl ResponseData {
         })
     }
 
+    #[must_use]
     pub fn to_bytes(&self) -> Vec<u8> {
         let mut data = vec![];
         data.extend_from_slice(&self.call_id.to_le_bytes());
@@ -110,6 +135,7 @@ impl ResponseError {
         })
     }
 
+    #[must_use]
     pub fn to_bytes(&self) -> Vec<u8> {
         let mut data = vec![];
         data.extend_from_slice(&self.error_code.to_le_bytes());
@@ -135,7 +161,7 @@ impl Response {
         let protocol_id = if protocol_id == 0x7f {
             rdr.read_u16::<LittleEndian>()?
         } else {
-            protocol_id as u16
+            u16::from(protocol_id)
         };
         let status = rdr.read_u8()?;
         let result = match status {
@@ -150,9 +176,11 @@ impl Response {
         })
     }
 
+    #[must_use]
     pub fn to_bytes(&self) -> Vec<u8> {
         let mut data = vec![0, 0, 0, 0];
         if self.protocol_id < 0x7f {
+            #[allow(clippy::cast_possible_truncation)]
             data.push(self.protocol_id as u8);
         } else {
             data.push(0x7f);
@@ -162,13 +190,14 @@ impl Response {
         match self.result {
             Ok(ref rd) => {
                 data.push(1);
-                data.append(&mut rd.to_bytes())
+                data.append(&mut rd.to_bytes());
             }
             Err(ref re) => {
                 data.push(0);
-                data.append(&mut re.to_bytes())
+                data.append(&mut re.to_bytes());
             }
         };
+        #[allow(clippy::cast_possible_truncation)]
         let len = (data.len() - 4) as u32;
         let sz = &mut data[..4];
         sz.copy_from_slice(&len.to_le_bytes());
@@ -187,10 +216,10 @@ impl Packet {
         if data.len() < 5 {
             return Err(Error::MissingData(5, data.len()));
         }
-        if data[4] & 0x80 != 0 {
-            Ok(Packet::Request(Request::from_bytes(data)?))
-        } else {
+        if data[4] & 0x80 == 0 {
             Ok(Packet::Response(Response::from_bytes(data)?))
+        } else {
+            Ok(Packet::Request(Request::from_bytes(data)?))
         }
     }
 }
@@ -215,10 +244,11 @@ pub struct RVSecHandler<T> {
 }
 
 impl<T> RVSecHandler<T> {
+    #[must_use]
     pub fn new(logger: slog::Logger) -> Self {
         Self {
             logger,
-            rmc_registry: Default::default(),
+            rmc_registry: HashMap::default(),
         }
     }
 
@@ -245,9 +275,7 @@ impl<T> StreamHandler<T> for RVSecHandler<T> {
     ) -> std::result::Result<Vec<u8>, packet::Error> {
         let rmc_packet = Packet::from_bytes(data);
 
-        let rmc_packet = if let Ok(p) = rmc_packet {
-            p
-        } else {
+        let Ok(rmc_packet) = rmc_packet else {
             let err = rmc_packet.err().unwrap();
             error!(logger, "Parsing RMC packet failed"; "error" => %err);
             return Err(packet::Error::StreamHandler(Box::new(err)));
@@ -271,37 +299,25 @@ impl<T> StreamHandler<T> for RVSecHandler<T> {
 
         let protocol = self.rmc_registry.get(&rmc_packet.protocol_id);
 
-        let maybe_protocol = match protocol {
-            Some(protocol) => {
-                info!(
-                    logger,
-                    "Calling {}.{}",
-                    protocol.name(),
-                    protocol
-                        .method_name(rmc_packet.method_id)
-                        .unwrap_or_default(),
-                );
+        let maybe_protocol = if let Some(protocol) = protocol {
+            info!(
+                logger,
+                "Calling {}.{}",
+                protocol.name(),
+                protocol
+                    .method_name(rmc_packet.method_id)
+                    .unwrap_or_default(),
+            );
 
-                protocol.handle(&logger, ctx, ci, &rmc_packet)
-            }
-            None => {
-                warn!(logger, "no handler available");
-                Err(Error::UnknownProtocol)
-            }
+            protocol.handle(&logger, ctx, ci, &rmc_packet)
+        } else {
+            warn!(logger, "no handler available");
+            Err(Error::UnknownProtocol)
         };
 
         let result = match maybe_protocol {
             Err(e) => Err(ResponseError {
-                error_code: match e {
-                    // https://github.com/kinnay/NintendoClients/blob/13a5bdc3723bcc6cd5d0c8bb106250efbce7c165/nintendo/nex/errors.py
-                    Error::MissingData(_, _) => 0x80010009,
-                    Error::ParsingError => 0x8001000A,
-                    Error::InvalidPacketType => 0x8001000A,
-                    Error::UnknownProtocol => 0x80010001,
-                    Error::UnknownMethod => 0x80010001,
-                    Error::UnimplementedMethod => 0x80010001,
-                    Error::IO(_) => 0x8001000A,
-                },
+                error_code: e.to_error_code(),
                 call_id: rmc_packet.call_id,
             }),
             Ok(data) => Ok(ResponseData {

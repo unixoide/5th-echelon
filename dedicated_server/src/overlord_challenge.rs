@@ -7,6 +7,8 @@ use quazal::rmc::types::Variant;
 use quazal::rmc::Protocol;
 use quazal::Context;
 
+use crate::login_required;
+
 #[derive(Debug, ToStream, FromStream)]
 struct GetChallengesRequest {
     class: String,
@@ -40,6 +42,7 @@ struct GetChallengesResponse {
     challenges: Vec<Challenge>,
 }
 
+#[allow(clippy::module_name_repetitions)]
 pub struct OverlordChallengeProtocol;
 
 impl<T> Protocol<T> for OverlordChallengeProtocol {
@@ -59,14 +62,15 @@ impl<T> Protocol<T> for OverlordChallengeProtocol {
         &self,
         logger: &slog::Logger,
         _ctx: &Context,
-        _ci: &mut quazal::ClientInfo<T>,
+        ci: &mut quazal::ClientInfo<T>,
         request: &quazal::rmc::Request,
     ) -> std::result::Result<Vec<u8>, quazal::rmc::Error> {
+        login_required(&*ci)?;
         match request.method_id {
             1 => {
                 let _request: GetChallengesRequest = FromStream::from_bytes(&request.parameters)?;
                 Ok(GetChallengesResponse {
-                    challenges: Default::default(),
+                    challenges: Vec::default(),
                 }
                 .as_bytes())
             }
@@ -96,6 +100,8 @@ mod tests {
     use quazal::rmc::basic::FromStream;
 
     use super::*;
+
+    #[allow(clippy::too_many_lines)]
     #[test]
     fn parse_sample() {
         let data = b"\x03\x00\x00\x00\xc8\x71\x02\x00\x03\x00\x7b\x7d\x00\x31\x02\x3c\
@@ -225,6 +231,6 @@ mod tests {
       \x00\x00\x00";
 
         let parsed: GetChallengesResponse = FromStream::from_bytes(data).unwrap();
-        println!("{:#?}", parsed);
+        println!("{parsed:#?}");
     }
 }

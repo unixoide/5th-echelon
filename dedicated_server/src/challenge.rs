@@ -1,13 +1,15 @@
-use quazal::{
-    rmc::{Error, Protocol},
-    ClientInfo, Context,
-};
+use quazal::rmc::types::QList;
+use quazal::rmc::Error;
+use quazal::rmc::Protocol;
+use quazal::ClientInfo;
+use quazal::Context;
 use slog::Logger;
 
-use crate::protocols::challenge_helper_service::challenge_helper_protocol::{
-    ChallengeHelperProtocol, ChallengeHelperProtocolTrait, GenerateFriendChallengesRequest,
-    GenerateFriendChallengesResponse,
-};
+use crate::login_required;
+use crate::protocols::challenge_helper_service::challenge_helper_protocol::ChallengeHelperProtocol;
+use crate::protocols::challenge_helper_service::challenge_helper_protocol::ChallengeHelperProtocolTrait;
+use crate::protocols::challenge_helper_service::challenge_helper_protocol::GenerateFriendChallengesRequest;
+use crate::protocols::challenge_helper_service::challenge_helper_protocol::GenerateFriendChallengesResponse;
 
 struct ChallengeHelperProtocolImpl;
 
@@ -16,11 +18,12 @@ impl<CI> ChallengeHelperProtocolTrait<CI> for ChallengeHelperProtocolImpl {
         &self,
         _logger: &Logger,
         _ctx: &Context,
-        _ci: &mut ClientInfo<CI>,
+        ci: &mut ClientInfo<CI>,
         _request: GenerateFriendChallengesRequest,
     ) -> Result<GenerateFriendChallengesResponse, Error> {
+        login_required(&*ci)?;
         Ok(GenerateFriendChallengesResponse {
-            result: Default::default(),
+            result: QList::default(),
         })
     }
 }

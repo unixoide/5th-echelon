@@ -1,0 +1,141 @@
+services = ["sc_bl_secure", "sc_bl_auth", "onlineconfig", "content"]
+
+# onlineconfigservice.ubi.com
+[service.onlineconfig]
+type = "config"
+listen = "127.0.0.1:80"
+content = """[{\
+  "Name":"punch_DetectUrls",\
+  "Values":[\
+    "lb-prod-mm-detect01.ubisoft.com:11020",\
+    "lb-prod-mm-detect02.ubisoft.com:11020"\
+  ]\
+},{\
+  "Name":"SandboxUrl",\
+  "Values":[\
+    "prudp:\\/address=127.0.0.1;port=21170"\
+  ]\
+},{\
+  "Name":"SandboxUrlWS",\
+  "Values":[\
+    "mdc-mm-rdv66.ubisoft.com:21170"\
+  ]\
+},{\
+  "Name":"uplay_DownloadServiceUrl",\
+  "Values":[\
+    "https:\\/\\/secure.ubi.com\\/UplayServices\\/UplayFacade\\/DownloadServicesRESTXML.svc\\/REST\\/XML\\/?url="\
+  ]\
+},{\
+  "Name":"uplay_DynContentBaseUrl",\
+  "Values":[\
+    "http:\\/\\/static8.cdn.ubi.com\\/u\\/Uplay\\/"\
+  ]\
+},{\
+  "Name":"uplay_DynContentSecureBaseUrl",\
+  "Values":[\
+    "http:\\/\\/static8.cdn.ubi.com\\/"\
+  ]\
+},{\
+  "Name":"uplay_LinkappBaseUrl",\
+  "Values":[\
+    " http:\\/\\/static8.ubi.com\\/private\\/Uplay\\/Packages\\/linkapp\\/3.0.0-rc\\/"\
+  ]\
+},{\
+  "Name":"uplay_PackageBaseUrl",\
+  "Values":[\
+    "http:\\/\\/static8.ubi.com\\/private\\/Uplay\\/Packages\\/1.5-Share-rc\\/"\
+  ]\
+},{\
+  "Name":"uplay_WebServiceBaseUrl",\
+  "Values":[\
+    "https:\\/\\/secure.ubi.com\\/UplayServices\\/UplayFacade\\/ProfileServicesFacadeRESTXML.svc\\/REST\\/"\
+  ]\
+}]"""
+
+[service.content]
+type = "content"
+listen = "127.0.0.1:8000"
+[service.content.files]
+"/mp_balancing.ini" = "../data/mp_balancing.ini"
+
+[service.sc_bl_auth]
+type = "authentication"
+access_key = "yl4NG7qZ"
+listen = "127.0.0.1:21170"
+secure_server_addr = "127.0.0.1:21171"
+ticket_key = [
+  11,
+  229,
+  27,
+  187,
+  128,
+  160,
+  93,
+  115,
+  175,
+  9,
+  117,
+  93,
+  82,
+  131,
+  73,
+  213,
+  64,
+  219,
+  27,
+  123,
+  216,
+  75,
+  114,
+  181,
+  27,
+  245,
+  122,
+  167,
+  107,
+  123,
+  200,
+  239,
+]
+
+[service.sc_bl_secure]
+type = "secure"
+access_key = "yl4NG7qZ"
+listen = "127.0.0.1:21171"
+ticket_key = [
+  11,
+  229,
+  27,
+  187,
+  128,
+  160,
+  93,
+  115,
+  175,
+  9,
+  117,
+  93,
+  82,
+  131,
+  73,
+  213,
+  64,
+  219,
+  27,
+  123,
+  216,
+  75,
+  114,
+  181,
+  27,
+  245,
+  122,
+  167,
+  107,
+  123,
+  200,
+  239,
+]
+[service.sc_bl_secure.settings]
+storage_host = "127.0.0.1:8000"
+storage_path = "/mp_balancing.ini"

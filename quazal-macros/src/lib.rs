@@ -1,11 +1,16 @@
+#![deny(clippy::pedantic)]
+
 extern crate proc_macro;
+
 use proc_macro2::Span;
 use proc_macro2::TokenStream;
 use proc_macro_crate::crate_name;
 use proc_macro_crate::FoundCrate;
 use quote::quote;
 use quote::ToTokens;
-use syn::*;
+use syn::parse_macro_input;
+use syn::DeriveInput;
+use syn::Ident;
 
 mod stream;
 use stream::from_stream_derive_impl;

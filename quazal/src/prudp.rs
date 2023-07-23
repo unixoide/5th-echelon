@@ -1,48 +1,73 @@
 pub mod packet;
 
-use crate::{
-    kerberos::KerberosTicketInternal,
-    rmc::basic::{ReadStream, ToStream},
-    ClientInfo, Context,
-};
-use packet::*;
-use slog::{debug, error, o, Logger};
-use std::{
-    cell::RefCell,
-    collections::HashMap,
-    io,
-    net::{self, SocketAddr},
-};
+use std::cell::RefCell;
+use std::collections::HashMap;
+use std::io;
+use std::net::SocketAddr;
+use std::net::{self};
+use std::time::Duration;
+use std::time::Instant;
+
+use slog::debug;
+use slog::error;
+use slog::o;
+use slog::Logger;
+
+use self::packet::crypt_key;
+use self::packet::PacketFlag;
+use self::packet::PacketType;
+use self::packet::QPacket;
+use self::packet::StreamHandler;
+use self::packet::StreamHandlerRegistry;
+use self::packet::VPort;
+use crate::kerberos::KerberosTicketInternal;
+use crate::rmc::basic::ReadStream;
+use crate::rmc::basic::ToStream;
+use crate::ClientInfo;
+use crate::Context;
 
 const MAX_PAYLOAD_SIZE: usize = 1000;
+const SESSION_TIMEOUT: Duration = Duration::from_secs(60);
 
-pub struct Server<'a, T = ()> {
+pub struct Server<'a, ECH, DH, T = ()>
+where
+    ECH: FnMut(ClientInfo<T>),
+    DH: FnMut(ClientInfo<T>),
+{
     logger: slog::Logger,
     registry: StreamHandlerRegistry<T>,
     socket: Option<net::UdpSocket>,
     ctx: &'a Context,
     new_clients: HashMap<u32, ClientInfo<T>>,
     clients: HashMap<u32, RefCell<ClientInfo<T>>>,
-    pub user_handler: Option<fn(packet: QPacket, client: SocketAddr, sock: &net::UdpSocket)>,
+    pub user_handler:
+        Option<fn(logger: &Logger, packet: QPacket, client: SocketAddr, sock: &net::UdpSocket)>,
+    pub expired_client_handler: Option<ECH>,
+    pub disconnect_handler: Option<DH>,
 }
 
-impl<'a, T> Server<'a, T>
+impl<'a, ECH, DH, T> Server<'a, ECH, DH, T>
 where
     T: Default,
+    ECH: FnMut(ClientInfo<T>),
+    DH: FnMut(ClientInfo<T>),
 {
+    #[must_use]
     pub fn new(
         logger: slog::Logger,
         ctx: &Context,
         registry: StreamHandlerRegistry<T>,
-    ) -> Server<T> {
+    ) -> Server<ECH, DH, T> {
         Server {
             logger,
             registry,
             socket: None,
             ctx,
-            new_clients: Default::default(),
-            clients: Default::default(),
+            new_clients: HashMap::default(),
+            clients: HashMap::default(),
             user_handler: None,
+            expired_client_handler: None,
+            disconnect_handler: None,
         }
     }
 
@@ -60,17 +85,29 @@ where
         Ok(())
     }
 
-    #[allow(unreachable_code)]
-    pub fn serve(mut self) -> io::Result<()> {
+    pub fn serve(mut self) {
         let socket = self
             .socket
             .as_ref()
             .expect("UDP socket required")
             .try_clone()
             .expect("Couldn't clone socket");
+        socket
+            .set_read_timeout(Some(Duration::from_secs(1)))
+            .expect("error setting read timeout");
         let mut buf = vec![0u8; 1024];
         'outer: loop {
-            let (nread, client) = socket.recv_from(&mut buf)?;
+            let (nread, client) = match socket.recv_from(&mut buf) {
+                Ok(x) => x,
+                Err(e) => {
+                    if e.kind() == std::io::ErrorKind::TimedOut {
+                        self.clear_clients();
+                    } else {
+                        error!(self.logger, "recv_from failed: {}", e);
+                    }
+                    continue;
+                }
+            };
             let logger = self.logger.new(o!("client" => client));
             let mut data = &buf[..nread];
 
@@ -82,26 +119,26 @@ where
                         continue 'outer;
                     }
                 };
-                let (pdata, ndata) = data.split_at(nparsed as usize);
-                data = ndata;
-                trace!(logger, "-> {:02x?}", pdata);
+                #[allow(clippy::cast_possible_truncation)]
+                let (packet_data, next_data) = data.split_at(nparsed as usize);
+                data = next_data;
+                trace!(logger, "-> {:02x?}", packet_data);
 
-                if let Err(e) = packet.validate(self.ctx, pdata) {
+                if let Err(e) = packet.validate(self.ctx, packet_data) {
                     error!(logger, "Invalid packet received: {:?}", packet; "error" =>  %e);
                     continue;
                 };
 
                 self.handle_packet(
-                    logger.new(o!("seq" => packet.sequence, "session" => packet.session_id)),
+                    &logger.new(o!("seq" => packet.sequence, "session" => packet.session_id)),
                     packet,
                     client,
                 );
             }
         }
-        Ok(())
     }
 
-    fn handle_packet(&mut self, logger: Logger, packet: QPacket, client: SocketAddr) {
+    fn handle_packet(&mut self, logger: &Logger, packet: QPacket, client: SocketAddr) {
         debug!(logger, "packet: {:?}", packet);
         if packet.flags.contains(PacketFlag::Ack) {
             debug!(logger, "Received ACK");
@@ -112,25 +149,27 @@ where
             PacketType::Connect => self.handle_connect(logger, packet, client),
             PacketType::Data => self.handle_data(logger, packet, client),
             PacketType::Disconnect => {
-                let ci = match self.clients.get(&packet.signature) {
-                    Some(ci) => ci,
-                    None => return,
+                let Some(ci) = self.clients.remove(&packet.signature) else {
+                    return;
                 };
                 info!(logger, "Client disconnected"; "signature" => packet.signature, "session" => packet.session_id);
                 if self
-                    .send_ack(&logger, &client, &packet, &ci.borrow(), false)
+                    .send_ack(logger, &client, &packet, &ci.borrow(), false)
                     .is_err()
                 {
                     // ignore
                 }
+                if let Some(handler) = self.disconnect_handler.as_mut() {
+                    (handler)(ci.into_inner());
+                }
             }
             PacketType::Ping => {
-                let ci = match self.clients.get(&packet.signature) {
-                    Some(ci) => ci,
-                    None => return,
+                let Some(ci) = self.clients.get(&packet.signature) else {
+                    return;
                 };
+                ci.borrow_mut().seen();
                 if self
-                    .send_ack(&logger, &client, &packet, &ci.borrow(), false)
+                    .send_ack(logger, &client, &packet, &ci.borrow(), false)
                     .is_err()
                 {
                     // ignore
@@ -141,6 +180,7 @@ where
                     error!(logger, "unsupported user packet");
                 } else {
                     (self.user_handler.as_ref().unwrap())(
+                        logger,
                         packet,
                         client,
                         self.socket.as_ref().unwrap(),
@@ -152,17 +192,17 @@ where
         }
     }
 
-    fn handle_data(&mut self, logger: Logger, packet: QPacket, client: SocketAddr) {
+    fn handle_data(&mut self, logger: &Logger, packet: QPacket, client: SocketAddr) {
+        #![allow(clippy::cast_possible_truncation)]
+
         debug!(logger, "Handling data packet");
-        let ci = match self.clients.get(&packet.signature) {
-            Some(ci) => ci,
-            None => {
-                warn!(logger, "client is unknown!");
-                return;
-            }
+        let Some(ci) = self.clients.get(&packet.signature) else {
+            warn!(logger, "client is unknown!");
+            return;
         };
         let logger = logger.new(o!("pid" => ci.borrow().user_id));
         let ci = &mut ci.borrow_mut();
+        ci.seen();
         if let Err(e) = self.send_ack(&logger, &client, &packet, &*ci, false) {
             error!(logger, "Error sending ack"; "error" => %e);
         } else {
@@ -195,7 +235,7 @@ where
                 );
                 ci.packet_fragments.clear();
             }
-            payload.extend(packet.payload.into_iter());
+            payload.extend(packet.payload);
             // debug!(logger, "Reassembled: {:?}", payload; "fid" => fid);
             payload
         } else {
@@ -232,7 +272,7 @@ where
         }
     }
 
-    fn handle_syn(&mut self, logger: Logger, mut packet: QPacket, client: SocketAddr) {
+    fn handle_syn(&mut self, logger: &Logger, mut packet: QPacket, client: SocketAddr) {
         debug!(logger, "Handling syn packet");
         let ci: ClientInfo<T> = ClientInfo::new(client);
         let sig = ci.server_signature;
@@ -242,21 +282,19 @@ where
 
         let ci = self.new_clients.get(&sig).unwrap();
 
-        if let Err(e) = self.send_ack(&logger, &client, &packet, ci, false) {
+        if let Err(e) = self.send_ack(logger, &client, &packet, ci, false) {
             error!(logger, "Error sending syn ack packet"; "error" => %e);
         }
     }
 
-    fn handle_connect(&mut self, logger: Logger, mut packet: QPacket, client: SocketAddr) {
+    fn handle_connect(&mut self, logger: &Logger, mut packet: QPacket, client: SocketAddr) {
         debug!(logger, "Handling connect packet");
-        let signature = match packet.conn_signature {
-            Some(c) => c,
-            None => todo!("deny connect. no signature"),
+        let Some(signature) = packet.conn_signature else {
+            todo!("deny connect. no signature");
         };
 
-        let mut ci = match self.new_clients.remove(&packet.signature) {
-            Some(c) => c,
-            None => todo!("deny connect. no client"),
+        let Some(mut ci) = self.new_clients.remove(&packet.signature) else {
+            todo!("deny connect. no client");
         };
         ci.client_signature = Some(signature);
         ci.server_session = rand::random();
@@ -279,12 +317,14 @@ where
         };
 
         if !packet.payload.is_empty() {
-            let mut s = ReadStream::from_bytes(&packet.payload);
+            let data = std::mem::take(&mut packet.payload);
+            let mut s = ReadStream::from_bytes(&data);
+            let ticket_key = &self.ctx.ticket_key;
             let res = move || -> io::Result<_> {
                 let ticket: Vec<u8> = s.read()?;
                 let request_data: Vec<u8> = s.read()?;
 
-                let ti = KerberosTicketInternal::open(&ticket)?;
+                let ti = KerberosTicketInternal::open(&ticket, ticket_key)?;
 
                 if ti.valid_until
                     < std::time::SystemTime::now()
@@ -298,6 +338,7 @@ where
                 ci.borrow_mut().user_id.replace(ti.principle_id);
                 let data = crypt_key(ti.session_key.as_ref(), &request_data);
 
+                #[allow(clippy::items_after_statements)]
                 #[derive(FromStream, Debug)]
                 struct ConnectData {
                     _user_pid: u32,
@@ -322,7 +363,7 @@ where
         packet.conn_signature = Some(0);
 
         if let Err(e) = self.send_ack(
-            &logger,
+            logger,
             &client,
             &packet,
             &ci.borrow(),
@@ -390,5 +431,18 @@ where
         }
         resp.sequence = packet.sequence;
         self.send_packet(logger, src, resp)
+    }
+
+    fn clear_clients(&mut self) {
+        let now = Instant::now();
+        for (_, ci) in self.clients.extract_if(|_k, v| {
+            v.try_borrow()
+                .map(|ci| (now - ci.last_seen) > SESSION_TIMEOUT)
+                .unwrap_or(false)
+        }) {
+            if let Some(handler) = self.expired_client_handler.as_mut() {
+                (handler)(ci.into_inner());
+            }
+        }
     }
 }

@@ -1,9 +1,10 @@
-use std::{
-    collections::HashMap,
-    io::{self, Cursor},
-};
+use std::collections::HashMap;
+use std::io::Cursor;
+use std::io::{self};
 
-use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
+use byteorder::LittleEndian;
+use byteorder::ReadBytesExt;
+use byteorder::WriteBytesExt;
 
 pub struct ReadStream<R: ReadBytesExt> {
     rdr: R,
@@ -108,7 +109,7 @@ macro_rules! write_stream_num {
         pub fn $i(&mut self, value: $i) -> io::Result<usize> {
             self.wtr
                 .$f::<LittleEndian>(value)
-                .map(|_| ::std::mem::size_of::<$i>())
+                .map(|()| ::std::mem::size_of::<$i>())
         }
     };
 }
@@ -119,14 +120,14 @@ impl<W: WriteBytesExt> WriteStream<W> {
     }
 
     pub fn u8(&mut self, value: u8) -> io::Result<usize> {
-        self.wtr.write_u8(value).map(|_| 1)
+        self.wtr.write_u8(value).map(|()| 1)
     }
     write_stream_num!(u16, write_u16);
     write_stream_num!(u32, write_u32);
     write_stream_num!(u64, write_u64);
 
     pub fn i8(&mut self, value: i8) -> io::Result<usize> {
-        self.wtr.write_i8(value).map(|_| 1)
+        self.wtr.write_i8(value).map(|()| 1)
     }
 
     write_stream_num!(i16, write_i16);
@@ -137,29 +138,32 @@ impl<W: WriteBytesExt> WriteStream<W> {
     write_stream_num!(f64, write_f64);
 
     pub fn bool(&mut self, value: bool) -> io::Result<usize> {
-        self.u8(value as u8)
+        self.u8(u8::from(value))
     }
 
     pub fn write_n_bytes<T: AsRef<[u8]>>(&mut self, data: T) -> io::Result<usize> {
         self.wtr
             .write_all(data.as_ref())
-            .map(|_| data.as_ref().len())
+            .map(|()| data.as_ref().len())
     }
 
     pub fn buf_u8<T: AsRef<[u8]>>(&mut self, data: T) -> io::Result<usize> {
         let d = data.as_ref();
+        #[allow(clippy::cast_possible_truncation)]
         self.u8(d.len() as u8)?;
         self.write_n_bytes(d)
     }
 
     pub fn buf_u16<T: AsRef<[u8]>>(&mut self, data: T) -> io::Result<usize> {
         let d = data.as_ref();
+        #[allow(clippy::cast_possible_truncation)]
         self.u16(d.len() as u16)?;
         self.write_n_bytes(d)
     }
 
     pub fn buf_u32<T: AsRef<[u8]>>(&mut self, data: T) -> io::Result<usize> {
         let d = data.as_ref();
+        #[allow(clippy::cast_possible_truncation)]
         self.u32(d.len() as u32)?;
         self.write_n_bytes(d)
     }
@@ -204,7 +208,7 @@ impl ToStream for bool {
     }
 
     fn as_bytes(&self) -> Vec<u8> {
-        (*self as u8).to_le_bytes().to_vec()
+        u8::from(*self).to_le_bytes().to_vec()
     }
 }
 
@@ -254,12 +258,12 @@ impl<const N: usize> FromStream for [u8; N] {
         Self: Sized,
     {
         let buf = stream.read_n_bytes(N)?;
-        if buf.len() != N {
-            Err(io::Error::new(io::ErrorKind::UnexpectedEof, ""))
-        } else {
+        if buf.len() == N {
             let mut tmp = [0u8; N];
             tmp.copy_from_slice(&buf);
             Ok(tmp)
+        } else {
+            Err(io::Error::new(io::ErrorKind::UnexpectedEof, ""))
         }
     }
 }
@@ -277,12 +281,13 @@ macro_rules! tuple_impls {
     ($($len:tt => ($($n:tt $name:ident)+))+) => {
         $(
             impl<$($name: FromStream),+> FromStream for ($($name,)+) {
-                #[allow(non_snake_case)]
                 fn from_stream<R>(stream: &mut ReadStream<R>) -> io::Result<Self>
                 where
                     R: ReadBytesExt,
                     Self: Sized,
                 {
+                    #![allow(non_snake_case)]
+
                     $(
                         let $name = stream.read()?;
                     )+
@@ -352,6 +357,7 @@ impl ToStream for String {
             return stream.u16(0);
         }
         let data = self.as_bytes();
+        #[allow(clippy::cast_possible_truncation)]
         Ok(stream.u16(data.len() as u16 + 1)? + stream.write_n_bytes(data)? + stream.u8(0)?)
     }
 }
@@ -381,15 +387,16 @@ where
     where
         W: WriteBytesExt,
     {
+        #[allow(clippy::cast_possible_truncation)]
         let mut total = stream.u32(self.len() as u32)?;
-        for item in self.iter() {
+        for item in self {
             total += stream.write(item)?;
         }
         Ok(total)
     }
 }
 
-impl<K, V> ToStream for HashMap<K, V>
+impl<K, V, S: ::std::hash::BuildHasher> ToStream for HashMap<K, V, S>
 where
     K: ToStream,
     V: ToStream,
@@ -398,8 +405,9 @@ where
     where
         W: WriteBytesExt,
     {
+        #[allow(clippy::cast_possible_truncation)]
         let mut total = stream.u32(self.len() as u32)?;
-        for (k, v) in self.iter() {
+        for (k, v) in self {
             total += stream.write(k)?;
             total += stream.write(v)?;
         }
@@ -407,7 +415,7 @@ where
     }
 }
 
-impl<K, V> FromStream for HashMap<K, V>
+impl<K, V, S: ::std::hash::BuildHasher + std::default::Default> FromStream for HashMap<K, V, S>
 where
     K: FromStream + std::hash::Hash + std::cmp::Eq,
     V: FromStream,
@@ -418,7 +426,7 @@ where
         Self: Sized,
     {
         let n = stream.u32()?;
-        let mut m: Self = Default::default();
+        let mut m: Self = HashMap::default();
         for _i in 0..n {
             let k = stream.read()?;
             let v = stream.read()?;

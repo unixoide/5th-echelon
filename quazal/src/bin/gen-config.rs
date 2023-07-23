@@ -1,4 +1,9 @@
-use quazal::{Config, Context, OnlineConfig, Service};
+#![deny(clippy::pedantic)]
+
+use quazal::Config;
+use quazal::Context;
+use quazal::OnlineConfig;
+use quazal::Service;
 
 fn main() {
     let mut config = Config::default();
@@ -11,20 +16,24 @@ fn main() {
             .set_port(ctx.listen.port() + 1);
         config
             .service
-            .insert("sc_bl_auth", Service::Authentication(ctx));
+            .insert(String::from("sc_bl_auth"), Service::Authentication(ctx));
     }
     {
         let mut ctx = Context::splinter_cell_blacklist();
         ctx.listen.set_port(ctx.listen.port() + 1);
-        config.service.insert("sc_bl_secure", Service::Secure(ctx));
+        config
+            .service
+            .insert(String::from("sc_bl_secure"), Service::Secure(ctx));
     }
     {
         let cfg = OnlineConfig::default();
-        config.service.insert("onlineconfig", Service::Config(cfg));
+        config
+            .service
+            .insert(String::from("onlineconfig"), Service::Config(cfg));
     }
 
-    config.services.insert("sc_bl_auth");
-    config.services.insert("sc_bl_secure");
-    config.services.insert("onlineconfig");
+    config.services.insert(String::from("sc_bl_auth"));
+    config.services.insert(String::from("sc_bl_secure"));
+    config.services.insert(String::from("onlineconfig"));
     config.save_to_file("service.toml").unwrap();
 }

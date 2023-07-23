@@ -1,15 +1,19 @@
-#![feature(seek_stream_len, proc_macro_hygiene, cursor_remaining)]
+#![feature(seek_stream_len, proc_macro_hygiene, cursor_remaining, hash_extract_if)]
+#![deny(clippy::pedantic)]
+#![allow(clippy::missing_errors_doc)]
+#![allow(clippy::missing_panics_doc)]
 
 #[macro_use]
 extern crate slog;
 #[macro_use]
-extern crate lazy_static;
-#[macro_use]
 extern crate quazal_macros;
 
-use derive_more::{Display, Error as DeriveError};
+use std::collections::HashMap;
+use std::net::SocketAddr;
+use std::time::Instant;
 
-use std::{collections::HashMap, net::SocketAddr};
+use derive_more::Display;
+use derive_more::Error as DeriveError;
 
 pub mod config;
 pub mod kerberos;
@@ -20,7 +24,7 @@ pub use crate::config::*;
 
 #[derive(Debug, Display, DeriveError)]
 pub enum Error {
-    #[display(fmt = "Service {} not found", _0)]
+    #[display(fmt = "Service {_0} not found")]
     ServiceNotFound(#[error(not(source))] String),
 }
 
@@ -33,29 +37,36 @@ pub struct ClientInfo<T = ()> {
     server_session: u8,
     packet_fragments: HashMap<u8, Vec<u8>>,
     address: SocketAddr,
+    last_seen: Instant,
     pub user_id: Option<u32>,
     pub additional: T,
 }
 
 impl<T> ClientInfo<T> {
+    #[must_use]
     pub fn new(address: SocketAddr) -> ClientInfo<T>
     where
         T: Default,
     {
         ClientInfo {
             sequence_id: 1,
-            client_signature: Default::default(),
+            client_signature: None,
             server_signature: rand::random(),
             client_session: Default::default(),
             server_session: Default::default(),
-            user_id: Default::default(),
-            packet_fragments: Default::default(),
+            user_id: None,
+            packet_fragments: HashMap::default(),
             address,
             additional: Default::default(),
+            last_seen: std::time::Instant::now(),
         }
     }
 
     pub fn address(&self) -> &SocketAddr {
         &self.address
+    }
+
+    pub fn seen(&mut self) {
+        self.last_seen = std::time::Instant::now();
     }
 }
