@@ -46,6 +46,7 @@ $ cargo build --release
 - Invite other players (requires additional APIs to talk to)
 - Matchmaking (requires additional APIs to talk to)
 - NAT Traversal (required for actual play)
+- Shared save games between modded and genuine game version (stored at different locations so no progress is lost)
 
 ## Additional Tools
 
