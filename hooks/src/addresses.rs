@@ -83,25 +83,29 @@ pub fn get() -> Addresses {
 
     let digest = hash_file(&path);
 
-    match file_name {
+    let addr = match file_name {
         "blacklist_dx11_game.exe" => {
-            if let Ok(digest) = digest {
-                if digest != DX11_HASH {
-                    fatal_error!("{file_name} was modified or the version is not supported.\nPlease share {file_name} so that support can be added.");
-                }
+            if digest.map(|d| d != DX11_HASH).unwrap_or_default() {
+                Err(file_name)
+            } else {
+                Ok(splinter_cell_blacklist_dx11())
             }
-            splinter_cell_blacklist_dx11()
         }
         "blacklist_game.exe" => {
-            if let Ok(digest) = digest {
-                if digest != DX9_HASH {
-                    fatal_error!("{file_name} was modified or the version is not supported.\nPlease share {file_name} so that support can be added.");
-                }
+            if digest.map(|d| d != DX9_HASH).unwrap_or_default() {
+                Err(file_name)
+            } else {
+                Ok(splinter_cell_blacklist_dx9())
             }
-            splinter_cell_blacklist_dx9()
         }
-        x => panic!("Unexpected module name {x}"),
+        x => {
+            fatal_error!("Unexpected module name {x}");
+        }
+    };
+    if let Err(file_name) = addr {
+        fatal_error!("{file_name} was modified or the version is not supported.\n\nPlease share {file_name} with the project, so that support can be implemented.");
     }
+    addr.unwrap()
 }
 
 #[cfg(test)]

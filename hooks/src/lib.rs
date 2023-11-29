@@ -11,7 +11,6 @@ use std::path::Path;
 use std::path::PathBuf;
 
 use addresses::Addresses;
-use tracing::error;
 use tracing::info;
 use tracing::instrument;
 use windows::core::PCSTR;
@@ -51,7 +50,7 @@ unsafe fn patch_url(new_server: &str, addrs: &Addresses) {
     let g_cfg_client = addrs.global_onlineconfig_client as *mut *mut *mut u8;
     if g_cfg_client.is_null() {
         fatal_error!(
-            "Couldn't adjust config server",
+            "Couldn't adjust config server";
             "Couldn't adjust config server: g_cfg_client is null"
         );
     }
@@ -69,7 +68,7 @@ unsafe fn patch_url(new_server: &str, addrs: &Addresses) {
     info!("->hostname: {:?}", hostname_ptr);
     if hostname_ptr.is_null() {
         fatal_error!(
-            "Couldn't adjust config server",
+            "Couldn't adjust config server";
             "Couldn't adjust config server: g_cfg_client->hostname is null"
         );
     }
@@ -77,7 +76,7 @@ unsafe fn patch_url(new_server: &str, addrs: &Addresses) {
     info!("hostname: {:?}", hostname_ptr);
     if hostname_ptr.is_null() {
         fatal_error!(
-            "Couldn't adjust config server",
+            "Couldn't adjust config server";
             "Couldn't adjust config server: *g_cfg_client->hostname is null"
         );
     }
@@ -94,7 +93,7 @@ fn init(hmodule: Option<HMODULE>) {
     let config = match config::get_or_load(path) {
         Err(e) => {
             fatal_error!(
-                "Config couldn't be loaded!",
+                "Config couldn't be loaded!";
                 "Config couldn't be loaded: {}",
                 e
             );
@@ -131,9 +130,7 @@ fn deinit(hmodule: Option<HMODULE>) {
     info!("Config path={:?}", path);
     let config = match config::get_or_load(path) {
         Err(e) => {
-            error!("Config couldn't be loaded: {}", e);
-            show_msgbox("Config couldn't be loaded!", "ERROR");
-            std::process::exit(1);
+            fatal_error!("Config couldn't be loaded: {e}");
         }
         Ok(cfg) => cfg,
     };

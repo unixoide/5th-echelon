@@ -1,10 +1,10 @@
 macro_rules! fatal_error {
-    ($msg:literal) => {
-        fatal_error!($msg, $msg);
+    ($($arg:expr),+) => {
+         fatal_error!($($arg),+; $($arg),+);
     };
-    ($msg:literal,$($arg:tt)+) => {
-        tracing::error!($($arg)+);
-        crate::show_msgbox($msg, "ERROR");
+    ($($user_arg:expr),+; $($log_arg:tt)+) => {
+        tracing::error!($($log_arg)+);
+        crate::show_msgbox(&format!($($user_arg)+), "ERROR");
         std::process::exit(1);
     };
 }
