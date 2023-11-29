@@ -87,7 +87,7 @@ pub fn get() -> Addresses {
         "blacklist_dx11_game.exe" => {
             if let Ok(digest) = digest {
                 if digest != DX11_HASH {
-                    fatal_error!("Host process was modified/is not supported");
+                    fatal_error!("{file_name} was modified or the version is not supported.\nPlease share {file_name} so that support can be added.");
                 }
             }
             splinter_cell_blacklist_dx11()
@@ -95,7 +95,7 @@ pub fn get() -> Addresses {
         "blacklist_game.exe" => {
             if let Ok(digest) = digest {
                 if digest != DX9_HASH {
-                    fatal_error!("Host process was modified/is not supported");
+                    fatal_error!("{file_name} was modified or the version is not supported.\nPlease share {file_name} so that support can be added.");
                 }
             }
             splinter_cell_blacklist_dx9()
