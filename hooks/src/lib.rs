@@ -11,6 +11,7 @@ use std::path::Path;
 use std::path::PathBuf;
 
 use addresses::Addresses;
+use tracing::error;
 use tracing::info;
 use tracing::instrument;
 use windows::core::PCSTR;
@@ -112,13 +113,17 @@ fn init(hmodule: Option<HMODULE>) {
         }
 
         if !config.internal_command_line.is_empty() {
-            let ptr = addr.unreal_commandline as *mut u8;
-            let count = if config.internal_command_line.len() > 11 {
-                11
+            if let Some(ptr) = addr.unreal_commandline {
+                let ptr = ptr as *mut u8;
+                let count = if config.internal_command_line.len() > 11 {
+                    11
+                } else {
+                    config.internal_command_line.len()
+                };
+                ptr.copy_from_nonoverlapping(config.internal_command_line.as_ptr(), count);
             } else {
-                config.internal_command_line.len()
-            };
-            ptr.copy_from_nonoverlapping(config.internal_command_line.as_ptr(), count);
+                error!("Can't set command line. Address is missing");
+            }
         }
     }
 }

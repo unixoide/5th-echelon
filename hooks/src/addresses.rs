@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::io::Read;
 use std::path::Path;
 
@@ -9,50 +10,71 @@ use windows::Win32::Foundation::HMODULE;
 use crate::get_executable;
 use crate::macros::fatal_error;
 
-const DX11_HASH: &[u8] =
-    b"\xc6\xb9\xf30\xfa\xc1A/\x19\xf3*o\xd8n\xdbLf)\x1ai\x02a\x1e\x943\xb9\xb0\xeae\x9e\xb4\xbc";
-
-const DX9_HASH: &[u8] =
-    b"\x15\x8e\xfc]\t@\xfc\xaf>K\x16\x95,\x8f\x88a\xe1`aP\x9d\x9e\xb8\xeb_\xf4\xae2I\xbbZ\x05";
-
+#[derive(Clone, Copy)]
 pub struct Addresses {
     pub global_onlineconfig_client: usize,
     pub onlineconfig_url: usize,
-    pub unreal_commandline: usize,
+    pub unreal_commandline: Option<usize>,
 
     // hooks
-    pub func_printer: usize,
-    pub func_net_finite_state_machine_next_state: usize,
-    pub func_net_finite_state_leave_state: usize,
-    pub func_net_result_base: usize,
-    pub func_something_with_goal: usize,
-    pub func_quazal_stepsequencejob_setstep: usize,
+    pub func_printer: Option<usize>,
+    pub func_net_finite_state_machine_next_state: Option<usize>,
+    pub func_net_finite_state_leave_state: Option<usize>,
+    pub func_net_result_base: Option<usize>,
+    pub func_something_with_goal: Option<usize>,
+    pub func_quazal_stepsequencejob_setstep: Option<usize>,
 }
 
-fn splinter_cell_blacklist_dx9() -> Addresses {
+fn build_game_map() -> HashMap<String, HashMap<[u8; 32], Addresses>> {
     #![allow(clippy::unreadable_literal)]
 
-    Addresses {
-        global_onlineconfig_client: 0x032bf5bc,
-        onlineconfig_url: 0x02cc0650,
-        unreal_commandline: 0x0323b97c,
+    HashMap::from([
+        (
+            String::from("blacklist_game.exe"), 
+            HashMap::from([
+                (
+                    *b"\x15\x8e\xfc]\t@\xfc\xaf>K\x16\x95,\x8f\x88a\xe1`aP\x9d\x9e\xb8\xeb_\xf4\xae2I\xbbZ\x05",
+                    Addresses {
+                        global_onlineconfig_client: 0x032bf5bc,
+                        onlineconfig_url: 0x02cc0650,
+                        unreal_commandline: Some(0x0323b97c),
 
-        // hooks
-        func_printer: 0x04b19e0,
-        func_net_finite_state_machine_next_state: 0x00ad0260,
-        func_net_finite_state_leave_state: 0x00a9aa40,
-        func_net_result_base: 0x00A9A180,
-        func_something_with_goal: 0x0ae5130,
-        func_quazal_stepsequencejob_setstep: 0x02138f10,
-    }
+                        // hooks
+                        func_printer: Some(0x04b19e0),
+                        func_net_finite_state_machine_next_state: Some(0x00ad0260),
+                        func_net_finite_state_leave_state: Some(0x00a9aa40),
+                        func_net_result_base: Some(0x00a9a180),
+                        func_something_with_goal: Some(0x0ae5130),
+                        func_quazal_stepsequencejob_setstep: Some(0x02138f10),
+                    }
+                ),
+                (
+                    // Same binary except of 2 bytes of the COFF header checksum?? (offset 0x1a9 and 0x1aa)
+                    *b"\x7f\xcd:\x18\xd4\xdc\xc6\x92q\x99\x84\xb0rh\xbdBvA\x08\xe7\xdf7\x04\x9f\x14\x90\xf2\t)\xf9\x92]",
+                    Addresses {
+                        global_onlineconfig_client: 0x032bf5bc,
+                        onlineconfig_url: 0x02cc0650,
+                        unreal_commandline: Some(0x0323b97c),
+
+                        // hooks
+                        func_printer: Some(0x04b19e0),
+                        func_net_finite_state_machine_next_state: Some(0x00ad0260),
+                        func_net_finite_state_leave_state: Some(0x00a9aa40),
+                        func_net_result_base: Some(0x00a9a180),
+                        func_something_with_goal: Some(0x0ae5130),
+                        func_quazal_stepsequencejob_setstep: Some(0x02138f10),
+                    }
+                )
+            ])
+        ),
+        (
+            String::from("blacklist_dx11_game.exe"), 
+            HashMap::new()
+        )
+    ])
 }
 
-fn splinter_cell_blacklist_dx11() -> Addresses {
-    todo!("DX11 binary is not supported yet")
-    // Addresses {}
-}
-
-fn hash_file(path: impl AsRef<Path>) -> anyhow::Result<Vec<u8>> {
+fn hash_file(path: impl AsRef<Path>) -> anyhow::Result<[u8; 32]> {
     let path = path.as_ref();
     let mut f = std::fs::File::open(path)?;
     let mut hasher = sha2::Sha256::new();
@@ -65,7 +87,7 @@ fn hash_file(path: impl AsRef<Path>) -> anyhow::Result<Vec<u8>> {
         hasher.update(&buf[..n]);
     }
 
-    Ok(hasher.finalize().to_vec())
+    Ok(hasher.finalize().into())
 }
 
 pub fn get() -> Addresses {
@@ -83,29 +105,16 @@ pub fn get() -> Addresses {
 
     let digest = hash_file(&path);
 
-    let addr = match file_name {
-        "blacklist_dx11_game.exe" => {
-            if digest.map(|d| d != DX11_HASH).unwrap_or_default() {
-                Err(file_name)
-            } else {
-                Ok(splinter_cell_blacklist_dx11())
-            }
-        }
-        "blacklist_game.exe" => {
-            if digest.map(|d| d != DX9_HASH).unwrap_or_default() {
-                Err(file_name)
-            } else {
-                Ok(splinter_cell_blacklist_dx9())
-            }
-        }
-        x => {
-            fatal_error!("Unexpected module name {x}");
-        }
+    let game_map = build_game_map();
+    let Some(game_map) = game_map.get(file_name) else {
+        fatal_error!("Unknown binary {file_name}");
     };
-    if let Err(file_name) = addr {
+
+    if let Some(addr) = digest.ok().and_then(|digest| game_map.get(&digest)) {
+        *addr
+    } else {
         fatal_error!("{file_name} was modified or the version is not supported.\n\nPlease share {file_name} with the project, so that support can be implemented.");
     }
-    addr.unwrap()
 }
 
 #[cfg(test)]

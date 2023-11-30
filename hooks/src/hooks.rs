@@ -169,12 +169,16 @@ fn quazal_stepsequencejob_setstep(step_sequence_job: *mut c_void, step: *mut Qua
     }
 }
 
-unsafe fn hook<T, F>(hook: &retour::StaticDetour<T>, target: T, f: F, name: &str)
+unsafe fn hook<T, F>(hook: &retour::StaticDetour<T>, target: Option<T>, f: F, name: &str)
 where
     T: retour::Function,
     F: Fn<T::Arguments, Output = T::Output> + Send + 'static,
     <T as retour::Function>::Arguments: std::marker::Tuple,
 {
+    let Some(target) = target else {
+        error!("Address for hook {name} missing");
+        return;
+    };
     let res = hook.initialize(target, f).and_then(|h| h.enable());
     if let Err(err) = res {
         error!("Hook {} failed: {:?}", name, err);
@@ -187,7 +191,8 @@ macro_rules! hook {
     ($hook:expr, $addr:expr, $func:ident) => {
         hook(
             &$hook,
-            ::std::mem::transmute($addr),
+            // ::std::mem::transmute($addr),
+            $addr.map(|a| unsafe { ::std::mem::transmute(a) }),
             $func,
             stringify!($hook),
         );
