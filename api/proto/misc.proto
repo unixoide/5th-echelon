@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package misc;
+
+import "users.proto";
+
+service Misc {
+    rpc Event(EventRequest) returns (EventResponse);
+}
+
+message EventRequest {}
+message EventResponse {
+    InviteEvent invite = 1;
+}
+
+message InviteEvent {
+    int64 id = 1;
+    users.User sender = 2;
+}

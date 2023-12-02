@@ -2,9 +2,17 @@
 
 use proc_macro::TokenStream;
 use quote::quote;
+use syn::parse::Parser;
+use syn::punctuated::Punctuated;
+use syn::token::Comma;
+use syn::Expr;
+use syn::ExprLit;
+use syn::Lit;
+use syn::LitBool;
+use syn::MetaNameValue;
 
 #[proc_macro_attribute]
-pub fn forwardable_export(_attr: TokenStream, input: TokenStream) -> TokenStream {
+pub fn forwardable_export(attr: TokenStream, input: TokenStream) -> TokenStream {
     let input = syn::parse_macro_input!(input as syn::ItemFn);
     let sig = input.sig.clone();
     let name = input.sig.ident;
@@ -25,6 +33,27 @@ pub fn forwardable_export(_attr: TokenStream, input: TokenStream) -> TokenStream
         }
     }
 
+    let mut with_logging = true;
+    if let Ok(attrs) = Punctuated::<MetaNameValue, Comma>::parse_terminated.parse(attr) {
+        for attr in attrs {
+            if matches!(
+                attr.path
+                    .get_ident()
+                    .map(std::string::ToString::to_string)
+                    .as_deref(),
+                Some("log")
+            ) {
+                with_logging = matches!(
+                    attr.value,
+                    Expr::Lit(ExprLit {
+                        lit: Lit::Bool(LitBool { value: true, .. }),
+                        ..
+                    })
+                );
+            }
+        }
+    };
+
     let params = ins
         .iter()
         .filter_map(|arg| match arg {
@@ -37,7 +66,9 @@ pub fn forwardable_export(_attr: TokenStream, input: TokenStream) -> TokenStream
         #[no_mangle]
         #[::tracing::instrument]
         #sig {
-            ::tracing::info!(#name_str);
+            if #with_logging {
+                ::tracing::info!(#name_str);
+            }
             let Some(cfg) = crate::config::get() else {
                 ::tracing::error!("Config not loaded!");
                 return Default::default();
@@ -52,7 +83,9 @@ pub fn forwardable_export(_attr: TokenStream, input: TokenStream) -> TokenStream
             } else {
                 #body
             };
-            ::tracing::info!("result: {result:?}");
+            if #with_logging {
+                ::tracing::info!("result: {result:?}");
+            }
             result
         }
     }

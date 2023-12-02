@@ -20,45 +20,66 @@ struct TicketGrantingProtocolImpl {
 }
 
 impl TicketGrantingProtocolImpl {
-    fn get_session_key(&self, user_id: u32) -> [u8; SESSION_KEY_SIZE] {
+    fn get_session_key(&self, logger: &slog::Logger, user_id: u32) -> [u8; SESSION_KEY_SIZE] {
         let mut key = [0u8; SESSION_KEY_SIZE];
         rand::rngs::OsRng.fill_bytes(&mut key);
 
-        if false {
-            self.storage.create_user_session(user_id, &key);
+        if let Err(e) = self.storage.create_user_session(user_id, &key) {
+            eprintln!("Error saving user session: {e}");
+            error!(logger, "Error saving user session: {e}");
         }
 
         key
     }
 
     #[allow(unreachable_code)]
-    fn get_password_by_pid(&self, pid: u32) -> quazal::rmc::Result<Option<String>> {
+    fn get_password_by_pid(
+        &self,
+        logger: &slog::Logger,
+        pid: u32,
+    ) -> quazal::rmc::Result<Option<String>> {
         self.storage.find_password_for_user(pid).map_err(|e| {
-            todo!("handle error: {}", e);
+            eprintln!("Error finding user password: {e}");
+            error!(logger, "Error finding user password: {e}");
             quazal::rmc::Error::InternalError
         })
     }
 
-    fn get_password_by_username(&self, username: &str) -> quazal::rmc::Result<Option<String>> {
+    fn get_password_by_username(
+        &self,
+        logger: &slog::Logger,
+        username: &str,
+    ) -> quazal::rmc::Result<Option<String>> {
         Ok(self
-            .get_pid_by_username(username)?
-            .map(|uid| self.get_password_by_pid(uid))
+            .get_pid_by_username(logger, username)?
+            .map(|uid| self.get_password_by_pid(logger, uid))
             .transpose()?
             .flatten())
     }
 
     #[allow(unreachable_code)]
-    fn get_pid_by_username(&self, username: &str) -> quazal::rmc::Result<Option<u32>> {
+    fn get_pid_by_username(
+        &self,
+        logger: &slog::Logger,
+        username: &str,
+    ) -> quazal::rmc::Result<Option<u32>> {
         self.storage.find_user_id_by_name(username).map_err(|e| {
-            todo!("handle error: {}", e);
+            eprintln!("Error finding user password: {e}");
+            error!(logger, "Error finding user password: {e}");
             quazal::rmc::Error::InternalError
         })
     }
 
     #[allow(unreachable_code)]
-    fn login(&self, username: &str, password: &str) -> quazal::rmc::Result<Option<u32>> {
+    fn login(
+        &self,
+        logger: &slog::Logger,
+        username: &str,
+        password: &str,
+    ) -> quazal::rmc::Result<Option<u32>> {
         self.storage.login_user(username, password).map_err(|e| {
-            todo!("handle error: {}", e);
+            eprintln!("Error finding user password: {e}");
+            error!(logger, "Error finding user password: {e}");
             quazal::rmc::Error::InternalError
         })
     }
@@ -104,12 +125,12 @@ impl<T> TicketGrantingProtocolTrait<T> for TicketGrantingProtocolImpl {
         ci: &mut quazal::ClientInfo<T>,
         request: LoginRequest,
     ) -> Result<LoginResponse, quazal::rmc::Error> {
-        let Some(user_id) = self.get_pid_by_username(&request.str_user_name)? else {
+        let Some(user_id) = self.get_pid_by_username(logger, &request.str_user_name)? else {
             warn!(logger, "user {} not found", request.str_user_name);
             return Err(quazal::rmc::Error::AccessDenied);
         };
         let password = self
-            .get_password_by_username(&request.str_user_name)?
+            .get_password_by_username(logger, &request.str_user_name)?
             .or_else(|| {
                 warn!(
                     logger,
@@ -118,7 +139,7 @@ impl<T> TicketGrantingProtocolTrait<T> for TicketGrantingProtocolImpl {
                 None
             });
         ci.user_id = Some(user_id);
-        let session_key = self.get_session_key(user_id);
+        let session_key = self.get_session_key(logger, user_id);
         let ticket = KerberosTicket {
             session_key,
             pid: SERVER_PID,
@@ -161,14 +182,14 @@ impl<T> TicketGrantingProtocolTrait<T> for TicketGrantingProtocolImpl {
 
         info!(logger, "LoginEx attempt by {} ({})", ubi_username, username);
 
-        let Some(user_id) = self.login(ubi_username, password)? else {
+        let Some(user_id) = self.login(logger, ubi_username, password)? else {
             warn!(logger, "login failed for {}", ubi_username);
             return Err(quazal::rmc::Error::AccessDenied);
         };
         info!(logger, "login successful for {}", ubi_username);
 
         ci.user_id = Some(user_id);
-        let session_key = self.get_session_key(user_id);
+        let session_key = self.get_session_key(logger, user_id);
         let ticket = KerberosTicket {
             session_key,
             pid: SERVER_PID,
@@ -203,7 +224,7 @@ impl<T> TicketGrantingProtocolTrait<T> for TicketGrantingProtocolImpl {
             );
             return Err(quazal::rmc::Error::AccessDenied);
         }
-        let session_key = self.get_session_key(user_id);
+        let session_key = self.get_session_key(logger, user_id);
         let ticket = KerberosTicket {
             session_key,
             pid: server_id,
@@ -217,7 +238,7 @@ impl<T> TicketGrantingProtocolTrait<T> for TicketGrantingProtocolImpl {
             return_value: QResult::Ok,
             buf_response: ticket.as_bytes(
                 user_id,
-                self.get_password_by_pid(user_id)?.as_deref(),
+                self.get_password_by_pid(logger, user_id)?.as_deref(),
                 &ctx.ticket_key,
             ),
         })

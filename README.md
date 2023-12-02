@@ -19,9 +19,8 @@ $ cargo build --release
 
 ## Usage (precompiled from the releases page)
 
-1. Rename `uplay_r1_loader.dll` in the game directory to `uplay_r1_loader.orig.dll`
-2. Copy `uplay_r1_loader.dll` from the release to the game directory
-2. Adjust `service.toml` to your needs (update the IP, everything else should be fine)
+1. Rename `uplay_r1_loader.dll` in the games src\SYSTEM directory to `uplay_r1_loader.orig.dll`
+2. Copy `uplay_r1_loader.dll` from the release to the same directory
 3. Start the server `dedicated_server.exe`
 4. Start the game and try to enter online mode
 
@@ -40,10 +39,10 @@ $ cargo build --release
 - Entering the COOP lobby
 - Starting a COOP game
 - Starting a Spy vs Merc game
+- Invite other players
 
 ### What doesn't work
 
-- Invite other players (requires additional APIs to talk to)
 - Matchmaking (requires additional APIs to talk to)
 - NAT Traversal (required for actual play)
 - Shared save games between modded and genuine game version (stored at different locations so no progress is lost)

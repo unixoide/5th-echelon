@@ -48,6 +48,37 @@ impl UplayOverlapped {
     }
 }
 
+#[allow(dead_code)]
+#[repr(usize)]
+pub enum UplayEventType {
+    FriendsFriendListUpdated = 10000,
+    FriendsFriendUpdated,
+    FriendsGameInviteAccepted,
+    FriendsMenuItemSelected,
+    PartyMemberListChanged = 20000,
+    PartyMemberUserDataUpdated,
+    PartyLeaderChanged,
+    PartyGameInviteReceived,
+    PartyGameInviteAccepted,
+    PartyMemberMenuItemSelected,
+    PartyMemberUpdated,
+    PartyInviteReceived,
+    PartyMemberJoined,
+    PartyMemberLeft,
+    OverlayActivated = 30000,
+    OverlayHidden,
+    RewardRedeemed = 40000,
+    UserAccountSharing = 50000,
+    UserConnectionLost,
+    UserConnectionRestored,
+}
+
+#[repr(C)]
+pub struct UplayEvent {
+    pub event_type: UplayEventType,
+    pub unknown: usize,
+}
+
 #[derive(Debug)]
 pub enum ListType {
     CdKeys,
@@ -69,6 +100,7 @@ struct Friend {
     unknown1: usize,
     unknown2: usize,
     details: *mut FriendDetails,
+    unknown3: usize,
 }
 
 #[repr(C)]
@@ -151,6 +183,7 @@ impl From<UplayList> for List {
                                 unknown3: 0,
                                 unknown4: null_mut(),
                             })),
+                            unknown3: 0, // must be 0?
                         })
                     })
                     .map(std::result::Result::unwrap)
@@ -172,6 +205,7 @@ impl From<UplayList> for List {
     }
 }
 
+#[derive(Debug)]
 pub enum UplayList {
     CdKeys(Vec<String>),
     Saves(Vec<UplaySave>),

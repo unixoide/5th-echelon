@@ -26,6 +26,7 @@ pub use crate::config::*;
 pub enum Error {
     #[display(fmt = "Service {_0} not found")]
     ServiceNotFound(#[error(not(source))] String),
+    InvalidValue,
 }
 
 #[derive(Debug)]

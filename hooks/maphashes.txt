@@ -3637,3 +3637,5 @@ Object	af01aeda
 ObjectMessageStream	aa007e72
 VoiceChat	cbfd9032
 GiveMasterRole	81cd469c
+NetOnlineSessionServiceRdv(Game)	c93ebb0d
+NetOnlineSessionServiceRdv(Party)	5f3ed41e

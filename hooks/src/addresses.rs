@@ -10,7 +10,7 @@ use windows::Win32::Foundation::HMODULE;
 use crate::get_executable;
 use crate::macros::fatal_error;
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct Addresses {
     pub global_onlineconfig_client: usize,
     pub onlineconfig_url: usize,
@@ -23,6 +23,11 @@ pub struct Addresses {
     pub func_net_result_base: Option<usize>,
     pub func_something_with_goal: Option<usize>,
     pub func_quazal_stepsequencejob_setstep: Option<usize>,
+    pub func_thread_starter: Option<usize>,
+    pub func_goal_change_state: Option<usize>,
+    pub func_net_core: Option<usize>,
+    pub func_net_result_session: Option<usize>,
+    pub func_net_result_lobby: Option<usize>,
 }
 
 fn build_game_map() -> HashMap<String, HashMap<[u8; 32], Addresses>> {
@@ -46,6 +51,11 @@ fn build_game_map() -> HashMap<String, HashMap<[u8; 32], Addresses>> {
                         func_net_result_base: Some(0x00a9a180),
                         func_something_with_goal: Some(0x0ae5130),
                         func_quazal_stepsequencejob_setstep: Some(0x02138f10),
+                        func_thread_starter: Some(0x07be840),
+                        func_goal_change_state: Some(0x0af3e20),
+                        func_net_core: Some(0x0b1cc10),
+                        func_net_result_session: Some(0x0ab98b0),
+                        func_net_result_lobby: Some(0x0a9d7f0),
                     }
                 ),
                 (
@@ -63,6 +73,11 @@ fn build_game_map() -> HashMap<String, HashMap<[u8; 32], Addresses>> {
                         func_net_result_base: Some(0x00a9a180),
                         func_something_with_goal: Some(0x0ae5130),
                         func_quazal_stepsequencejob_setstep: Some(0x02138f10),
+                        func_thread_starter: Some(0x07be840),
+                        func_goal_change_state: Some(0x0af3e20),
+                        func_net_core: Some(0x0b1cc10),
+                        func_net_result_session: Some(0x0ab98b0),
+                        func_net_result_lobby: Some(0x0a9d7f0),
                     }
                 )
             ])
@@ -111,7 +126,7 @@ pub fn get() -> Addresses {
     };
 
     if let Some(addr) = digest.ok().and_then(|digest| game_map.get(&digest)) {
-        *addr
+        addr.clone()
     } else {
         fatal_error!("{file_name} was modified or the version is not supported.\n\nPlease share {file_name} with the project, so that support can be implemented.");
     }

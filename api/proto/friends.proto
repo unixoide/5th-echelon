@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package friends;
+
+service Friends {
+    rpc List (ListRequest) returns (ListResponse);
+    rpc Invite (InviteRequest) returns (InviteResponse);
+}
+
+message Friend {
+    string id = 1;
+    string username = 2;
+}
+
+message ListRequest {
+    // string filter = 1;
+}
+
+message ListResponse {
+    repeated Friend friends = 1;
+}
+
+message InviteRequest {
+    string id = 1;
+}
+
+message InviteResponse {
+
+}

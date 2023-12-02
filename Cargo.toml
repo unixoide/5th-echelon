@@ -1,5 +1,6 @@
 [workspace]
 members = [
+  "api",
   "dedicated_server",
   "hooks",
   "hooks/hooks-proc",

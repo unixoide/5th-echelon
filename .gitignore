@@ -6,3 +6,5 @@ generated/
 *.swp
 *.db
 *.sqlite
+deps
+service.toml

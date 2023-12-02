@@ -28,7 +28,8 @@ impl<T> NatTraversalProtocolTrait<T> for NatTraversalProtocolImpl {
             stringify!(request_probe_initiation_ext),
             request,
         );
-        Err(quazal::rmc::Error::UnimplementedMethod)
+        // Err(quazal::rmc::Error::UnimplementedMethod)
+        Ok(RequestProbeInitiationExtResponse)
     }
 }
 

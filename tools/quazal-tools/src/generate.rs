@@ -277,6 +277,10 @@ fn generate_protocol_code(
                 })
                 .collect::<Vec<_>>();
 
+            // TODO
+            // if base
+            // req_params.insert(base)
+
             let resp_params = resp_params
                 .into_iter()
                 .map(|p| {

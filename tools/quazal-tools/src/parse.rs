@@ -148,7 +148,7 @@ pub struct ClassDeclaration {
     pub namespace: String,
     #[count(u32)]
     pub properties: Vec<Element>,
-    pub maybe_base: String,
+    pub base: String,
     #[count(u32)]
     pub variables: Vec<Element>,
 }

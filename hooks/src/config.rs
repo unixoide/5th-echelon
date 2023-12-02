@@ -34,6 +34,11 @@ pub enum Hook {
     NetResultBase,
     Goal,
     SetStep,
+    Thread,
+    ChangeState,
+    NetCore,
+    NetResultSession,
+    NetResultLobby,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -52,6 +57,7 @@ pub struct Config {
     #[serde(default)]
     pub enable_all_hooks: bool,
     pub config_server: Option<String>,
+    pub api_server: url::Url,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -97,6 +103,8 @@ pub struct SaveGame {
 const DEFAULT_CONFIG: &str = r#"
 # Where to find the config server
 ConfigServer = "127.0.0.1"
+# Where to find the api server (typically the same as the config server)
+ApiServer = "http://127.0.0.1:50051"
 
 [User]
 # Username for the community server
@@ -143,9 +151,15 @@ pub fn get_or_load(path: impl AsRef<Path>) -> anyhow::Result<&'static Config> {
         //        cfg.forward_calls.push("UPLAY_USER_GetCdKeys".into());
         cfg.user.cd_keys.push("ABCD-EFGH-IJKL-MNOP".into());
     }
+    // if let Some(ref api_server) = cfg.api_server {
+    crate::api::URL
+        .set(cfg.api_server.clone())
+        .map_err(|cfg| anyhow::anyhow!("Couldn't store api url {:?}", cfg))?;
+    // }
     CONFIG
         .set(cfg)
         .map_err(|cfg| anyhow::anyhow!("Couldn't store config {:?}", cfg))?;
+
     get().ok_or_else(|| anyhow::anyhow!("Config not loaded"))
 }
 

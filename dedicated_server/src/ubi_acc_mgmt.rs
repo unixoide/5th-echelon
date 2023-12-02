@@ -35,21 +35,23 @@ impl<T> UbiAccountManagementProtocolTrait<T> for UbiAccountManagementProtocolImp
         let ubi_len = request.ubi_account_ids.len();
         let pids: HashMap<_, _> = request
             .ubi_account_ids
-            .into_iter()
+            .iter()
             .filter_map(|ubi_id| {
                 self.storage
-                    .find_user_id_by_ubi_id(&ubi_id)
+                    .find_user_id_by_ubi_id(ubi_id)
                     .map_err(|e| error!(logger, "storage lookup failed"; "error" => ?e))
                     .ok()
                     .flatten()
-                    .map(|uid| (ubi_id, uid))
+                    .map(|uid| (ubi_id.clone(), uid))
             })
             .collect();
         info!(
             logger,
-            "Lookup requested for {} ubi ids. Found {}",
+            "Lookup requested for {} ubi ids ({:?}). Found {} ({:?})",
             ubi_len,
+            request.ubi_account_ids,
             pids.len(),
+            pids,
         );
 
         Ok(LookupPrincipalIdsResponse { pids })
@@ -71,8 +73,8 @@ impl<T> UbiAccountManagementProtocolTrait<T> for UbiAccountManagementProtocolImp
         let pid_len = request.pids.len();
         let ubiaccount_ids: HashMap<_, _> = request
             .pids
-            .into_iter()
-            .filter_map(|uid| {
+            .iter()
+            .filter_map(|&uid| {
                 self.storage
                     .find_ubi_id_by_user_id(uid)
                     .map_err(|e| error!(logger, "storage lookup failed"; "error" => ?e))
@@ -86,6 +88,14 @@ impl<T> UbiAccountManagementProtocolTrait<T> for UbiAccountManagementProtocolImp
             "Lookup requested for {} pids. Found {}",
             pid_len,
             ubiaccount_ids.len(),
+        );
+        info!(
+            logger,
+            "Lookup requested for {} ({:?}) pids. Found {} ({:?})",
+            pid_len,
+            request.pids,
+            ubiaccount_ids.len(),
+            ubiaccount_ids,
         );
         Ok(LookupUbiAccountIDsByPidsResponse {
             ubiaccount_i_ds: ubiaccount_ids,

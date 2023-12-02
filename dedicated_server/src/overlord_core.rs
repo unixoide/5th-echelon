@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use quazal::rmc::basic::ToStream;
 use quazal::rmc::types::Variant;
 use quazal::rmc::Protocol;
@@ -94,7 +92,7 @@ impl<T> Protocol<T> for OverlordCoreProtocol {
         ];
 
         /* Alternative with hashmap:
-         let cfg: HashMap<std::string::String, Variant> = [
+         let cfg: std::collections::HashMap<std::string::String, Variant> = [
             ...
         ].iter()
         .cloned()
@@ -137,19 +135,19 @@ mod tests {
 
         let expected = include_bytes!("../../testdata/overlord_core_config.bin");
         assert_eq!(expected.len(), resp.len());
-        if expected.as_ref() != resp.as_slice() {
-            panic!(
-                "{}",
-                diff::slice(expected.as_ref(), resp.as_slice())
-                    .into_iter()
-                    .map(|diff| match diff {
-                        diff::Result::Left(l) => format!("-{l:02x}"),
-                        diff::Result::Both(l, _) => format!(" {l:02x}"),
-                        diff::Result::Right(r) => format!("+{r:02x}"),
-                    })
-                    .collect::<Vec<_>>()
-                    .join("\n")
-            );
-        }
+        assert_ne!(
+            expected.as_ref(),
+            resp.as_slice(),
+            "{}",
+            diff::slice(expected.as_ref(), resp.as_slice())
+                .into_iter()
+                .map(|diff| match diff {
+                    diff::Result::Left(l) => format!("-{l:02x}"),
+                    diff::Result::Both(l, _) => format!(" {l:02x}"),
+                    diff::Result::Right(r) => format!("+{r:02x}"),
+                })
+                .collect::<Vec<_>>()
+                .join("\n")
+        );
     }
 }

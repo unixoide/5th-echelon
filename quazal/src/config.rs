@@ -74,7 +74,7 @@ mod bytes {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 #[serde(default)]
 pub struct Context {
     #[serde(with = "bytes")]
@@ -192,6 +192,15 @@ impl Default for OnlineConfig {
 pub struct ContentServer {
     pub listen: SocketAddr,
     pub files: HashMap<String, PathBuf>,
+}
+
+impl Default for ContentServer {
+    fn default() -> Self {
+        Self {
+            listen: "127.0.0.1:8000".parse().unwrap(),
+            files: HashMap::from([("/mp_balancing.ini".into(), "./data/mp_balancing.ini".into())]),
+        }
+    }
 }
 
 #[derive(Serialize, Debug)]

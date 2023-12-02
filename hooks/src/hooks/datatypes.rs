@@ -1,6 +1,8 @@
 use std::ffi::c_void;
 use std::ffi::CStr;
 
+use super::utils;
+
 #[repr(C)]
 pub struct NetFiniteStateVMT {
     unknown1: *const c_void,
@@ -15,8 +17,8 @@ pub struct NetFiniteStateVMT {
     leave_state: *const c_void,
     unknown6: *const c_void,
     unknown7: *const c_void,
-    get_state_id: *const c_void,
-    get_state_name: unsafe extern "thiscall" fn(*mut NetFiniteState) -> *const i8,
+    get_state_id: unsafe extern "thiscall" fn(*const NetFiniteState) -> u32,
+    get_state_name: unsafe extern "thiscall" fn(*const NetFiniteState) -> *const i8,
     unknown8: *const c_void,
     unknown9: *const c_void,
 }
@@ -27,23 +29,56 @@ pub struct NetFiniteState {
 }
 
 impl NetFiniteState {
-    pub fn get_state_name(&mut self) -> &'static str {
+    pub fn get_state_name(&self) -> &'static str {
         unsafe {
-            let name = ((*self.vtable).get_state_name)(self as *mut NetFiniteState);
+            let name = ((*self.vtable).get_state_name)(self as *const NetFiniteState);
             let name = CStr::from_ptr::<'static>(name);
             name.to_str().unwrap()
         }
     }
+    pub fn get_state_id(&self) -> u32 {
+        unsafe { ((*self.vtable).get_state_id)(self as *const NetFiniteState) }
+    }
+}
+
+#[repr(C)]
+pub struct NetFiniteStateMachineVMT {
+    unknown1: *const c_void,
+    unknown2: *const c_void,
+    unknown3: *const c_void,
+    unknown4: *const c_void,
+    get_statemachine_id: extern "thiscall" fn(
+        *const NetFiniteStateMachine,
+        *mut NetFiniteStateID,
+    ) -> *mut NetFiniteStateID,
 }
 
 #[repr(C)]
 pub struct NetFiniteStateMachine {
-    pub vtable: *const c_void,
+    pub vtable: *const NetFiniteStateMachineVMT,
     unknown1: u32,
     unknown2: u32,
     unknown3: u32,
     pub current_state: *mut NetFiniteState,
     pub last_state: *mut NetFiniteState,
+}
+
+impl NetFiniteStateMachine {
+    pub fn get_statemachine_id(&self, id: *mut NetFiniteStateID) -> *mut NetFiniteStateID {
+        unsafe { ((*self.vtable).get_statemachine_id)(self, id) }
+    }
+
+    pub fn get_statemachine_name(&self) -> String {
+        let mut id = NetFiniteStateID { id: 0, unknown: 0 };
+        self.get_statemachine_id(&mut id);
+        utils::id_to_name(id.id as usize)
+    }
+}
+
+#[repr(C)]
+pub struct NetFiniteStateID {
+    pub id: u32,
+    pub unknown: u32,
 }
 
 #[repr(C)]
@@ -83,8 +118,17 @@ impl GearBasicString {
 
 #[repr(C)]
 pub struct MaybeGoal {
-    unknown: usize,
-    pub name: *const i8,
+    pub unknown: usize,
+    name: *const i8,
+}
+
+impl MaybeGoal {
+    pub fn name(&self) -> Option<&CStr> {
+        if self.name.is_null() {
+            return None;
+        }
+        Some(unsafe { CStr::from_ptr(self.name) })
+    }
 }
 
 #[repr(C)]

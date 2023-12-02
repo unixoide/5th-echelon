@@ -1,5 +1,6 @@
 use std::ffi::c_char;
-use std::mem::transmute;
+use std::sync::mpsc;
+use std::sync::Mutex;
 use std::sync::OnceLock;
 
 use hooks_proc::forwardable_export;
@@ -13,8 +14,6 @@ use windows::Win32::System::LibraryLoader::GetProcAddress;
 use windows::Win32::System::LibraryLoader::LoadLibraryA;
 use windows::Win32::UI::WindowsAndMessaging::MessageBoxA;
 use windows::Win32::UI::WindowsAndMessaging::MB_OK;
-
-use crate::config::get;
 
 mod ach;
 mod avatar;
@@ -32,6 +31,9 @@ use types::UplayFriend;
 use types::UplayList;
 use types::UplayOverlapped;
 use types::UplaySave;
+
+use self::types::UplayEvent;
+use self::types::UplayEventType;
 
 type Result<T> = std::result::Result<T, anyhow::Error>;
 
@@ -61,20 +63,137 @@ unsafe extern "cdecl" fn UPLAY_GetLastError(out_error_string: *mut *const c_char
     false
 }
 
-#[no_mangle]
-unsafe extern "cdecl" fn UPLAY_GetNextEvent(event: *mut ()) -> bool {
-    // info!("UPLAY_GetNextEvent");
-    let Some(cfg) = get() else {
-        error!("Config not loaded!");
-        return false;
+#[allow(dead_code)]
+#[derive(Debug)]
+pub enum Event {
+    UserAccountSharing,
+    FriendsGameInviteAccepted(String),
+    PartyGameInviteAccepted(String),
+}
+
+pub static EVENTS: OnceLock<Mutex<mpsc::Receiver<Event>>> = OnceLock::new();
+
+unsafe fn into_friend_invite_accepted(event: *mut UplayEvent, ubi_name: String) {
+    // TODO user better names
+
+    #[repr(C)]
+    struct Bar {
+        unknown: usize,
+        unknown1: usize,
+        username: [u8; 128],
+    }
+
+    #[repr(C)]
+    struct Foo {
+        unknown: [usize; 2],
+        bar: *const Bar,
+        value496: usize,
+    }
+
+    #[repr(C)]
+    struct FriendAccepted {
+        foo: *const Foo,
+    }
+
+    static mut BAR: Bar = Bar {
+        unknown: 1,
+        unknown1: 0,
+        username: [0u8; 128],
     };
-    if cfg!(feature = "forward_calls")
-        || cfg.forward_all_calls
-        || cfg.forward_calls.iter().any(|s| s == "UPLAY_GetNextEvent")
+    static mut FOO: Foo = Foo {
+        unknown: [0usize; 2],
+        bar: unsafe { &BAR },
+        value496: 496,
+    };
+
+    static mut FRIEND_ACCEPTED: FriendAccepted = FriendAccepted {
+        foo: unsafe { &FOO },
+    };
+
+    (*event).event_type = UplayEventType::FriendsGameInviteAccepted;
+    let mut ub = ubi_name.into_bytes();
+    ub.push(0);
+    let l = if ub.len() > BAR.username.len() {
+        BAR.username.len()
+    } else {
+        ub.len()
+    };
+    BAR.username[..l].copy_from_slice(&ub[..l]);
+    (*event).unknown = std::ptr::addr_of!(FRIEND_ACCEPTED) as usize;
+}
+
+unsafe fn into_party_invite_accepted(event: *mut UplayEvent, ubi_name: String) {
+    // TODO user better names
+
+    #[repr(C)]
+    struct PartyAccepted {
+        unknown: usize,
+        username: *const Foo,
+    }
+
+    #[repr(C)]
+    struct Foo {
+        unknown: [usize; 2],
+        username: *const [u8; 128],
+        length: usize,
+    }
+
+    static mut BAR: [u8; 128] = [0u8; 128];
+    static mut FOO: Foo = Foo {
+        unknown: [0usize; 2],
+        username: unsafe { &BAR },
+        length: 0usize,
+    };
+
+    static mut PARTY_ACCEPTED: PartyAccepted = PartyAccepted {
+        unknown: 0,
+        username: unsafe { &FOO },
+    };
+
+    (*event).event_type = UplayEventType::PartyGameInviteAccepted;
+    let mut ub = ubi_name.into_bytes();
+    ub.push(0);
+    let l = if ub.len() > BAR.len() {
+        BAR.len()
+    } else {
+        ub.len()
+    };
+    BAR[..l].copy_from_slice(&ub[..l]);
+    BAR[l] = 0;
+    FOO.length = l + 1;
+    warn!(
+        "&PARTY_ACCEPTED = {:?} &FOO = {:?} &BAR = {:?}",
+        std::ptr::addr_of!(PARTY_ACCEPTED),
+        std::ptr::addr_of!(FOO),
+        std::ptr::addr_of!(BAR)
+    );
+    (*event).unknown = std::ptr::addr_of!(PARTY_ACCEPTED) as usize;
+}
+
+#[forwardable_export(log = false)]
+unsafe extern "cdecl" fn UPLAY_GetNextEvent(event: *mut UplayEvent) -> bool {
+    if event.is_null() {
+        return false;
+    }
+
+    if let Some(evt) = EVENTS
+        .get()
+        .map(Mutex::lock)
+        .map(std::result::Result::unwrap)
+        .as_deref()
+        .map(mpsc::Receiver::try_recv)
+        .and_then(std::result::Result::ok)
     {
-        static FUNC: OnceLock<unsafe extern "cdecl" fn(*mut ()) -> bool> = OnceLock::new();
-        let func = FUNC.get_or_init(|| transmute(get_proc(s!("UPLAY_GetNextEvent")).unwrap()));
-        (func)(event)
+        info!("New event {evt:?}");
+        match evt {
+            Event::UserAccountSharing => {
+                (*event).event_type = UplayEventType::UserAccountSharing;
+            }
+            Event::FriendsGameInviteAccepted(user) => into_friend_invite_accepted(event, user),
+            Event::PartyGameInviteAccepted(user) => into_party_invite_accepted(event, user),
+        }
+        // (*event).event_type =
+        true
     } else {
         false
     }
@@ -139,24 +258,10 @@ unsafe extern "cdecl" fn UPLAY_Startup(
     game_version: usize,
     language_country_code_utf8: *const c_char,
 ) -> isize {
-    0 // 0 = all good, 1 = error occured, 2 = ??? (), 3 = ???
+    0 // 0 = all good, 1 = error occured, 2 = ??? (), 3 = ??? (potentially offline mode)
 }
 
-#[no_mangle]
+#[forwardable_export(log = false)]
 unsafe extern "cdecl" fn UPLAY_Update() -> bool {
-    // info!("UPLAY_Update");
-    let Some(cfg) = get() else {
-        error!("Config not loaded!");
-        return false;
-    };
-    if cfg!(feature = "forward_calls")
-        || cfg.forward_all_calls
-        || cfg.forward_calls.iter().any(|s| s == "UPLAY_Update")
-    {
-        static FUNC: OnceLock<unsafe extern "cdecl" fn() -> bool> = OnceLock::new();
-        let func = FUNC.get_or_init(|| transmute(get_proc(s!("UPLAY_Update")).unwrap()));
-        (func)()
-    } else {
-        true
-    }
+    true
 }

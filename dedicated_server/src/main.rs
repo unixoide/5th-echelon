@@ -1,4 +1,5 @@
 #![deny(clippy::pedantic)]
+#![feature(iter_intersperse)]
 
 #[macro_use]
 extern crate quazal_macros;
@@ -17,9 +18,7 @@ use std::sync::Arc;
 
 use quazal::prudp::packet::QPacket;
 use quazal::ClientInfo;
-use quazal::Config;
 use quazal::Context;
-use quazal::Service;
 use slog::Drain;
 use slog::Logger;
 use sloggers::Build;
@@ -40,8 +39,10 @@ fn login_required<T>(ci: &ClientInfo<T>) -> quazal::rmc::Result<u32> {
     ci.user_id.ok_or(quazal::rmc::Error::AccessDenied)
 }
 
+mod api;
 mod challenge;
 mod clan;
+mod config;
 mod game_session;
 mod game_session_ex;
 mod ladder;
@@ -62,6 +63,8 @@ mod tracking_ext;
 mod ubi_acc_mgmt;
 mod uplay_win;
 mod user_storage;
+
+use crate::config::Config;
 
 fn start_server(logger: &slog::Logger, ctx: &Context, storage: &Arc<Storage>, is_secure: bool) {
     use quazal::prudp::packet::StreamHandlerRegistry;
@@ -211,25 +214,10 @@ fn main() -> color_eyre::Result<()> {
         .nth(1)
         .unwrap_or_else(|| "service.toml".to_string());
 
-    let config = Config::load_from_file(&config_filename).unwrap_or_else(|e| {
-        error!(logger, "Couldn't load service file, generating default"; "error" => %e);
-        Config {
-            services: ["sc_bl".to_string()].into(),
-            service: [(
-                "sc_bl".to_string(),
-                Service::Authentication(Context::splinter_cell_blacklist()),
-            )]
-            .into_iter()
-            .collect(),
-        }
-    });
-
-    // if let Err(e) = config.save_to_file(config_filename) {
-    //     error!(logger, "Couldn't save service file"; "error" => %e);
-    // }
+    let config = Config::load_from_file_or_default(&logger, config_filename)?;
 
     let mut threads = vec![];
-    for (name, svc) in config.into_services()? {
+    for (name, svc) in config.quazal_config.into_services()? {
         let logger = logger.new(o!("service" => name.clone()));
         info!(logger, "Loaded service {:#?}", svc);
         let storage = Arc::clone(&storage);
@@ -249,6 +237,22 @@ fn main() -> color_eyre::Result<()> {
         };
         threads.push(handle.unwrap());
     }
+
+    threads.push(
+        std::thread::Builder::new()
+            .name(String::from("api"))
+            .spawn(move || {
+                tokio::runtime::Runtime::new()
+                    .unwrap()
+                    .block_on(api::start_server(
+                        logger.new(o!("service" => "api")),
+                        storage,
+                        config.api_server,
+                    ))
+                    .unwrap();
+            })
+            .unwrap(),
+    );
 
     threads
         .into_iter()

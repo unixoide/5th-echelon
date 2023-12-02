@@ -9,6 +9,7 @@ use std::os::raw::c_void;
 use std::os::windows::ffi::OsStringExt;
 use std::path::Path;
 use std::path::PathBuf;
+use std::time::Duration;
 
 use addresses::Addresses;
 use tracing::error;
@@ -29,9 +30,11 @@ use windows::Win32::UI::WindowsAndMessaging::MB_OK;
 use windows::Win32::UI::WindowsAndMessaging::MB_OKCANCEL;
 
 mod addresses;
+mod api;
 mod config;
 mod hooks;
 mod macros;
+mod overlay;
 mod uplay_r1_loader;
 
 use macros::fatal_error;
@@ -89,15 +92,14 @@ unsafe fn patch_url(new_server: &str, addrs: &Addresses) {
 fn init(hmodule: Option<HMODULE>) {
     let dir = get_target_dir(hmodule);
     init_log(&dir);
+    if let Some(cmdline) = get_arguments() {
+        info!("Cmdline: {}", cmdline);
+    }
     let path = config::get_config_path(dir);
     info!("Config path={:?}", path);
     let config = match config::get_or_load(path) {
         Err(e) => {
-            fatal_error!(
-                "Config couldn't be loaded!";
-                "Config couldn't be loaded: {}",
-                e
-            );
+            fatal_error!("Config couldn't be loaded: {e}");
         }
         Ok(cfg) => cfg,
     };
@@ -126,6 +128,35 @@ fn init(hmodule: Option<HMODULE>) {
             }
         }
     }
+
+    let (tx, rx) = crossbeam_channel::unbounded();
+
+    // needs to be done in a separate thread, otherwise it'll not work
+    std::thread::Builder::new()
+        .name(String::from("overlay-thread"))
+        .spawn(|| overlay::init(overlay::Engine::DX9, rx).unwrap())
+        .unwrap();
+
+    // needs to be done in a separate thread, otherwise it'll block indefinitely
+    std::thread::Builder::new()
+        .name(String::from("login-thread"))
+        .spawn(|| api::login(&config.user.username, &config.user.password).unwrap())
+        .unwrap();
+
+    std::thread::Builder::new()
+        .name(String::from("updates-thread"))
+        .spawn(move || {
+            tokio::runtime::Runtime::new().unwrap().block_on(async {
+                loop {
+                    tokio::time::sleep(Duration::from_secs(1)).await;
+                    let event = api::event().await.unwrap();
+                    if let Some(invite) = event.invite {
+                        tx.send(invite).unwrap();
+                    }
+                }
+            });
+        })
+        .unwrap();
 }
 
 #[instrument(skip_all)]
@@ -193,6 +224,11 @@ fn get_executable(hinst: HMODULE) -> Option<PathBuf> {
     PathBuf::try_from(path).ok()
 }
 
+fn get_arguments() -> Option<String> {
+    let cmdline = unsafe { windows::Win32::System::Environment::GetCommandLineW().to_string() };
+    cmdline.ok()
+}
+
 fn get_target_dir(hinst: Option<HMODULE>) -> PathBuf {
     let mut path = hinst.ok_or(anyhow::anyhow!("no hinst")).and_then(|hinst| {
         let mut path = vec![0u16; 4096];
@@ -253,6 +289,8 @@ fn init_log(target_dir: &Path) {
         tracing::error!("{}", msg);
 
         show_msgbox(&msg, "PANIC");
+
+        std::process::exit(1);
     }));
 }
 

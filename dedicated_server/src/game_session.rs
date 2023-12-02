@@ -21,9 +21,15 @@ use crate::protocols::game_session_service::game_session_protocol::LeaveSessionR
 use crate::protocols::game_session_service::game_session_protocol::LeaveSessionResponse;
 use crate::protocols::game_session_service::game_session_protocol::RegisterUrLsRequest;
 use crate::protocols::game_session_service::game_session_protocol::RegisterUrLsResponse;
+use crate::protocols::game_session_service::game_session_protocol::SearchSessionsWithParticipantsRequest;
+use crate::protocols::game_session_service::game_session_protocol::SearchSessionsWithParticipantsResponse;
+use crate::protocols::game_session_service::game_session_protocol::SplitSessionRequest;
+use crate::protocols::game_session_service::game_session_protocol::SplitSessionResponse;
 use crate::protocols::game_session_service::game_session_protocol::UpdateSessionRequest;
 use crate::protocols::game_session_service::game_session_protocol::UpdateSessionResponse;
 use crate::protocols::game_session_service::types::GameSessionKey;
+use crate::protocols::game_session_service::types::GameSessionSearchResult;
+use crate::protocols::game_session_service::types::GameSessionSearchWithParticipantsResult;
 use crate::storage::Storage;
 
 struct GameSessionProtocolImpl {
@@ -62,6 +68,7 @@ impl<CI> GameSessionProtocolTrait<CI> for GameSessionProtocolImpl {
             },
         })
     }
+
     fn update_session(
         &self,
         logger: &Logger,
@@ -73,6 +80,7 @@ impl<CI> GameSessionProtocolTrait<CI> for GameSessionProtocolImpl {
         info!(logger, "Client updates session: {:?}", request);
         Ok(UpdateSessionResponse)
     }
+
     fn delete_session(
         &self,
         logger: &Logger,
@@ -95,6 +103,7 @@ impl<CI> GameSessionProtocolTrait<CI> for GameSessionProtocolImpl {
         }
         Ok(DeleteSessionResponse)
     }
+
     fn leave_session(
         &self,
         _logger: &Logger,
@@ -105,6 +114,7 @@ impl<CI> GameSessionProtocolTrait<CI> for GameSessionProtocolImpl {
         login_required(&*ci)?;
         Ok(LeaveSessionResponse)
     }
+
     fn add_participants(
         &self,
         logger: &Logger,
@@ -136,6 +146,7 @@ impl<CI> GameSessionProtocolTrait<CI> for GameSessionProtocolImpl {
         login_required(&*ci)?;
         Ok(AbandonSessionResponse)
     }
+
     fn register_ur_ls(
         &self,
         logger: &Logger,
@@ -154,6 +165,72 @@ impl<CI> GameSessionProtocolTrait<CI> for GameSessionProtocolImpl {
             "error adding participants"
         )?;
         Ok(RegisterUrLsResponse)
+    }
+
+    fn search_sessions_with_participants(
+        &self,
+        logger: &Logger,
+        _ctx: &Context,
+        ci: &mut ClientInfo<CI>,
+        request: SearchSessionsWithParticipantsRequest,
+    ) -> Result<SearchSessionsWithParticipantsResponse, Error> {
+        let _user_id = login_required(&*ci)?;
+        info!(logger, "Searches for sessions with {request:?}");
+
+        let sessions = self
+            .storage
+            .search_sessions_with_participants(
+                request.game_session_type_id,
+                request.participant_i_ds.0.as_slice(),
+            )
+            .map_err(|e| {
+                error!(logger, "Error searching game sessions: {e}");
+                Error::InternalError
+            })?;
+
+        info!(logger, "Found sessions: {sessions:#?}");
+
+        Ok(SearchSessionsWithParticipantsResponse {
+            search_results: sessions
+                .into_iter()
+                .map(|session| {
+                    let host = session
+                        .participants
+                        .iter()
+                        .find(|p| p.user_id == session.creator_id)
+                        .unwrap();
+                    GameSessionSearchWithParticipantsResult {
+                        search_result: GameSessionSearchResult {
+                            session_key: GameSessionKey {
+                                type_id: session.session_type,
+                                session_id: session.session_id,
+                            },
+                            host_pid: host.user_id,
+                            host_ur_ls: host.station_urls.clone().into(),
+                            attributes: session.attributes.as_str().try_into().unwrap(),
+                        },
+                        participant_i_ds: session
+                            .participants
+                            .into_iter()
+                            .map(|p| p.user_id)
+                            .collect(),
+                    }
+                })
+                .collect(),
+        })
+    }
+
+    fn split_session(
+        &self,
+        _logger: &Logger,
+        _ctx: &Context,
+        ci: &mut ClientInfo<CI>,
+        request: SplitSessionRequest,
+    ) -> Result<SplitSessionResponse, Error> {
+        let _user_id = login_required(&*ci)?;
+        Ok(SplitSessionResponse {
+            game_session_key_migrated: request.game_session_key,
+        })
     }
 }
 

@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::convert::TryFrom;
+use std::fmt::Display;
 use std::io;
 use std::marker::PhantomData;
 
@@ -10,6 +11,7 @@ use super::basic::FromStream;
 use super::basic::ReadStream;
 use super::basic::ToStream;
 use super::basic::WriteStream;
+use crate::Error;
 
 #[derive(Debug, Default)]
 pub struct StationURL(pub String);
@@ -17,6 +19,12 @@ pub struct StationURL(pub String);
 impl<S: ToString> From<S> for StationURL {
     fn from(s: S) -> Self {
         Self(s.to_string())
+    }
+}
+
+impl From<Vec<String>> for QList<StationURL> {
+    fn from(value: Vec<String>) -> Self {
+        Self(value.into_iter().map(StationURL).collect())
     }
 }
 
@@ -244,6 +252,18 @@ impl<T: std::fmt::Debug> std::default::Default for QList<T> {
     }
 }
 
+impl<T: std::fmt::Debug> From<Vec<T>> for QList<T> {
+    fn from(value: Vec<T>) -> Self {
+        Self(value)
+    }
+}
+
+impl<T: std::fmt::Debug> FromIterator<T> for QList<T> {
+    fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
+        Self(iter.into_iter().collect())
+    }
+}
+
 impl<T> FromStream for QList<T>
 where
     T: FromStream,
@@ -294,4 +314,29 @@ impl<T: std::fmt::Debug> std::ops::Deref for QList<T> {
 pub struct Property {
     pub id: u32,
     pub value: u32,
+}
+
+impl Display for Property {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{} => {}", self.id, self.value)
+    }
+}
+
+impl TryFrom<&str> for Property {
+    type Error = Error;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        let (id, value) = value.split_once(" => ").ok_or(Error::InvalidValue)?;
+        let id = id.parse().map_err(|_| Error::InvalidValue)?;
+        let value = value.parse().map_err(|_| Error::InvalidValue)?;
+        Ok(Self { id, value })
+    }
+}
+
+impl TryFrom<&str> for QList<Property> {
+    type Error = Error;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        value.split(';').map(TryFrom::try_from).collect()
+    }
 }

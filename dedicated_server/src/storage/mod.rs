@@ -9,7 +9,9 @@ use slog::Logger;
 use sqlx::sqlite::SqlitePool;
 use sqlx::Execute;
 
-fn run<F>(future: F) -> eyre::Result<F::Output>
+type Result<T> = eyre::Result<T>;
+
+fn run<F>(future: F) -> Result<F::Output>
 where
     F: std::future::Future,
 {
@@ -25,7 +27,7 @@ pub struct Storage {
 }
 
 impl Storage {
-    pub fn init(logger: Logger) -> eyre::Result<Self> {
+    pub fn init(logger: Logger) -> Result<Self> {
         let pool = run(async {
             let pool = SqlitePool::connect("sqlite://5th-echelon.db?mode=rwc").await?;
             // enable foreign key checks
@@ -36,13 +38,14 @@ impl Storage {
         Ok(Self { logger, pool })
     }
 
-    pub fn login_user(&self, username: &str, password: &str) -> eyre::Result<Option<u32>> {
+    pub async fn login_user_async(&self, username: &str, password: &str) -> Result<Option<u32>> {
         let Some((id, db_password, password_hash)) =
-            run(sqlx::query_as::<_, (u32, Option<String>, Option<String>)>(
+            sqlx::query_as::<_, (u32, Option<String>, Option<String>)>(
                 "SELECT id, password, password_hash FROM users WHERE username = ?",
             )
             .bind(username)
-            .fetch_optional(&self.pool))??
+            .fetch_optional(&self.pool)
+            .await?
         else {
             warn!(self.logger, "User {} not found", username);
             return Ok(None);
@@ -64,27 +67,30 @@ impl Storage {
             }
             (None, Some(password_hash)) => {
                 info!(self.logger, "Verify password hash of {}", username);
-                let parsed_hash = PasswordHash::new(dbg!(&password_hash))
+                let parsed_hash = PasswordHash::new(&password_hash)
                     .map_err(|_| eyre!("password hash parsing failed"))?;
                 Ok(Argon2::default()
-                    .verify_password(dbg!(password).as_bytes(), &parsed_hash)
+                    .verify_password(password.as_bytes(), &parsed_hash)
                     .ok()
                     .and(Some(id)))
             }
         }?;
 
         if let Some(user_id) = maybe_id {
-            run(
-                sqlx::query("UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?")
-                    .bind(user_id)
-                    .execute(&self.pool),
-            )??;
+            sqlx::query("UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?")
+                .bind(user_id)
+                .execute(&self.pool)
+                .await?;
         }
 
         Ok(maybe_id)
     }
 
-    pub fn register_user(&self, username: &str, password: &str) -> eyre::Result<()> {
+    pub fn login_user(&self, username: &str, password: &str) -> Result<Option<u32>> {
+        run(self.login_user_async(username, password))?
+    }
+
+    pub fn register_user(&self, username: &str, password: &str) -> Result<()> {
         let salt = SaltString::generate(&mut OsRng);
         let password_hash = Argon2::default()
             .hash_password(password.as_bytes(), salt.as_salt())
@@ -93,7 +99,7 @@ impl Storage {
         self.register_user_unsafe(username, &password_hash)
     }
 
-    pub fn register_user_unsafe(&self, username: &str, password: &str) -> eyre::Result<()> {
+    pub fn register_user_unsafe(&self, username: &str, password: &str) -> Result<()> {
         run(
             sqlx::query("INSERT INTO users (username, password_hash) VALUES (?, ?)")
                 .bind(username)
@@ -103,7 +109,7 @@ impl Storage {
         Ok(())
     }
 
-    pub fn find_password_for_user(&self, user_id: u32) -> eyre::Result<Option<String>> {
+    pub fn find_password_for_user(&self, user_id: u32) -> Result<Option<String>> {
         let password = run(sqlx::query_as::<_, (Option<String>,)>(
             "SELECT password FROM users WHERE id = ?",
         )
@@ -113,7 +119,33 @@ impl Storage {
         Ok(password)
     }
 
-    pub fn find_user_id_by_name(&self, username: &str) -> eyre::Result<Option<u32>> {
+    pub fn find_user_by_ubi_id(&self, ubi_id: &str) -> Result<Option<User>> {
+        run(self.find_user_by_ubi_id_async(ubi_id))?
+    }
+
+    pub async fn find_user_by_ubi_id_async(&self, ubi_id: &str) -> Result<Option<User>> {
+        Ok(
+            sqlx::query_as("SELECT id, username, ubi_id FROM users WHERE ubi_id = ?")
+                .bind(ubi_id)
+                .fetch_optional(&self.pool)
+                .await?,
+        )
+    }
+
+    pub fn find_user_by_id(&self, id: u32) -> Result<Option<User>> {
+        run(self.find_user_by_id_async(id))?
+    }
+
+    pub async fn find_user_by_id_async(&self, id: u32) -> Result<Option<User>> {
+        Ok(
+            sqlx::query_as("SELECT id, username, ubi_id FROM users WHERE id = ?")
+                .bind(id)
+                .fetch_optional(&self.pool)
+                .await?,
+        )
+    }
+
+    pub fn find_user_id_by_name(&self, username: &str) -> Result<Option<u32>> {
         let uid = run(
             sqlx::query_as::<_, (u32,)>("SELECT id FROM users WHERE username = ?")
                 .bind(username)
@@ -123,27 +155,48 @@ impl Storage {
         Ok(uid)
     }
 
-    pub fn find_ubi_id_by_user_id(&self, user_id: u32) -> eyre::Result<Option<String>> {
-        let ubi_id = run(sqlx::query_as::<_, (Option<String>,)>(
-            "SELECT ubi_id FROM users WHERE id = ?",
-        )
-        .bind(user_id)
-        .fetch_optional(&self.pool))??
-        .and_then(|row| row.0);
+    pub fn find_ubi_id_by_user_id(&self, user_id: u32) -> Result<Option<String>> {
+        run(self.find_ubi_id_by_user_id_async(user_id))?
+    }
+
+    pub async fn find_ubi_id_by_user_id_async(&self, user_id: u32) -> Result<Option<String>> {
+        let ubi_id =
+            sqlx::query_as::<_, (Option<String>,)>("SELECT ubi_id FROM users WHERE id = ?")
+                .bind(user_id)
+                .fetch_optional(&self.pool)
+                .await?
+                .and_then(|row| row.0);
         Ok(ubi_id)
     }
 
-    pub fn find_user_id_by_ubi_id(&self, ubi_id: &str) -> eyre::Result<Option<u32>> {
-        let uid = run(
-            sqlx::query_as::<_, (u32,)>("SELECT id FROM users WHERE ubi_id = ?")
-                .bind(ubi_id)
-                .fetch_optional(&self.pool),
-        )??
-        .map(|row| row.0);
+    pub fn find_username_by_user_id(&self, user_id: u32) -> Result<Option<String>> {
+        run(self.find_username_by_user_id_async(user_id))?
+    }
+
+    pub async fn find_username_by_user_id_async(&self, user_id: u32) -> Result<Option<String>> {
+        let ubi_id =
+            sqlx::query_as::<_, (Option<String>,)>("SELECT username FROM users WHERE id = ?")
+                .bind(user_id)
+                .fetch_optional(&self.pool)
+                .await?
+                .and_then(|row| row.0);
+        Ok(ubi_id)
+    }
+
+    pub fn find_user_id_by_ubi_id(&self, ubi_id: &str) -> Result<Option<u32>> {
+        run(self.find_user_id_by_ubi_id_async(ubi_id))?
+    }
+
+    pub async fn find_user_id_by_ubi_id_async(&self, ubi_id: &str) -> Result<Option<u32>> {
+        let uid = sqlx::query_as::<_, (u32,)>("SELECT id FROM users WHERE ubi_id = ?")
+            .bind(ubi_id)
+            .fetch_optional(&self.pool)
+            .await?
+            .map(|row| row.0);
         Ok(uid)
     }
 
-    pub fn create_user_session(&self, user_id: u32, key: &[u8]) -> eyre::Result<()> {
+    pub fn create_user_session(&self, user_id: u32, key: &[u8]) -> Result<()> {
         use std::fmt::Write;
         let mut s = String::new();
         for c in key {
@@ -159,12 +212,8 @@ impl Storage {
         Ok(())
     }
 
-    pub fn delete_user_session(&self, user_id: u32) -> eyre::Result<()> {
+    pub fn delete_user_session(&self, user_id: u32) -> Result<()> {
         run(async {
-            // sqlx::query("DELETE FROM user_sessions WHERE user_id = ?")
-            //     .bind(user_id)
-            //     .execute(&self.pool)
-            //     .await?;
             sqlx::query("DELETE FROM station_urls WHERE user_id = ?")
                 .bind(user_id)
                 .execute(&self.pool)
@@ -186,7 +235,7 @@ impl Storage {
         user_id: u32,
         type_id: u32,
         attributes: String,
-    ) -> eyre::Result<u32> {
+    ) -> Result<u32> {
         let id = run(sqlx::query(
             "INSERT INTO game_sessions (type_id, creator_id, attributes) VALUES (?, ?, ?)",
         )
@@ -205,10 +254,10 @@ impl Storage {
         &self,
         type_id: u32,
         exclude_user: Option<u32>,
-    ) -> eyre::Result<Vec<GameSession>> {
+    ) -> Result<Vec<GameSession>> {
         let mut sessions: Vec<GameSession> = if let Some(uid) = exclude_user {
             run(sqlx::query_as(
-                "SELECT type_id as session_type, id as session_id FROM game_sessions WHERE type_id = ? AND creator_id != ? AND destroyed_at IS NULL",
+                "SELECT type_id as session_type, id as session_id, creator_id, attributes FROM game_sessions WHERE type_id = ? AND creator_id != ? AND destroyed_at IS NULL",
             )
             .bind(type_id)
             .bind(uid)
@@ -253,7 +302,7 @@ impl Storage {
         session_id: u32,
         private_participants: Vec<u32>,
         public_participants: Vec<u32>,
-    ) -> eyre::Result<()> {
+    ) -> Result<()> {
         if private_participants.is_empty() && public_participants.is_empty() {
             warn!(self.logger, "Empty participant list");
             return Ok(());
@@ -281,7 +330,7 @@ impl Storage {
         creator_id: u32,
         type_id: u32,
         session_id: u32,
-    ) -> eyre::Result<u64> {
+    ) -> Result<u64> {
         Ok(
             run(
         sqlx::query(
@@ -295,7 +344,7 @@ impl Storage {
         )
     }
 
-    pub fn register_urls(&self, user_id: u32, urls: Vec<String>) -> eyre::Result<()> {
+    pub fn register_urls(&self, user_id: u32, urls: Vec<String>) -> Result<()> {
         if urls.is_empty() {
             warn!(self.logger, "Empty url list");
             return Ok(());
@@ -315,12 +364,141 @@ impl Storage {
         run(query.execute(&self.pool))??;
         Ok(())
     }
+
+    pub fn list_users(&self) -> Result<Vec<User>> {
+        run(self.list_users_async())?
+    }
+
+    pub async fn list_users_async(&self) -> Result<Vec<User>> {
+        Ok(sqlx::query_as("SELECT id, username, ubi_id FROM users")
+            .fetch_all(&self.pool)
+            .await?)
+    }
+
+    pub async fn add_invite_async(&self, sender_id: u32, receiver_id: u32) -> Result<i64> {
+        info!(
+            self.logger,
+            "sending invite from {sender_id} to {receiver_id}"
+        );
+        Ok(
+            sqlx::query("INSERT INTO invites (sender, receiver) VALUES (?, ?)")
+                .bind(sender_id)
+                .bind(receiver_id)
+                .execute(&self.pool)
+                .await?
+                .last_insert_rowid(),
+        )
+    }
+
+    pub async fn take_invite_async(&self, user_id: u32) -> Result<Option<Invite>> {
+        let row: Option<Invite> =
+            sqlx::query_as("SELECT rowid as id, sender, receiver FROM invites WHERE receiver = ?")
+                .bind(user_id)
+                .fetch_optional(&self.pool)
+                .await?;
+        if let Some(invite) = row {
+            sqlx::query("DELETE FROM invites WHERE rowid = ?")
+                .bind(invite.id)
+                .execute(&self.pool)
+                .await?;
+            Ok(Some(invite))
+        } else {
+            Ok(None)
+        }
+    }
+
+    pub fn search_sessions_with_participants(
+        &self,
+        type_id: u32,
+        participant_ids: &[u32],
+    ) -> Result<Vec<GameSession>> {
+        run(self.search_sessions_with_participants_async(type_id, participant_ids))?
+    }
+
+    pub async fn search_sessions_with_participants_async(
+        &self,
+        type_id: u32,
+        participant_ids: &[u32],
+    ) -> Result<Vec<GameSession>> {
+        let placeholders = std::iter::repeat('?')
+            .take(participant_ids.len())
+            .intersperse(',')
+            .collect::<String>();
+        let sql = format!(
+            r#"SELECT 
+                    g.type_id as session_type, 
+                    g.id as session_id,
+                    g.creator_id,
+                    g.attributes
+                FROM game_sessions AS g
+                WHERE type_id = ? AND destroyed_at IS NULL AND g.id IN (
+                    SELECT game_id
+                    FROM participants
+                    WHERE user_id IN ({})
+                )
+            "#,
+            placeholders
+        );
+        let mut query = sqlx::query_as(&sql).bind(type_id);
+
+        for id in participant_ids {
+            query = query.bind(id);
+        }
+        info!(
+            self.logger,
+            "Searching sessions with participants: {}",
+            query.sql()
+        );
+
+        let mut sessions: Vec<GameSession> = query.fetch_all(&self.pool).await?;
+
+        for session in &mut sessions {
+            session.participants = sqlx::query_as(
+                r#"
+                SELECT
+                    user_id,
+                    username as name
+                FROM participants p, users u
+                WHERE u.id = user_id AND game_id = ?
+                "#,
+            )
+            .bind(session.session_id)
+            .fetch_all(&self.pool)
+            .await?;
+
+            for participant in &mut session.participants {
+                participant.station_urls = sqlx::query_as(
+                    r#"
+                    SELECT url
+                    FROM station_urls
+                    WHERE user_id = ?
+                    "#,
+                )
+                .bind(participant.user_id)
+                .fetch_all(&self.pool)
+                .await?
+                .into_iter()
+                .map(|r: (String,)| r.0)
+                .collect();
+            }
+        }
+        Ok(sessions)
+    }
+}
+
+#[derive(Debug, sqlx::FromRow)]
+pub struct User {
+    pub id: u32,
+    pub username: String,
+    pub ubi_id: String,
 }
 
 #[derive(Debug, sqlx::FromRow)]
 pub struct GameSession {
     pub session_type: u32,
     pub session_id: u32,
+    pub creator_id: u32,
+    pub attributes: String,
     #[sqlx(skip)]
     pub participants: Vec<Participant>,
 }
@@ -331,4 +509,11 @@ pub struct Participant {
     pub name: String,
     #[sqlx(skip)]
     pub station_urls: Vec<String>,
+}
+
+#[derive(Debug, sqlx::FromRow)]
+pub struct Invite {
+    pub id: i64,
+    pub sender: u32,
+    pub receiver: u32,
 }

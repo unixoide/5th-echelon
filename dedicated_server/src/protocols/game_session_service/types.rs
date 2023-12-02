@@ -66,6 +66,7 @@ pub struct GameSessionMessage {
 }
 #[derive(Debug, ToStream, FromStream)]
 pub struct GameSessionSearchWithParticipantsResult {
+    pub search_result: GameSessionSearchResult, // added manually
     pub participant_i_ds: quazal::rmc::types::QList<u32>,
 }
 #[derive(Debug, ToStream, FromStream)]
