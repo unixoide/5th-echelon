@@ -54,6 +54,10 @@ impl Config {
         error!(logger, "Couldn't load service file, generating default"; "error" => %e);
         let mut online_cfg = OnlineConfig::default();
         online_cfg.listen.set_ip("127.0.0.1".parse().unwrap());
+        online_cfg.content = online_cfg
+            .content
+            .replace("mdc-mm-rdv66.ubisoft.com", "127.0.0.1");
+
         let mut content_srv = ContentServer::default();
         content_srv.listen.set_ip(online_cfg.listen.ip());
 
