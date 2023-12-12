@@ -195,9 +195,6 @@ impl hudhook::hooks::ImguiRenderLoop for MyRenderLoop {
                     });
             }
         }
-
-        let mut opened = true;
-        ui.show_metrics_window(&mut opened);
     }
 
     fn should_block_messages(&self, _io: &imgui::Io) -> bool {
