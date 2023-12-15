@@ -15,6 +15,8 @@ similar for previous games as well.
 >
 > This will allow you to use the official Ubisoft servers again! Therefore make sure to use the official `uplay_r1_loader.dll`
 > and not the one from this project.
+>
+> This solution is not a functional community server. It only allows to use the official servers again (when they partially are up). So whenever Ubisoft shuts them completely down, this will not work anymore. **For an independent community server, please stay tuned!**
 
 ## Build
 
