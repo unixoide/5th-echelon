@@ -6,6 +6,16 @@ of the games with the great Sam Fisher alive.
 For now it is focused on SC:BL, but the net code should be relatively
 similar for previous games as well.
 
+> [!TIP]
+> **TEMPORARY FIX FOR OFFICIAL SERVERS**
+>
+> 1. Compile `tools\mpdataserver.go` with a [go](https://go.dev) compiler (`go build -o mpdataserver.exe mpdataserver.go`)
+> 2. Run it
+> 3. Add `127.0.0.1 sc6_pc_lnch_b.s3.amazonaws.com` to `C:\Windows\System32\drivers\etc\hosts`.
+>
+> This will allow you to use the official Ubisoft servers again! Therefore make sure to use the official `uplay_r1_loader.dll`
+> and not the one from this project.
+
 ## Build
 
 Last tested rust version: 1.74 nightly
