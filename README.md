@@ -10,7 +10,7 @@ similar for previous games as well.
 > **TEMPORARY FIX FOR OFFICIAL SERVERS**
 >
 > 1. Compile `tools\mpdataserver.go` with a [go](https://go.dev) compiler (`go build -o mpdataserver.exe mpdataserver.go`)
-> 2. Run it
+> 2. Run it (this openes a black window with no output) and leave it running.
 > 3. Add `127.0.0.1 sc6_pc_lnch_b.s3.amazonaws.com` to `C:\Windows\System32\drivers\etc\hosts`.
 >
 > This will allow you to use the official Ubisoft servers again! Therefore make sure to use the official `uplay_r1_loader.dll`
@@ -31,19 +31,27 @@ $ cargo build --release
 
 ## Usage (precompiled from the releases page)
 
-1. Rename `uplay_r1_loader.dll` in the games src\SYSTEM directory to `uplay_r1_loader.orig.dll`
+1. Rename `uplay_r1_loader.dll` in the games `src\SYSTEM` directory (e.g. `C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\` for the steam version) to `uplay_r1_loader.orig.dll`
 2. Copy `uplay_r1_loader.dll` from the release to the same directory
 3. Start the server `dedicated_server.exe`
 4. Start the game and try to enter online mode
 
-
 ## Usage (from source)
 
-1. Rename `uplay_r1_loader.dll` in the game directory to `uplay_r1_loader.orig.dll`
+1. Rename `uplay_r1_loader.dll` in the game directory (`Tom Clancy's Splinter Cell Blacklist\src\SYSTEM`) to `uplay_r1_loader.orig.dll`
 2. Run ``.\scripts\uplay_r1_loader.bat`
 3. Adjust `service.toml` to your needs (update the IP, everything else should be fine)
 4. Start the server `.\scripts\run.bat`
 5. Start the game and try to enter online mode
+
+### Available test accounts
+
+The server currently knows these test accounts which you can use to experiment. Use the credentials in the `uplay.toml` file at `Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\uplay.toml` (generated during first startup).
+
+| Username | Password |
+|----------|---------|
+| AAAABBBB | CCCCDDDD |
+| sam_the_fisher | password1234 |
 
 ### What works
 
@@ -51,7 +59,7 @@ $ cargo build --release
 - Entering the COOP lobby
 - Starting a COOP game
 - Starting a Spy vs Merc game
-- Invite other players
+- Invite other players (press <kbd>F5</kbd> to open the overlay to accept the invite).
 
 ### What doesn't work
 
