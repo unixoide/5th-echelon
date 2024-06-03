@@ -85,11 +85,45 @@ unsafe extern "cdecl" fn UPLAY_USER_IsConnected() -> bool {
     true
 }
 
+#[repr(C)]
+struct SessionData {
+    unknown1: u32,
+    checksum: u32,
+    account_id: [u8; 0x80],
+    some_data: [u8; 0x164],
+    some_data_size: u32,
+}
+
+impl std::fmt::Debug for SessionData {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("SessionData")
+            .field("unknown1", &self.unknown1)
+            .field("checksum", &self.checksum)
+            .field(
+                "account_id",
+                &std::ffi::CStr::from_bytes_until_nul(&self.account_id),
+            )
+            .field(
+                "some_data",
+                &&self.some_data[..self.some_data_size as usize],
+            )
+            .field("some_data_size", &self.some_data_size)
+            .finish()
+    }
+}
+
+#[derive(Debug)]
+#[repr(C)]
+struct SessionDataWrapper<'a> {
+    data: &'a SessionData,
+    size: u32,
+}
+
 #[forwardable_export]
 unsafe extern "cdecl" fn UPLAY_USER_SetGameSession(
     game_session_identifier: *mut (),
-    session_data: *mut (),
     flags: usize,
+    session_data: &SessionDataWrapper<'_>,
     invite_only: bool,
 ) -> bool {
     true

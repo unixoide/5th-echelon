@@ -1,24 +1,27 @@
 use std::time::Duration;
 use std::time::SystemTime;
 
+use quazal::prudp::ClientRegistry;
 use quazal::rmc::Protocol;
 use quazal::Context;
 
 use crate::login_required;
 use crate::protocols::ladder_helper_service::ladder_helper_protocol::GetUnixUtcRequest;
 use crate::protocols::ladder_helper_service::ladder_helper_protocol::GetUnixUtcResponse;
-use crate::protocols::ladder_helper_service::ladder_helper_protocol::LadderHelperProtocol;
-use crate::protocols::ladder_helper_service::ladder_helper_protocol::LadderHelperProtocolTrait;
+use crate::protocols::ladder_helper_service::ladder_helper_protocol::LadderHelperProtocolServer;
+use crate::protocols::ladder_helper_service::ladder_helper_protocol::LadderHelperProtocolServerTrait;
 
-struct LadderHelperProtocolImpl;
+struct LadderHelperProtocolServerImpl;
 
-impl<T> LadderHelperProtocolTrait<T> for LadderHelperProtocolImpl {
+impl<T> LadderHelperProtocolServerTrait<T> for LadderHelperProtocolServerImpl {
     fn get_unix_utc(
         &self,
         _logger: &slog::Logger,
         _ctx: &Context,
         ci: &mut quazal::ClientInfo<T>,
         _request: GetUnixUtcRequest,
+        _client_registry: &ClientRegistry<T>,
+        _socket: &std::net::UdpSocket,
     ) -> Result<GetUnixUtcResponse, quazal::rmc::Error> {
         login_required(&*ci)?;
 
@@ -34,5 +37,7 @@ impl<T> LadderHelperProtocolTrait<T> for LadderHelperProtocolImpl {
 }
 
 pub fn new_protocol<T: 'static>() -> Box<dyn Protocol<T>> {
-    Box::new(LadderHelperProtocol::new(LadderHelperProtocolImpl))
+    Box::new(LadderHelperProtocolServer::new(
+        LadderHelperProtocolServerImpl,
+    ))
 }

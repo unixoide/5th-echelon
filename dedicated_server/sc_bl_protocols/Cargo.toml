@@ -1,0 +1,60 @@
+[package]
+name = "sc_bl_protocols"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[features]
+default = [
+    "authentication_foundation",
+    "challenge_helper_service",
+    "clan_helper_service",
+    "game_session_ex_service",
+    "game_session_service",
+    "ladder_helper_service",
+    "localization_service",
+    "nat_traversal",
+    "player_stats_service",
+    "privileges_service",
+    "secure_connection_service",
+    "tracking_service",
+    "trackingextension",
+    "ubi_account_management_service",
+    "ubi_authentication",
+    "uplay_win_service",
+    "user_storage",
+]
+account_management_service = []
+authentication_foundation = []
+challenge_helper_service = []
+clan_helper_service = []
+friends_service = []
+game_session_ex_service = []
+game_session_service = []
+health_service = []
+ladder_helper_service = []
+localization_service = []
+nat_traversal = []
+news_service = []
+offline_game_notifications_service = []
+player_stats_service = []
+privileges_service = []
+protocol_foundation = []
+secure_connection_service = []
+simple_authentication = []
+tracking_service = []
+trackingextension = []
+ubi_account_management_service = []
+ubi_authentication = []
+uplay_win_service = []
+user_account_management_service = []
+user_storage = []
+user_storage_admin = []
+web_notifications_storage_service = []
+
+[dependencies]
+byteorder = "1.4"
+num_enum = "0.7"
+quazal = { path = "../../quazal" }
+quazal-macros = { path = "../../quazal/quazal-macros" }
+slog = { version = "2.7", features = ["max_level_trace"] }

@@ -12,8 +12,8 @@ for line in io.lines(Dir.personal_plugins_path() .. "/rmc.txt") do
     PROTO_MAPPING[pid].methods[mid] = parts[4]
 end
 
-quazal_proto = Proto("prudp", "Pretty Reliable UDP (Quazal)")
-vport_proto = Proto("vport", "PRUDP VPort")
+local quazal_proto = Proto("prudp", "Pretty Reliable UDP (Quazal)")
+local vport_proto = Proto("vport", "PRUDP VPort")
 
 local stream_types = {
     [1] = "DO",
@@ -59,6 +59,108 @@ local packet_types = {
     [7] = "Raw",
 }
 quazal_proto.fields.type = ProtoField.uint8("prudp.type", "Type", base.DEC, packet_types, 0x07)
+
+
+local rmc_proto = Proto("RMC", "Quazal RMC")
+rmc_proto.fields.size = ProtoField.uint32("rmc.size", "Size")
+rmc_proto.fields.prot_id_short = ProtoField.uint8("rmc.protocol_id", "Procotol ID", base.DEC, nil, 0x7F)
+rmc_proto.fields.prot_id_long = ProtoField.uint16("rmc.protocol_id", "Procotol ID")
+rmc_proto.fields.is_request = ProtoField.bool("rmc.is_request", "Is Request", 8, nil, 0x80)
+rmc_proto.fields.call_id = ProtoField.uint32("rmc.call_id", "Call")
+rmc_proto.fields.method_id = ProtoField.uint32("rmc.method_id", "Method", base.DEC, nil, 0x7FFF)
+rmc_proto.fields.is_success = ProtoField.bool("rmc.is_success", "Is Success", 8, nil, 1)
+rmc_proto.fields.payload = ProtoField.bytes("rmc.payload", "Payload")
+rmc_proto.fields.error_code = ProtoField.uint32("rmc.error_code", "Error Code", base.HEX)
+
+local rmc_dissector_table = DissectorTable.new("rmc.protocol_id", nil, ftypes.UINT16, nil, rmc_proto)
+
+local method_id_field = Field.new("rmc.method_id")
+local is_request_field = Field.new("rmc.is_request")
+local is_success_field = Field.new("rmc.is_success")
+
+local function rmc_proto_dissector(buffer, pinfo, tree)
+    pinfo.cols.protocol = "RMC"
+    local subtree = tree:add(rmc_proto, buffer(), "RMC Data")
+    subtree:add_le(rmc_proto.fields.size, buffer(0, 4))
+    local size = buffer(0, 4):le_uint()
+    local off = 4
+    local is_request = true
+    local proto = 0
+    local pt = nil
+    if buffer(4, 1):uint() == 0xff then
+        pt = subtree:add_le(rmc_proto.fields.prot_id_long, buffer(5, 2))
+        is_request = buffer(5, 1):bitfield(0, 1) ~= 0
+        off = 7
+        proto = buffer(5, 2):le_uint()
+    else
+        pt = subtree:add_le(rmc_proto.fields.prot_id_short, buffer(4, 1))
+        subtree:add_le(rmc_proto.fields.is_request, buffer(4, 1))
+        is_request = buffer(4, 1):bitfield(0, 1) ~= 0
+        off = 5
+        proto = bit.band(buffer(4, 1):le_uint(), 0x7F)
+    end
+
+    if is_request then
+        pinfo.cols.info = "Request"
+    else
+        pinfo.cols.info = "Response"
+    end
+
+    if PROTO_MAPPING[proto] then
+        pt:append_text(" " .. PROTO_MAPPING[proto].name)
+        pinfo.cols.info:append(" " .. PROTO_MAPPING[proto].name)
+    else
+        pinfo.cols.info:append(" Proto(" .. proto .. ")")
+    end
+
+    if is_request then
+        subtree:add_le(rmc_proto.fields.call_id, buffer(off, 4))
+        pinfo.cols.info:append(" Call(" .. buffer(off, 4):le_uint() .. ")")
+        off = off + 4
+        local mt = subtree:add_le(rmc_proto.fields.method_id, buffer(off, 4))
+        local mid = buffer(off, 4):le_uint()
+        off = off + 4
+        if PROTO_MAPPING[proto] and PROTO_MAPPING[proto].methods[mid] then
+            mt:append_text(" " .. PROTO_MAPPING[proto].methods[mid])
+            pinfo.cols.info:append(" " .. PROTO_MAPPING[proto].methods[mid])
+        else
+            pinfo.cols.info:append(" Method(" .. mid .. ")")
+        end
+    else
+        subtree:add_le(rmc_proto.fields.is_success, buffer(off, 1))
+        local is_success = buffer(off, 1):bitfield(7, 1) ~= 0
+        off = off + 1
+        if is_success then
+            subtree:add_le(rmc_proto.fields.call_id, buffer(off, 4))
+            pinfo.cols.info:append(" Call(" .. buffer(off, 4):le_uint() .. ")")
+            off = off + 4
+            local mt = subtree:add_le(rmc_proto.fields.method_id, buffer(off, 4))
+            local mid = bit.band(buffer(off, 4):le_uint(), 0x7FFF)
+            off = off + 4
+            if PROTO_MAPPING[proto] and PROTO_MAPPING[proto].methods[mid] then
+                mt:append_text(" " .. PROTO_MAPPING[proto].methods[mid])
+                pinfo.cols.info:append(" " .. PROTO_MAPPING[proto].methods[mid])
+            else
+                pinfo.cols.info:append(" Method(" .. mid .. ")")
+            end
+        else
+            subtree:add_le(rmc_proto.fields.error_code, buffer(off, 4))
+            pinfo.cols.info:append(" Error(" .. buffer(off, 4):le_uint() .. ")")
+            off = off + 4
+            subtree:add_le(rmc_proto.fields.call_id, buffer(off, 4))
+            pinfo.cols.info:append(" Call(" .. buffer(off, 4):le_uint() .. ")")
+            off = off + 4
+        end
+    end
+    local payload = buffer(off, size - off + 4)
+    subtree:add(rmc_proto.fields.payload, payload)
+    method_id_field()
+    rmc_dissector_table:try(proto, payload:tvb("RMC Payload"), pinfo, tree)
+    off = size + 4
+    if buffer:len() > off then
+        rmc_proto_dissector(buffer(off), pinfo, tree)
+    end
+end
 
 local stream_index = Field.new("udp.stream")
 local ip_src = Field.new("ip.src")
@@ -127,7 +229,7 @@ function PacketCollector:update(data, segment_id, fragment_id)
         self.packets[segment_id] = { data = data, segment_id = segment_id, fragment_id = fragment_id }
     end
 
-    print(segment_id, fragment_id)
+    -- print(segment_id, fragment_id)
     if fragment_id > 0 then
         return {}
     end
@@ -141,12 +243,12 @@ function PacketCollector:update(data, segment_id, fragment_id)
         res[packet.fragment_id] = packet
         prev = prev - 1
     end
-    print(segment_id, fragment_id)
+    -- print(segment_id, fragment_id)
     res[#res + 1] = self.packets[segment_id]
     return res
 end
 
-function vport(tree, buf)
+local function vport(tree, buf)
     tree:add(vport_proto.fields.port, buf(0, 1))
     tree:add(vport_proto.fields.type, buf(0, 1))
 end
@@ -155,21 +257,42 @@ function quazal_proto.init()
     fragments = {}
 end
 
-function quazal_proto.dissector(buffer, pinfo, tree)
-    local si = tostring(stream_index().value)
-    local is = tostring(ip_src().value)
-    local up = tostring(udp_port().value)
-    local key = si .. "|" .. is .. "|" .. up
-    print("1", key, fragments[key])
-    if fragments[key] == nil then
-        -- print("2", key)
-        fragments[key] = PacketCollector:new()
-        print("P", #fragments[key].packets)
+local function new_rc4(key)
+    -- plain Lua implementation
+    local function new_ks(key)
+        local st = {}
+        for i = 0, 255 do st[i] = i end
+
+        local len = #key
+        local j = 0
+        for i = 0, 255 do
+            j = (j + st[i] + key:byte((i % len) + 1)) % 256
+            st[i], st[j] = st[j], st[i]
+        end
+
+        return { x = 0, y = 0, st = st }
     end
-    quazal_proto_dissector(buffer, pinfo, tree, fragments[key])
+
+    local function rc4_crypt(ks, input)
+        local x, y, st = ks.x, ks.y, ks.st
+
+        local t = {}
+        for i = 1, #input do
+            x = (x + 1) % 256
+            y = (y + st[x]) % 256;
+            st[x], st[y] = st[y], st[x]
+            t[i] = string.char(bit.bxor(input:byte(i), st[(st[x] + st[y]) % 256]))
+        end
+
+        ks.x, ks.y = x, y
+        return table.concat(t)
+    end
+
+    local o = new_ks(key)
+    return setmetatable(o, { __call = rc4_crypt, __metatable = false })
 end
 
-function quazal_proto_dissector(buffer, pinfo, tree, fragments)
+local function quazal_proto_dissector(buffer, pinfo, tree, fragments)
     pinfo.cols.protocol = "PRUDP"
 
     local subtree = tree:add(quazal_proto, buffer(), "PRUDP Data")
@@ -253,130 +376,66 @@ function quazal_proto_dissector(buffer, pinfo, tree, fragments)
     end
 end
 
-udp_table = DissectorTable.get("udp.port")
-udp_table:add(3074, quazal_proto)
-
-
-rmc_proto = Proto("RMC", "Quazal RMC")
-rmc_proto.fields.size = ProtoField.uint32("rmc.size", "Size")
-rmc_proto.fields.prot_id_short = ProtoField.uint8("rmc.protocol_id", "Procotol ID", base.DEC, nil, 0x7F)
-rmc_proto.fields.prot_id_long = ProtoField.uint16("rmc.protocol_id", "Procotol ID")
-rmc_proto.fields.call_id = ProtoField.uint32("rmc.call_id", "Call")
-rmc_proto.fields.method_id = ProtoField.uint32("rmc.method_id", "Method", base.DEC, nil, 0x7FFF)
-rmc_proto.fields.is_success = ProtoField.bool("rmc.is_success", "Is Success", 8, nil, 1)
-rmc_proto.fields.payload = ProtoField.bytes("rmc.payload", "Payload")
-rmc_proto.fields.error_code = ProtoField.uint32("rmc.error_code", "Error Code", base.HEX)
-
-function rmc_proto_dissector(buffer, pinfo, tree)
-    pinfo.cols.protocol = "RMC"
-    local subtree = tree:add(rmc_proto, buffer(), "RMC Data")
-    subtree:add_le(rmc_proto.fields.size, buffer(0, 4))
-    local size = buffer(0, 4):le_uint()
-    local off = 4
-    local is_request = true
-    local proto = 0
-    local pt = nil
-    if buffer(4, 1):uint() == 0xff then
-        pt = subtree:add_le(rmc_proto.fields.prot_id_long, buffer(5, 2))
-        off = 7
-        proto = buffer(5, 2):le_uint()
-    else
-        pt = subtree:add_le(rmc_proto.fields.prot_id_short, buffer(4, 1))
-        is_request = buffer(4, 1):bitfield(0, 1) ~= 0
-        off = 5
-        proto = bit.band(buffer(4, 1):le_uint(), 0x7F)
+function quazal_proto.dissector(buffer, pinfo, tree)
+    local si = tostring(stream_index().value)
+    local is = tostring(ip_src().value)
+    local up = tostring(udp_port().value)
+    local key = si .. "|" .. is .. "|" .. up
+    -- print("1", key, fragments[key])
+    if fragments[key] == nil then
+        -- print("2", key)
+        fragments[key] = PacketCollector:new()
+        -- print("P", #fragments[key].packets)
     end
-
-    if is_request then
-        pinfo.cols.info = "Request"
-    else
-        pinfo.cols.info = "Response"
-    end
-
-    if PROTO_MAPPING[proto] then
-        pt:append_text(" " .. PROTO_MAPPING[proto].name)
-        pinfo.cols.info:append(" " .. PROTO_MAPPING[proto].name)
-    else
-        pinfo.cols.info:append(" Proto(" .. proto .. ")")
-    end
-
-    if is_request then
-        subtree:add_le(rmc_proto.fields.call_id, buffer(off, 4))
-        pinfo.cols.info:append(" Call(" .. buffer(off, 4):le_uint() .. ")")
-        off = off + 4
-        local mt = subtree:add_le(rmc_proto.fields.method_id, buffer(off, 4))
-        local mid = buffer(off, 4):le_uint()
-        off = off + 4
-        if PROTO_MAPPING[proto] and PROTO_MAPPING[proto].methods[mid] then
-            mt:append_text(" " .. PROTO_MAPPING[proto].methods[mid])
-            pinfo.cols.info:append(" " .. PROTO_MAPPING[proto].methods[mid])
-        else
-            pinfo.cols.info:append(" Method(" .. mid .. ")")
-        end
-    else
-        subtree:add_le(rmc_proto.fields.is_success, buffer(off, 1))
-        local is_success = buffer(off, 1):uint()
-        off = off + 1
-        if is_success then
-            subtree:add_le(rmc_proto.fields.call_id, buffer(off, 4))
-            pinfo.cols.info:append(" Call(" .. buffer(off, 4):le_uint() .. ")")
-            off = off + 4
-            local mt = subtree:add_le(rmc_proto.fields.method_id, buffer(off, 4))
-            local mid = bit.band(buffer(off, 4):le_uint(), 0x7FFF)
-            off = off + 4
-            if PROTO_MAPPING[proto] and PROTO_MAPPING[proto].methods[mid] then
-                mt:append_text(" " .. PROTO_MAPPING[proto].methods[mid])
-                pinfo.cols.info:append(" " .. PROTO_MAPPING[proto].methods[mid])
-            else
-                pinfo.cols.info:append(" Method(" .. mid .. ")")
-            end
-        else
-            subtree:add_le(rmc_proto.fields.error_code, buffer(off, 4))
-            pinfo.cols.info:append(" Error(" .. buffer(off, 4):le_uint() .. ")")
-            off = off + 4
-            subtree:add_le(rmc_proto.fields.call_id, buffer(off, 4))
-            pinfo.cols.info:append(" Call(" .. buffer(off, 4):le_uint() .. ")")
-            off = off + 4
-        end
-    end
-    subtree:add(rmc_proto.fields.payload, buffer(off, size - off + 4))
-    off = size + 4
-    if buffer:len() > off then
-        rmc_proto_dissector(buffer(off), pinfo, tree)
-    end
+    quazal_proto_dissector(buffer, pinfo, tree, fragments[key])
 end
 
-function new_rc4(key)
-    -- plain Lua implementation
-    local function new_ks(key)
-        local st = {}
-        for i = 0, 255 do st[i] = i end
+local udp_table = DissectorTable.get("udp.port")
+udp_table:add(3074, quazal_proto) -- SC:BL
+udp_table:add(2347, quazal_proto) -- GR:FS
+udp_table:add(9103, quazal_proto) -- SC:C
 
-        local len = #key
-        local j = 0
-        for i = 0, 255 do
-            j = (j + st[i] + key:byte((i % len) + 1)) % 256
-            st[i], st[j] = st[j], st[i]
+
+-- local secure_connect_proto = Proto("SecureConnectionProtocol", "SecureConnectionProtocol")
+-- secure_connect_proto.fields.vec_my_urls = ProtoField.stringz("secure_connect_proto.vec_my_urls", "vecMyURLs")
+
+-- function secure_connect_proto.init()
+--     DissectorTable.get("rmc.protocol_id"):add(11, secure_connect_proto)
+-- end
+
+-- --- @param buffer Tvb
+-- --- @param pinfo Pinfo
+-- --- @param tree TreeItem
+-- function secure_connect_proto.dissector(buffer, pinfo, tree)
+--     local method_id = method_id_field().value
+--     local is_request = is_request_field().value
+
+--     local subtree = nil
+--     if is_request then
+--         if method_id == 4 then
+--             subtree = tree:add(quazal_proto, buffer(), "SecureConnectionProtocol.RegisterEx")
+--             local cnt = buffer(0, 4):le_uint()
+--             local off = 4
+--             for i = 1, cnt do
+--                 local len = buffer(off, 1):uint()
+--                 off = off + 4
+--                 subtree:add_packet_field(secure_connect_proto.fields.vec_my_urls, buffer(off, len), ENC_STRING +
+--                     ENC_ASCII)
+--                 off = off + len
+--             end
+--         end
+--     end
+-- end
+local proto_dir = Dir.personal_plugins_path() .. "/quazal"
+if Dir.exists(proto_dir) then
+    for fname in Dir.open(proto_dir) do
+        print("Loading " .. fname)
+        local module = loadfile(proto_dir .. "/" .. fname)
+        local status, proto = pcall(function() module(method_id_field, is_request_field, is_success_field) end)
+        if status then
+            print("Done")
+        else
+            print("Failed: " .. proto)
         end
-
-        return { x = 0, y = 0, st = st }
     end
-
-    local function rc4_crypt(ks, input)
-        local x, y, st = ks.x, ks.y, ks.st
-
-        local t = {}
-        for i = 1, #input do
-            x = (x + 1) % 256
-            y = (y + st[x]) % 256;
-            st[x], st[y] = st[y], st[x]
-            t[i] = string.char(bit.bxor(input:byte(i), st[(st[x] + st[y]) % 256]))
-        end
-
-        ks.x, ks.y = x, y
-        return table.concat(t)
-    end
-
-    local o = new_ks(key)
-    return setmetatable(o, { __call = rc4_crypt, __metatable = false })
 end

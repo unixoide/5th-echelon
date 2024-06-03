@@ -286,12 +286,11 @@ fn get_savegames() -> Result<Vec<UplaySave>> {
     let saves = files
         .into_iter()
         .filter_map(std::result::Result::ok)
-        .filter(|f| f.file_type().map(|ft| ft.is_file()).unwrap_or_default())
+        .filter(|f| f.file_type().is_ok_and(|ft| ft.is_file()))
         .filter(|f| {
             f.path()
                 .extension()
-                .map(|e| e == std::ffi::OsStr::new("sav"))
-                .unwrap_or_default()
+                .is_some_and(|e| e == std::ffi::OsStr::new("sav"))
         })
         .filter_map(|f| {
             let size = f.metadata().unwrap().len();
@@ -321,7 +320,12 @@ fn get_savegames() -> Result<Vec<UplaySave>> {
     Ok(saves)
 }
 
-impl Save {
+trait SaveGame {
+    fn get_savegames_path(&self) -> PathBuf;
+    fn get_savegame_path(&self, slot_id: usize) -> PathBuf;
+}
+
+impl SaveGame for Save {
     fn get_savegames_path(&self) -> PathBuf {
         const SAVE_GAME_FOLDER: &str = "5th-Echolon\\Saves";
         match self.save_dir {

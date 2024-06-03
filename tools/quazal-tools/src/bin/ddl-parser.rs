@@ -8,6 +8,7 @@ use std::path::Path;
 use clap::App;
 use clap::Arg;
 use nom::AsBytes;
+use quazal_tools::generate::build_import_map;
 use quazal_tools::generate::generate_source;
 use quazal_tools::generate::write_modules;
 use quazal_tools::parse::parse_ddl;
@@ -84,12 +85,10 @@ fn main() {
     let file_data = fs::read(binary_path)
         .unwrap_or_else(|e| panic!("Couldn\'t read {}: {}", binary_path.to_string_lossy(), e));
 
+    println!("[*] Extracting and parsing DDL from {binary_path:?}");
     let magic_bytes = &MAGIC.to_be_bytes()[..];
-
     let mut data = file_data.as_bytes();
-
     let mut namespaces = Vec::default();
-
     while !data.is_empty() {
         let pos = file_data.len() - data.len();
         if pos % 1000 == 0 {
@@ -121,8 +120,10 @@ fn main() {
             &data[1..]
         };
     }
+    println!();
 
     if let Some(output) = matches.value_of("output") {
+        println!("[*] Writing parsed DDL to {output}");
         serde_json::to_writer_pretty(
             fs::File::create(output).expect("could not open output file"),
             &namespaces,
@@ -131,11 +132,13 @@ fn main() {
     }
 
     if let Some(generate) = generate_dir {
+        println!("[*] Generating source files in {generate:?}");
+        let import_map = build_import_map(&namespaces);
         write_modules(
             generate,
             namespaces
                 .iter()
-                .map(|n| generate_source(generate, n))
+                .map(|n| generate_source(generate, n, &import_map))
                 .collect::<std::io::Result<Vec<_>>>()
                 .unwrap()
                 .into_iter()
@@ -144,6 +147,7 @@ fn main() {
                     s
                 })
                 .into_iter(),
+            true,
         )
         .unwrap();
     }

@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use quazal::prudp::ClientRegistry;
 use quazal::rmc::basic::FromStream;
 use quazal::rmc::basic::ToStream;
 use quazal::rmc::types::DateTime;
@@ -64,15 +65,37 @@ impl<T> Protocol<T> for OverlordChallengeProtocol {
         _ctx: &Context,
         ci: &mut quazal::ClientInfo<T>,
         request: &quazal::rmc::Request,
+        _client_registry: &ClientRegistry<T>,
+        _socket: &std::net::UdpSocket,
     ) -> std::result::Result<Vec<u8>, quazal::rmc::Error> {
         login_required(&*ci)?;
         match request.method_id {
             1 => {
                 let _request: GetChallengesRequest = FromStream::from_bytes(&request.parameters)?;
                 Ok(GetChallengesResponse {
-                    challenges: Vec::default(),
+                    challenges: vec![Challenge{
+                        unk1: 16_0200,
+                        unk2: String::from("{}"),
+                        some_xml: String::from("<Challenge Name=\"LocID_SNN_ReminderGoneDark_20\" Desc=\"LocID_SNDES_ReminderGoneDark_20\" Guid=\"160200\" ShortDesc=\"LocID_SNSD_ReminderGoneDark_20\" Category=\"OnlineChallengeGoneDarkHeader\"><GoneDark id=\"160200\" PosX=\"262\" PosY=\"397\" Resource=\"GD_Grim_004\" title=\"LocID_C_INT_20_Title\" loc=\"LocID_C_INT_20_Loc_0\" desc=\"LocID_C_INT_20_Desc_1\" /><Definition><GameEvent><Event><GoneDarkUI><ID Op=\"Equal\" Value=\"160200\" /></GoneDarkUI></Event></GameEvent></Definition><StepReward Count=\"123\"><UnlockChallenge><ID val=\"160201\" /></UnlockChallenge></StepReward></Challenge>"),
+                        unk4: 0,
+                        unk5: 0,
+                        unk6: 0,
+                        unk7: 1,
+                        unk8: false,
+                        unk9: DateTime(0),
+                        unk10: DateTime(0xFFFF_FFFF_FFFF_FFFF),
+                        unk11: String::from("{}"),
+                        unk12: String::from("{}"),
+                        unk13: String::from("{}"),
+                        unk14: HashMap::default(),
+                        unk15: HashMap::from([(String::from("s"), Variant::I64(1)), (String::from("p"), Variant::I64(123))]),
+                        unk16: HashMap::default(),
+                        unk17: 2,
+                        unk18: DateTime(0xFFFF_FFFF_FFFF_FFFF),
+                        unk19: HashMap::default(),
+                    }],
                 }
-                .as_bytes())
+                .to_bytes())
             }
             2..=6 => {
                 error!(logger, "not implemented yet");

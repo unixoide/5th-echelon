@@ -31,13 +31,13 @@ pub struct NetFiniteState {
 impl NetFiniteState {
     pub fn get_state_name(&self) -> &'static str {
         unsafe {
-            let name = ((*self.vtable).get_state_name)(self as *const NetFiniteState);
+            let name = ((*self.vtable).get_state_name)(std::ptr::from_ref(self));
             let name = CStr::from_ptr::<'static>(name);
             name.to_str().unwrap()
         }
     }
     pub fn get_state_id(&self) -> u32 {
-        unsafe { ((*self.vtable).get_state_id)(self as *const NetFiniteState) }
+        unsafe { ((*self.vtable).get_state_id)(std::ptr::from_ref(self)) }
     }
 }
 
@@ -81,6 +81,12 @@ pub struct NetFiniteStateID {
     pub unknown: u32,
 }
 
+impl NetFiniteStateID {
+    pub fn name(&self) -> String {
+        utils::id_to_name(self.id as usize)
+    }
+}
+
 #[repr(C)]
 pub struct GearBasicStringInternal {
     ref_counter: u32,
@@ -91,8 +97,12 @@ pub struct GearBasicStringInternal {
 impl GearBasicStringInternal {
     pub fn as_bytes(&self) -> &[u8] {
         unsafe {
-            let p = (self as *const Self).cast::<u8>().offset(12);
-            std::slice::from_raw_parts(p, self.size as usize)
+            let p = std::ptr::from_ref(self).cast::<u8>().offset(12);
+            if p.is_null() {
+                b"<NULL>"
+            } else {
+                std::slice::from_raw_parts(p, self.size as usize)
+            }
         }
     }
 
@@ -112,7 +122,13 @@ pub struct GearBasicString {
 impl GearBasicString {
     #[allow(dead_code)]
     pub fn as_str(&self) -> std::borrow::Cow<str> {
-        unsafe { (*self.internal).as_str() }
+        unsafe {
+            if let Some(int) = self.internal.as_ref() {
+                int.as_str()
+            } else {
+                "<NULL>".into()
+            }
+        }
     }
 }
 

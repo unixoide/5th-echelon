@@ -30,11 +30,12 @@ unsafe extern "cdecl" fn UPLAY_FRIENDS_GetFriendList(
 ) -> bool {
     let list = uplay_r1_loader::UplayList::Friends(
         crate::api::list_friends()
-            .unwrap()
+            .unwrap_or_default()
             .into_iter()
             .map(|f| uplay_r1_loader::UplayFriend {
                 id: f.id,
                 username: f.username,
+                is_online: f.is_online,
             })
             .collect(),
     );

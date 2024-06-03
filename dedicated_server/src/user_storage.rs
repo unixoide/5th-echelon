@@ -1,3 +1,4 @@
+use quazal::prudp::ClientRegistry;
 use quazal::rmc::types::DateTime;
 use quazal::rmc::types::QList;
 use quazal::rmc::types::Variant;
@@ -16,18 +17,20 @@ use crate::protocols::user_storage::user_storage_protocol::GetContentUrlRequest;
 use crate::protocols::user_storage::user_storage_protocol::GetContentUrlResponse;
 use crate::protocols::user_storage::user_storage_protocol::SearchContentsRequest;
 use crate::protocols::user_storage::user_storage_protocol::SearchContentsResponse;
-use crate::protocols::user_storage::user_storage_protocol::UserStorageProtocol;
-use crate::protocols::user_storage::user_storage_protocol::UserStorageProtocolTrait;
+use crate::protocols::user_storage::user_storage_protocol::UserStorageProtocolServer;
+use crate::protocols::user_storage::user_storage_protocol::UserStorageProtocolServerTrait;
 
-struct UserStorageProtocolImpl;
+struct UserStorageProtocolServerImpl;
 
-impl<CI> UserStorageProtocolTrait<CI> for UserStorageProtocolImpl {
+impl<CI> UserStorageProtocolServerTrait<CI> for UserStorageProtocolServerImpl {
     fn search_contents(
         &self,
         _logger: &Logger,
         _ctx: &Context,
         ci: &mut ClientInfo<CI>,
         request: SearchContentsRequest,
+        _client_registry: &ClientRegistry<CI>,
+        _socket: &std::net::UdpSocket,
     ) -> Result<SearchContentsResponse, Error> {
         #![allow(clippy::unreadable_literal)]
 
@@ -72,6 +75,8 @@ impl<CI> UserStorageProtocolTrait<CI> for UserStorageProtocolImpl {
         ctx: &Context,
         ci: &mut ClientInfo<CI>,
         _request: GetContentUrlRequest,
+        _client_registry: &ClientRegistry<CI>,
+        _socket: &std::net::UdpSocket,
     ) -> Result<GetContentUrlResponse, Error> {
         login_required(&*ci)?;
         let protocol = ctx
@@ -101,5 +106,7 @@ impl<CI> UserStorageProtocolTrait<CI> for UserStorageProtocolImpl {
 }
 
 pub fn new_protocol<T: 'static>() -> Box<dyn Protocol<T>> {
-    Box::new(UserStorageProtocol::new(UserStorageProtocolImpl))
+    Box::new(UserStorageProtocolServer::new(
+        UserStorageProtocolServerImpl,
+    ))
 }

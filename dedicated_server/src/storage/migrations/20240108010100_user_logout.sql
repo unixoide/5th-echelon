@@ -1,0 +1,1 @@
+ALTER TABLE users ADD COLUMN is_online INTEGER CHECK (is_online IN (0,1)) DEFAULT 0;

@@ -16,4 +16,5 @@ message EventResponse {
 message InviteEvent {
     int64 id = 1;
     users.User sender = 2;
+    bool force_join = 3;
 }

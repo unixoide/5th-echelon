@@ -7,7 +7,7 @@ use std::ptr::null_mut;
 use tracing::warn;
 
 // https://github.com/Tron0xHex/uplay-r1-loader/
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct UplaySave {
     pub slot_id: usize,
     pub name: String,
@@ -19,14 +19,15 @@ struct UplayKey {
     pub cd_key: *mut i8,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct UplayFriend {
     pub id: String,
     pub username: String,
+    pub is_online: bool,
 }
 
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub struct UplayOverlapped {
     pub unk: u32,
     pub is_completed: u32,
@@ -79,7 +80,7 @@ pub struct UplayEvent {
     pub unknown: usize,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum ListType {
     CdKeys,
     Saves,
@@ -115,15 +116,110 @@ struct FriendDetails {
 #[derive(Debug)]
 pub struct List {
     pub count: usize,
+    #[allow(clippy::struct_field_names)]
     pub list: *mut *mut c_void,
     pub ty: ListType,
+}
+
+macro_rules! valid_ptr {
+    ($e:expr) => {
+        anyhow::ensure!(!$e.is_null(), format!("{} is null", stringify!($e)));
+        anyhow::ensure!(
+            $e.is_aligned(),
+            format!("{} is not aligned", stringify!($e))
+        );
+    };
+    ($e:expr, $ty:ty) => {{
+        let tmp = $e.cast::<$ty>();
+        valid_ptr!(tmp);
+        tmp
+    }};
+}
+
+impl List {
+    fn into_vec<T>(self) -> anyhow::Result<Vec<Box<T>>> {
+        valid_ptr!(self.list);
+        let vec =
+            unsafe { Vec::from_raw_parts(self.list.cast::<*mut T>(), self.count, self.count) };
+
+        vec.into_iter()
+            .map(|item| {
+                valid_ptr!(item);
+                unsafe { Ok(Box::from_raw(item)) }
+            })
+            .collect()
+    }
+
+    fn into_cdkeys(self) -> anyhow::Result<Vec<String>> {
+        self.into_vec::<UplayKey>()?
+            .into_iter()
+            .map(|owned| {
+                valid_ptr!(owned.cd_key);
+                let s = unsafe { CString::from_raw(owned.cd_key) };
+                s.into_string().map_err(anyhow::Error::from)
+            })
+            .collect()
+    }
+
+    fn into_saves(self) -> anyhow::Result<Vec<UplaySave>> {
+        self.into_vec::<Save>()?
+            .into_iter()
+            .map(|item| {
+                valid_ptr!(item.name);
+                let s = unsafe { CString::from_raw(item.name) };
+                Ok(UplaySave {
+                    slot_id: item.slot_id,
+                    name: s.into_string().map_err(anyhow::Error::from)?,
+                    size: item.size,
+                })
+            })
+            .collect()
+    }
+
+    fn into_friends(self) -> anyhow::Result<Vec<UplayFriend>> {
+        self.into_vec::<Friend>()?
+            .into_iter()
+            .map(|item| {
+                valid_ptr!(item.id);
+                valid_ptr!(item.username);
+
+                let is_online = if item.details.is_null() {
+                    true
+                } else {
+                    let details = unsafe { Box::from_raw(item.details) };
+                    details.unknown1 < 2
+                };
+
+                let id = unsafe { CString::from_raw(item.id) };
+                let username = unsafe { CString::from_raw(item.username) };
+                let id = id.into_string().map_err(anyhow::Error::from)?;
+                let username = username.into_string().map_err(anyhow::Error::from)?;
+                Ok(UplayFriend {
+                    id,
+                    username,
+                    is_online,
+                })
+            })
+            .collect()
+    }
+
+    fn from_vec<T>(mut value: Vec<T>, ty: ListType) -> Self {
+        value.shrink_to_fit();
+        if value.capacity() > value.len() {
+            warn!("Capacity still greater than len, memory leak will happen!");
+        }
+        let mut value = ManuallyDrop::new(value);
+        let count = value.len();
+        let list = value.as_mut_ptr().cast();
+        List { count, list, ty }
+    }
 }
 
 impl From<UplayList> for List {
     fn from(value: UplayList) -> Self {
         match value {
             UplayList::CdKeys(keys) => {
-                let mut keys = keys
+                let keys = keys
                     .into_iter()
                     .map(CString::new)
                     .map(std::result::Result::unwrap)
@@ -132,19 +228,10 @@ impl From<UplayList> for List {
                     .map(Box::new)
                     .map(Box::into_raw)
                     .collect::<Vec<*mut UplayKey>>();
-                keys.shrink_to_fit();
-                if keys.capacity() > keys.len() {
-                    warn!("Capacity still greater than len, memory leak will happen!");
-                }
-                let mut keys = ManuallyDrop::new(keys);
-                List {
-                    count: keys.len(),
-                    list: keys.as_mut_ptr().cast::<*mut c_void>(),
-                    ty: ListType::CdKeys,
-                }
+                List::from_vec(keys, ListType::CdKeys)
             }
             UplayList::Saves(saves) => {
-                let mut saves = saves
+                let saves = saves
                     .into_iter()
                     .map(|s| {
                         Ok::<Save, std::ffi::NulError>(Save {
@@ -157,19 +244,10 @@ impl From<UplayList> for List {
                     .map(Box::new)
                     .map(Box::into_raw)
                     .collect::<Vec<*mut Save>>();
-                saves.shrink_to_fit();
-                if saves.capacity() > saves.len() {
-                    warn!("Capacity still greater than len, memory leak will happen!");
-                }
-                let mut saves = ManuallyDrop::new(saves);
-                List {
-                    count: saves.len(),
-                    list: saves.as_mut_ptr().cast::<*mut c_void>(),
-                    ty: ListType::Saves,
-                }
+                List::from_vec(saves, ListType::Saves)
             }
             UplayList::Friends(friends) => {
-                let mut friends = friends
+                let friends = friends
                     .into_iter()
                     .map(|f| {
                         Ok::<Friend, std::ffi::NulError>(Friend {
@@ -178,10 +256,10 @@ impl From<UplayList> for List {
                             unknown1: 0,
                             unknown2: 0,
                             details: Box::into_raw(Box::new(FriendDetails {
-                                unknown1: 0,
-                                unknown2: null_mut(),
+                                unknown1: if f.is_online { 0 } else { 2 }, // >1 is offline?
+                                unknown2: null_mut(),                      // another string?
                                 unknown3: 0,
-                                unknown4: null_mut(),
+                                unknown4: null_mut(), // only used when fetching, but not after??
                             })),
                             unknown3: 0, // must be 0?
                         })
@@ -190,22 +268,13 @@ impl From<UplayList> for List {
                     .map(Box::new)
                     .map(Box::into_raw)
                     .collect::<Vec<*mut Friend>>();
-                friends.shrink_to_fit();
-                if friends.capacity() > friends.len() {
-                    warn!("Capacity still greater than len, memory leak will happen!");
-                }
-                let mut friends = ManuallyDrop::new(friends);
-                List {
-                    count: friends.len(),
-                    list: friends.as_mut_ptr().cast::<*mut c_void>(),
-                    ty: ListType::Friends,
-                }
+                List::from_vec(friends, ListType::Friends)
             }
         }
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub enum UplayList {
     CdKeys(Vec<String>),
     Saves(Vec<UplaySave>),
@@ -216,103 +285,86 @@ impl TryFrom<List> for UplayList {
     type Error = anyhow::Error;
 
     fn try_from(value: List) -> ::std::result::Result<Self, Self::Error> {
-        anyhow::ensure!(!value.list.is_aligned(), "list not aligned");
         let res = match value.ty {
-            ListType::CdKeys => UplayList::CdKeys(
-                (0..value.count)
-                    .map(|i| unsafe {
-                        let ptr = *value.list.add(i);
-                        *value.list.add(i) = std::ptr::null_mut();
-                        ptr
-                    })
-                    .map(|item: *mut c_void| {
-                        anyhow::ensure!(!item.is_null(), "item is null");
-                        let item = item.cast::<UplayKey>();
-                        anyhow::ensure!(!item.is_aligned(), "item is not aligned");
-                        let owned = unsafe { Box::from_raw(item) };
-                        anyhow::ensure!(!owned.cd_key.is_null(), "item.name is null");
-                        anyhow::ensure!(!owned.cd_key.is_aligned(), "item.name is not aligned");
-                        let s = unsafe { CString::from_raw(owned.cd_key) };
-                        s.into_string().map_err(anyhow::Error::from)
-                    })
-                    .collect::<anyhow::Result<_>>()?,
-            ),
-            ListType::Saves => UplayList::Saves(
-                (0..value.count)
-                    .map(|i| unsafe {
-                        let ptr = *value.list.add(i);
-                        *value.list.add(i) = std::ptr::null_mut();
-                        ptr
-                    })
-                    .map(|item: *mut c_void| {
-                        anyhow::ensure!(!item.is_null(), "item is null");
-                        let item = item.cast::<Save>();
-                        anyhow::ensure!(!item.is_aligned(), "item is not aligned");
-                        let item = unsafe { Box::from_raw(item) };
-                        anyhow::ensure!(!item.name.is_null(), "item.name is null");
-                        anyhow::ensure!(!item.name.is_aligned(), "item.name is not aligned");
-                        let s = unsafe { CString::from_raw(item.name) };
-                        Ok(UplaySave {
-                            slot_id: item.slot_id,
-                            name: s.into_string().map_err(anyhow::Error::from)?,
-                            size: item.size,
-                        })
-                    })
-                    .collect::<anyhow::Result<_>>()?,
-            ),
-            ListType::Friends => UplayList::Friends(
-                (0..value.count)
-                    .map(|i| unsafe {
-                        let ptr = *value.list.add(i);
-                        *value.list.add(i) = std::ptr::null_mut();
-                        ptr
-                    })
-                    .map(|item: *mut c_void| {
-                        anyhow::ensure!(!item.is_null(), "item is null");
-                        let item = item.cast::<Friend>();
-                        anyhow::ensure!(!item.is_aligned(), "item is not aligned");
-                        let item = unsafe { Box::from_raw(item) };
-                        anyhow::ensure!(!item.id.is_null(), "item.id is null");
-                        anyhow::ensure!(!item.id.is_aligned(), "item.id is not aligned");
-                        anyhow::ensure!(!item.username.is_null(), "item.username is null");
-                        anyhow::ensure!(
-                            !item.username.is_aligned(),
-                            "item.username is not aligned"
-                        );
-
-                        let id = unsafe { CString::from_raw(item.id) };
-                        let username = unsafe { CString::from_raw(item.username) };
-                        let id = id.into_string().map_err(anyhow::Error::from)?;
-                        let username = username.into_string().map_err(anyhow::Error::from)?;
-                        Ok(UplayFriend { id, username })
-                    })
-                    .collect::<anyhow::Result<_>>()?,
-            ),
+            ListType::CdKeys => UplayList::CdKeys(value.into_cdkeys()?),
+            ListType::Saves => UplayList::Saves(value.into_saves()?),
+            ListType::Friends => UplayList::Friends(value.into_friends()?),
         };
-        match value.ty {
-            ListType::CdKeys => {
-                unsafe {
-                    Vec::from_raw_parts(
-                        value.list.cast::<*mut UplayKey>(),
-                        value.count,
-                        value.count,
-                    );
-                    *value.list = std::ptr::null_mut();
-                };
-            }
-            ListType::Saves => {
-                unsafe {
-                    Vec::from_raw_parts(value.list.cast::<*mut Save>(), value.count, value.count);
-                    *value.list = std::ptr::null_mut();
-                };
-            }
-            ListType::Friends => {
-                unsafe {
-                    Vec::from_raw_parts(value.list.cast::<*mut Friend>(), value.count, value.count);
-                    *value.list = std::ptr::null_mut();
-                };
-            }
-        }
         Ok(res)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn cdkeys_are_same_after_conversion() {
+        let expected = UplayList::CdKeys(
+            ["1234", "ABCD", "foo", "bar"]
+                .into_iter()
+                .map(String::from)
+                .collect(),
+        );
+
+        let converted: List = expected.clone().into();
+        assert!(matches!(expected, UplayList::CdKeys(ref keys) if keys.len() == converted.count));
+        assert_eq!(converted.ty, ListType::CdKeys);
+
+        let converted_back: UplayList = converted.try_into().unwrap();
+        assert_eq!(converted_back, expected);
+    }
+
+    #[test]
+    fn saves_are_same_after_conversion() {
+        let expected = UplayList::Saves(vec![
+            UplaySave {
+                slot_id: 1,
+                name: "Save 1".into(),
+                size: 123,
+            },
+            UplaySave {
+                slot_id: 2,
+                name: "Save 2".into(),
+                size: 123,
+            },
+            UplaySave {
+                slot_id: 3,
+                name: "Save 3".into(),
+                size: 123,
+            },
+        ]);
+
+        let converted: List = expected.clone().into();
+        assert!(matches!(expected, UplayList::Saves(ref saves) if saves.len() == converted.count));
+        assert_eq!(converted.ty, ListType::Saves);
+
+        let converted_back: UplayList = converted.try_into().unwrap();
+        assert_eq!(converted_back, expected);
+    }
+
+    #[test]
+    fn friends_are_same_after_conversion() {
+        let expected = UplayList::Friends(vec![
+            UplayFriend {
+                id: "ID 1".into(),
+                username: "User 1".into(),
+                is_online: true,
+            },
+            UplayFriend {
+                id: "ID 2".into(),
+                username: "User 2".into(),
+                is_online: false,
+            },
+        ]);
+
+        let converted: List = expected.clone().into();
+        assert!(
+            matches!(expected, UplayList::Friends(ref friends) if friends.len() == converted.count)
+        );
+        assert_eq!(converted.ty, ListType::Friends);
+
+        let converted_back: UplayList = converted.try_into().unwrap();
+        assert_eq!(converted_back, expected);
     }
 }

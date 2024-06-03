@@ -19,6 +19,7 @@ use std::sync::Arc;
 use quazal::prudp::packet::QPacket;
 use quazal::ClientInfo;
 use quazal::Context;
+use sc_bl_protocols as protocols;
 use slog::Drain;
 use slog::Logger;
 use sloggers::Build;
@@ -53,7 +54,6 @@ mod overlord_core;
 mod overlord_news;
 mod player_stats;
 mod privileges;
-mod protocols;
 mod secure;
 mod simple_http;
 mod storage;
@@ -132,7 +132,7 @@ fn start_server(logger: &slog::Logger, ctx: &Context, storage: &Arc<Storage>, is
 }
 
 fn handle_user_packet(logger: &Logger, packet: QPacket, client: SocketAddr, socket: &UdpSocket) {
-    info!(logger, "user rmc incoming");
+    // info!(logger, "user rmc incoming");
     assert_eq!(packet.source.port, 1);
     assert_eq!(packet.destination.port, 1);
 
@@ -146,7 +146,8 @@ fn handle_user_packet(logger: &Logger, packet: QPacket, client: SocketAddr, sock
         client.port()
     )
     .unwrap();
-    socket.send_to(dbg!(&response), client).unwrap();
+    // TODO: reenable
+    socket.send_to(&response, client).unwrap();
 }
 
 fn build_term_logger() -> Logger {
@@ -216,6 +217,9 @@ fn main() -> color_eyre::Result<()> {
 
     let config = Config::load_from_file_or_default(&logger, config_filename)?;
 
+    warn!(logger, "Clearing stale sessions");
+    storage.invalidate_sessions()?;
+
     let mut threads = vec![];
     for (name, svc) in config.quazal_config.into_services()? {
         let logger = logger.new(o!("service" => name.clone()));
@@ -230,7 +234,7 @@ fn main() -> color_eyre::Result<()> {
                 .spawn(move || start_server(&logger, &ctx, &storage, true)),
             quazal::Service::Config(cfg) => std::thread::Builder::new()
                 .name(name)
-                .spawn(move || simple_http::serve(&logger, cfg.listen, &cfg.content).unwrap()),
+                .spawn(move || simple_http::serve(&logger, cfg.listen, &cfg.content()).unwrap()),
             quazal::Service::Content(srv) => std::thread::Builder::new()
                 .name(name)
                 .spawn(move || simple_http::serve_many(&logger, srv.listen, &srv.files).unwrap()),
@@ -248,6 +252,7 @@ fn main() -> color_eyre::Result<()> {
                         logger.new(o!("service" => "api")),
                         storage,
                         config.api_server,
+                        Arc::new(config.debug),
                     ))
                     .unwrap();
             })

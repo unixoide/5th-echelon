@@ -10,7 +10,9 @@ use derive_more::From;
 use slog::Logger;
 
 use crate::prudp::packet;
+use crate::prudp::packet::QPacket;
 use crate::prudp::packet::StreamHandler;
+use crate::prudp::ClientRegistry;
 use crate::ClientInfo;
 use crate::Context;
 
@@ -33,6 +35,7 @@ pub enum Error {
     AccessDenied,
 
     IO(#[error(source)] std::io::Error),
+    FromStream(#[error(source)] basic::FromStreamError),
 }
 
 impl Error {
@@ -44,7 +47,10 @@ impl Error {
             Error::UnimplementedMethod => 0x0001_0002,
             Error::AccessDenied => 0x0001_0006,
             Error::MissingData(_, _) => 0x0001_0009,
-            Error::ParsingError | Error::InvalidPacketType | Error::IO(_) => 0x0001_000A,
+            Error::ParsingError
+            | Error::InvalidPacketType
+            | Error::IO(_)
+            | Error::FromStream(_) => 0x0001_000A,
             Error::InternalError => 0x0001_0012,
         };
         code | 0x8000_0000
@@ -84,6 +90,26 @@ impl Request {
             method_id,
             parameters,
         })
+    }
+
+    #[must_use]
+    pub fn to_bytes(&self) -> Vec<u8> {
+        let mut data = vec![];
+        if self.protocol_id < 0xff {
+            #[allow(clippy::cast_possible_truncation)]
+            data.push(self.protocol_id as u8 | 0x80);
+        } else {
+            data.push(0xff);
+            data.extend_from_slice(&self.protocol_id.to_le_bytes());
+        }
+        data.extend_from_slice(&self.call_id.to_le_bytes());
+        data.extend_from_slice(&self.method_id.to_le_bytes());
+        data.extend_from_slice(&self.parameters);
+        let mut res = vec![];
+        #[allow(clippy::cast_possible_truncation)]
+        res.extend_from_slice(&(data.len() as u32).to_le_bytes());
+        res.extend(data);
+        res
     }
 }
 
@@ -234,8 +260,38 @@ pub trait Protocol<T> {
         ctx: &Context,
         ci: &mut ClientInfo<T>,
         request: &Request,
+        client_registry: &ClientRegistry<T>,
+        socket: &std::net::UdpSocket,
     ) -> std::result::Result<Vec<u8>, Error>;
     fn method_name(&self, method_id: u32) -> Option<String>;
+}
+
+pub trait ClientProtocol<T> {
+    fn id(&self) -> u16;
+    fn name(&self) -> String;
+    fn num_methods(&self) -> u32;
+    fn method_name(&self, method_id: u32) -> Option<String>;
+
+    fn send(
+        &self,
+        logger: &Logger,
+        ctx: &Context,
+        ci: &mut ClientInfo<T>,
+        method_id: u32,
+        parameters: Vec<u8>,
+    ) {
+        let request = Request {
+            protocol_id: self.id(),
+            method_id,
+            parameters,
+            call_id: todo!(),
+        };
+        let req = QPacket {
+            payload: request.to_bytes(),
+            ..Default::default()
+        };
+        let _ = super::prudp::send_request(logger, ctx, todo!(), todo!(), req, ci);
+    }
 }
 
 pub struct RVSecHandler<T> {
@@ -270,6 +326,8 @@ impl<T> StreamHandler<T> for RVSecHandler<T> {
         ctx: &Context,
         ci: &mut ClientInfo<T>,
         data: &[u8],
+        client_registry: &ClientRegistry<T>,
+        socket: &std::net::UdpSocket,
         // packet: QPacket,
         // _client: &SocketAddr,
     ) -> std::result::Result<Vec<u8>, packet::Error> {
@@ -309,7 +367,7 @@ impl<T> StreamHandler<T> for RVSecHandler<T> {
                     .unwrap_or_default(),
             );
 
-            protocol.handle(&logger, ctx, ci, &rmc_packet)
+            protocol.handle(&logger, ctx, ci, &rmc_packet, client_registry, socket)
         } else {
             warn!(logger, "no handler available");
             Err(Error::UnknownProtocol)

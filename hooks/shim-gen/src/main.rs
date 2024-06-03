@@ -26,9 +26,9 @@ fn main() {
     };
     eprintln!("{exports:?}");
 
-    let preamble = r#"lazy_static::lazy_static! {
+    let preamble = r"lazy_static::lazy_static! {
        static ref DLL_handle = unsafe { windows::Win32::System::LibraryLoader::LoadLibraryA(ORIGINAL_LIBRARY).unwrap() };
-    }"#;
+    }";
     println!("const ORIGINAL_LIBRARY: &str = {:?}", args.library);
     println!("{preamble}");
 

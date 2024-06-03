@@ -17,9 +17,9 @@ use nom::sequence::tuple;
 use quazal_tools_macros::DDLParser;
 use serde::Serialize;
 
-#[cfg(verbose_errors)]
+#[cfg(feature = "verbose_errors")]
 type IResult<I, O> = nom::IResult<I, O, nom::error::VerboseError<I>>;
-#[cfg(not(verbose_errors))]
+#[cfg(not(feature = "verbose_errors"))]
 type IResult<I, O> = nom::IResult<I, O, nom::error::Error<I>>;
 
 pub static DEBUG: AtomicBool = AtomicBool::new(false);
@@ -49,7 +49,7 @@ pub fn parse_ddl(data: &[u8], offset: usize) -> io::Result<(&[u8], Namespace)> {
 
     let data = &data[21..];
 
-    #[cfg(verbose_errors)]
+    #[cfg(feature = "verbose_errors")]
     const NBYTES: usize = 50;
 
     match namespace(data) {
@@ -58,7 +58,7 @@ pub fn parse_ddl(data: &[u8], offset: usize) -> io::Result<(&[u8], Namespace)> {
             nom::Err::Incomplete(_) => panic!("{}", e),
             nom::Err::Error(e) => {
                 let off = offset + 21;
-                #[cfg(verbose_errors)]
+                #[cfg(feature = "verbose_errors")]
                 {
                     let details = e
                         .errors
@@ -76,14 +76,14 @@ pub fn parse_ddl(data: &[u8], offset: usize) -> io::Result<(&[u8], Namespace)> {
                         .join("\n");
                     panic!("Parsing error: {}", details);
                 }
-                #[cfg(not(verbose_errors))]
+                #[cfg(not(feature = "verbose_errors"))]
                 {
                     panic!("Parsing error: {:?} somewhere after {:#x}", e.code, off);
                 }
             }
             nom::Err::Failure(e) => {
                 let off = offset + 21;
-                #[cfg(verbose_errors)]
+                #[cfg(feature = "verbose_errors")]
                 {
                     let details = e
                         .errors
@@ -101,7 +101,7 @@ pub fn parse_ddl(data: &[u8], offset: usize) -> io::Result<(&[u8], Namespace)> {
                         .join("\n");
                     panic!("Parsing failure: {}", details);
                 }
-                #[cfg(not(verbose_errors))]
+                #[cfg(not(feature = "verbose_errors"))]
                 {
                     panic!("Parsing failure: {:?} somewhere after {:#x}", e.code, off);
                 }

@@ -2,15 +2,35 @@
 members = [
   "api",
   "dedicated_server",
+  "dedicated_server/sc_bl_protocols",
   "hooks",
   "hooks/hooks-proc",
+  "hooks/hooks-config",
   "hooks/shim-gen",
-  "quazal-macros",
   "quazal",
-  "tools/quazal-tools-macros",
+  "quazal/quazal-macros",
   "tools/quazal-tools",
+  "tools/quazal-tools/quazal-tools-macros",
+  "tools/storm_parser",
   # "tools/wireshark-dissector",
+  "launcher",
 ]
 # v2 panics with
 # activated_features for invalid package: features did not find PackageId { name: "windows_i686_msvc", version: "0.48.0", source: "registry `crates-io`" } NormalOrDev
 resolver = "1"
+
+[patch.'crates-io']
+# TODO: remove this once the fix to imgui-rs/imgui-rs#775 gets released.
+imgui = { git = "https://github.com/imgui-rs/imgui-rs", rev = "cb8beeb" }
+
+[profile.release]
+strip = true
+lto = "fat"
+
+[workspace.dependencies]
+anyhow = "1.0"
+thiserror = "1.0"
+tokio = "1.36"
+toml = "0.8"
+tonic = "0.10"       # tonic-async-interceptor
+tonic-build = "0.10"

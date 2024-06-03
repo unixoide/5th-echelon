@@ -1,9 +1,14 @@
 use std::sync::Arc;
 
+use quazal::prudp::ClientRegistry;
 use quazal::rmc::Error;
 use quazal::rmc::Protocol;
 use quazal::ClientInfo;
 use quazal::Context;
+use sc_bl_protocols::game_session_service::game_session_protocol::JoinSessionRequest;
+use sc_bl_protocols::game_session_service::game_session_protocol::JoinSessionResponse;
+use sc_bl_protocols::game_session_service::game_session_protocol::RemoveParticipantsRequest;
+use sc_bl_protocols::game_session_service::game_session_protocol::RemoveParticipantsResponse;
 use slog::Logger;
 
 use crate::login_required;
@@ -15,8 +20,8 @@ use crate::protocols::game_session_service::game_session_protocol::CreateSession
 use crate::protocols::game_session_service::game_session_protocol::CreateSessionResponse;
 use crate::protocols::game_session_service::game_session_protocol::DeleteSessionRequest;
 use crate::protocols::game_session_service::game_session_protocol::DeleteSessionResponse;
-use crate::protocols::game_session_service::game_session_protocol::GameSessionProtocol;
-use crate::protocols::game_session_service::game_session_protocol::GameSessionProtocolTrait;
+use crate::protocols::game_session_service::game_session_protocol::GameSessionProtocolServer;
+use crate::protocols::game_session_service::game_session_protocol::GameSessionProtocolServerTrait;
 use crate::protocols::game_session_service::game_session_protocol::LeaveSessionRequest;
 use crate::protocols::game_session_service::game_session_protocol::LeaveSessionResponse;
 use crate::protocols::game_session_service::game_session_protocol::RegisterUrLsRequest;
@@ -32,17 +37,19 @@ use crate::protocols::game_session_service::types::GameSessionSearchResult;
 use crate::protocols::game_session_service::types::GameSessionSearchWithParticipantsResult;
 use crate::storage::Storage;
 
-struct GameSessionProtocolImpl {
+struct GameSessionProtocolServerImpl {
     storage: Arc<Storage>,
 }
 
-impl<CI> GameSessionProtocolTrait<CI> for GameSessionProtocolImpl {
+impl<CI> GameSessionProtocolServerTrait<CI> for GameSessionProtocolServerImpl {
     fn create_session(
         &self,
         logger: &Logger,
         _ctx: &Context,
         ci: &mut ClientInfo<CI>,
         request: CreateSessionRequest,
+        _client_registry: &ClientRegistry<CI>,
+        _socket: &std::net::UdpSocket,
     ) -> Result<CreateSessionResponse, Error> {
         info!(logger, "Client creates session: {:?}", request);
         let user_id = login_required(&*ci)?;
@@ -52,6 +59,11 @@ impl<CI> GameSessionProtocolTrait<CI> for GameSessionProtocolImpl {
             .attributes
             .0
             .into_iter()
+            /*
+            101 => map
+            102 => game mode
+            https://github.com/GitHubProUser67/MultiServer3/blob/dc189cfac27589356a52d2ad64c31c8a124c68f7/SpecializedServers/QuazalServer/RDVServices/DDL/Models/GameSessionService/GameSession.cs#L15
+             */
             .map(|p| format!("{} => {}", p.id, p.value))
             .collect::<Vec<_>>()
             .join(";");
@@ -75,9 +87,33 @@ impl<CI> GameSessionProtocolTrait<CI> for GameSessionProtocolImpl {
         _ctx: &Context,
         ci: &mut ClientInfo<CI>,
         request: UpdateSessionRequest,
+        _client_registry: &ClientRegistry<CI>,
+        _socket: &std::net::UdpSocket,
     ) -> Result<UpdateSessionResponse, Error> {
         login_required(&*ci)?;
         info!(logger, "Client updates session: {:?}", request);
+        let attributes = request
+            .game_session_update
+            .attributes
+            .0
+            .into_iter()
+            /*
+            101 => map
+            102 => game mode
+            https://github.com/GitHubProUser67/MultiServer3/blob/dc189cfac27589356a52d2ad64c31c8a124c68f7/SpecializedServers/QuazalServer/RDVServices/DDL/Models/GameSessionService/GameSession.cs#L15
+             */
+            .map(|p| format!("{} => {}", p.id, p.value))
+            .collect::<Vec<_>>()
+            .join(";");
+        rmc_err!(
+            self.storage.update_game_session(
+                request.game_session_update.session_key.type_id,
+                request.game_session_update.session_key.session_id,
+                attributes,
+            ),
+            logger,
+            "error updating game session"
+        )?;
         Ok(UpdateSessionResponse)
     }
 
@@ -87,6 +123,8 @@ impl<CI> GameSessionProtocolTrait<CI> for GameSessionProtocolImpl {
         _ctx: &Context,
         ci: &mut ClientInfo<CI>,
         request: DeleteSessionRequest,
+        _client_registry: &ClientRegistry<CI>,
+        _socket: &std::net::UdpSocket,
     ) -> Result<DeleteSessionResponse, Error> {
         let user_id = login_required(&*ci)?;
         if rmc_err!(
@@ -110,6 +148,8 @@ impl<CI> GameSessionProtocolTrait<CI> for GameSessionProtocolImpl {
         _ctx: &Context,
         ci: &mut ClientInfo<CI>,
         _request: LeaveSessionRequest,
+        _client_registry: &ClientRegistry<CI>,
+        _socket: &std::net::UdpSocket,
     ) -> Result<LeaveSessionResponse, Error> {
         login_required(&*ci)?;
         Ok(LeaveSessionResponse)
@@ -121,6 +161,8 @@ impl<CI> GameSessionProtocolTrait<CI> for GameSessionProtocolImpl {
         _ctx: &Context,
         ci: &mut ClientInfo<CI>,
         request: AddParticipantsRequest,
+        _client_registry: &ClientRegistry<CI>,
+        _socket: &std::net::UdpSocket,
     ) -> Result<AddParticipantsResponse, Error> {
         login_required(&*ci)?;
         info!(logger, "Client adds participants: {:?}", request);
@@ -128,38 +170,71 @@ impl<CI> GameSessionProtocolTrait<CI> for GameSessionProtocolImpl {
             self.storage.add_participants(
                 request.game_session_key.type_id,
                 request.game_session_key.session_id,
-                request.private_participant_i_ds.0.clone(),
-                request.public_participant_i_ds.0.clone(),
+                request.private_participant_ids.0.clone(),
+                request.public_participant_ids.0.clone(),
             ),
             logger,
             "error adding participants"
         )?;
         Ok(AddParticipantsResponse)
     }
+
+    fn remove_participants(
+        &self,
+        logger: &Logger,
+        ctx: &Context,
+        ci: &mut ClientInfo<CI>,
+        request: RemoveParticipantsRequest,
+        client_registry: &ClientRegistry<CI>,
+        _socket: &std::net::UdpSocket,
+    ) -> Result<RemoveParticipantsResponse, Error> {
+        login_required(&*ci)?;
+        info!(logger, "Client removes participants: {:?}", request);
+        rmc_err!(
+            self.storage.remove_participants(
+                request.game_session_key.type_id,
+                request.game_session_key.session_id,
+                request.participant_ids.0.clone(),
+            ),
+            logger,
+            "error removing participants"
+        )?;
+        Ok(RemoveParticipantsResponse)
+    }
+
     fn abandon_session(
         &self,
         _logger: &Logger,
         _ctx: &Context,
         ci: &mut ClientInfo<CI>,
         _request: AbandonSessionRequest,
+        _client_registry: &ClientRegistry<CI>,
+        _socket: &std::net::UdpSocket,
     ) -> Result<AbandonSessionResponse, Error> {
         login_required(&*ci)?;
         Ok(AbandonSessionResponse)
     }
 
-    fn register_ur_ls(
+    fn register_urls(
         &self,
         logger: &Logger,
         _ctx: &Context,
         ci: &mut ClientInfo<CI>,
         request: RegisterUrLsRequest,
+        _client_registry: &ClientRegistry<CI>,
+        _socket: &std::net::UdpSocket,
     ) -> Result<RegisterUrLsResponse, Error> {
         let user_id = login_required(&*ci)?;
         info!(logger, "Client registers urls: {:?}", request);
         rmc_err!(
             self.storage.register_urls(
                 user_id,
-                request.station_ur_ls.0.into_iter().map(|su| su.0).collect()
+                request
+                    .station_urls
+                    .0
+                    .into_iter()
+                    .map(|su| su.to_string())
+                    .collect()
             ),
             logger,
             "error adding participants"
@@ -173,6 +248,8 @@ impl<CI> GameSessionProtocolTrait<CI> for GameSessionProtocolImpl {
         _ctx: &Context,
         ci: &mut ClientInfo<CI>,
         request: SearchSessionsWithParticipantsRequest,
+        _client_registry: &ClientRegistry<CI>,
+        _socket: &std::net::UdpSocket,
     ) -> Result<SearchSessionsWithParticipantsResponse, Error> {
         let _user_id = login_required(&*ci)?;
         info!(logger, "Searches for sessions with {request:?}");
@@ -181,7 +258,7 @@ impl<CI> GameSessionProtocolTrait<CI> for GameSessionProtocolImpl {
             .storage
             .search_sessions_with_participants(
                 request.game_session_type_id,
-                request.participant_i_ds.0.as_slice(),
+                request.participant_ids.0.as_slice(),
             )
             .map_err(|e| {
                 error!(logger, "Error searching game sessions: {e}");
@@ -200,16 +277,16 @@ impl<CI> GameSessionProtocolTrait<CI> for GameSessionProtocolImpl {
                         .find(|p| p.user_id == session.creator_id)
                         .unwrap();
                     GameSessionSearchWithParticipantsResult {
-                        search_result: GameSessionSearchResult {
+                        game_session_search_result: GameSessionSearchResult {
                             session_key: GameSessionKey {
                                 type_id: session.session_type,
                                 session_id: session.session_id,
                             },
                             host_pid: host.user_id,
-                            host_ur_ls: host.station_urls.clone().into(),
-                            attributes: session.attributes.as_str().try_into().unwrap(),
+                            host_urls: host.station_urls.clone().try_into().unwrap(),
+                            attributes: session.attributes.as_str().parse().unwrap(),
                         },
-                        participant_i_ds: session
+                        participant_ids: session
                             .participants
                             .into_iter()
                             .map(|p| p.user_id)
@@ -226,16 +303,30 @@ impl<CI> GameSessionProtocolTrait<CI> for GameSessionProtocolImpl {
         _ctx: &Context,
         ci: &mut ClientInfo<CI>,
         request: SplitSessionRequest,
+        _client_registry: &ClientRegistry<CI>,
+        _socket: &std::net::UdpSocket,
     ) -> Result<SplitSessionResponse, Error> {
         let _user_id = login_required(&*ci)?;
         Ok(SplitSessionResponse {
             game_session_key_migrated: request.game_session_key,
         })
     }
+
+    fn join_session(
+        &self,
+        _logger: &Logger,
+        _ctx: &Context,
+        _ci: &mut ClientInfo<CI>,
+        _request: JoinSessionRequest,
+        _client_registry: &ClientRegistry<CI>,
+        _socket: &std::net::UdpSocket,
+    ) -> Result<JoinSessionResponse, Error> {
+        Ok(JoinSessionResponse)
+    }
 }
 
 pub fn new_protocol<T: 'static>(storage: Arc<Storage>) -> Box<dyn Protocol<T>> {
-    Box::new(GameSessionProtocol::new(GameSessionProtocolImpl {
-        storage,
-    }))
+    Box::new(GameSessionProtocolServer::new(
+        GameSessionProtocolServerImpl { storage },
+    ))
 }

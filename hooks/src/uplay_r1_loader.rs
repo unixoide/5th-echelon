@@ -2,6 +2,7 @@ use std::ffi::c_char;
 use std::sync::mpsc;
 use std::sync::Mutex;
 use std::sync::OnceLock;
+use std::time::Duration;
 
 use hooks_proc::forwardable_export;
 use tracing::error;
@@ -43,8 +44,8 @@ fn get_proc(name: PCSTR) -> Option<unsafe extern "system" fn() -> isize> {
         .get_or_init(|| unsafe { LoadLibraryA(s!("uplay_r1_loader.orig.dll")) })
         .as_ref()
         .map_err(|e| unsafe {
-            error!("Library loading error: {:?}", e);
-            let mut s = format!("{:?}", e);
+            error!("Library loading error: {e:?}");
+            let mut s = format!("{e:?}");
             let v = s.as_mut_vec();
             v.push(b'\0');
             MessageBoxA(None, PCSTR(v.as_ptr()), s!("Error"), MB_OK);
@@ -102,12 +103,12 @@ unsafe fn into_friend_invite_accepted(event: *mut UplayEvent, ubi_name: String) 
     };
     static mut FOO: Foo = Foo {
         unknown: [0usize; 2],
-        bar: unsafe { &BAR },
+        bar: unsafe { std::ptr::addr_of!(BAR) },
         value496: 496,
     };
 
     static mut FRIEND_ACCEPTED: FriendAccepted = FriendAccepted {
-        foo: unsafe { &FOO },
+        foo: unsafe { std::ptr::addr_of!(FOO) },
     };
 
     (*event).event_type = UplayEventType::FriendsGameInviteAccepted;
@@ -141,13 +142,13 @@ unsafe fn into_party_invite_accepted(event: *mut UplayEvent, ubi_name: String) {
     static mut BAR: [u8; 128] = [0u8; 128];
     static mut FOO: Foo = Foo {
         unknown: [0usize; 2],
-        username: unsafe { &BAR },
+        username: unsafe { std::ptr::addr_of!(BAR) },
         length: 0usize,
     };
 
     static mut PARTY_ACCEPTED: PartyAccepted = PartyAccepted {
         unknown: 0,
-        username: unsafe { &FOO },
+        username: unsafe { std::ptr::addr_of!(FOO) },
     };
 
     (*event).event_type = UplayEventType::PartyGameInviteAccepted;
@@ -234,7 +235,7 @@ unsafe extern "cdecl" fn UPLAY_HasOverlappedOperationCompleted(
     overlapped: *mut UplayOverlapped,
 ) -> bool {
     let overlapped = unsafe { overlapped.as_ref() };
-    overlapped.map(|o| o.is_completed != 0).unwrap_or_default()
+    overlapped.is_some_and(|o| o.is_completed != 0)
 }
 
 #[forwardable_export]
@@ -258,6 +259,49 @@ unsafe extern "cdecl" fn UPLAY_Startup(
     game_version: usize,
     language_country_code_utf8: *const c_char,
 ) -> isize {
+    if let Some(config) = crate::config::get() {
+        if config.enable_overlay {
+            let (tx, rx) = crossbeam_channel::unbounded();
+            // needs to be done in a separate thread, otherwise it'll not work
+            std::thread::Builder::new()
+                .name(String::from("overlay-thread"))
+                .spawn(|| {
+                    // TODO: blocks game if running in fullscreen mode. Waiting 10s seems to do the trick
+                    std::thread::sleep(std::time::Duration::from_secs(10));
+                    if let Err(err) = crate::overlay::init(crate::overlay::Engine::DX9, rx) {
+                        error!("Couldn't initialize overlay: {err}");
+                    }
+                })
+                .unwrap();
+
+            std::thread::Builder::new()
+                .name(String::from("updates-thread"))
+                .spawn(move || {
+                    crate::api::runtime().unwrap().block_on(async {
+                        let mut failures = 0;
+                        loop {
+                            tokio::time::sleep(Duration::from_secs(1)).await;
+                            let event: Option<std::result::Result<_, _>> = crate::api::event()
+                                .await
+                                .map(|resp| resp.invite)
+                                .transpose();
+                            if let Some(invite) = event {
+                                if invite.is_err() {
+                                    failures += 1;
+                                } else {
+                                    failures = 0;
+                                }
+                                tx.send(invite).unwrap();
+                                if failures > 0 && failures % 10 == 0 {
+                                    crate::api::relogin().await;
+                                }
+                            }
+                        }
+                    });
+                })
+                .unwrap();
+        }
+    }
     0 // 0 = all good, 1 = error occured, 2 = ??? (), 3 = ??? (potentially offline mode)
 }
 

@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
+use quazal::prudp::ClientRegistry;
 use quazal::rmc::Protocol;
 
 use crate::login_required;
@@ -10,21 +11,23 @@ use crate::protocols::ubi_account_management_service::ubi_account_management_pro
 use crate::protocols::ubi_account_management_service::ubi_account_management_protocol::LookupPrincipalIdsResponse;
 use crate::protocols::ubi_account_management_service::ubi_account_management_protocol::LookupUbiAccountIDsByPidsRequest;
 use crate::protocols::ubi_account_management_service::ubi_account_management_protocol::LookupUbiAccountIDsByPidsResponse;
-use crate::protocols::ubi_account_management_service::ubi_account_management_protocol::UbiAccountManagementProtocol;
-use crate::protocols::ubi_account_management_service::ubi_account_management_protocol::UbiAccountManagementProtocolTrait;
+use crate::protocols::ubi_account_management_service::ubi_account_management_protocol::UbiAccountManagementProtocolServer;
+use crate::protocols::ubi_account_management_service::ubi_account_management_protocol::UbiAccountManagementProtocolServerTrait;
 use crate::storage::Storage;
 
-struct UbiAccountManagementProtocolImpl {
+struct UbiAccountManagementProtocolServerImpl {
     storage: Arc<Storage>,
 }
 
-impl<T> UbiAccountManagementProtocolTrait<T> for UbiAccountManagementProtocolImpl {
+impl<T> UbiAccountManagementProtocolServerTrait<T> for UbiAccountManagementProtocolServerImpl {
     fn lookup_principal_ids(
         &self,
         logger: &slog::Logger,
         _ctx: &quazal::Context,
         ci: &mut quazal::ClientInfo<T>,
         request: LookupPrincipalIdsRequest,
+        _client_registry: &ClientRegistry<T>,
+        _socket: &std::net::UdpSocket,
     ) -> Result<LookupPrincipalIdsResponse, quazal::rmc::Error> {
         login_required(&*ci)?;
         if request.ubi_account_ids.is_empty() {
@@ -57,17 +60,19 @@ impl<T> UbiAccountManagementProtocolTrait<T> for UbiAccountManagementProtocolImp
         Ok(LookupPrincipalIdsResponse { pids })
     }
 
-    fn lookup_ubi_account_i_ds_by_pids(
+    fn lookup_ubi_account_ids_by_pids(
         &self,
         logger: &slog::Logger,
         _ctx: &quazal::Context,
         ci: &mut quazal::ClientInfo<T>,
         request: LookupUbiAccountIDsByPidsRequest,
+        _client_registry: &ClientRegistry<T>,
+        _socket: &std::net::UdpSocket,
     ) -> Result<LookupUbiAccountIDsByPidsResponse, quazal::rmc::Error> {
         login_required(&*ci)?;
         if request.pids.is_empty() {
             return Ok(LookupUbiAccountIDsByPidsResponse {
-                ubiaccount_i_ds: HashMap::default(),
+                ubiaccount_ids: HashMap::default(),
             });
         }
         let pid_len = request.pids.len();
@@ -97,9 +102,7 @@ impl<T> UbiAccountManagementProtocolTrait<T> for UbiAccountManagementProtocolImp
             ubiaccount_ids.len(),
             ubiaccount_ids,
         );
-        Ok(LookupUbiAccountIDsByPidsResponse {
-            ubiaccount_i_ds: ubiaccount_ids,
-        })
+        Ok(LookupUbiAccountIDsByPidsResponse { ubiaccount_ids })
     }
 
     fn has_accepted_latest_tos(
@@ -108,6 +111,8 @@ impl<T> UbiAccountManagementProtocolTrait<T> for UbiAccountManagementProtocolImp
         _ctx: &quazal::Context,
         ci: &mut quazal::ClientInfo<T>,
         _request: HasAcceptedLatestTosRequest,
+        _client_registry: &ClientRegistry<T>,
+        _socket: &std::net::UdpSocket,
     ) -> Result<HasAcceptedLatestTosResponse, quazal::rmc::Error> {
         login_required(&*ci)?;
         Ok(HasAcceptedLatestTosResponse {
@@ -118,7 +123,7 @@ impl<T> UbiAccountManagementProtocolTrait<T> for UbiAccountManagementProtocolImp
 }
 
 pub fn new_protocol<T: 'static>(storage: Arc<Storage>) -> Box<dyn Protocol<T>> {
-    Box::new(UbiAccountManagementProtocol::new(
-        UbiAccountManagementProtocolImpl { storage },
+    Box::new(UbiAccountManagementProtocolServer::new(
+        UbiAccountManagementProtocolServerImpl { storage },
     ))
 }

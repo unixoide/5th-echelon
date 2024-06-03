@@ -167,7 +167,7 @@ fn dump(mut data: &[u8], crypto_key: &str, access_key: &str, src: SocketAddr, ds
             prudp
                 .flags
                 .iter()
-                .map(|f| format!("{:?}", f))
+                .map(|f| format!("{f:?}"))
                 .collect::<Vec<_>>()
                 .join("|"),
             prudp.packet_type,

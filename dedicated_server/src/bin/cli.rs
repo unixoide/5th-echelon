@@ -87,7 +87,7 @@ fn main() -> color_eyre::Result<()> {
                 println!("Password: {p}");
                 p
             });
-            storage.register_user(&cmd.username, &password)?;
+            storage.register_user(&cmd.username, &password, None)?;
         }
         SubCommand::SendInvite(cmd) => {
             tokio::runtime::Runtime::new()?.block_on(async {

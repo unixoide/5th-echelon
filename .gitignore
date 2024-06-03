@@ -1,4 +1,4 @@
-target/
+target*/
 generated/
 *.log
 *.log.*
@@ -8,3 +8,4 @@ generated/
 *.sqlite
 deps
 service.toml
+/cross

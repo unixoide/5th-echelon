@@ -10,6 +10,7 @@ service Friends {
 message Friend {
     string id = 1;
     string username = 2;
+    bool is_online = 3;
 }
 
 message ListRequest {

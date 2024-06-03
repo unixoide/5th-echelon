@@ -4,7 +4,9 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::io;
 use std::net::SocketAddr;
+use std::net::UdpSocket;
 use std::net::{self};
+use std::sync::atomic::AtomicU32;
 use std::time::Duration;
 use std::time::Instant;
 
@@ -24,10 +26,30 @@ use crate::kerberos::KerberosTicketInternal;
 use crate::rmc::basic::ReadStream;
 use crate::rmc::basic::ToStream;
 use crate::ClientInfo;
+use crate::ConnectionID;
 use crate::Context;
+use crate::Signature;
 
 const MAX_PAYLOAD_SIZE: usize = 1000;
 const SESSION_TIMEOUT: Duration = Duration::from_secs(60);
+
+#[derive(Default)]
+pub struct ClientRegistry<T> {
+    clients: HashMap<u32, RefCell<ClientInfo<T>>>,
+    connection_id_session_ids: HashMap<ConnectionID, Signature>,
+}
+
+impl<T> ClientRegistry<T> {
+    #[must_use]
+    pub fn client_by_connection_id(
+        &self,
+        conn_id: ConnectionID,
+    ) -> Option<&RefCell<ClientInfo<T>>> {
+        self.connection_id_session_ids
+            .get(&conn_id)
+            .and_then(|sig| self.clients.get(&sig.0))
+    }
+}
 
 pub struct Server<'a, ECH, DH, T = ()>
 where
@@ -39,11 +61,12 @@ where
     socket: Option<net::UdpSocket>,
     ctx: &'a Context,
     new_clients: HashMap<u32, ClientInfo<T>>,
-    clients: HashMap<u32, RefCell<ClientInfo<T>>>,
+    client_registry: ClientRegistry<T>,
     pub user_handler:
         Option<fn(logger: &Logger, packet: QPacket, client: SocketAddr, sock: &net::UdpSocket)>,
     pub expired_client_handler: Option<ECH>,
     pub disconnect_handler: Option<DH>,
+    next_conn_id: AtomicU32,
 }
 
 impl<'a, ECH, DH, T> Server<'a, ECH, DH, T>
@@ -58,16 +81,21 @@ where
         ctx: &Context,
         registry: StreamHandlerRegistry<T>,
     ) -> Server<ECH, DH, T> {
+        let client_registry = ClientRegistry {
+            clients: HashMap::default(),
+            connection_id_session_ids: HashMap::default(),
+        };
         Server {
             logger,
             registry,
             socket: None,
             ctx,
             new_clients: HashMap::default(),
-            clients: HashMap::default(),
+            client_registry,
             user_handler: None,
             expired_client_handler: None,
             disconnect_handler: None,
+            next_conn_id: AtomicU32::new(0x3AAA_AAAA),
         }
     }
 
@@ -149,7 +177,7 @@ where
             PacketType::Connect => self.handle_connect(logger, packet, client),
             PacketType::Data => self.handle_data(logger, packet, client),
             PacketType::Disconnect => {
-                let Some(ci) = self.clients.remove(&packet.signature) else {
+                let Some(ci) = self.client_registry.clients.remove(&packet.signature) else {
                     return;
                 };
                 info!(logger, "Client disconnected"; "signature" => packet.signature, "session" => packet.session_id);
@@ -164,7 +192,7 @@ where
                 }
             }
             PacketType::Ping => {
-                let Some(ci) = self.clients.get(&packet.signature) else {
+                let Some(ci) = self.client_registry.clients.get(&packet.signature) else {
                     return;
                 };
                 ci.borrow_mut().seen();
@@ -196,7 +224,7 @@ where
         #![allow(clippy::cast_possible_truncation)]
 
         debug!(logger, "Handling data packet");
-        let Some(ci) = self.clients.get(&packet.signature) else {
+        let Some(ci) = self.client_registry.clients.get(&packet.signature) else {
             warn!(logger, "client is unknown!");
             return;
         };
@@ -241,9 +269,15 @@ where
         } else {
             packet.payload
         };
-        let resp =
-            self.registry
-                .handle_packet(&logger, self.ctx, ci, &packet.destination, &payload);
+        let resp = self.registry.handle_packet(
+            &logger,
+            self.ctx,
+            ci,
+            &packet.destination,
+            &payload,
+            &self.client_registry,
+            self.socket.as_ref().unwrap(),
+        );
         match resp {
             Some(Ok(payload)) => {
                 let chunks = payload.chunks(MAX_PAYLOAD_SIZE);
@@ -311,8 +345,8 @@ where
             };
             &*ci
         } else */ {
-            self.clients.insert(packet.signature, RefCell::new(ci));
-            let ci = self.clients.get(&packet.signature).unwrap();
+            self.client_registry.clients.insert(packet.signature, RefCell::new(ci));
+            let ci = self.client_registry.clients.get(&packet.signature).unwrap();
             ci
         };
 
@@ -320,7 +354,9 @@ where
             let data = std::mem::take(&mut packet.payload);
             let mut s = ReadStream::from_bytes(&data);
             let ticket_key = &self.ctx.ticket_key;
-            let res = move || -> io::Result<_> {
+            let cids = &mut self.client_registry.connection_id_session_ids;
+            let next_conn_id = &mut self.next_conn_id;
+            let res = move || -> Result<_, crate::rmc::basic::FromStreamError> {
                 let ticket: Vec<u8> = s.read()?;
                 let request_data: Vec<u8> = s.read()?;
 
@@ -335,7 +371,14 @@ where
                 {
                     return Ok(vec![]);
                 }
+                let id = next_conn_id.fetch_add(1, std::sync::atomic::Ordering::AcqRel);
                 ci.borrow_mut().user_id.replace(ti.principle_id);
+                ci.borrow_mut().connection_id.replace(ConnectionID(id));
+                // .replace(ConnectionID(rand::random::<u16>() as u32 & 0x7FFF_FFFFu32)); // clear highest bit as the game sometimes uses signed ints instead of unsigned
+                cids.insert(
+                    ci.borrow().connection_id.unwrap(),
+                    Signature(packet.signature),
+                );
                 let data = crypt_key(ti.session_key.as_ref(), &request_data);
 
                 #[allow(clippy::items_after_statements)]
@@ -349,9 +392,9 @@ where
                 let cd: ConnectData = ReadStream::from_bytes(&data).read()?;
 
                 let resp = cd.challenge + 1;
-                let resp = resp.as_bytes();
+                let resp = resp.to_bytes();
 
-                Ok(resp.as_bytes())
+                Ok(resp.to_bytes())
             }();
 
             match res {
@@ -378,38 +421,26 @@ where
         &self,
         logger: &Logger,
         src: &SocketAddr,
-        mut resp: QPacket,
+        resp: QPacket,
         ci: &mut ClientInfo<T>,
     ) -> Result<usize, Box<dyn std::error::Error>> {
-        resp.sequence = ci.sequence_id;
-        ci.sequence_id += 1;
-        resp.flags.insert(PacketFlag::HasSize);
-        resp.flags.insert(PacketFlag::NeedAck);
-        resp.flags.insert(PacketFlag::Reliable); // ??
-        resp.signature = ci.client_signature.unwrap_or_default();
-        resp.session_id = ci.server_session;
-        self.send_packet(logger, src, resp)
+        send_response(
+            logger,
+            self.ctx,
+            src,
+            self.socket.as_ref().unwrap(),
+            resp,
+            ci,
+        )
     }
 
     fn send_packet(
         &self,
         logger: &Logger,
         src: &SocketAddr,
-        mut resp: QPacket,
+        resp: QPacket,
     ) -> Result<usize, Box<dyn std::error::Error>> {
-        if matches!(resp.packet_type, PacketType::Data) {
-            resp.use_compression = true;
-            if resp.fragment_id.is_none() {
-                resp.fragment_id = Some(0);
-            }
-        }
-        resp.flags.insert(PacketFlag::HasSize);
-        trace!(logger, "<- {:?}", resp);
-        let data = &resp.to_bytes(self.ctx);
-        trace!(logger, "<- {:02x?}", data);
-        let sz = self.socket.as_ref().unwrap().send_to(data, src)?;
-        assert_eq!(sz, data.len());
-        Ok(sz)
+        send_packet(logger, self.ctx, src, self.socket.as_ref().unwrap(), resp)
     }
 
     fn send_ack(
@@ -435,14 +466,78 @@ where
 
     fn clear_clients(&mut self) {
         let now = Instant::now();
-        for (_, ci) in self.clients.extract_if(|_k, v| {
+        for (_, ci) in self.client_registry.clients.extract_if(|_k, v| {
             v.try_borrow()
                 .map(|ci| (now - ci.last_seen) > SESSION_TIMEOUT)
                 .unwrap_or(false)
         }) {
             if let Some(handler) = self.expired_client_handler.as_mut() {
-                (handler)(ci.into_inner());
+                let ci = ci.into_inner();
+                if let Some(conn_id) = ci.connection_id {
+                    self.client_registry
+                        .connection_id_session_ids
+                        .remove(&conn_id);
+                }
+                (handler)(ci);
             }
         }
     }
+}
+
+pub fn send_response<T>(
+    logger: &Logger,
+    ctx: &Context,
+    src: &SocketAddr,
+    socket: &UdpSocket,
+    mut resp: QPacket,
+    ci: &mut ClientInfo<T>,
+) -> Result<usize, Box<dyn std::error::Error>> {
+    resp.sequence = ci.server_sequence_id;
+    ci.server_sequence_id += 1;
+    resp.flags.insert(PacketFlag::HasSize);
+    resp.flags.insert(PacketFlag::NeedAck);
+    resp.flags.insert(PacketFlag::Reliable); // ??
+    resp.signature = ci.client_signature.unwrap_or_default();
+    resp.session_id = ci.server_session;
+    send_packet(logger, ctx, src, socket, resp)
+}
+
+pub fn send_request<T>(
+    logger: &Logger,
+    ctx: &Context,
+    src: &SocketAddr,
+    socket: &UdpSocket,
+    mut req: QPacket,
+    ci: &mut ClientInfo<T>,
+) -> Result<usize, Box<dyn std::error::Error>> {
+    req.sequence = ci.client_sequence_id;
+    ci.client_sequence_id += 1;
+    req.flags.insert(PacketFlag::HasSize);
+    req.flags.insert(PacketFlag::NeedAck);
+    req.flags.insert(PacketFlag::Reliable); // ??
+    req.signature = ci.server_signature;
+    req.session_id = ci.client_session;
+    send_packet(logger, ctx, src, socket, req)
+}
+
+pub(crate) fn send_packet(
+    logger: &Logger,
+    ctx: &Context,
+    src: &SocketAddr,
+    socket: &UdpSocket,
+    mut resp: QPacket,
+) -> Result<usize, Box<dyn std::error::Error>> {
+    if matches!(resp.packet_type, PacketType::Data) {
+        resp.use_compression = true;
+        if resp.fragment_id.is_none() {
+            resp.fragment_id = Some(0);
+        }
+    }
+    resp.flags.insert(PacketFlag::HasSize);
+    trace!(logger, "<- {:?}", resp);
+    let data = &resp.to_bytes(ctx);
+    trace!(logger, "<- {:02x?}", data);
+    let sz = socket.send_to(data, src)?;
+    assert_eq!(sz, data.len());
+    Ok(sz)
 }

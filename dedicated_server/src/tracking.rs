@@ -1,3 +1,4 @@
+use quazal::prudp::ClientRegistry;
 use quazal::rmc::Error;
 use quazal::rmc::Protocol;
 use quazal::ClientInfo;
@@ -9,32 +10,26 @@ use crate::protocols::tracking_service::tracking_protocol_3::GetConfigurationReq
 use crate::protocols::tracking_service::tracking_protocol_3::GetConfigurationResponse;
 use crate::protocols::tracking_service::tracking_protocol_3::SendTagsRequest;
 use crate::protocols::tracking_service::tracking_protocol_3::SendTagsResponse;
-use crate::protocols::tracking_service::tracking_protocol_3::TrackingProtocol3;
-use crate::protocols::tracking_service::tracking_protocol_3::TrackingProtocol3Trait;
+use crate::protocols::tracking_service::tracking_protocol_3::TrackingProtocol3Server;
+use crate::protocols::tracking_service::tracking_protocol_3::TrackingProtocol3ServerTrait;
 
-struct TrackingProtocol3Impl;
+struct TrackingProtocol3ServerImpl;
 
-impl<T> TrackingProtocol3Trait<T> for TrackingProtocol3Impl {
-    // fn send_user_info(
-    //     &self,
-    //     _logger: &Logger,
-    //     _ctx: &Context,
-    //     _ci: &mut ClientInfo<T>,
-    //     request: SendUserInfoRequest,
-    // ) -> Result<SendUserInfoResponse, Error> {
-    //     Ok(SendUserInfoResponse {
-    //       tracking_id: request.
-    //     })
-    // }
+impl<T> TrackingProtocol3ServerTrait<T> for TrackingProtocol3ServerImpl {
     fn get_configuration(
         &self,
         _logger: &Logger,
         _ctx: &Context,
         ci: &mut ClientInfo<T>,
         _request: GetConfigurationRequest,
+        _client_registry: &ClientRegistry<T>,
+        _socket: &std::net::UdpSocket,
     ) -> Result<GetConfigurationResponse, Error> {
         login_required(&*ci)?;
         Ok(GetConfigurationResponse {
+            #[cfg(not(feature = "tracking"))]
+            tags: Vec::new(),
+            #[cfg(feature = "tracking")]
             tags: vec![
                 "ADVCLIENT_STOP".to_string(),
                 "ADVCTIOBJECTIVE_EVENT".to_string(),
@@ -114,6 +109,8 @@ impl<T> TrackingProtocol3Trait<T> for TrackingProtocol3Impl {
         _ctx: &Context,
         ci: &mut ClientInfo<T>,
         _request: SendTagsRequest,
+        _client_registry: &ClientRegistry<T>,
+        _socket: &std::net::UdpSocket,
     ) -> Result<SendTagsResponse, Error> {
         login_required(&*ci)?;
         Ok(SendTagsResponse)
@@ -121,5 +118,5 @@ impl<T> TrackingProtocol3Trait<T> for TrackingProtocol3Impl {
 }
 
 pub fn new_protocol<T: 'static>() -> Box<dyn Protocol<T>> {
-    Box::new(TrackingProtocol3::new(TrackingProtocol3Impl))
+    Box::new(TrackingProtocol3Server::new(TrackingProtocol3ServerImpl))
 }

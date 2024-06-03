@@ -1,3 +1,4 @@
+use quazal::prudp::ClientRegistry;
 use quazal::rmc::Error;
 use quazal::rmc::Protocol;
 use quazal::ClientInfo;
@@ -9,18 +10,20 @@ use crate::protocols::trackingextension::tracking_extension_protocol::GetTrackin
 use crate::protocols::trackingextension::tracking_extension_protocol::GetTrackingUserGroupResponse;
 use crate::protocols::trackingextension::tracking_extension_protocol::GetTrackingUserGroupTagsRequest;
 use crate::protocols::trackingextension::tracking_extension_protocol::GetTrackingUserGroupTagsResponse;
-use crate::protocols::trackingextension::tracking_extension_protocol::TrackingExtensionProtocol;
-use crate::protocols::trackingextension::tracking_extension_protocol::TrackingExtensionProtocolTrait;
+use crate::protocols::trackingextension::tracking_extension_protocol::TrackingExtensionProtocolServer;
+use crate::protocols::trackingextension::tracking_extension_protocol::TrackingExtensionProtocolServerTrait;
 
-struct TrackingExtensionProtocolImpl;
+struct TrackingExtensionProtocolServerImpl;
 
-impl<T> TrackingExtensionProtocolTrait<T> for TrackingExtensionProtocolImpl {
+impl<T> TrackingExtensionProtocolServerTrait<T> for TrackingExtensionProtocolServerImpl {
     fn get_tracking_user_group(
         &self,
         _logger: &Logger,
         _ctx: &Context,
         ci: &mut ClientInfo<T>,
         _request: GetTrackingUserGroupRequest,
+        _client_registry: &ClientRegistry<T>,
+        _socket: &std::net::UdpSocket,
     ) -> Result<GetTrackingUserGroupResponse, Error> {
         login_required(&*ci)?;
         Ok(GetTrackingUserGroupResponse { usergroup: 0 })
@@ -32,9 +35,14 @@ impl<T> TrackingExtensionProtocolTrait<T> for TrackingExtensionProtocolImpl {
         _ctx: &Context,
         ci: &mut ClientInfo<T>,
         _request: GetTrackingUserGroupTagsRequest,
+        _client_registry: &ClientRegistry<T>,
+        _socket: &std::net::UdpSocket,
     ) -> Result<GetTrackingUserGroupTagsResponse, Error> {
         login_required(&*ci)?;
         Ok(GetTrackingUserGroupTagsResponse {
+            #[cfg(not(feature = "tracking"))]
+            tags: Vec::new(),
+            #[cfg(feature = "tracking")]
             tags: vec![
                 "GAME_START\0".to_string(),
                 "ADVCLIENT_STOP\0".to_string(),
@@ -57,7 +65,7 @@ impl<T> TrackingExtensionProtocolTrait<T> for TrackingExtensionProtocolImpl {
 }
 
 pub fn new_protocol<T: 'static>() -> Box<dyn Protocol<T>> {
-    Box::new(TrackingExtensionProtocol::new(
-        TrackingExtensionProtocolImpl,
+    Box::new(TrackingExtensionProtocolServer::new(
+        TrackingExtensionProtocolServerImpl,
     ))
 }

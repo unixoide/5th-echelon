@@ -3,6 +3,7 @@ use std::sync::Arc;
 use quazal::kerberos::KerberosTicket;
 use quazal::kerberos::KerberosTicketInternal;
 use quazal::kerberos::SESSION_KEY_SIZE;
+use quazal::prudp::ClientRegistry;
 use quazal::rmc::types::QResult;
 use quazal::rmc::types::StationURL;
 use quazal::rmc::Protocol;
@@ -15,11 +16,11 @@ use crate::protocols::ubi_authentication::types::UbiAuthenticationLoginCustomDat
 use crate::storage::Storage;
 use crate::SERVER_PID;
 
-struct TicketGrantingProtocolImpl {
+struct TicketGrantingProtocolServerImpl {
     storage: Arc<Storage>,
 }
 
-impl TicketGrantingProtocolImpl {
+impl TicketGrantingProtocolServerImpl {
     fn get_session_key(&self, logger: &slog::Logger, user_id: u32) -> [u8; SESSION_KEY_SIZE] {
         let mut key = [0u8; SESSION_KEY_SIZE];
         rand::rngs::OsRng.fill_bytes(&mut key);
@@ -94,7 +95,8 @@ fn get_connection_data(ctx: &Context, pid: u32) -> RVConnectionData {
                 ctx.listen.port(),
                 pid
             )
-            .into(),
+            .parse()
+            .unwrap(),
             lst_special_protocols: vec![],
             url_special_protocols: StationURL::default(),
         },
@@ -110,20 +112,23 @@ fn get_connection_data(ctx: &Context, pid: u32) -> RVConnectionData {
                 a.port(),
                 pid
             )
-            .into(),
+            .parse()
+            .unwrap(),
             lst_special_protocols: vec![],
             url_special_protocols: StationURL::default(),
         },
     )
 }
 
-impl<T> TicketGrantingProtocolTrait<T> for TicketGrantingProtocolImpl {
+impl<T> TicketGrantingProtocolServerTrait<T> for TicketGrantingProtocolServerImpl {
     fn login(
         &self,
         logger: &slog::Logger,
         ctx: &Context,
         ci: &mut quazal::ClientInfo<T>,
         request: LoginRequest,
+        _client_registry: &ClientRegistry<T>,
+        _socket: &std::net::UdpSocket,
     ) -> Result<LoginResponse, quazal::rmc::Error> {
         let Some(user_id) = self.get_pid_by_username(logger, &request.str_user_name)? else {
             warn!(logger, "user {} not found", request.str_user_name);
@@ -164,6 +169,8 @@ impl<T> TicketGrantingProtocolTrait<T> for TicketGrantingProtocolImpl {
         ctx: &Context,
         ci: &mut quazal::ClientInfo<T>,
         request: LoginExRequest,
+        _client_registry: &ClientRegistry<T>,
+        _socket: &std::net::UdpSocket,
     ) -> Result<LoginExResponse, quazal::rmc::Error> {
         let username = request.str_user_name;
         let mut registry = quazal::rmc::types::ClassRegistry::default();
@@ -214,6 +221,8 @@ impl<T> TicketGrantingProtocolTrait<T> for TicketGrantingProtocolImpl {
         ctx: &Context,
         ci: &mut quazal::ClientInfo<T>,
         request: RequestTicketRequest,
+        _client_registry: &ClientRegistry<T>,
+        _socket: &std::net::UdpSocket,
     ) -> Result<RequestTicketResponse, quazal::rmc::Error> {
         let user_id = request.id_source;
         let server_id = request.id_target;
@@ -246,7 +255,7 @@ impl<T> TicketGrantingProtocolTrait<T> for TicketGrantingProtocolImpl {
 }
 
 pub fn new_protocol<T: 'static>(storage: Arc<Storage>) -> Box<dyn Protocol<T>> {
-    Box::new(TicketGrantingProtocol::new(TicketGrantingProtocolImpl {
-        storage,
-    }))
+    Box::new(TicketGrantingProtocolServer::new(
+        TicketGrantingProtocolServerImpl { storage },
+    ))
 }

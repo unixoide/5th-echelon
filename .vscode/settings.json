@@ -1,3 +1,6 @@
 {
-  "debug.allowBreakpointsEverywhere": true
+  "debug.allowBreakpointsEverywhere": true,
+  "workbench.editorAssociations": {
+    "*.bin": "hexEditor.hexedit"
+  },
 }

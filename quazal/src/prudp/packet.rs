@@ -24,6 +24,7 @@ use num_enum::IntoPrimitive;
 use num_enum::TryFromPrimitive;
 use slog::Logger;
 
+use super::ClientRegistry;
 use crate::ClientInfo;
 use crate::Context;
 
@@ -79,6 +80,8 @@ pub trait StreamHandler<T> {
         ctx: &Context,
         ci: &mut ClientInfo<T>,
         data: &[u8],
+        client_registry: &ClientRegistry<T>,
+        socket: &std::net::UdpSocket,
         // packet: QPacket,
         // client: &SocketAddr,
     ) -> Result<Vec<u8>, Error>;
@@ -113,12 +116,12 @@ impl<T> StreamHandlerRegistry<T> {
         ci: &mut ClientInfo<T>,
         dest: &VPort,
         data: &[u8],
-        // packet: QPacket,
-        // client: &SocketAddr,
+        client_registry: &ClientRegistry<T>,
+        socket: &std::net::UdpSocket,
     ) -> Option<Result<Vec<u8>, Error>> {
         self.handlers
             .get(dest)
-            .map(|h| h.handle(logger, ctx, ci, data))
+            .map(|h| h.handle(logger, ctx, ci, data, client_registry, socket))
     }
 }
 
@@ -146,7 +149,7 @@ impl VPort {
 }
 
 #[allow(clippy::module_name_repetitions)]
-#[derive(Debug, TryFromPrimitive, IntoPrimitive, Clone, Copy, Default)]
+#[derive(Debug, TryFromPrimitive, IntoPrimitive, Clone, Copy, Default, PartialEq, Eq)]
 #[repr(u8)]
 pub enum PacketType {
     #[default]
@@ -172,7 +175,7 @@ pub enum PacketFlag {
 }
 
 #[allow(clippy::module_name_repetitions)]
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct QPacket {
     pub source: VPort,
     pub destination: VPort,
@@ -273,7 +276,7 @@ impl QPacket {
     }
 
     #[must_use]
-    pub fn calc_checksum(&self, ctx: &Context) -> u8 {
+    pub(crate) fn calc_checksum(&self, ctx: &Context) -> u8 {
         calc_checksum_from_data(
             ctx.key(self.destination.stream_type),
             &self.to_data_bytes(ctx),
@@ -281,7 +284,7 @@ impl QPacket {
     }
 
     #[must_use]
-    pub fn calc_signature(&self, ctx: &Context, payload: &[u8]) -> u32 {
+    pub(crate) fn calc_signature(&self, ctx: &Context, payload: &[u8]) -> u32 {
         match self.packet_type {
             PacketType::Data => {
                 if payload.is_empty() {
@@ -417,13 +420,13 @@ fn crypt(ctx: &Context, data: &[u8]) -> Vec<u8> {
 }
 
 #[must_use]
-pub fn crypt_key(key: &[u8], data: &[u8]) -> Vec<u8> {
+pub(crate) fn crypt_key(key: &[u8], data: &[u8]) -> Vec<u8> {
     let rc4 = Rc4::new(key);
     rc4.zip(data).map(|(a, b)| a ^ b).collect()
 }
 
 #[derive(Clone)]
-pub struct Rc4 {
+pub(crate) struct Rc4 {
     i: u8,
     j: u8,
     state: [u8; 256],
@@ -467,6 +470,54 @@ impl Iterator for Rc4 {
     }
 }
 
+/// Parse out a single packet from the given reader.
+///
+/// ```
+/// use std::io::Cursor;
+///
+/// use quazal::prudp::packet::*;
+/// use quazal::Context;
+///
+/// let packet = parse(
+///     &Context {
+///         access_key: b"yl4NG7qZ".to_vec(),
+///         ..Default::default()
+///     },
+///     &mut Cursor::new([
+///         0x3f, 0x31, 0x32, 0xa7, 0x91, 0x93, 0x92, 0xdd, 0x4, 0x0, 0x0, 0xf, 0x89, 0x44, 0xdb,
+///         0x13, 0x58, 0x3a, 0x50, 0x5, 0xa2, 0x63, 0xfd, 0x2a, 0x16, 0xf1, 0xb1, 0x9b, 0x33,
+///         0xe6, 0xe0,
+///     ]),
+/// )
+/// .unwrap();
+///
+/// assert_eq!(
+///     packet,
+///     QPacket {
+///         source: VPort {
+///             port: 15,
+///             stream_type: StreamType::RVSec
+///         },
+///         destination: VPort {
+///             port: 1,
+///             stream_type: StreamType::RVSec
+///         },
+///         packet_type: PacketType::Data,
+///         flags: PacketFlag::Reliable | PacketFlag::NeedAck,
+///         session_id: 167,
+///         signature: 0xdd929391,
+///         fragment_id: Some(0),
+///         conn_signature: None,
+///         sequence: 4,
+///         payload: vec![
+///             0xe, 0x0, 0x0, 0x0, 0xa7, 0x16, 0x0, 0x0, 0x0, 0x2, 0x0, 0x0, 0x0, 0x3, 0x0, 0x64,
+///             0x65, 0x0
+///         ],
+///         checksum: 0xe0,
+///         use_compression: false
+///     }
+/// );
+/// ```
 pub fn parse<R: std::io::Read + std::io::Seek>(
     ctx: &Context,
     rdr: &mut R,

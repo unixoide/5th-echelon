@@ -137,7 +137,6 @@ impl Context {
     }
 }
 
-#[cfg(feature = "typed_online_config")]
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "PascalCase")]
 pub struct OnlineConfigItem {
@@ -145,45 +144,52 @@ pub struct OnlineConfigItem {
     values: Vec<String>,
 }
 
-#[cfg(feature = "typed_online_config")]
 #[derive(Serialize, Deserialize, Debug)]
-pub struct OnlineConfig {
-    pub listen: SocketAddr,
-    pub content: Vec<OnlineConfigItem>,
+#[serde(untagged)]
+pub enum OnlineConfigContent {
+    Raw(String),
+    Typed(Vec<OnlineConfigItem>),
 }
 
-#[cfg(not(feature = "typed_online_config"))]
 #[allow(clippy::module_name_repetitions)]
 #[derive(Serialize, Deserialize, Debug)]
 pub struct OnlineConfig {
     pub listen: SocketAddr,
-    pub content: String,
+    content: OnlineConfigContent,
 }
 
 impl Default for OnlineConfig {
     fn default() -> Self {
-        #[cfg(not(feature = "typed_online_config"))]
         {
             Self {
-            listen: "0.0.0.0:80".parse().unwrap(),
-            content: r#"[{"Name":"punch_DetectUrls","Values":["lb-prod-mm-detect01.ubisoft.com:11020","lb-prod-mm-detect02.ubisoft.com:11020"]},{"Name":"SandboxUrl","Values":["prudp:\/address=mdc-mm-rdv66.ubisoft.com;port=21170"]},{"Name":"SandboxUrlWS","Values":["mdc-mm-rdv66.ubisoft.com:21170"]},{"Name":"uplay_DownloadServiceUrl","Values":["https:\/\/secure.ubi.com\/UplayServices\/UplayFacade\/DownloadServicesRESTXML.svc\/REST\/XML\/?url="]},{"Name":"uplay_DynContentBaseUrl","Values":["http:\/\/static8.cdn.ubi.com\/u\/Uplay\/"]},{"Name":"uplay_DynContentSecureBaseUrl","Values":["http:\/\/static8.cdn.ubi.com\/"]},{"Name":"uplay_LinkappBaseUrl","Values":[" http:\/\/static8.ubi.com\/private\/Uplay\/Packages\/linkapp\/3.0.0-rc\/"]},{"Name":"uplay_PackageBaseUrl","Values":["http:\/\/static8.ubi.com\/private\/Uplay\/Packages\/1.5-Share-rc\/"]},{"Name":"uplay_WebServiceBaseUrl","Values":["https:\/\/secure.ubi.com\/UplayServices\/UplayFacade\/ProfileServicesFacadeRESTXML.svc\/REST\/"]}]"#.into(),
-          }
+                listen: "0.0.0.0:80".parse().unwrap(),
+                content: OnlineConfigContent::Typed(vec![
+                    OnlineConfigItem {
+                        name: "SandboxUrl".into(),
+                        values: vec!["prudp:/address=127.0.0.1;port=21170".into()],
+                    },
+                    OnlineConfigItem {
+                        name: "SandboxUrlWS".into(),
+                        values: vec!["127.0.0.1:21170".into()],
+                    },
+                    // OnlineConfigItem { name: "punch_DetectUrls".into(), values: vec!["b-prod-mm-detect01.ubisoft.com:11020".into(),"lb-prod-mm-detect02.ubisoft.com:11020".into()]},
+                    // OnlineConfigItem { name: "SandboxUrl".into(), values: vec!["prudp:/address=mdc-mm-rdv66.ubisoft.com;port=21170".into()]},
+                    // OnlineConfigItem { name: "SandboxUrlWS".into(), values: vec!["mdc-mm-rdv66.ubisoft.com:21170".into()]},
+                    // OnlineConfigItem { name: "uplay_DownloadServiceUrl".into(), values: vec!["https://secure.ubi.com/UplayServices/UplayFacade/DownloadServicesRESTXML.svc/REST/XML/?url=".into()]},
+                    // OnlineConfigItem { name: "uplay_DynContentBaseUrl".into(), values: vec!["http://static8.cdn.ubi.com/u/Uplay/".into()]},
+                    // OnlineConfigItem { name: "uplay_DynContentSecureBaseUrl".into(), values: vec!["http://static8.cdn.ubi.com/".into()]},
+                ]),
+            }
         }
+    }
+}
 
-        #[cfg(feature = "typed_online_config")]
-        {
-            Self {
-              listen: "0.0.0.0:80".parse().unwrap(),
-              content: vec![
-                OnlineConfigItem { name: "punch_DetectUrls".into(), values: vec!["b-prod-mm-detect01.ubisoft.com:11020".into(),"lb-prod-mm-detect02.ubisoft.com:11020".into()]},
-
-                OnlineConfigItem { name: "SandboxUrl".into(), values: vec!["prudp:\\/address=mdc-mm-rdv66.ubisoft.com;port=21170".into()]},
-                OnlineConfigItem { name: "SandboxUrlWS".into(), values: vec!["mdc-mm-rdv66.ubisoft.com:21170".into()]},
-                OnlineConfigItem { name: "uplay_DownloadServiceUrl".into(), values: vec!["https:\\/\\/secure.ubi.com\\/UplayServices\\/UplayFacade\\/DownloadServicesRESTXML.svc\\/REST\\/XML\\/?url=".into()]},
-                OnlineConfigItem { name: "uplay_DynContentBaseUrl".into(), values: vec!["http:\\/\\/static8.cdn.ubi.com\\/u\\/Uplay\\/".into()]},
-                OnlineConfigItem { name: "uplay_DynContentSecureBaseUrl".into(), values: vec!["http:\\/\\/static8.cdn.ubi.com\\/".into()]},
-              ],
-          }
+impl OnlineConfig {
+    #[must_use]
+    pub fn content(&self) -> String {
+        match &self.content {
+            OnlineConfigContent::Raw(s) => s.clone(),
+            OnlineConfigContent::Typed(items) => serde_json::to_string(items).unwrap_or_default(),
         }
     }
 }

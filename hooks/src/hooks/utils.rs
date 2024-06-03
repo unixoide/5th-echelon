@@ -42,3 +42,25 @@ pub fn id_to_name(id: usize) -> String {
         format!("{id:x}")
     }
 }
+
+pub struct SomeOrQuestionmark<T>(pub Option<T>);
+
+impl<T: std::fmt::Debug> std::fmt::Debug for SomeOrQuestionmark<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        if let Some(t) = &self.0 {
+            write!(f, "{t:?}")
+        } else {
+            write!(f, "???")
+        }
+    }
+}
+
+impl<T: std::fmt::Display> std::fmt::Display for SomeOrQuestionmark<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if let Some(t) = &self.0 {
+            write!(f, "{t}")
+        } else {
+            write!(f, "???")
+        }
+    }
+}

@@ -1,3 +1,4 @@
+use quazal::prudp::ClientRegistry;
 use quazal::rmc::basic::ToStream;
 use quazal::rmc::types::Variant;
 use quazal::rmc::Protocol;
@@ -27,6 +28,8 @@ impl<T> Protocol<T> for OverlordCoreProtocol {
         _ctx: &Context,
         ci: &mut quazal::ClientInfo<T>,
         request: &quazal::rmc::Request,
+        _client_registry: &ClientRegistry<T>,
+        _socket: &std::net::UdpSocket,
     ) -> std::result::Result<Vec<u8>, quazal::rmc::Error> {
         #[allow(clippy::enum_glob_use)]
         use Variant::*;
@@ -98,7 +101,7 @@ impl<T> Protocol<T> for OverlordCoreProtocol {
         .cloned()
         .collect();
         */
-        Ok(cfg.as_bytes())
+        Ok(cfg.to_bytes())
     }
 
     fn method_name(&self, method_id: u32) -> Option<String> {
@@ -131,11 +134,20 @@ mod tests {
             method_id: 1,
             parameters: vec![],
         };
-        let resp = prot.handle(&logger, &ctx, &mut ci, &request).unwrap();
+        let resp = prot
+            .handle(
+                &logger,
+                &ctx,
+                &mut ci,
+                &request,
+                &ClientRegistry::default(),
+                &std::net::UdpSocket::bind("127.0.0.1:12345").unwrap(),
+            )
+            .unwrap();
 
         let expected = include_bytes!("../../testdata/overlord_core_config.bin");
         assert_eq!(expected.len(), resp.len());
-        assert_ne!(
+        assert_eq!(
             expected.as_ref(),
             resp.as_slice(),
             "{}",

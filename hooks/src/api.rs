@@ -16,10 +16,9 @@ use tracing::debug;
 use tracing::error;
 use tracing::info;
 use tracing::instrument;
-use url::Url;
 
 static TOKEN: Mutex<Option<MetadataValue<Ascii>>> = Mutex::new(None);
-pub static URL: OnceLock<Url> = OnceLock::new();
+static CREDS: Mutex<Option<(String, String)>> = Mutex::new(None);
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
@@ -35,21 +34,39 @@ pub enum Error {
     LoginFailure,
     #[error("Login failure")]
     InvalidToken(#[from] tonic::metadata::errors::InvalidMetadataValue),
+    #[error("Not connected")]
+    NotConnected,
+}
+
+static CONNECTION: OnceLock<tonic::transport::Channel> = OnceLock::new();
+
+async fn create_channel() -> std::result::Result<tonic::transport::Channel, Error> {
+    // using get + set here instead of get_or_init/get_or_try_init to support async
+    if let Some(channel) = CONNECTION.get() {
+        tracing::debug!("Reusing connection {channel:?}");
+        return Ok(channel.clone());
+    }
+
+    let Some(url) = crate::config::URL.get() else {
+        return Err(Error::MissingUrl);
+    };
+    tracing::debug!("Connecting to {url}");
+    let channel = tonic::transport::Channel::from_shared(url.as_str())
+        .unwrap() // this should not fail (ideally) as url is a url::Url which gets converted to an Uri
+        .connect_timeout(std::time::Duration::from_secs(1))
+        .timeout(std::time::Duration::from_secs(10))
+        .connect()
+        .await?;
+    tracing::debug!("Connected to {url}");
+    if CONNECTION.set(channel).is_err() {
+        tracing::warn!("API connection was already set before");
+    }
+    CONNECTION.get().cloned().ok_or(Error::NotConnected)
 }
 
 macro_rules! connect {
     ($client:ident) => {{
-        let Some(ref url) = URL.get() else {
-            return Err(Error::MissingUrl);
-        };
-        tracing::debug!("Connecting to {url}");
-        let channel = tonic::transport::Channel::from_shared(url.as_str())
-            .unwrap() // this should not fail (ideally) as url is a url::Url which gets converted to an Uri
-            .connect_timeout(std::time::Duration::from_secs(1))
-            .timeout(std::time::Duration::from_secs(10))
-            .connect()
-            .await?;
-        tracing::debug!("Connected to {url}");
+        let channel = create_channel().await?;
         $client::with_interceptor(channel, move |mut req: tonic::Request<_>| {
             let guard = TOKEN.lock().unwrap();
             if let Some(token) = (*guard).as_ref() {
@@ -64,10 +81,21 @@ macro_rules! connect {
 pub struct Friend {
     pub id: String,
     pub username: String,
+    pub is_online: bool,
+}
+
+static RUNTIME: OnceLock<tokio::runtime::Runtime> = OnceLock::new();
+
+pub fn runtime() -> Result<&'static tokio::runtime::Runtime, Error> {
+    if let Some(rt) = RUNTIME.get() {
+        return Ok(rt);
+    }
+    let _ = RUNTIME.set(tokio::runtime::Runtime::new()?);
+    Ok(RUNTIME.get().unwrap())
 }
 
 fn run<T>(func: impl Future<Output = Result<T, Error>>) -> Result<T, Error> {
-    tokio::runtime::Runtime::new()?.block_on(func)
+    runtime()?.block_on(func)
 }
 
 pub fn invite_friend(id: &str) -> Result<(), Error> {
@@ -94,33 +122,42 @@ pub fn list_friends() -> Result<Vec<Friend>, Error> {
             .map(|f| Friend {
                 id: f.id,
                 username: f.username,
+                is_online: f.is_online,
             })
             .collect())
     })
 }
 
-#[instrument(skip(password))]
-pub fn login(username: &str, password: &str) -> Result<(), Error> {
-    run(async {
-        let mut client = connect!(UsersClient);
+async fn login_async(username: &str, password: &str) -> Result<(), Error> {
+    let mut client = connect!(UsersClient);
 
-        let request = tonic::Request::new(LoginRequest {
-            username: String::from(username),
-            password: String::from(password),
-        });
+    let request = tonic::Request::new(LoginRequest {
+        username: String::from(username),
+        password: String::from(password),
+    });
 
-        debug!("logging in");
-        let response = client.login(request).await?.into_inner();
-        if !response.error.is_empty() {
-            error!("Login error: {}", response.error);
-            return Err(Error::LoginFailure);
-        } else if !response.token.is_empty() {
-            info!("Login successful");
+    debug!("logging in");
+    let response = client.login(request).await?.into_inner();
+    if !response.error.is_empty() {
+        error!("Login error: {}", response.error);
+        return Err(Error::LoginFailure);
+    } else if !response.token.is_empty() {
+        info!("Login successful");
+        {
             let mut guard = TOKEN.lock().unwrap();
             *guard = Some(response.token.parse()?);
         }
-        Ok(())
-    })
+        {
+            let mut guard = CREDS.lock().unwrap();
+            *guard = Some((String::from(username), String::from(password)));
+        }
+    }
+    Ok(())
+}
+
+#[instrument(skip(password))]
+pub fn login(username: &str, password: &str) -> Result<(), Error> {
+    run(login_async(username, password))
 }
 
 #[instrument]
@@ -130,4 +167,18 @@ pub async fn event() -> Result<EventResponse, Error> {
     let request = tonic::Request::new(EventRequest {});
 
     Ok(client.event(request).await?.into_inner())
+}
+
+#[instrument]
+pub async fn relogin() {
+    {
+        let _ = TOKEN.lock().unwrap().take();
+    }
+    let (username, password) = {
+        let Some((username, password)) = CREDS.lock().unwrap().clone() else {
+            return;
+        };
+        (username, password)
+    };
+    let _ = login_async(&username, &password).await;
 }

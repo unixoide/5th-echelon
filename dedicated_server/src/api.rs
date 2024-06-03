@@ -18,6 +18,8 @@ use server_api::users::users_server::Users;
 use server_api::users::users_server::UsersServer;
 use server_api::users::LoginRequest;
 use server_api::users::LoginResponse;
+use server_api::users::RegisterRequest;
+use server_api::users::RegisterResponse;
 use server_api::users::User;
 use slog::Logger;
 use sodiumoxide::base64;
@@ -29,11 +31,13 @@ use tonic::Request;
 use tonic::Response;
 use tonic::Status;
 
+use crate::config::DebugConfig;
 use crate::storage::Storage;
 
 pub struct MyFriends {
     logger: Logger,
     storage: Arc<Storage>,
+    debug_config: Arc<DebugConfig>,
 }
 
 #[tonic::async_trait]
@@ -90,6 +94,7 @@ impl Friends for MyFriends {
             .map(|u| Friend {
                 id: u.ubi_id,
                 username: u.username,
+                is_online: u.is_online || self.debug_config.mark_all_as_online,
             })
             .collect();
         let resp = ListResponse { friends };
@@ -189,7 +194,7 @@ impl Users for MyUsers {
             return Err(Status::unauthenticated("Invalid login"));
         };
 
-        let user_id = format!("{}", user_id);
+        let user_id = format!("{user_id}");
         let n = secretbox::gen_nonce();
         let c = secretbox::seal(user_id.as_bytes(), &n, &self.key);
 
@@ -203,11 +208,45 @@ impl Users for MyUsers {
             user: None,
         }))
     }
+
+    async fn register(
+        &self,
+        request: Request<RegisterRequest>,
+    ) -> Result<Response<RegisterResponse>, Status> {
+        let request = request.into_inner();
+        let username = request.username;
+        let password = request.password;
+        let ubi_id = request.ubi_id;
+
+        let error = if let Err(err) = self
+            .storage
+            .register_user_async(&username, &password, Some(&ubi_id))
+            .await
+        {
+            match err.downcast::<sqlx::Error>() {
+                Ok(sqlx::Error::Database(db_err)) => {
+                    if db_err.is_unique_violation() {
+                        return Err(Status::already_exists(String::from(
+                            "Username already taken or Ubisoft ID already registered",
+                        )));
+                    }
+                    return Err(Status::internal(db_err.to_string()));
+                }
+                Ok(err) => return Err(Status::internal(err.to_string())),
+                Err(err) => err.to_string(),
+            }
+        } else {
+            String::new()
+        };
+        info!(self.logger, "New user {username} ({ubi_id}) registered");
+        Ok(Response::new(RegisterResponse { error, user: None }))
+    }
 }
 
 pub struct MyMisc {
     logger: Logger,
     storage: Arc<Storage>,
+    debug_config: Arc<DebugConfig>,
 }
 
 #[tonic::async_trait]
@@ -252,6 +291,7 @@ impl Misc for MyMisc {
                     id: sender.ubi_id,
                     username: sender.username,
                 }),
+                force_join: self.debug_config.force_joins,
             }),
         }));
     }
@@ -286,6 +326,7 @@ pub async fn start_server(
     logger: Logger,
     storage: Arc<Storage>,
     server_addr: SocketAddr,
+    debug_config: Arc<DebugConfig>,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let key = secretbox::gen_key();
     info!(logger, "Listening on {server_addr}");
@@ -294,6 +335,7 @@ pub async fn start_server(
             FriendsServer::new(MyFriends {
                 logger: logger.clone(),
                 storage: Arc::clone(&storage),
+                debug_config: Arc::clone(&debug_config),
             }),
             logger.clone(),
             key.clone(),
@@ -303,6 +345,7 @@ pub async fn start_server(
             MiscServer::new(MyMisc {
                 logger: logger.clone(),
                 storage: Arc::clone(&storage),
+                debug_config,
             }),
             logger.clone(),
             key.clone(),

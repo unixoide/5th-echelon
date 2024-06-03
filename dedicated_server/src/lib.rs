@@ -6,4 +6,5 @@
 extern crate slog;
 
 pub mod api;
+pub mod config;
 pub mod storage;

@@ -1,20 +1,30 @@
-#![feature(pointer_is_aligned)]
-#![feature(unboxed_closures, tuple_trait)]
+#![feature(
+    unboxed_closures,
+    tuple_trait,
+    c_variadic,
+    once_cell_try,
+    mapped_lock_guards
+)]
 #![deny(clippy::pedantic)]
 
+use std::ffi::c_char;
+use std::ffi::CStr;
 use std::ffi::CString;
 use std::ffi::OsString;
 use std::fs::File;
 use std::os::raw::c_void;
+#[cfg(target_os = "windows")]
 use std::os::windows::ffi::OsStringExt;
 use std::path::Path;
 use std::path::PathBuf;
-use std::time::Duration;
 
 use addresses::Addresses;
+use hooks_config as config;
 use tracing::error;
 use tracing::info;
 use tracing::instrument;
+use tracing::level_filters::LevelFilter;
+use tracing_subscriber::util::SubscriberInitExt;
 use windows::core::PCSTR;
 use windows::Win32::Foundation::BOOL;
 use windows::Win32::Foundation::HMODULE;
@@ -31,7 +41,6 @@ use windows::Win32::UI::WindowsAndMessaging::MB_OKCANCEL;
 
 mod addresses;
 mod api;
-mod config;
 mod hooks;
 mod macros;
 mod overlay;
@@ -88,10 +97,45 @@ unsafe fn patch_url(new_server: &str, addrs: &Addresses) {
     writemem(hostname_ptr, new_server_cstr.as_bytes_with_nul());
 }
 
+extern "C" {
+    #[cfg(all(target_family = "windows", target_env = "msvc"))]
+    fn snprintf(buffer: *mut c_char, count: usize, format: *const c_char, ...) -> i32;
+}
+
+unsafe extern "C" fn debug_print(fmt: *const c_char, args: ...) {
+    #![allow(clippy::cast_sign_loss)]
+    let mut buf: Vec<u8> = vec![0; 4096];
+
+    let mut required = snprintf(buf.as_mut_ptr().cast(), buf.len() - 1, fmt, args.clone()) as usize;
+    if required > buf.len() {
+        buf.reserve(required);
+        required = snprintf(buf.as_mut_ptr().cast(), buf.len() - 1, fmt, args) as usize;
+    }
+
+    let formatted = CStr::from_bytes_with_nul(&buf[..=required]);
+
+    panic!("{formatted:?}");
+}
+
+unsafe fn enable_debug_print(addrs: &Addresses) {
+    let Some((func_ptr, ref to_nop)) = addrs.debug_print else {
+        return;
+    };
+
+    let target = func_ptr as *mut unsafe extern "C" fn(*const c_char, ...);
+
+    *target = debug_print;
+
+    for addr in to_nop {
+        writemem(addr.start as *mut u8, &vec![0xccu8; addr.end - addr.start]);
+        // writemem(addr.start as *mut u8, &vec![0x90u8; addr.end - addr.start]);
+    }
+}
+
 #[instrument(skip_all)]
 fn init(hmodule: Option<HMODULE>) {
     let dir = get_target_dir(hmodule);
-    init_log(&dir);
+    let reload_handle = init_log(&dir);
     if let Some(cmdline) = get_arguments() {
         info!("Cmdline: {}", cmdline);
     }
@@ -103,6 +147,17 @@ fn init(hmodule: Option<HMODULE>) {
         }
         Ok(cfg) => cfg,
     };
+
+    let level = match config.logging.level {
+        config::LogLevel::Trace => tracing_subscriber::filter::LevelFilter::TRACE,
+        config::LogLevel::Debug => tracing_subscriber::filter::LevelFilter::DEBUG,
+        config::LogLevel::Info => tracing_subscriber::filter::LevelFilter::INFO,
+        config::LogLevel::Warning => tracing_subscriber::filter::LevelFilter::WARN,
+        config::LogLevel::Error => tracing_subscriber::filter::LevelFilter::ERROR,
+    };
+    reload_handle
+        .reload(tracing_subscriber::EnvFilter::default().add_directive(level.into()))
+        .unwrap();
 
     let addr = addresses::get();
 
@@ -127,40 +182,21 @@ fn init(hmodule: Option<HMODULE>) {
                 error!("Can't set command line. Address is missing");
             }
         }
+
+        enable_debug_print(&addr);
     }
-
-    let (tx, rx) = crossbeam_channel::unbounded();
-
-    // needs to be done in a separate thread, otherwise it'll not work
-    std::thread::Builder::new()
-        .name(String::from("overlay-thread"))
-        .spawn(|| overlay::init(overlay::Engine::DX9, rx).unwrap())
-        .unwrap();
 
     // needs to be done in a separate thread, otherwise it'll block indefinitely
     std::thread::Builder::new()
         .name(String::from("login-thread"))
         .spawn(|| api::login(&config.user.username, &config.user.password).unwrap())
         .unwrap();
-
-    std::thread::Builder::new()
-        .name(String::from("updates-thread"))
-        .spawn(move || {
-            tokio::runtime::Runtime::new().unwrap().block_on(async {
-                loop {
-                    tokio::time::sleep(Duration::from_secs(1)).await;
-                    let event = api::event().await.unwrap();
-                    if let Some(invite) = event.invite {
-                        tx.send(invite).unwrap();
-                    }
-                }
-            });
-        })
-        .unwrap();
 }
 
-#[instrument(skip_all)]
 fn deinit(hmodule: Option<HMODULE>) {
+    // disable tracing as TLS is already destroyed at this point.
+    // No tracing calls/instruments are allowed before this point!!
+    let _guard = tracing::dispatcher::set_default(&tracing::dispatcher::Dispatch::none());
     let dir = get_target_dir(hmodule);
     let path = config::get_config_path(dir);
     info!("Config path={:?}", path);
@@ -221,7 +257,8 @@ fn get_executable(hinst: HMODULE) -> Option<PathBuf> {
         return None;
     };
     let path = OsString::from_wide(&path[..sz]);
-    PathBuf::try_from(path).ok()
+    // cannot fail
+    Some(PathBuf::from(path))
 }
 
 fn get_arguments() -> Option<String> {
@@ -238,7 +275,8 @@ fn get_target_dir(hinst: Option<HMODULE>) -> PathBuf {
             return Err(err.into());
         };
         let path = OsString::from_wide(&path[..sz]);
-        let mut path = PathBuf::try_from(path)?;
+        // cannot fail
+        let mut path = PathBuf::from(path);
         path.pop();
         Ok(path)
     });
@@ -248,16 +286,36 @@ fn get_target_dir(hinst: Option<HMODULE>) -> PathBuf {
     path.unwrap_or_default()
 }
 
-fn init_log(target_dir: &Path) {
+fn init_log(
+    target_dir: &Path,
+) -> tracing_subscriber::reload::Handle<
+    tracing_subscriber::EnvFilter,
+    tracing_subscriber::layer::Layered<
+        tracing_subscriber::fmt::Layer<
+            tracing_subscriber::Registry,
+            tracing_subscriber::fmt::format::DefaultFields,
+            tracing_subscriber::fmt::format::Format,
+            FileWriter,
+        >,
+        tracing_subscriber::Registry,
+    >,
+> {
     let path = target_dir.join("bl-tracing.log");
     let _ = std::fs::remove_file(&path);
-    tracing_subscriber::FmtSubscriber::builder()
+    let subscriber_builder = tracing_subscriber::FmtSubscriber::builder()
         .with_writer(FileWriter(path))
         .with_ansi(false)
         .with_thread_ids(true)
         .with_thread_names(true)
         .with_line_number(true)
-        .init();
+        .with_env_filter(
+            tracing_subscriber::EnvFilter::builder()
+                .with_default_directive(LevelFilter::INFO.into())
+                .from_env_lossy(),
+        )
+        .with_filter_reloading();
+    let reload_handle = subscriber_builder.reload_handle();
+    subscriber_builder.init();
     tracing::event!(tracing::Level::INFO, "attaching");
 
     std::panic::set_hook(Box::new(|panic_info| {
@@ -278,20 +336,24 @@ fn init_log(target_dir: &Path) {
         };
 
         match panic_info.location() {
-            Some(location) => expl.push_str(&format!(
-                "Panic occurred in file '{}' at line {}",
-                location.file(),
-                location.line()
-            )),
+            Some(location) => {
+                expl.push_str(&format!(
+                    "Panic occurred in file '{}' at line {}",
+                    location.file(),
+                    location.line()
+                ));
+            }
             None => expl.push_str("Panic location unknown."),
         }
-        let msg = format!("{}\n{}", expl, cause);
+        let msg = format!("{expl}\n{cause}");
+
         tracing::error!("{}", msg);
 
         show_msgbox(&msg, "PANIC");
 
         std::process::exit(1);
     }));
+    reload_handle
 }
 
 #[no_mangle]

@@ -1,3 +1,7 @@
+<p align="center">
+    <img src="./docs/logo.png">
+</p>
+
 # Dedicated server for EoL echelon games
 
 This project is a community effort to keep the multiplayer of some
@@ -6,43 +10,39 @@ of the games with the great Sam Fisher alive.
 For now it is focused on SC:BL, but the net code should be relatively
 similar for previous games as well.
 
-> [!TIP]
-> **TEMPORARY FIX FOR OFFICIAL SERVERS**
->
-> 1. Compile `tools\mpdataserver.go` with a [go](https://go.dev) compiler (`go build -o mpdataserver.exe mpdataserver.go`)
-> 2. Run it (this openes a black window with no output) and leave it running.
-> 3. Add `127.0.0.1 sc6_pc_lnch_b.s3.amazonaws.com` to `C:\Windows\System32\drivers\etc\hosts`.
->
-> This will allow you to use the official Ubisoft servers again! Therefore make sure to use the official `uplay_r1_loader.dll`
-> and not the one from this project.
->
-> This solution is not a functional community server. It only allows to use the official servers again (when they partially are up). So whenever Ubisoft shuts them completely down, this will not work anymore. **For an independent community server, please stay tuned!**
 
-## Build
+![demo](./docs/demo.webm)
 
-Last tested rust version: 1.74 nightly
+## Usage
 
-```shell
-# debug mode (builds faster)
-$ cargo build
-# release mode (runs way faster)
-$ cargo build --release
-```
+### On the server host (can be the same as a player, but there should be only one running)
 
-## Usage (precompiled from the releases page)
+1. Start the server `dedicated_server.exe`
+2. Note the (public) IP address of the server (like your VPN IP if you're using radmin/hamachi)
+3. Make sure the ports tcp/80, tcp/50051, tcp/8000, udp/21126 and udp/21127 are open to your peers
 
-1. Rename `uplay_r1_loader.dll` in the games `src\SYSTEM` directory (e.g. `C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\` for the steam version) to `uplay_r1_loader.orig.dll`
-2. Copy `uplay_r1_loader.dll` from the release to the same directory
-3. Start the server `dedicated_server.exe`
-4. Start the game and try to enter online mode
+### On the clients (all players who want to connect to the community server)
 
-## Usage (from source)
+1. Start the launcher
+2. Under networking
+    1. Enable `Use custom config server
+    2. Enter the addresses of the server (like `127.0.0.1` for `Config Server` and `http://127.0.0.1:50051/` for `API Server`). Change the IP accordingly
+    3. Test if it is configured correctly by using `Test Login` with a test account
+    4. Optional: Register a new account (clear the username/password fields to enable the button)
+    5. Optional: Enforce a network adapter if you have multiple (like VPN or Hyper-V)
 
-1. Rename `uplay_r1_loader.dll` in the game directory (`Tom Clancy's Splinter Cell Blacklist\src\SYSTEM`) to `uplay_r1_loader.orig.dll`
-2. Run ``.\scripts\uplay_r1_loader.bat`
-3. Adjust `service.toml` to your needs (update the IP, everything else should be fine)
-4. Start the server `.\scripts\run.bat`
-5. Start the game and try to enter online mode
+![launcher settings](./docs/launcher_settings.png)
+
+3. Launch the game with `Launch`
+
+> [!IMPORTANT]  
+> I haven't managed to get private matches working yet. It only works in COOP through the "Find Teammate" option.
+> SvM 
+
+### Uninstalling the mod
+
+1. Remove the `uplay_r1_loader.dll` from the `src/SYSTEM` directory of your game installation. For example `C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\`
+2. Rename the `uplay_r1_loader.orig.dll` to `uplay_r1_loader.dll`
 
 ### Available test accounts
 
@@ -59,17 +59,40 @@ The server currently knows these test accounts which you can use to experiment. 
 - Entering the COOP lobby
 - Starting a COOP game
 - Starting a Spy vs Merc game
-- Invite other players (press <kbd>F5</kbd> to open the overlay to accept the invite).
+- Invite other players (press <kbd>F5</kbd> to open the overlay to accept the invite) into the main lobby.
+- Matchmaking
 
 ### What doesn't work
 
-- Matchmaking (requires additional APIs to talk to)
-- NAT Traversal (required for actual play)
 - Shared save games between modded and genuine game version (stored at different locations so no progress is lost)
+- Invite players into a private COOP/SvM game (use the "Find Teammate"/"Quick Match" buttons instead)
+
+## Build
+
+Last tested rust version: 1.80.0-nightly (867900499 2024-05-23)
+
+Use https://github.com/casey/just to build:
+
+```shell
+# run server in debug mode (builds faster)
+$ just serve
+# run server in release mode (runs way faster)
+$ just serve_release
+# build dll and run launcher in debug mode
+$ just launch
+# build dll and run launcher in release mode
+$ just launch_release
+```
 
 ## Additional Tools
 
 Besides the server, there are also additional tools which are meant to aid development.
+
+- DDL parser
+- Wireshark dissectors
+
+  - PRUDP/RMC (Quazal)
+  - Storm P2P
 
 ### DDL parser
 
@@ -81,7 +104,7 @@ $ cargo run --release -p quazal-tools --bin ddl-parser -- -i mapping.json -o ddl
 
 ### Wireshark dissector
 
-There is a rudimentary wireshark dissector in rust available. You can build and install it on linux via
+There is a rudimentary wireshark dissector for PRUDP/RMC in rust available. You can build and install it on linux via
 
 ```shell
 $ ./scripts/build_dissector.sh
@@ -90,7 +113,9 @@ $ ./scripts/build_dissector.sh
 Alternatively there is also a lua based dissector. To install, put `.\tools\quazal.lua` and `.\tools\rmc.txt` into the 
 wireshark plugin user directory.
 
-You can use both dissectors with `tshark` as well:
+Additionally there is a very basic lua dissector for the Storm P2P protocol.
+
+You can use all dissectors with `tshark` as well:
 
 ```
 $ tshark -r pcaps/sc_bl.pcapng -d udp.port==3074,prudp -d udp.port==13000,prudp -V -Y udp -x -O prudp,rmc -Y 'udp.port==3074'

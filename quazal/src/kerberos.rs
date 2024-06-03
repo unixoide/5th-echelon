@@ -9,6 +9,7 @@ use sodiumoxide::crypto::secretbox;
 
 use crate::prudp::packet::Rc4;
 use crate::rmc::basic::FromStream;
+use crate::rmc::basic::FromStreamError;
 use crate::rmc::basic::ReadStream;
 use crate::rmc::basic::ToStream;
 
@@ -25,7 +26,7 @@ pub struct KerberosTicketInternal {
 impl KerberosTicketInternal {
     fn seal(&self, key: &secretbox::Key) -> Vec<u8> {
         let n = secretbox::gen_nonce();
-        let mut c = secretbox::seal(&self.as_bytes(), &n, key);
+        let mut c = secretbox::seal(&self.to_bytes(), &n, key);
 
         let mut res = Vec::with_capacity(c.len() + secretbox::NONCEBYTES);
         res.extend_from_slice(n.as_ref());
@@ -33,7 +34,7 @@ impl KerberosTicketInternal {
         res
     }
 
-    pub fn open(data: &[u8], key: &secretbox::Key) -> std::io::Result<Self> {
+    pub fn open(data: &[u8], key: &secretbox::Key) -> Result<Self, FromStreamError> {
         // eprintln!("####\nopen {:?}\n####", key.0);
         if data.len() < secretbox::NONCEBYTES {
             return Err(std::io::Error::new(
@@ -43,7 +44,8 @@ impl KerberosTicketInternal {
                     data.len(),
                     secretbox::NONCEBYTES
                 ),
-            ));
+            )
+            .into());
         }
         let n = secretbox::Nonce::from_slice(&data[..secretbox::NONCEBYTES]).unwrap();
         let data = &data[secretbox::NONCEBYTES..];
@@ -80,7 +82,7 @@ impl KerberosTicket {
         peer_pid: u32,
         password: Option<&str>,
         key: &secretbox::Key,
-    ) -> std::io::Result<Self> {
+    ) -> Result<Self, FromStreamError> {
         let off = buf.len() - Md5::output_size();
         let (buf, _mac) = buf.split_at(off);
 
@@ -103,8 +105,8 @@ impl KerberosTicket {
     #[must_use]
     pub fn as_bytes(&self, peer_pid: u32, password: Option<&str>, key: &secretbox::Key) -> Vec<u8> {
         let mut buf = self.session_key.to_vec();
-        buf.append(&mut self.pid.as_bytes());
-        buf.append(&mut self.internal.seal(key).as_bytes());
+        buf.append(&mut self.pid.to_bytes());
+        buf.append(&mut self.internal.seal(key).to_bytes());
 
         let key = Self::derive_key(peer_pid, password);
 

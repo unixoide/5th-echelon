@@ -1,3 +1,4 @@
+use quazal::prudp::ClientRegistry;
 use quazal::rmc::basic::ToStream;
 use quazal::rmc::types::DateTime;
 use quazal::rmc::Protocol;
@@ -5,7 +6,7 @@ use quazal::Context;
 
 use crate::login_required;
 
-#[derive(Debug, ToStream, FromStream)]
+#[derive(Debug, ToStream, FromStream, Default)]
 struct NewsItem {
     maybe_id: u32,
     unk2: u32,
@@ -14,7 +15,7 @@ struct NewsItem {
     unk5: String,
     unk6: DateTime,
     unk7: DateTime,
-    unk8: DateTime,
+    expiration_time: DateTime,
     title: String,
     link: String,
     description: String,
@@ -42,12 +43,24 @@ impl<T> Protocol<T> for OverlordNewsProtocol {
         _ctx: &Context,
         ci: &mut quazal::ClientInfo<T>,
         request: &quazal::rmc::Request,
+        _client_registry: &ClientRegistry<T>,
+        _socket: &std::net::UdpSocket,
     ) -> std::result::Result<Vec<u8>, quazal::rmc::Error> {
         login_required(&*ci)?;
         match request.method_id {
             1 => {
-                let news: Vec<NewsItem> = vec![];
-                Ok(news.as_bytes())
+                let news: Vec<NewsItem> = vec![NewsItem {
+                    maybe_id: 19_5389,
+                    unk2: 9,
+                    unk3: 2,
+                    unk4: 2,
+                    title: String::from("WELCOME BACK!"),
+                    description: String::from("5th Echelon is here!"),
+                    link: String::from("https://github.com/unixoide/5th-echelon"),
+                    unk5: String::from("Quazal Rendez-Vous"),
+                    ..Default::default()
+                }];
+                Ok(news.to_bytes())
             }
             2 => {
                 error!(logger, "not implemented yet");
