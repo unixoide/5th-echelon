@@ -25,7 +25,7 @@ similar for previous games as well.
 
 1. Start the launcher
 2. Under networking
-    1. Enable `Use custom config server
+    1. Enable `Use custom config server`
     2. Enter the addresses of the server (like `127.0.0.1` for `Config Server` and `http://127.0.0.1:50051/` for `API Server`). Change the IP accordingly
     3. Test if it is configured correctly by using `Test Login` with a test account
     4. Optional: Register a new account (clear the username/password fields to enable the button)
