@@ -20,7 +20,10 @@ pub fn serve(logger: &slog::Logger, addr: SocketAddr, content: &str) -> std::io:
         let (mut stream, _addr) = listener.accept()?;
         let mut rdr = std::io::BufReader::new(stream.try_clone()?);
         let mut path = String::new();
-        rdr.read_line(&mut path)?;
+        if let Err(e) = rdr.read_line(&mut path) {
+            error!(logger, "read error: {:?}", e);
+            continue;
+        }
         debug!(logger, "Request: {}", path);
         if let Err(e) = stream.write_all(resp) {
             error!(logger, "write error: {:?}", e);
@@ -38,7 +41,10 @@ pub fn serve_many(
         let (mut stream, _addr) = listener.accept()?;
         let mut rdr = std::io::BufReader::new(stream.try_clone()?);
         let mut path = String::new();
-        rdr.read_line(&mut path)?;
+        if let Err(e) = rdr.read_line(&mut path) {
+            error!(logger, "simple_http: read error: {:?}", e);
+            continue;
+        }
         debug!(logger, "Request: {}", path);
         let prefix = "GET ";
         let suffix = " HTTP/1.1\r\n";
@@ -69,9 +75,11 @@ pub fn serve_many(
             resp.extend(data);
             if let Err(e) = stream.write_all(&resp) {
                 error!(logger, "simple_http: write error: {:?}", e);
+                continue;
             }
         } else if let Err(e) = stream.write_all(b"HTTP/1.0 404 Not Found\r\n\r\n") {
             error!(logger, "simple_http: write error: {:?}", e);
+            continue;
         }
         debug!(logger, "Status 404");
     }
