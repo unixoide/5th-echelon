@@ -50,7 +50,7 @@ pub struct Addresses {
     pub func_another_gear_str_destructor: Option<usize>,
 }
 
-fn build_game_map() -> HashMap<String, HashMap<[u8; 32], Addresses>> {
+fn dx9_addresses() -> HashMap<[u8; 32], Addresses> {
     #![allow(clippy::unreadable_literal)]
 
     let dx9_addrs = Addresses {
@@ -108,61 +108,72 @@ fn build_game_map() -> HashMap<String, HashMap<[u8; 32], Addresses>> {
         ],
     ];
 
-    HashMap::from([
-        (
-            String::from("blacklist_game.exe"),
-            HashMap::from(dx9_hashes.map(|h| (h, dx9_addrs.clone()))),
-        ),
-        (
-            String::from("blacklist_dx11_game.exe"),
-            HashMap::from([(
-                [
-                    0xc6, 0xb9, 0xf3, 0x30, 0xfa, 0xc1, 0x41, 0x2f, 0x19, 0xf3, 0x2a, 0x6f, 0xd8,
-                    0x6e, 0xdb, 0x4c, 0x66, 0x29, 0x1a, 0x69, 0x2, 0x61, 0x1e, 0x94, 0x33, 0xb9,
-                    0xb0, 0xea, 0x65, 0x9e, 0xb4, 0xbc,
-                ],
-                Addresses {
-                    global_onlineconfig_client: 0x0338d5fc,
-                    onlineconfig_url: 0x02d12b60,
-                    unreal_commandline: Some(0x33099B4),
+    HashMap::from(dx9_hashes.map(|h| (h, dx9_addrs.clone())))
+}
 
-                    debug_print: Some((
-                        0x34CA4D4,
-                        vec![0x02218634..0x02218634 + 5, 0x02218657..0x02218657 + 4],
-                    )),
-            
-                    // hooks
-                    func_printer: Some(0x636D20),
-                    func_net_finite_state_machine_next_state: Some(0x834FF0),
-                    func_net_finite_state_leave_state: Some(0x7FE000),
-                    func_net_result_base: Some(0x7FD740),
-                    func_something_with_goal: Some(0x849F80),
-                    func_quazal_stepsequencejob_setstep: Some(0x2160400),
-                    func_thread_starter: Some(0x5132C0),
-                    func_goal_change_state: Some(0x858ED0),
-                    func_net_core: Some(0x8820C0),
-                    func_net_result_core: Some(0x81E020),
-                    func_net_result_session: Some(0x81DE50),
-                    func_net_result_lobby: Some(0x801260),
-                    func_storm_host_port_to_str: Some(0x020E0D50),
-                    func_generate_id: Some(0x020D7730),
-                    func_storm_maybe_set_state: Some(0x020F2230),
-                    func_storm_statemachineaction_execute: Some(0x02103D50),
-                    func_storm_some_error_formatter: Some(0x020E2740),
-                    func_gear_str_destructor: Some(0x41F630),
-                    func_storm_event_dispatch: Some(0x0207CAF0),
-                    func_storm_event_dispatch2: Some(0x020F5520),
-                    func_storm_event_maybe_queue_pop: Some(0x020EBBD0),
-                    func_some_gear_str_constructor: Some(0x636D20),
-                    func_net_result_rdv_session: Some(0x7FFD30),
-                    func_rmc_init_message: Some(0x021CDA40),
-                    func_rmc_add_method_id: Some(0x021CD700),
-                    func_rmc_send_message: Some(0x021DE540),
-                    func_storm_event_handler: Some(0x20f1d40),
-                    func_another_gear_str_destructor: Some(0x41F630),
-                },
-            )]),
-        ),
+fn dx11_addresses() -> HashMap<[u8; 32], Addresses> {
+    #![allow(clippy::unreadable_literal)]
+
+    let dx11_hashes = [
+        [
+            0xc6, 0xb9, 0xf3, 0x30, 0xfa, 0xc1, 0x41, 0x2f, 0x19, 0xf3, 0x2a, 0x6f, 0xd8, 0x6e,
+            0xdb, 0x4c, 0x66, 0x29, 0x1a, 0x69, 0x2, 0x61, 0x1e, 0x94, 0x33, 0xb9, 0xb0, 0xea,
+            0x65, 0x9e, 0xb4, 0xbc,
+        ],
+        [
+            0xc5, 0x2b, 0x3d, 0x09, 0x27, 0x59, 0x1e, 0x47, 0x74, 0x24, 0xf3, 0x89, 0xff, 0x0b,
+            0x13, 0x14, 0xa3, 0x00, 0x93, 0x8e, 0x19, 0xce, 0x61, 0xa7, 0xb0, 0xa7, 0xbc, 0x09,
+            0xf8, 0x1c, 0x2c, 0x89,
+        ],
+    ];
+
+    let dx11_addrs = Addresses {
+        global_onlineconfig_client: 0x0338d5fc,
+        onlineconfig_url: 0x02d12b60,
+        unreal_commandline: Some(0x33099B4),
+
+        debug_print: Some((
+            0x34CA4D4,
+            vec![0x02218634..0x02218634 + 5, 0x02218657..0x02218657 + 4],
+        )),
+
+        // hooks
+        func_printer: Some(0x636D20),
+        func_net_finite_state_machine_next_state: Some(0x834FF0),
+        func_net_finite_state_leave_state: Some(0x7FE000),
+        func_net_result_base: Some(0x7FD740),
+        func_something_with_goal: Some(0x849F80),
+        func_quazal_stepsequencejob_setstep: Some(0x2160400),
+        func_thread_starter: Some(0x5132C0),
+        func_goal_change_state: Some(0x858ED0),
+        func_net_core: Some(0x8820C0),
+        func_net_result_core: Some(0x81E020),
+        func_net_result_session: Some(0x81DE50),
+        func_net_result_lobby: Some(0x801260),
+        func_storm_host_port_to_str: Some(0x020E0D50),
+        func_generate_id: Some(0x020D7730),
+        func_storm_maybe_set_state: Some(0x020F2230),
+        func_storm_statemachineaction_execute: Some(0x02103D50),
+        func_storm_some_error_formatter: Some(0x020E2740),
+        func_gear_str_destructor: Some(0x41F630),
+        func_storm_event_dispatch: Some(0x0207CAF0),
+        func_storm_event_dispatch2: Some(0x020F5520),
+        func_storm_event_maybe_queue_pop: Some(0x020EBBD0),
+        func_some_gear_str_constructor: Some(0x636D20),
+        func_net_result_rdv_session: Some(0x7FFD30),
+        func_rmc_init_message: Some(0x021CDA40),
+        func_rmc_add_method_id: Some(0x021CD700),
+        func_rmc_send_message: Some(0x021DE540),
+        func_storm_event_handler: Some(0x20f1d40),
+        func_another_gear_str_destructor: Some(0x41F630),
+    };
+    HashMap::from(dx11_hashes.map(|h| (h, dx11_addrs.clone())))
+}
+
+fn build_game_map() -> HashMap<String, HashMap<[u8; 32], Addresses>> {
+    HashMap::from([
+        (String::from("blacklist_game.exe"), dx9_addresses()),
+        (String::from("blacklist_dx11_game.exe"), dx11_addresses()),
     ])
 }
 
