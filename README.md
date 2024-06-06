@@ -19,12 +19,13 @@ similar for previous games as well.
 
 1. Start the server `dedicated_server.exe`
 2. Note the (public) IP address of the server (like your VPN IP if you're using radmin/hamachi)
-3. Make sure the ports tcp/80, tcp/50051, tcp/8000, udp/21126 and udp/21127 are open to your peers
+3. Make sure the ports tcp/80, tcp/50051, tcp/8000, udp/21120 and udp/21127 are open to your peers (allowed in firewall or firewall off)
 
 ### On the clients (all players who want to connect to the community server)
 
-1. Start the launcher
-2. Under networking
+1. Make sure that the port UDP 13000 is open in your firewall (and router if you are not using a VPN)
+2. Start the launcher
+3. Under networking
     1. Enable `Use custom config server`
     2. Enter the addresses of the server (like `127.0.0.1` for `Config Server` and `http://127.0.0.1:50051/` for `API Server`). Change the IP accordingly
     3. Test if it is configured correctly by using `Test Login` with a test account
