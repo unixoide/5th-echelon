@@ -40,10 +40,6 @@ similar for previous games as well.
 > I haven't managed to get private matches working yet. It only works in COOP through the "Find Teammate" option.
 > SvM
 
-
-> [!WARNING]
-> Only DX9 is supported right now as I have to find the time to correctly patch the DX11 binary first once it is stable enough.
-
 ### Uninstalling the mod
 
 1. Remove the `uplay_r1_loader.dll` from the `src/SYSTEM` directory of your game installation. For example `C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\`
