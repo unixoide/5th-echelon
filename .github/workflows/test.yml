@@ -17,9 +17,6 @@ jobs:
     permissions: 
       contents: read
 
-    env:
-      PROTOC: ${{runner.temp}}/protoc/bin/protoc.exe
-
     steps:
     - uses: actions/checkout@v4
     - name: Download protoc
@@ -32,6 +29,10 @@ jobs:
     - name: Unpack protoc
       run: 7z x -o${{runner.temp}}/protoc ${{ fromJson(steps.downloader.outputs.downloaded_files)[0] }}
     - name: Build
-      run: cargo build --verbose
+      run: cargo build --verbose  
+      env:
+        PROTOC: ${{runner.temp}}/protoc/bin/protoc.exe
     - name: Run tests
       run: cargo test --verbose
+      env:
+        PROTOC: ${{runner.temp}}/protoc/bin/protoc.exe
