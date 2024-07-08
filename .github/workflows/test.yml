@@ -18,7 +18,7 @@ jobs:
       contents: read
 
     env:
-      PROTOC: bin/protoc.exe
+      PROTOC: ${{runner.temp}}/protoc/bin/protoc.exe
 
     steps:
     - uses: actions/checkout@v4
@@ -30,7 +30,7 @@ jobs:
         fileName: "protoc-*-win64.zip"
         latest: true
     - name: Unpack protoc
-      run: 7z x ${{ fromJson(steps.downloader.outputs.downloaded_files)[0] }}
+      run: 7z x -o${{runner.temp}}/protoc ${{ fromJson(steps.downloader.outputs.downloaded_files)[0] }}
     - name: Build
       run: cargo build --verbose
     - name: Run tests
