@@ -4,6 +4,7 @@ members = [
   "dedicated_server",
   "dedicated_server/sc_bl_protocols",
   "hooks",
+  "hooks/hooks-addresses",
   "hooks/hooks-proc",
   "hooks/hooks-config",
   "hooks/shim-gen",

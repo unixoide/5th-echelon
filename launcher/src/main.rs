@@ -1,5 +1,6 @@
 #![windows_subsystem = "windows"]
 
+use std::collections::HashMap;
 use std::ffi::CString;
 use std::ffi::OsStr;
 use std::ffi::OsString;
@@ -11,6 +12,7 @@ use std::path::Path;
 use std::path::PathBuf;
 use std::sync::Mutex;
 
+use hooks_addresses::Addresses;
 use imgui::Context;
 use imgui::Style;
 use imgui::StyleColor;
@@ -40,10 +42,23 @@ mod render;
 static COMPRESSED_DLL: &[u8] =
     include_bytes!(concat!(env!("OUT_DIR"), "/uplay_r1_loader.dll.brotli"));
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 enum GameVersion {
     SplinterCellBlacklistDx9,
     SplinterCellBlacklistDx11,
+}
+
+impl GameVersion {
+    fn executable(self) -> &'static str {
+        match self {
+            GameVersion::SplinterCellBlacklistDx9 => "Blacklist_game.exe",
+            GameVersion::SplinterCellBlacklistDx11 => "Blacklist_DX11_game.exe",
+        }
+    }
+
+    fn full_path(self, base_dir: &Path) -> PathBuf {
+        base_dir.join(self.executable())
+    }
 }
 
 fn sc_style(style: &mut Style) {
@@ -251,6 +266,19 @@ fn main() {
 
     let mut launch_error = None;
 
+    let addresses = [
+        GameVersion::SplinterCellBlacklistDx9,
+        GameVersion::SplinterCellBlacklistDx11,
+    ]
+    .into_iter()
+    .filter_map(|gv| {
+        Some((
+            gv,
+            hooks_addresses::get_from_path(&gv.full_path(&target_dir)).ok()?,
+        ))
+    })
+    .collect::<HashMap<_, _>>();
+
     render::render(
         imgui,
         |ui: &mut imgui::Ui, w: f32, h: f32, logo_texture: imgui::TextureId| {
@@ -290,8 +318,8 @@ fn main() {
                         &adapters,
                         &adapter_ips,
                     );
-                    if selected_game == GameVersion::SplinterCellBlacklistDx9 {
-                        draw_debug_settings(ui, &mut cfg);
+                    if let Some(addr) = addresses.get(&selected_game) {
+                        draw_debug_settings(ui, &mut cfg, addr);
                     }
                     ui.separator();
                     ui.disabled(saved_cfg == cfg, || {
@@ -320,11 +348,7 @@ fn main() {
 
                     ui.enabled(saved_cfg == cfg, || {
                         if ui.button("Launch") {
-                            let executable = match selected_game {
-                                GameVersion::SplinterCellBlacklistDx9 => "Blacklist_game.exe",
-                                GameVersion::SplinterCellBlacklistDx11 => "Blacklist_DX11_game.exe",
-                            };
-                            let executable = target_dir.join(executable);
+                            let executable = selected_game.full_path(&target_dir);
                             match std::process::Command::new(&executable).spawn() {
                                 Err(e) => launch_error = Some(format!("{executable:?}: {e}")),
                                 Ok(_) => std::process::exit(0),
@@ -705,7 +729,7 @@ fn draw_networking_settings(
     }
 }
 
-fn draw_debug_settings(ui: &imgui::Ui, cfg: &mut hooks_config::Config) {
+fn draw_debug_settings(ui: &imgui::Ui, cfg: &mut hooks_config::Config, addr: &Addresses) {
     if ui.collapsing_header("Debugging", imgui::TreeNodeFlags::FRAME_PADDING) {
         ui.indent();
         static LOG_LEVELS: [hooks_config::LogLevel; 5] = [
@@ -731,6 +755,9 @@ fn draw_debug_settings(ui: &imgui::Ui, cfg: &mut hooks_config::Config) {
                 .iter()
                 .zip(hooks_config::Hook::LABELS.iter())
             {
+                if addr.hook_addr(*variant).is_none() {
+                    continue;
+                }
                 let found = cfg.enable_hooks.contains(variant);
                 let mut enabled = found;
                 ui.checkbox(*label, &mut enabled);

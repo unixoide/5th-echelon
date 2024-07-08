@@ -15,6 +15,7 @@ brotli = { version = "3.4", optional = true }
 glow = "0.13.1" # imgui-glow-renderer
 glutin = "0.31.2"
 glutin-winit = "0.4.2"
+hooks-addresses = { path = "../hooks/hooks-addresses" }
 hooks-config = { path = "../hooks/hooks-config" }
 imgui = "0.12"
 imgui-glow-renderer = "0.12"

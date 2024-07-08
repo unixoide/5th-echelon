@@ -17,6 +17,7 @@ name = "hook-loader"
 [dependencies]
 anyhow = "1.0"
 crossbeam-channel = "0.5"
+hooks-addresses = { path = "hooks-addresses" }
 hooks-config = { path = "hooks-config" }
 hooks-proc = { path = "hooks-proc" }
 imgui = "0.12"

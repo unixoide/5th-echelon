@@ -1,0 +1,10 @@
+[package]
+name = "hooks-addresses"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = { workspace = true }
+hooks-config = { path = "../hooks-config" }
+sha2 = "0.10"
+tracing = "0.1"

@@ -1437,6 +1437,7 @@ dependencies = [
  "api",
  "crossbeam-channel",
  "dll-syringe",
+ "hooks-addresses",
  "hooks-config",
  "hooks-proc",
  "hudhook",
@@ -1455,6 +1456,16 @@ dependencies = [
  "url",
  "windows 0.54.0",
  "winres",
+]
+
+[[package]]
+name = "hooks-addresses"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "hooks-config",
+ "sha2",
+ "tracing",
 ]
 
 [[package]]
@@ -1820,6 +1831,7 @@ dependencies = [
  "glutin",
  "glutin-winit",
  "goblin 0.8.2",
+ "hooks-addresses",
  "hooks-config",
  "image",
  "imgui",
