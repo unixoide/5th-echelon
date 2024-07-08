@@ -1,0 +1,38 @@
+name: "Build & Test"
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    permissions: 
+      contents: read
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Download protoc
+      id: downloader
+      uses: robinraju/release-downloader@v1
+      with:
+        repository: protocolbuffers/protobuf
+        fileName: "protoc-*-win64.zip"
+        latest: true
+    - name: Unpack protoc
+      run: 7z x -o${{runner.temp}}/protoc ${{ fromJson(steps.downloader.outputs.downloaded_files)[0] }}
+    - name: Build
+      run: cargo build --verbose  
+      env:
+        PROTOC: ${{runner.temp}}/protoc/bin/protoc.exe
+    - name: Run tests
+      run: cargo test --verbose
+      env:
+        PROTOC: ${{runner.temp}}/protoc/bin/protoc.exe

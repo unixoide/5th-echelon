@@ -212,6 +212,10 @@ mod tests {
 
     #[test]
     fn test_hashing() {
-        hash_file(r"C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe").unwrap();
+        let fname = r"C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe";
+        if std::fs::metadata(fname).is_err() {
+            return;
+        }
+        hash_file(fname).unwrap();
     }
 }
