@@ -1,0 +1,56 @@
+name: Prepare release
+
+on:
+  push:
+    tags: "*"
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+  
+    runs-on: windows-latest
+
+    permissions: 
+      contents: read
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Download protoc
+      id: downloader
+      uses: robinraju/release-downloader@v1
+      with:
+        repository: protocolbuffers/protobuf
+        fileName: "protoc-*-win64.zip"
+        latest: true
+    - name: Unpack protoc
+      run: 7z x -o${{runner.temp}}/protoc ${{ fromJson(steps.downloader.outputs.downloaded_files)[0] }}
+    - name: Install just
+      run: cargo install just
+    - name: Build
+      run: just release
+      env:
+        PROTOC: ${{runner.temp}}/protoc/bin/protoc.exe
+    - name: zip
+      run: 7z a -tzip 5th-echelon.zip data\ .\target\release\dedicated_server.exe .\target\release\launcher.exe
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: ${{ github.ref }}
+        draft: true
+        prerelease: false
+    - name: Upload Release Asset
+      id: upload-release-asset 
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./5th-echelon.zip
+        asset_name: 5th-echelon.zip
+        asset_content_type: application/zip
