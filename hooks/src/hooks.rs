@@ -397,12 +397,13 @@ fn get_adapters_info(adapter_info: *mut IP_ADAPTER_INFO, sizepointer: *mut u32) 
         return res;
     }
 
-    let target = CString::new(cfg.networking.ip_address.unwrap().to_string().as_bytes()).unwrap();
+    let adapter_ip = cfg.networking.ip_address.unwrap().to_string();
+    let target = CString::new(adapter_ip.as_bytes()).unwrap();
 
     unsafe {
         let mut adapter = adapter_info;
 
-        loop {
+        while !adapter.is_null() {
             let data = &*(std::ptr::from_ref::<[i8]>(&(*adapter).IpAddressList.IpAddress.String)
                 as *const [u8]);
             let addr = CStr::from_bytes_until_nul(data).unwrap();
@@ -412,8 +413,36 @@ fn get_adapters_info(adapter_info: *mut IP_ADAPTER_INFO, sizepointer: *mut u32) 
             }
             adapter = (*adapter).Next;
         }
+
+        if adapter.is_null() {
+            error!("Adapter with IP {adapter_ip} not found");
+            return res;
+        }
+
         (*adapter).Next = std::ptr::null_mut();
-        std::ptr::copy(adapter, adapter_info, 1);
+
+        if adapter != adapter_info {
+            if adapter.is_aligned() {
+                std::ptr::copy(adapter, adapter_info, 1);
+            } else {
+                warn!(
+                "adapter structs are unaligned. {:?} should align to {}. Trying to copy from {:?} as u8",
+                adapter,
+                std::mem::align_of::<IP_ADAPTER_INFO>(),
+                adapter_info,
+            );
+                let dst = std::slice::from_raw_parts_mut(
+                    adapter_info.cast::<u8>(),
+                    std::mem::size_of::<IP_ADAPTER_INFO>(),
+                );
+                let src = std::slice::from_raw_parts(
+                    adapter.cast::<u8>(),
+                    std::mem::size_of::<IP_ADAPTER_INFO>(),
+                );
+                dst.copy_from_slice(src);
+            }
+        }
+
         let data = &*(std::ptr::from_ref::<[i8]>(&(*adapter_info).IpAddressList.IpAddress.String)
             as *const [u8]);
         debug!("{:?}", CStr::from_bytes_until_nul(data).unwrap());
@@ -605,7 +634,7 @@ pub(self) unsafe fn hook_with_name<T, F>(
     if let Err(err) = res {
         error!("Hook {} failed: {:?}", name, err);
     } else {
-        info!("Hook {} enabled", name);
+        info!("Hook {} enabled with address {:?}", name, target.to_ptr());
     }
 }
 
