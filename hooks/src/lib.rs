@@ -17,6 +17,7 @@ use std::os::raw::c_void;
 use std::os::windows::ffi::OsStringExt;
 use std::path::Path;
 use std::path::PathBuf;
+use std::{thread, time};
 
 use addresses::Addresses;
 use hooks_config as config;
@@ -188,9 +189,16 @@ fn init(hmodule: Option<HMODULE>) {
 
     // needs to be done in a separate thread, otherwise it'll block indefinitely
     std::thread::Builder::new()
-        .name(String::from("login-thread"))
-        .spawn(|| api::login(&config.user.username, &config.user.password).unwrap())
-        .unwrap();
+    .name(String::from("login-thread"))
+    .spawn(move || {
+        loop {
+            match api::login(&config.user.username, &config.user.password) {
+                Ok(_) => break,
+                Err(e) => thread::sleep(time::Duration::from_millis(5000)),
+            }
+        }
+    })
+    .unwrap();
 }
 
 fn deinit(hmodule: Option<HMODULE>) {
