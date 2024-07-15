@@ -327,7 +327,7 @@ trait SaveGame {
 
 impl SaveGame for Save {
     fn get_savegames_path(&self) -> PathBuf {
-        const SAVE_GAME_FOLDER: &str = "5th-Echolon\\Saves";
+        const SAVE_GAME_FOLDER: &str = "5th-Echelon\\Saves";
         match self.save_dir {
             crate::config::SaveDir::InstallLocation => todo!(),
             crate::config::SaveDir::Roaming => known_folder_roaming_app_data()
