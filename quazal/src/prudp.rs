@@ -128,7 +128,9 @@ where
             let (nread, client) = match socket.recv_from(&mut buf) {
                 Ok(x) => x,
                 Err(e) => {
-                    if e.kind() == std::io::ErrorKind::TimedOut {
+                    if e.kind() == std::io::ErrorKind::TimedOut
+                        || e.kind() == std::io::ErrorKind::WouldBlock
+                    {
                         self.clear_clients();
                     } else {
                         error!(self.logger, "recv_from failed: {}", e);
