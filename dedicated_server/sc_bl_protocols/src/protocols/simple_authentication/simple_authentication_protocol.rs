@@ -20,6 +20,7 @@ use quazal::ClientInfo;
 use quazal::Context;
 use slog::Logger;
 
+#[allow(unused)]
 use super::types::*;
 pub const SIMPLE_AUTHENTICATION_PROTOCOL_ID: u16 = 16u16;
 #[derive(Debug, TryFromPrimitive)]
@@ -416,6 +417,11 @@ pub struct SimpleAuthenticationProtocolClient<CI>(::std::marker::PhantomData<CI>
 impl<CI> SimpleAuthenticationProtocolClient<CI> {
     pub fn new() -> Self {
         Self(::std::marker::PhantomData)
+    }
+}
+impl<CI> Default for SimpleAuthenticationProtocolClient<CI> {
+    fn default() -> Self {
+        Self::new()
     }
 }
 impl<CI> ClientProtocol<CI> for SimpleAuthenticationProtocolClient<CI> {

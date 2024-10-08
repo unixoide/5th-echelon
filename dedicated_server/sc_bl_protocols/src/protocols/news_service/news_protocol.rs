@@ -20,6 +20,7 @@ use quazal::ClientInfo;
 use quazal::Context;
 use slog::Logger;
 
+#[allow(unused)]
 use super::types::*;
 pub const NEWS_PROTOCOL_ID: u16 = todo!();
 #[derive(Debug, TryFromPrimitive)]
@@ -527,6 +528,11 @@ pub struct NewsProtocolClient<CI>(::std::marker::PhantomData<CI>);
 impl<CI> NewsProtocolClient<CI> {
     pub fn new() -> Self {
         Self(::std::marker::PhantomData)
+    }
+}
+impl<CI> Default for NewsProtocolClient<CI> {
+    fn default() -> Self {
+        Self::new()
     }
 }
 impl<CI> ClientProtocol<CI> for NewsProtocolClient<CI> {

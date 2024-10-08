@@ -19,23 +19,26 @@ pub fn state_ptr_to_name(state: *mut NetFiniteState) -> String {
     }
 }
 
+pub type StringHash = usize;
 const HASHES: &str = include_str!("../../maphashes.txt");
-static PARSED_HASHES: OnceLock<Arc<HashMap<usize, &'static str>>> = OnceLock::new();
+static PARSED_HASHES: OnceLock<Arc<HashMap<StringHash, &'static str>>> = OnceLock::new();
 
-pub fn hashes() -> Arc<HashMap<usize, &'static str>> {
+pub fn hashes() -> Arc<HashMap<StringHash, &'static str>> {
     let hashes = PARSED_HASHES.get_or_init(|| {
         Arc::new(
             HASHES
                 .split('\n')
                 .filter_map(|line| line.split_once('\t'))
-                .filter_map(|(txt, id)| Some((usize::from_str_radix(id.trim_end(), 16).ok()?, txt)))
+                .filter_map(|(txt, id)| {
+                    Some((StringHash::from_str_radix(id.trim_end(), 16).ok()?, txt))
+                })
                 .collect(),
         )
     });
     Arc::clone(hashes)
 }
 
-pub fn id_to_name(id: usize) -> String {
+pub fn id_to_name(id: StringHash) -> String {
     if let Some(name) = hashes().get(&id) {
         format!("{name}(id={id:x})")
     } else {

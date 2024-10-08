@@ -21,6 +21,7 @@ use quazal::Context;
 use slog::Logger;
 
 use super::super::protocol_foundation::types::NotificationEvent;
+#[allow(unused)]
 use super::types::*;
 pub const OFFLINE_GAME_NOTIFICATIONS_PROTOCOL_ID: u16 = 71u16;
 #[derive(Debug, TryFromPrimitive)]
@@ -191,6 +192,11 @@ pub struct OfflineGameNotificationsProtocolClient<CI>(::std::marker::PhantomData
 impl<CI> OfflineGameNotificationsProtocolClient<CI> {
     pub fn new() -> Self {
         Self(::std::marker::PhantomData)
+    }
+}
+impl<CI> Default for OfflineGameNotificationsProtocolClient<CI> {
+    fn default() -> Self {
+        Self::new()
     }
 }
 impl<CI> ClientProtocol<CI> for OfflineGameNotificationsProtocolClient<CI> {

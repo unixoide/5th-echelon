@@ -53,8 +53,8 @@ user_storage_admin = []
 web_notifications_storage_service = []
 
 [dependencies]
-byteorder = "1.4"
-num_enum = "0.7"
+byteorder = { workspace = true }
+num_enum = { workspace = true }
 quazal = { path = "../../quazal" }
 quazal-macros = { path = "../../quazal/quazal-macros" }
-slog = { version = "2.7", features = ["max_level_trace"] }
+slog = { workspace = true, features = ["max_level_trace"] }

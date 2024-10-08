@@ -20,6 +20,7 @@ use quazal::ClientInfo;
 use quazal::Context;
 use slog::Logger;
 
+#[allow(unused)]
 use super::types::*;
 pub const NOTIFICATION_PROTOCOL_ID: u16 = todo!();
 #[derive(Debug, TryFromPrimitive)]
@@ -112,6 +113,11 @@ pub struct NotificationProtocolClient<CI>(::std::marker::PhantomData<CI>);
 impl<CI> NotificationProtocolClient<CI> {
     pub fn new() -> Self {
         Self(::std::marker::PhantomData)
+    }
+}
+impl<CI> Default for NotificationProtocolClient<CI> {
+    fn default() -> Self {
+        Self::new()
     }
 }
 impl<CI> ClientProtocol<CI> for NotificationProtocolClient<CI> {

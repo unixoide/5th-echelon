@@ -20,6 +20,7 @@ use quazal::ClientInfo;
 use quazal::Context;
 use slog::Logger;
 
+#[allow(unused)]
 use super::types::*;
 pub const CHALLENGE_HELPER_PROTOCOL_ID: u16 = 105u16;
 #[derive(Debug, TryFromPrimitive)]
@@ -188,6 +189,11 @@ pub struct ChallengeHelperProtocolClient<CI>(::std::marker::PhantomData<CI>);
 impl<CI> ChallengeHelperProtocolClient<CI> {
     pub fn new() -> Self {
         Self(::std::marker::PhantomData)
+    }
+}
+impl<CI> Default for ChallengeHelperProtocolClient<CI> {
+    fn default() -> Self {
+        Self::new()
     }
 }
 impl<CI> ClientProtocol<CI> for ChallengeHelperProtocolClient<CI> {

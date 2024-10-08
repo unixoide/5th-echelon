@@ -1,6 +1,6 @@
 [package]
 name = "launcher"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -11,22 +11,24 @@ GetAdapterInfos = []
 
 [dependencies]
 anyhow = { workspace = true }
-brotli = { version = "3.4", optional = true }
-glow = "0.13.1" # imgui-glow-renderer
-glutin = "0.31.2"
-glutin-winit = "0.4.2"
+brotli = { workspace = true, optional = true }
+glow = { workspace = true }
+glutin = { workspace = true }
+glutin-winit = { workspace = true }
 hooks-addresses = { path = "../hooks/hooks-addresses" }
 hooks-config = { path = "../hooks/hooks-config" }
-imgui = "0.12"
-imgui-glow-renderer = "0.12"
-imgui-winit-support = "0.12"
-libc = "0.2"
-raw-window-handle = "0.5" # winit
+imgui = { workspace = true }
+imgui-glow-renderer = { workspace = true }
+imgui-winit-support = { workspace = true }
+libc = { workspace = true }
+raw-window-handle = { workspace = true }
 toml = { workspace = true }
 server_api = { path = "../api", package = "api" }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true, features = ["env-filter"] }
 tokio = { workspace = true, features = ["rt"] }
 tonic = { workspace = true }
-goblin = { version = "0.8.0", default-features = false, features = [
+goblin = { workspace = true, default-features = false, features = [
     "pe32",
     "pe64",
     "std",
@@ -39,17 +41,18 @@ features = [
     "Win32_Networking_WinSock",
     "Win32_NetworkManagement_IpHelper",
     "Win32_NetworkManagement_Ndis",
-    "Win32_System_Registry",
+    "Win32_System_Console",
     "Win32_System_Diagnostics_Debug",
+    "Win32_System_Registry",
     "Win32_UI_WindowsAndMessaging",
 ]
 
 [build-dependencies]
-brotli = "3.4.0"
-json = "0.12.4"
-winres = "0.1.12"
-image = { version = "0.24.9", default-features = false, features = ["png"] }
-goblin = { version = "0.8.0", default-features = false, features = [
+brotli = { workspace = true }
+json = { workspace = true }
+winres = { workspace = true }
+image = { workspace = true, default-features = false, features = ["png"] }
+goblin = { workspace = true, default-features = false, features = [
     "pe32",
     "pe64",
     "std",

@@ -23,7 +23,7 @@ pub mod types;
 
 #[derive(Debug, Display, DeriveError, From)]
 pub enum Error {
-    #[display(fmt = "Not enough data. Expected {_0} bytes, got {_1}")]
+    #[display("Not enough data. Expected {_0} bytes, got {_1}")]
     MissingData(#[error(not(source))] usize, #[error(not(source))] usize),
 
     ParsingError,

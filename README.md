@@ -10,10 +10,17 @@ of the games with the great Sam Fisher alive.
 For now it is focused on SC:BL, but the net code should be relatively
 similar for previous games as well.
 
-
 ![demo](./docs/demo.webm)
 
 ## Usage
+
+Download the binaries from the latest [release](https://github.com/unixoide/5th-echelon/releases/latest).
+
+> [!NOTE]
+> Microsoft Defender started flagging the launcher with their AI based detections (`!ml` suffix).
+> I don't know why (probably because it is written in rust and many ransomware gangs started using it?).
+> You either have to tell Defender to allow it, or if you don't want to trust the binaries, feel free to
+> build them yourself. See the [Build](#build) section.
 
 ### On the server host (can be the same as a player, but there should be only one running)
 
@@ -71,7 +78,10 @@ The server currently knows these test accounts which you can use to experiment. 
 
 ## Build
 
-Last tested rust version: 1.80.0-nightly (867900499 2024-05-23)
+Last tested rust version: 1.85.0-nightly (d117b7f21 2024-12-31). You can download the rust compiler via https://rustup.rs/.
+
+You'll also need the [Protobuf compiler](https://github.com/protocolbuffers/protobuf/releases/latest). `protoc.exe` should either
+be in your `PATH` or pointed at by an environment variable called `PROTOC` (see [this](https://docs.rs/prost-build/latest/prost_build/#sourcing-protoc) for details).
 
 Use https://github.com/casey/just to build:
 
@@ -85,6 +95,27 @@ $ just launch
 # build dll and run launcher in release mode
 $ just launch_release
 ```
+
+### Quickstart
+
+Prerequisites:
+
+- You have a Powershell window open.
+- Rustup was downloaded from [https://rustup.rs] and is in your Downloads folder.
+- Protoc was downloaded from [GitHub](https://github.com/protocolbuffers/protobuf/releases/latest) (e.g. `protoc-30.0-win64.zip`) and is unpacked to `protoc` in your `Downloads` folder.
+- You've downloaded the source code from [GitHub](https://github.com/unixoide/5th-echelon/releases/latest/) and unpacked to 5th-echelon
+
+From you `Downloads` folder:
+
+```shell
+PS> .\rustup-init.exe --default-toolchain none -y
+PS> cargo install just
+PS> $env:PROTOC="$PWD\protoc\bin\protoc.exe"
+PS> cd 5th-echelon
+PS> just release_launcher_embed
+```
+
+You can now find the launcher at `5th-echelon\target\release\launcher.exe`
 
 ## Additional Tools
 

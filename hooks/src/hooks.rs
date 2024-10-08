@@ -377,7 +377,7 @@ fn storm_host_port_to_str(
             (host >> 8) & 0xff,
             (host >> 16) & 0xff,
             (host >> 24) & 0xff,
-            (port >> 8) | (port << 8),
+            port.swap_bytes(),
         );
         StormHostPortToStringHook.call(this, x, y)
     }
@@ -616,12 +616,8 @@ fn gear_str_constructor(this: *mut GearBasicString, x: *mut c_char) -> *mut Gear
     unsafe { SomeGearStrConstructor.call(this, x) }
 }
 
-pub(self) unsafe fn hook_with_name<T, F>(
-    hook: &retour::StaticDetour<T>,
-    target: Option<T>,
-    f: F,
-    name: &str,
-) where
+unsafe fn hook_with_name<T, F>(hook: &retour::StaticDetour<T>, target: Option<T>, f: F, name: &str)
+where
     T: retour::Function,
     F: Fn<T::Arguments, Output = T::Output> + Send + 'static,
     <T as retour::Function>::Arguments: std::marker::Tuple,

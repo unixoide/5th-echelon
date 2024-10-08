@@ -19,10 +19,11 @@ struct RmcMessage {
 static RMC_MESSAGES: OnceLock<Mutex<HashMap<usize, RmcMessage>>> = OnceLock::new();
 
 const RMC_MAP_STR: &str = include_str!("../../../tools/rmc.txt");
-static RMC_MAPS: OnceLock<HashMap<u32, (&'static str, HashMap<u32, &'static str>)>> =
-    OnceLock::new();
+type MethodMap = HashMap<u32, &'static str>;
+type ProtocolMap = HashMap<u32, (&'static str, MethodMap)>;
+static RMC_MAPS: OnceLock<ProtocolMap> = OnceLock::new();
 
-fn parse_rmc_str() -> HashMap<u32, (&'static str, HashMap<u32, &'static str>)> {
+fn parse_rmc_str() -> ProtocolMap {
     RMC_MAP_STR
         .lines()
         .filter(|line| !line.is_empty())

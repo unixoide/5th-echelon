@@ -20,6 +20,7 @@ use quazal::ClientInfo;
 use quazal::Context;
 use slog::Logger;
 
+#[allow(unused)]
 use super::types::*;
 pub const TRACKING_PROTOCOL_3_ID: u16 = 36u16;
 #[derive(Debug, TryFromPrimitive)]
@@ -252,6 +253,11 @@ pub struct TrackingProtocol3Client<CI>(::std::marker::PhantomData<CI>);
 impl<CI> TrackingProtocol3Client<CI> {
     pub fn new() -> Self {
         Self(::std::marker::PhantomData)
+    }
+}
+impl<CI> Default for TrackingProtocol3Client<CI> {
+    fn default() -> Self {
+        Self::new()
     }
 }
 impl<CI> ClientProtocol<CI> for TrackingProtocol3Client<CI> {

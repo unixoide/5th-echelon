@@ -20,6 +20,7 @@ use quazal::ClientInfo;
 use quazal::Context;
 use slog::Logger;
 
+#[allow(unused)]
 use super::types::*;
 pub const WEB_NOTIFICATIONS_STORAGE_PROTOCOL_ID: u16 = todo!();
 #[derive(Debug, TryFromPrimitive)]
@@ -172,6 +173,11 @@ pub struct WebNotificationsStorageProtocolClient<CI>(::std::marker::PhantomData<
 impl<CI> WebNotificationsStorageProtocolClient<CI> {
     pub fn new() -> Self {
         Self(::std::marker::PhantomData)
+    }
+}
+impl<CI> Default for WebNotificationsStorageProtocolClient<CI> {
+    fn default() -> Self {
+        Self::new()
     }
 }
 impl<CI> ClientProtocol<CI> for WebNotificationsStorageProtocolClient<CI> {

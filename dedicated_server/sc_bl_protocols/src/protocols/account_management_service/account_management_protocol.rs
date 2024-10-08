@@ -20,6 +20,7 @@ use quazal::ClientInfo;
 use quazal::Context;
 use slog::Logger;
 
+#[allow(unused)]
 use super::types::*;
 pub const ACCOUNT_MANAGEMENT_PROTOCOL_ID: u16 = 25u16;
 #[derive(Debug, TryFromPrimitive)]
@@ -1160,6 +1161,11 @@ pub struct AccountManagementProtocolClient<CI>(::std::marker::PhantomData<CI>);
 impl<CI> AccountManagementProtocolClient<CI> {
     pub fn new() -> Self {
         Self(::std::marker::PhantomData)
+    }
+}
+impl<CI> Default for AccountManagementProtocolClient<CI> {
+    fn default() -> Self {
+        Self::new()
     }
 }
 impl<CI> ClientProtocol<CI> for AccountManagementProtocolClient<CI> {

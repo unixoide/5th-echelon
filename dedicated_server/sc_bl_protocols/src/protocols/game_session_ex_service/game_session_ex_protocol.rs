@@ -21,6 +21,7 @@ use quazal::Context;
 use slog::Logger;
 
 use super::super::game_session_service::types::GameSessionQuery;
+#[allow(unused)]
 use super::types::*;
 pub const GAME_SESSION_EX_PROTOCOL_ID: u16 = 123u16;
 #[derive(Debug, TryFromPrimitive)]
@@ -110,6 +111,11 @@ pub struct GameSessionExProtocolClient<CI>(::std::marker::PhantomData<CI>);
 impl<CI> GameSessionExProtocolClient<CI> {
     pub fn new() -> Self {
         Self(::std::marker::PhantomData)
+    }
+}
+impl<CI> Default for GameSessionExProtocolClient<CI> {
+    fn default() -> Self {
+        Self::new()
     }
 }
 impl<CI> ClientProtocol<CI> for GameSessionExProtocolClient<CI> {

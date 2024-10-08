@@ -24,7 +24,7 @@ mod bytes {
     {
         struct BytesVisitor;
 
-        impl<'de> Visitor<'de> for BytesVisitor {
+        impl Visitor<'_> for BytesVisitor {
             type Value = Vec<u8>;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {

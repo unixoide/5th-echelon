@@ -127,12 +127,10 @@ mod dll {
 }
 
 fn main() {
-    if cfg!(feature = "embed-dll") {
-        let dir = root_manifest_dir();
-        let hooks_dir = dir.join("hooks");
-        println!("cargo:rerun-if-changed={}", hooks_dir.to_str().unwrap());
-        embed_dll();
-    }
+    let dir = root_manifest_dir();
+    let hooks_dir = dir.join("hooks");
+    println!("cargo:rerun-if-changed={}", hooks_dir.to_str().unwrap());
+    embed_dll();
 
     #[cfg(target_os = "windows")]
     {

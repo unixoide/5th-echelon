@@ -129,6 +129,11 @@ pub fn list_friends() -> Result<Vec<Friend>, Error> {
 }
 
 async fn login_async(username: &str, password: &str) -> Result<(), Error> {
+    {
+        let mut guard = CREDS.lock().unwrap();
+        *guard = Some((String::from(username), String::from(password)));
+    }
+
     let mut client = connect!(UsersClient);
 
     let request = tonic::Request::new(LoginRequest {
@@ -146,10 +151,6 @@ async fn login_async(username: &str, password: &str) -> Result<(), Error> {
         {
             let mut guard = TOKEN.lock().unwrap();
             *guard = Some(response.token.parse()?);
-        }
-        {
-            let mut guard = CREDS.lock().unwrap();
-            *guard = Some((String::from(username), String::from(password)));
         }
     }
     Ok(())
@@ -170,15 +171,15 @@ pub async fn event() -> Result<EventResponse, Error> {
 }
 
 #[instrument]
-pub async fn relogin() {
+pub async fn relogin() -> bool {
     {
         let _ = TOKEN.lock().unwrap().take();
     }
     let (username, password) = {
         let Some((username, password)) = CREDS.lock().unwrap().clone() else {
-            return;
+            return false;
         };
         (username, password)
     };
-    let _ = login_async(&username, &password).await;
+    login_async(&username, &password).await.is_ok()
 }

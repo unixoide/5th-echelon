@@ -107,7 +107,7 @@ pub fn parse(data: &[u8]) -> io::Result<Dll> {
         .sections
         .iter()
         .find(|s| &s.name == b".rsrc\0\0\0")
-        .unwrap();
+        .ok_or(io::Error::other("resource section not found"))?;
     let rsrc_data = rsrc.data(data).unwrap().unwrap();
 
     let root_dir = Directory::parse(&mut io::Cursor::new(&rsrc_data))?;

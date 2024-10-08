@@ -1,6 +1,6 @@
 use dedicated_server::storage::Storage;
-use rand::distributions::Alphanumeric;
-use rand::thread_rng;
+use rand::distr::Alphanumeric;
+use rand::rng;
 use rand::Rng;
 use server_api::friends::friends_client::FriendsClient;
 use server_api::friends::InviteRequest;
@@ -79,7 +79,7 @@ fn main() -> color_eyre::Result<()> {
         SubCommand::NewUser(cmd) => {
             let storage = Storage::init(logger)?;
             let password = cmd.password.unwrap_or_else(|| {
-                let p = thread_rng()
+                let p = rng()
                     .sample_iter(&Alphanumeric)
                     .take(30)
                     .map(char::from)

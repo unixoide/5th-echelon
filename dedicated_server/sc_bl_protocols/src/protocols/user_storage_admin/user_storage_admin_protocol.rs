@@ -24,6 +24,7 @@ use super::super::user_storage::types::ContentProperty;
 use super::super::user_storage::types::UserContent;
 use super::super::user_storage::types::UserContentKey;
 use super::super::user_storage::types::UserContentURL;
+#[allow(unused)]
 use super::types::*;
 pub const USER_STORAGE_ADMIN_PROTOCOL_ID: u16 = todo!();
 #[derive(Debug, TryFromPrimitive)]
@@ -636,6 +637,11 @@ pub struct UserStorageAdminProtocolClient<CI>(::std::marker::PhantomData<CI>);
 impl<CI> UserStorageAdminProtocolClient<CI> {
     pub fn new() -> Self {
         Self(::std::marker::PhantomData)
+    }
+}
+impl<CI> Default for UserStorageAdminProtocolClient<CI> {
+    fn default() -> Self {
+        Self::new()
     }
 }
 impl<CI> ClientProtocol<CI> for UserStorageAdminProtocolClient<CI> {

@@ -20,6 +20,7 @@ use quazal::ClientInfo;
 use quazal::Context;
 use slog::Logger;
 
+#[allow(unused)]
 use super::types::*;
 pub const SECURE_CONNECTION_PROTOCOL_ID: u16 = 11u16;
 #[derive(Debug, TryFromPrimitive)]
@@ -223,6 +224,11 @@ pub struct SecureConnectionProtocolClient<CI>(::std::marker::PhantomData<CI>);
 impl<CI> SecureConnectionProtocolClient<CI> {
     pub fn new() -> Self {
         Self(::std::marker::PhantomData)
+    }
+}
+impl<CI> Default for SecureConnectionProtocolClient<CI> {
+    fn default() -> Self {
+        Self::new()
     }
 }
 impl<CI> ClientProtocol<CI> for SecureConnectionProtocolClient<CI> {

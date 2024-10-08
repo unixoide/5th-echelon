@@ -182,10 +182,10 @@ impl<CI> GameSessionProtocolServerTrait<CI> for GameSessionProtocolServerImpl {
     fn remove_participants(
         &self,
         logger: &Logger,
-        ctx: &Context,
+        _ctx: &Context,
         ci: &mut ClientInfo<CI>,
         request: RemoveParticipantsRequest,
-        client_registry: &ClientRegistry<CI>,
+        _client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<RemoveParticipantsResponse, Error> {
         login_required(&*ci)?;

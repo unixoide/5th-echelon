@@ -17,7 +17,8 @@ use std::os::raw::c_void;
 use std::os::windows::ffi::OsStringExt;
 use std::path::Path;
 use std::path::PathBuf;
-use std::{thread, time};
+use std::thread;
+use std::time;
 
 use addresses::Addresses;
 use hooks_config as config;
@@ -25,7 +26,6 @@ use tracing::error;
 use tracing::info;
 use tracing::instrument;
 use tracing::level_filters::LevelFilter;
-use tracing_subscriber::util::SubscriberInitExt;
 use windows::core::PCSTR;
 use windows::Win32::Foundation::BOOL;
 use windows::Win32::Foundation::HMODULE;
@@ -189,16 +189,12 @@ fn init(hmodule: Option<HMODULE>) {
 
     // needs to be done in a separate thread, otherwise it'll block indefinitely
     std::thread::Builder::new()
-    .name(String::from("login-thread"))
-    .spawn(move || {
-        loop {
-            match api::login(&config.user.username, &config.user.password) {
-                Ok(_) => break,
-                Err(e) => thread::sleep(time::Duration::from_millis(5000)),
-            }
-        }
-    })
-    .unwrap();
+        .name(String::from("login-thread"))
+        .spawn(move || {
+            // try to login once. relogins are attempted by the update thread later on
+            let _ = api::login(&config.user.username, &config.user.password);
+        })
+        .unwrap();
 }
 
 fn deinit(hmodule: Option<HMODULE>) {

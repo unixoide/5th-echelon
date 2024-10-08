@@ -20,6 +20,7 @@ use quazal::ClientInfo;
 use quazal::Context;
 use slog::Logger;
 
+#[allow(unused)]
 use super::types::*;
 pub const TICKET_GRANTING_PROTOCOL_ID: u16 = 10u16;
 #[derive(Debug, TryFromPrimitive)]
@@ -296,6 +297,11 @@ pub struct TicketGrantingProtocolClient<CI>(::std::marker::PhantomData<CI>);
 impl<CI> TicketGrantingProtocolClient<CI> {
     pub fn new() -> Self {
         Self(::std::marker::PhantomData)
+    }
+}
+impl<CI> Default for TicketGrantingProtocolClient<CI> {
+    fn default() -> Self {
+        Self::new()
     }
 }
 impl<CI> ClientProtocol<CI> for TicketGrantingProtocolClient<CI> {

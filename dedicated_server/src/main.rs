@@ -131,7 +131,7 @@ fn start_server(logger: &slog::Logger, ctx: &Context, storage: &Arc<Storage>, is
     server.serve();
 }
 
-fn handle_user_packet(logger: &Logger, packet: QPacket, client: SocketAddr, socket: &UdpSocket) {
+fn handle_user_packet(_logger: &Logger, packet: QPacket, client: SocketAddr, socket: &UdpSocket) {
     // info!(logger, "user rmc incoming");
     assert_eq!(packet.source.port, 1);
     assert_eq!(packet.destination.port, 1);
@@ -221,7 +221,7 @@ fn main() -> color_eyre::Result<()> {
     storage.invalidate_sessions()?;
 
     let mut threads = vec![];
-    for (name, svc) in config.quazal_config.into_services()? {
+    for (name, svc) in config.quazal.into_services()? {
         let logger = logger.new(o!("service" => name.clone()));
         info!(logger, "Loaded service {:#?}", svc);
         let storage = Arc::clone(&storage);

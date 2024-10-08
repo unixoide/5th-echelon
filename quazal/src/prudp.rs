@@ -69,7 +69,7 @@ where
     next_conn_id: AtomicU32,
 }
 
-impl<'a, ECH, DH, T> Server<'a, ECH, DH, T>
+impl<ECH, DH, T> Server<'_, ECH, DH, T>
 where
     T: Default,
     ECH: FnMut(ClientInfo<T>),

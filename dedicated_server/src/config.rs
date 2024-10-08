@@ -18,9 +18,8 @@ pub struct DebugConfig {
 
 #[derive(Deserialize, Serialize)]
 pub struct Config {
-    #[allow(clippy::struct_field_repetitions)]
     #[serde(flatten)]
-    pub quazal_config: quazal::Config,
+    pub quazal: quazal::Config,
     pub api_server: SocketAddr,
     pub debug: DebugConfig,
 }
@@ -109,7 +108,7 @@ impl Config {
 
         let cfg = Config {
             api_server: "0.0.0.0:50051".parse()?,
-            quazal_config,
+            quazal: quazal_config,
             debug: DebugConfig::default(),
         };
         if let Err(e) = cfg.save_to_file(path) {

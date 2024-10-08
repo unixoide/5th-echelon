@@ -9,7 +9,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 const-cstr = "0.3"
-quazal = {path = "../quazal"}
+quazal = { path = "../quazal" }
 lazy_static = "1.4"
 
 [build-dependencies]

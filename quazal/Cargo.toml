@@ -7,19 +7,19 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-byteorder = "1.5"
-num_enum = "0.7"
-enumflags2 = "0.7"
-derive_more = "0.99"
-serde = "1.0"
-toml = { workspace = true }
-miniz_oxide = "0.7"
-hmac = "0.12"
-md-5 = "0.10"
-num-traits = "0.2"
-slog = "2.7"
-sloggers = "2.1"
+byteorder = { workspace = true }
+derive_more = { workspace = true, features = ["display", "from", "error"] }
+enumflags2 = { workspace = true }
+hmac = { workspace = true }
+md-5 = { workspace = true }
+miniz_oxide = { workspace = true }
+num_enum = { workspace = true }
+num-traits = { workspace = true }
 quazal-macros = { path = "./quazal-macros" }
-rand = "0.8"
-sodiumoxide = "0.2"
-serde_json = "1.0.116"
+rand = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+slog = { workspace = true }
+sloggers = { workspace = true }
+sodiumoxide = { workspace = true }
+toml = { workspace = true }

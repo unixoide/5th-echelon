@@ -8,7 +8,7 @@ use quazal::rmc::types::QResult;
 use quazal::rmc::types::StationURL;
 use quazal::rmc::Protocol;
 use quazal::Context;
-use rand::RngCore;
+use rand::TryRngCore;
 
 pub use crate::protocols::authentication_foundation::ticket_granting_protocol::*;
 pub use crate::protocols::authentication_foundation::types::*;
@@ -23,7 +23,9 @@ struct TicketGrantingProtocolServerImpl {
 impl TicketGrantingProtocolServerImpl {
     fn get_session_key(&self, logger: &slog::Logger, user_id: u32) -> [u8; SESSION_KEY_SIZE] {
         let mut key = [0u8; SESSION_KEY_SIZE];
-        rand::rngs::OsRng.fill_bytes(&mut key);
+        rand::rngs::OsRng
+            .try_fill_bytes(&mut key)
+            .expect("Generating session key");
 
         if let Err(e) = self.storage.create_user_session(user_id, &key) {
             eprintln!("Error saving user session: {e}");

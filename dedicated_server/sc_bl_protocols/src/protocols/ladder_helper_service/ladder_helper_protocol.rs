@@ -20,6 +20,7 @@ use quazal::ClientInfo;
 use quazal::Context;
 use slog::Logger;
 
+#[allow(unused)]
 use super::types::*;
 pub const LADDER_HELPER_PROTOCOL_ID: u16 = 107u16;
 #[derive(Debug, TryFromPrimitive)]
@@ -216,6 +217,11 @@ pub struct LadderHelperProtocolClient<CI>(::std::marker::PhantomData<CI>);
 impl<CI> LadderHelperProtocolClient<CI> {
     pub fn new() -> Self {
         Self(::std::marker::PhantomData)
+    }
+}
+impl<CI> Default for LadderHelperProtocolClient<CI> {
+    fn default() -> Self {
+        Self::new()
     }
 }
 impl<CI> ClientProtocol<CI> for LadderHelperProtocolClient<CI> {

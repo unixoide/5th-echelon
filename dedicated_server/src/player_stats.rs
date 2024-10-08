@@ -1,9 +1,11 @@
 use quazal::prudp::ClientRegistry;
-use quazal::rmc::types::QList;
+use quazal::rmc::types::PropertyVariant;
 use quazal::rmc::Error;
 use quazal::rmc::Protocol;
 use quazal::ClientInfo;
 use quazal::Context;
+use sc_bl_protocols::player_stats_service::types::PlayerStatSet;
+use sc_bl_protocols::player_stats_service::types::StatboardResult;
 use slog::Logger;
 
 use crate::login_required;
@@ -28,7 +30,84 @@ impl<T> PlayerStatsProtocolServerTrait<T> for PlayerStatsProtocolServerImpl {
     ) -> Result<ReadStatsByPlayersResponse, Error> {
         login_required(&*ci)?;
         Ok(ReadStatsByPlayersResponse {
-            results: QList::default(),
+            results: vec![StatboardResult {
+                board_id: 1,
+                context_id: 0,
+                reset_frequency: 1,
+                player_stat_sets: vec![PlayerStatSet {
+                    player_pid: 0x00aa_bbcc,
+                    player_name: "foobar".to_string(),
+                    submitted_time: quazal::rmc::types::DateTime(0x1f_9635_4343),
+                    stats: vec![
+                        // PropertyVariant {
+                        //     id: 0x87, // money
+                        //     value: quazal::rmc::types::Variant::I64(10),
+                        // },
+                        // PropertyVariant {
+                        //     id: 0x84,
+                        //     value: quazal::rmc::types::Variant::I64(20),
+                        // },
+                        // PropertyVariant {
+                        //     id: 0x85,
+                        //     value: quazal::rmc::types::Variant::I64(30),
+                        // },
+                        // PropertyVariant {
+                        //     id: 0x86,
+                        //     value: quazal::rmc::types::Variant::I64(40),
+                        // },
+                        PropertyVariant {
+                            id: 0x7e,
+                            value: quazal::rmc::types::Variant::I64(1),
+                        },
+                        PropertyVariant {
+                            id: 0x7a,
+                            value: quazal::rmc::types::Variant::I64(1),
+                        },
+                        PropertyVariant {
+                            id: 0x7c,
+                            value: quazal::rmc::types::Variant::I64(1),
+                        },
+                        PropertyVariant {
+                            id: 0xc9,
+                            value: quazal::rmc::types::Variant::I64(1),
+                        },
+                        PropertyVariant {
+                            id: 0xcc,
+                            value: quazal::rmc::types::Variant::I64(1),
+                        },
+                        PropertyVariant {
+                            id: 0xcd,
+                            value: quazal::rmc::types::Variant::I64(1),
+                        },
+                        PropertyVariant {
+                            id: 0xc8,
+                            value: quazal::rmc::types::Variant::I64(1),
+                        },
+                    ]
+                    .into(),
+                }]
+                .into(),
+                default_stat_values: vec![
+                    // PropertyVariant {
+                    //     id: 0x87,
+                    //     value: quazal::rmc::types::Variant::I64(0),
+                    // },
+                    // PropertyVariant {
+                    //     id: 0x84,
+                    //     value: quazal::rmc::types::Variant::I64(0),
+                    // },
+                    // PropertyVariant {
+                    //     id: 0x85,
+                    //     value: quazal::rmc::types::Variant::I64(0),
+                    // },
+                    // PropertyVariant {
+                    //     id: 0x86,
+                    //     value: quazal::rmc::types::Variant::I64(0),
+                    // },
+                ]
+                .into(),
+            }]
+            .into(),
         })
     }
 

@@ -534,7 +534,7 @@ impl Storage {
             .intersperse(',')
             .collect::<String>();
         let sql = format!(
-            r#"SELECT 
+            r"SELECT 
                     g.type_id as session_type, 
                     g.id as session_id,
                     g.creator_id,
@@ -545,7 +545,7 @@ impl Storage {
                     FROM participants
                     WHERE user_id IN ({placeholders})
                 )
-            "#
+            "
         );
         let mut query = sqlx::query_as(&sql).bind(type_id);
 

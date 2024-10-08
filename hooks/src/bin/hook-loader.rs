@@ -17,6 +17,7 @@ fn get_or_spawn() -> OwnedProcess {
     // .spawn().unwrap();
 
     println!("Game not running. Starting launch.bat");
+    #[allow(clippy::zombie_processes)] // not an issue on windows
     let _proc = std::process::Command::new(r".\launch.bat").spawn().unwrap();
 
     loop {

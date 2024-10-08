@@ -77,12 +77,13 @@ fn main() {
                         Block::DecryptionSecrets(_) => todo!(),
                         Block::Custom(_) => todo!(),
                         Block::Unknown(_) => todo!(),
+                        Block::ProcessInformation(_) => todo!(),
                     },
                 }
                 reader.consume(offset);
             }
             Err(PcapError::Eof) => break,
-            Err(PcapError::Incomplete) => {
+            Err(PcapError::Incomplete(_)) => {
                 reader.refill().unwrap();
             }
             Err(e) => panic!("error while reading: {e:?}"),
@@ -102,31 +103,25 @@ fn parse(data: &[u8], port: u16, crypto_key: &str, access_key: &str) -> bool {
         match transport {
             etherparse::TransportSlice::Udp(udp) => {
                 if udp.source_port() == port || udp.destination_port() == port {
-                    let (src, dst) = if let Some(InternetSlice::Ipv4(ip, _)) = packet.ip {
+                    let (src, dst) = if let Some(InternetSlice::Ipv4(ip)) = packet.net {
+                        let iph = ip.header();
                         (
-                            SocketAddr::V4(SocketAddrV4::new(ip.source_addr(), udp.source_port())),
+                            SocketAddr::V4(SocketAddrV4::new(iph.source_addr(), udp.source_port())),
                             SocketAddr::V4(SocketAddrV4::new(
-                                ip.destination_addr(),
+                                iph.destination_addr(),
                                 udp.destination_port(),
                             )),
                         )
                     } else {
                         panic!()
                     };
-                    dump(
-                        &packet.payload[..udp.length() as usize - udp.slice().len()],
-                        crypto_key,
-                        access_key,
-                        src,
-                        dst,
-                    );
+                    dump(udp.payload(), crypto_key, access_key, src, dst);
                     true
                 } else {
                     false
                 }
             }
             etherparse::TransportSlice::Tcp(_)
-            | etherparse::TransportSlice::Unknown(_)
             | etherparse::TransportSlice::Icmpv6(_)
             | etherparse::TransportSlice::Icmpv4(_) => false,
         }

@@ -1,7 +1,7 @@
 #![feature(
     seek_stream_len,
     proc_macro_hygiene,
-    cursor_remaining,
+    cursor_split,
     hash_extract_if,
     associated_type_defaults
 )]
@@ -31,7 +31,7 @@ pub use crate::config::*;
 
 #[derive(Debug, Display, DeriveError)]
 pub enum Error {
-    #[display(fmt = "Service {_0} not found")]
+    #[display("Service {_0} not found")]
     ServiceNotFound(#[error(not(source))] String),
     InvalidValue,
 }

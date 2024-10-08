@@ -20,6 +20,7 @@ use quazal::ClientInfo;
 use quazal::Context;
 use slog::Logger;
 
+#[allow(unused)]
 use super::types::*;
 pub const REMOTE_LOG_DEVICE_PROTOCOL_ID: u16 = todo!();
 #[derive(Debug, TryFromPrimitive)]
@@ -105,6 +106,11 @@ pub struct RemoteLogDeviceProtocolClient<CI>(::std::marker::PhantomData<CI>);
 impl<CI> RemoteLogDeviceProtocolClient<CI> {
     pub fn new() -> Self {
         Self(::std::marker::PhantomData)
+    }
+}
+impl<CI> Default for RemoteLogDeviceProtocolClient<CI> {
+    fn default() -> Self {
+        Self::new()
     }
 }
 impl<CI> ClientProtocol<CI> for RemoteLogDeviceProtocolClient<CI> {

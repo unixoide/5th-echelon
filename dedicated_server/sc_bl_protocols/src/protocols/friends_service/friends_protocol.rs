@@ -20,6 +20,7 @@ use quazal::ClientInfo;
 use quazal::Context;
 use slog::Logger;
 
+#[allow(unused)]
 use super::types::*;
 pub const FRIENDS_PROTOCOL_ID: u16 = 20u16;
 #[derive(Debug, TryFromPrimitive)]
@@ -546,6 +547,11 @@ pub struct FriendsProtocolClient<CI>(::std::marker::PhantomData<CI>);
 impl<CI> FriendsProtocolClient<CI> {
     pub fn new() -> Self {
         Self(::std::marker::PhantomData)
+    }
+}
+impl<CI> Default for FriendsProtocolClient<CI> {
+    fn default() -> Self {
+        Self::new()
     }
 }
 impl<CI> ClientProtocol<CI> for FriendsProtocolClient<CI> {

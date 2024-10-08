@@ -88,6 +88,16 @@ macro_rules! enum_gui {
             enum_gui!(@1 $name, [$($name::$field),*]);
             enum_gui!(@2 [$($label),*]);
         }
+
+        impl ::std::fmt::Display for $name {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                match self {
+                    $(
+                        $name::$field => write!(f, "{}::{}", stringify!($name), stringify!($field)),
+                    )*
+                }
+            }
+        }
     };
 
     (@1 $name:ident, $value:expr) => {

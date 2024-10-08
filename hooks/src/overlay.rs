@@ -101,6 +101,18 @@ pub enum Engine {
     DX11,
 }
 
+impl Engine {
+    pub fn detect() -> Option<Self> {
+        let exe = std::env::current_exe().ok()?;
+        let fname = exe.file_name()?.to_str()?.to_lowercase();
+        match fname.as_str() {
+            "blacklist_game.exe" => Some(Self::DX9),
+            "blacklist_dx11_game.exe" => Some(Self::DX11),
+            _ => None,
+        }
+    }
+}
+
 #[derive(Debug, Default)]
 enum UiState {
     Show,
@@ -119,7 +131,7 @@ struct MyRenderLoop {
     ui_state: UiState,
     debounce: bool,
     invite_notification: Option<(Instant, String)>,
-    new_invites: crossbeam_channel::Receiver<Result<InviteEvent, crate::api::Error>>,
+    new_invites: crossbeam_channel::Receiver<Result<Option<InviteEvent>, crate::api::Error>>,
     active_invites: Vec<Invite>,
     connection_error: Option<crate::api::Error>,
     initial_popup: Instant,
@@ -323,20 +335,22 @@ impl ImguiRenderLoop for MyRenderLoop {
                 Err(e) => self.connection_error = Some(e),
                 Ok(evt) => {
                     self.connection_error = None;
-                    if let Some(ref sender) = evt.sender {
-                        self.invite_notification
-                            .replace((Instant::now(), sender.username.clone()));
-                    }
-                    let force_join = evt.force_join;
-                    if evt.sender.is_some()
-                        && (force_join || hooks_config::get().unwrap().auto_join_invite)
-                    {
-                        self.join_session(&evt.sender.unwrap());
-                    } else {
-                        self.active_invites.push(Invite {
-                            event: evt,
-                            clicked: force_join,
-                        });
+                    if let Some(evt) = evt {
+                        if let Some(ref sender) = evt.sender {
+                            self.invite_notification
+                                .replace((Instant::now(), sender.username.clone()));
+                        }
+                        let force_join = evt.force_join;
+                        if evt.sender.is_some()
+                            && (force_join || hooks_config::get().unwrap().auto_join_invite)
+                        {
+                            self.join_session(&evt.sender.unwrap());
+                        } else {
+                            self.active_invites.push(Invite {
+                                event: evt,
+                                clicked: force_join,
+                            });
+                        }
                     }
                 }
             }
@@ -372,7 +386,7 @@ impl ImguiRenderLoop for MyRenderLoop {
 }
 
 fn init_hudhook<T: hudhook::Hooks + 'static>(
-    invites: crossbeam_channel::Receiver<Result<InviteEvent, crate::api::Error>>,
+    invites: crossbeam_channel::Receiver<Result<Option<InviteEvent>, crate::api::Error>>,
 ) -> anyhow::Result<()> {
     let (tx, rx) = mpsc::channel();
     EVENTS.get_or_init(|| Mutex::new(rx));
@@ -395,20 +409,20 @@ fn init_hudhook<T: hudhook::Hooks + 'static>(
 }
 
 fn init_dx9(
-    invites: crossbeam_channel::Receiver<Result<InviteEvent, crate::api::Error>>,
+    invites: crossbeam_channel::Receiver<Result<Option<InviteEvent>, crate::api::Error>>,
 ) -> anyhow::Result<()> {
     init_hudhook::<hudhook::hooks::dx9::ImguiDx9Hooks>(invites)
 }
 
 fn init_dx11(
-    invites: crossbeam_channel::Receiver<Result<InviteEvent, crate::api::Error>>,
+    invites: crossbeam_channel::Receiver<Result<Option<InviteEvent>, crate::api::Error>>,
 ) -> anyhow::Result<()> {
     init_hudhook::<hudhook::hooks::dx11::ImguiDx11Hooks>(invites)
 }
 
 pub fn init(
     engine: Engine,
-    invites: crossbeam_channel::Receiver<Result<InviteEvent, crate::api::Error>>,
+    invites: crossbeam_channel::Receiver<Result<Option<InviteEvent>, crate::api::Error>>,
 ) -> anyhow::Result<()> {
     match engine {
         Engine::DX9 => init_dx9(invites),

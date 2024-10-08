@@ -247,12 +247,12 @@ fn generate_class_code(
 }
 
 #[allow(clippy::too_many_lines)]
+#[allow(clippy::similar_names, clippy::cast_possible_truncation)]
 fn generate_protocol_code(
     directory: &Path,
     protocol: &ProtocolDeclaration,
     import_map: &ImportMap,
 ) -> io::Result<Option<(String, String)>> {
-    #![allow(clippy::similar_names, clippy::cast_possible_truncation)]
     println!("  [*] New protocol {}", protocol.name1);
 
     let mut imports = Vec::new();
@@ -287,7 +287,7 @@ fn generate_protocol_code(
     let method_enum_name = format_ident!("{struct_name_str}Method");
     let server_struct_name = format_ident!("{}Server", &struct_name_str);
     let client_struct_name = format_ident!("{}Client", &struct_name_str);
-    let id_const_name = format_ident!("{}_ID", struct_name_str.to_case(Case::ScreamingSnake));
+    let id_const_name = format_ident!("{}_ID", struct_name_str.to_case(Case::UpperSnake));
     #[allow(clippy::single_match_else)]
     let id = match protocol.id {
         Some(id) => quote!(#id),
@@ -492,6 +492,7 @@ fn generate_protocol_code(
         use slog::Logger;
         use std::convert::TryFrom;
 
+        #[allow(unused)]
         use super::types::*;
 
         #type_imports
@@ -607,6 +608,10 @@ fn generate_client_protocol_code(
 
         impl<CI> #client_struct_name<CI> {
             pub fn new() -> Self { Self(::std::marker::PhantomData) }
+        }
+
+        impl<CI> Default for #client_struct_name<CI> {
+            fn default() -> Self { Self::new() }
         }
 
         impl<CI> ClientProtocol<CI> for #client_struct_name<CI> {

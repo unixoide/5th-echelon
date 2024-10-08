@@ -30,28 +30,28 @@ use crate::Context;
 
 #[derive(Debug, Display, DeriveError, From)]
 pub enum Error {
-    #[display(fmt = "Invalid Flag {_0}")]
+    #[display("Invalid Flag {_0}")]
     #[from(ignore)]
     InvalidFlag(#[error(ignore)] u8),
 
-    #[display(fmt = "Invalid checksum")]
+    #[display("Invalid checksum")]
     InvalidChecksum,
 
-    #[display(fmt = "Decompression failed {_0:?}")]
+    #[display("Decompression failed {_0:?}")]
     DecompressFailed(#[error(ignore)] DecompressError),
 
-    #[display(fmt = "Invalid Packet Type {_0}")]
+    #[display("Invalid Packet Type {_0}")]
     #[from(ignore)]
     InvalidPacketType(#[error(ignore)] u8),
 
-    #[display(fmt = "Invalid Stream Type {_0}")]
+    #[display("Invalid Stream Type {_0}")]
     #[from(ignore)]
     InvalidStreamType(#[error(ignore)] u8),
 
-    #[display(fmt = "I/O error {_0}")]
+    #[display("I/O error {_0}")]
     IO(#[error(source)] std::io::Error),
 
-    #[display(fmt = "Stream handler error {_0}")]
+    #[display("Stream handler error {_0}")]
     #[from(ignore)]
     StreamHandler(#[error(ignore)] Box<dyn std::error::Error>),
 

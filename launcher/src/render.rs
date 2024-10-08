@@ -16,12 +16,12 @@ use glutin::surface::WindowSurface;
 use imgui_glow_renderer::TextureMap;
 use imgui_winit_support::winit::dpi::LogicalSize;
 use imgui_winit_support::winit::event_loop::EventLoop;
+#[allow(deprecated)]
+use imgui_winit_support::winit::raw_window_handle::HasRawWindowHandle;
 use imgui_winit_support::winit::window::Window;
-use imgui_winit_support::winit::window::WindowBuilder;
 use imgui_winit_support::winit::{self};
 use imgui_winit_support::HiDpiMode;
 use imgui_winit_support::WinitPlatform;
-use raw_window_handle::HasRawWindowHandle;
 
 static LOGO_PIXELS: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/logo.dat"));
 pub const LOGO_WIDTH: i32 = 440;
@@ -75,13 +75,14 @@ pub fn render(
     };
 
     // OpenGL renderer from this crate
-    let mut ig_renderer = imgui_glow_renderer::AutoRenderer::initialize(gl, &mut imgui_context)
+    let mut ig_renderer = imgui_glow_renderer::AutoRenderer::new(gl, &mut imgui_context)
         .expect("failed to create renderer");
     let logo_texture = ig_renderer.texture_map_mut().register(texture).unwrap();
 
     let mut last_frame = Instant::now();
 
     // Standard winit event loop
+    #[allow(deprecated)]
     event_loop
         .run(move |event, window_target| {
             match event {
@@ -160,7 +161,7 @@ fn create_window() -> (
 ) {
     let event_loop = EventLoop::new().expect("event loop");
 
-    let window_builder = WindowBuilder::new()
+    let attr = Window::default_attributes()
         .with_title("5th Echelon - Launcher")
         .with_inner_size(LogicalSize::new(1024, 768))
         .with_window_icon(
@@ -172,7 +173,7 @@ fn create_window() -> (
             .ok(),
         );
     let (window, cfg) = glutin_winit::DisplayBuilder::new()
-        .with_window_builder(Some(window_builder))
+        .with_window_attributes(Some(attr))
         .build(&event_loop, ConfigTemplateBuilder::new(), |mut configs| {
             configs.next().unwrap()
         })
@@ -180,7 +181,9 @@ fn create_window() -> (
 
     let window = window.unwrap();
 
-    let context_attribs = ContextAttributesBuilder::new().build(Some(window.raw_window_handle()));
+    #[allow(deprecated)]
+    let raw_handle = window.raw_window_handle().expect("raw window handle");
+    let context_attribs = ContextAttributesBuilder::new().build(Some(raw_handle));
     let context = unsafe {
         cfg.display()
             .create_context(&cfg, &context_attribs)
@@ -190,7 +193,7 @@ fn create_window() -> (
     let surface_attribs = SurfaceAttributesBuilder::<WindowSurface>::new()
         .with_srgb(Some(true))
         .build(
-            window.raw_window_handle(),
+            raw_handle,
             NonZeroU32::new(1024).unwrap(),
             NonZeroU32::new(768).unwrap(),
         );
@@ -212,7 +215,7 @@ fn glow_context(context: &PossiblyCurrentContext) -> Context {
 }
 
 fn imgui_init(window: &Window, imgui: &mut imgui::Context) -> WinitPlatform {
-    let mut winit_platform = WinitPlatform::init(imgui);
+    let mut winit_platform = WinitPlatform::new(imgui);
     {
         let dpi_mode = if let Ok(factor) = std::env::var("IMGUI_EXAMPLE_FORCE_DPI_FACTOR") {
             // Allow forcing of HiDPI factor for debugging purposes

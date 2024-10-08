@@ -10,11 +10,11 @@ local packet_types = {
 local storm_proto = Proto("Storm", "Storm P2P")
 storm_proto.fields.header1 = ProtoField.uint8("storm.header.field1", "Field 1")
 storm_proto.fields.header2 = ProtoField.uint8("storm.header.field2", "Field 2")
-storm_proto.fields.header3 = ProtoField.uint8("storm.header.field3", "Field 3", base.DEC, nil, 0xF)
-storm_proto.fields.header4 = ProtoField.uint8("storm.header.field4", "Field 4", base.DEC, nil, 0xF0)
+storm_proto.fields.header3 = ProtoField.uint8("storm.header.field3", "Field 3", base.DEC)
+storm_proto.fields.header4 = ProtoField.uint8("storm.header.field4", "Field 4", base.DEC)
 storm_proto.fields.header5 = ProtoField.uint64("storm.header.field5", "Field 5", base.HEX)
-storm_proto.fields.type = ProtoField.uint8("storm.header.type", "Type", base.HEX, packet_types, 0xF0)
-storm_proto.fields.header6 = ProtoField.uint16("storm.header.field6", "Field 6", base.HEX, nil, 0x0FFFF0)
+storm_proto.fields.type = ProtoField.uint8("storm.header.type", "Type", base.HEX, packet_types)
+storm_proto.fields.header6 = ProtoField.uint16("storm.header.field6", "Field 6", base.HEX)
 
 
 local nat_storm_proto = Proto("StormNAT", "Storm NAT")
@@ -122,6 +122,26 @@ local function read_compressed_bytes(buffer, bit_off, num_bytes, param_3)
     return res
 end
 
+Stream = { buffer = nil, current_bit_pos = 0 }
+
+function Stream:new(buffer)
+    s = {}
+    setmetatable(s, self)
+    self.__index = self
+    self.buffer = buffer
+    self.current_bit_pos = 0
+    return s
+end
+
+function Stream:read_bits(n)
+    local start_idx = bit.rshift(self.current_bit_pos, 3)
+    local start_bit = self.current_bit_pos % 8
+    local num_bytes = bit.rshift(start_bit + n + 7, 3)
+    local bytes = self.buffer(start_idx, num_bytes)
+    self.current_bit_pos = self.current_bit_pos + n
+    return bytes, bytes:bitfield(start_bit, n)
+end
+
 function routable_packet_proto.dissector(buffer, pinfo, tree)
     local subtree = tree:add(routable_packet_proto, buffer(), "Storm RoutablePacket")
     subtree:add_le(routable_packet_proto.fields.field1, buffer(0, 5), bit.bswap(buffer(0, 5):bitfield(4, 32)))
@@ -168,15 +188,23 @@ end
 function storm_proto.dissector(buffer, pinfo, tree)
     pinfo.cols.protocol = "Storm P2P"
 
+    local stream = Stream:new(buffer)
+
     local subtree = tree:add(storm_proto, buffer(), "Storm Data")
-    subtree:add(storm_proto.fields.header1, buffer(0, 1))
-    subtree:add(storm_proto.fields.header2, buffer(1, 1))
-    subtree:add(storm_proto.fields.header3, buffer(2, 1))
-    subtree:add(storm_proto.fields.header4, buffer(2, 1))
-    subtree:add(storm_proto.fields.header5, buffer(3, 8))
-    subtree:add(storm_proto.fields.type, buffer(11, 1))
+    -- subtree:add(storm_proto.fields.header1, buffer(0, 1))
+    -- subtree:add(storm_proto.fields.header2, buffer(1, 1))
+    -- subtree:add(storm_proto.fields.header3, buffer(2, 1))
+    -- subtree:add(storm_proto.fields.header4, buffer(2, 1))
+    -- subtree:add(storm_proto.fields.header5, buffer(3, 8))
+    -- subtree:add(storm_proto.fields.type, buffer(11, 1))
+    subtree:add(storm_proto.fields.header1, stream:read_bits(8))
+    subtree:add(storm_proto.fields.header2, stream:read_bits(8))
+    subtree:add(storm_proto.fields.header3, stream:read_bits(4))
+    subtree:add(storm_proto.fields.header4, stream:read_bits(4))
+    subtree:add(storm_proto.fields.header5, stream:read_bits(64))
+    subtree:add(storm_proto.fields.type, stream:read_bits(4))
     local packet_type = buffer(11, 1):bitfield(0, 4)
-    subtree:add(storm_proto.fields.header6, buffer(11, 3))
+    subtree:add(storm_proto.fields.header6, stream:read_bits(16))
 
     if packet_types[packet_type] ~= nil then
         pinfo.cols.protocol = "Storm " .. packet_types[packet_type]

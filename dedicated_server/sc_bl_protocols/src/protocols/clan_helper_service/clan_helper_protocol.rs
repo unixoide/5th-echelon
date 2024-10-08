@@ -21,6 +21,7 @@ use quazal::Context;
 use slog::Logger;
 
 use super::super::challenge_helper_service::types::FriendChallenge;
+#[allow(unused)]
 use super::types::*;
 pub const CLAN_HELPER_PROTOCOL_ID: u16 = 106u16;
 #[derive(Debug, TryFromPrimitive)]
@@ -381,6 +382,11 @@ pub struct ClanHelperProtocolClient<CI>(::std::marker::PhantomData<CI>);
 impl<CI> ClanHelperProtocolClient<CI> {
     pub fn new() -> Self {
         Self(::std::marker::PhantomData)
+    }
+}
+impl<CI> Default for ClanHelperProtocolClient<CI> {
+    fn default() -> Self {
+        Self::new()
     }
 }
 impl<CI> ClientProtocol<CI> for ClanHelperProtocolClient<CI> {

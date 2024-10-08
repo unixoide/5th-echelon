@@ -19,6 +19,8 @@ use imgui::StyleColor;
 use server_api::users::users_client::UsersClient;
 use server_api::users::LoginRequest;
 use server_api::users::RegisterRequest;
+use tracing_subscriber::layer::SubscriberExt;
+use tracing_subscriber::util::SubscriberInitExt;
 use windows::core::w;
 use windows::core::PCSTR;
 use windows::Win32::Foundation::ERROR_MORE_DATA;
@@ -38,11 +40,16 @@ mod sys;
 mod dll_utils;
 mod render;
 
+const ID_MODAL_ASK_SEARCH: &str = "Unknown Executables";
+const ID_MODAL_SEARCHING: &str = "Identifying...";
+const ID_MODAL_LOADING: &str = "Loading...";
+const ID_MODAL_REGISTER: &str = "Register";
+
 #[cfg(feature = "embed-dll")]
 static COMPRESSED_DLL: &[u8] =
     include_bytes!(concat!(env!("OUT_DIR"), "/uplay_r1_loader.dll.brotli"));
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 enum GameVersion {
     SplinterCellBlacklistDx9,
     SplinterCellBlacklistDx11,
@@ -58,6 +65,13 @@ impl GameVersion {
 
     fn full_path(self, base_dir: &Path) -> PathBuf {
         base_dir.join(self.executable())
+    }
+
+    fn label(&self) -> &'static str {
+        match self {
+            GameVersion::SplinterCellBlacklistDx9 => "DirectX 9",
+            GameVersion::SplinterCellBlacklistDx11 => "DirectX 11",
+        }
     }
 }
 
@@ -171,7 +185,138 @@ fn get_install_dir() -> Option<PathBuf> {
         .map(PathBuf::from)
 }
 
-fn main() {
+enum GameHookState {
+    Resolved(Box<Addresses>),
+    FileNotFound,
+    Searching,
+    Ignored,
+    UnsupportedBinary,
+    Failed(String),
+}
+
+struct GameHook {
+    version: GameVersion,
+    state: GameHookState,
+    target_dir: PathBuf,
+    background_search: BackgroundValue<GameHookState>,
+}
+
+impl GameHook {
+    pub fn new(gv: GameVersion, target_dir: PathBuf) -> Self {
+        let res = hooks_addresses::get_from_path(&gv.full_path(&target_dir))
+            .inspect_err(|e| println!("{e}"));
+        let state = match res {
+            Ok(addrs) => GameHookState::Resolved(Box::new(addrs)),
+            Err(hooks_addresses::Error::UnknownBinary(_)) => GameHookState::FileNotFound,
+            Err(hooks_addresses::Error::BinaryMismatch(_, _)) => GameHookState::UnsupportedBinary,
+            Err(hooks_addresses::Error::NoFileName(_)) => GameHookState::FileNotFound,
+            Err(hooks_addresses::Error::IdFailed) => {
+                GameHookState::Failed("couldn't identify".to_string())
+            }
+            Err(hooks_addresses::Error::IO(e)) => GameHookState::Failed(format!("{e}")),
+        };
+        Self {
+            version: gv,
+            state,
+            target_dir,
+            background_search: BackgroundValue::Unset,
+        }
+    }
+
+    pub fn is_ready(&self) -> bool {
+        matches!(self.state, GameHookState::Resolved(_))
+    }
+
+    pub fn search(&mut self) {
+        self.state = GameHookState::Searching;
+        let path = self.version.full_path(&self.target_dir);
+        self.background_search = BackgroundValue::Handle(std::thread::spawn(move || {
+            hooks_addresses::search_patterns(&path)
+                .inspect_err(|e| println!("{e}"))
+                .map_or_else(
+                    |e| GameHookState::Failed(e.to_string()),
+                    |a| GameHookState::Resolved(Box::new(a)),
+                )
+        }));
+    }
+}
+
+struct GameHooks {
+    games: HashMap<GameVersion, GameHook>,
+}
+
+impl GameHooks {
+    fn new(games: HashMap<GameVersion, GameHook>) -> Self {
+        Self { games }
+    }
+
+    fn has_only_unknown(&self) -> bool {
+        !self.games.values().any(|g| {
+            matches!(
+                g.state,
+                GameHookState::Resolved(_) | GameHookState::Ignored | GameHookState::Searching
+            )
+        })
+    }
+
+    fn is_searching(&self) -> bool {
+        self.games
+            .values()
+            .any(|g| matches!(g.state, GameHookState::Searching))
+    }
+
+    fn get(&self, gv: GameVersion) -> Option<&GameHook> {
+        self.games.get(&gv)
+    }
+
+    fn iter_ready(&self) -> impl Iterator<Item = &GameHook> {
+        self.games.values().filter(|g| g.is_ready())
+    }
+
+    fn start_searching(&mut self) {
+        for hook in self.games.values_mut() {
+            if matches!(hook.state, GameHookState::UnsupportedBinary) {
+                hook.search();
+            }
+        }
+    }
+
+    fn search_status(&mut self) -> bool {
+        let mut finished = true;
+        for hook in self.games.values_mut() {
+            if let GameHookState::Searching = hook.state {
+                if let Some(new_state) = hook.background_search.try_take() {
+                    hook.state = new_state;
+                } else {
+                    finished = false;
+                }
+            }
+        }
+        finished
+    }
+
+    fn ignore_unknown_binaries(&mut self) {
+        for hook in self.games.values_mut() {
+            if !matches!(hook.state, GameHookState::Resolved(_)) {
+                hook.state = GameHookState::Ignored;
+            }
+        }
+    }
+
+    fn iter(&self) -> impl Iterator<Item = &GameHook> {
+        self.games.values()
+    }
+}
+
+fn enable_console() {
+    unsafe {
+        let _ = windows::Win32::System::Console::AttachConsole(
+            windows::Win32::System::Console::ATTACH_PARENT_PROCESS,
+        );
+    }
+}
+
+fn catch_panics() {
     std::panic::set_hook(Box::new(|panic_info| {
         let mut expl = String::new();
 
@@ -198,12 +343,252 @@ fn main() {
             None => expl.push_str("Panic location unknown."),
         }
         let msg = format!("{}\n{}", expl, cause);
+        eprintln!("PANIC: {msg}");
 
         show_msgbox(&msg, "PANIC");
 
         std::process::exit(1);
     }));
+}
 
+fn load_config(target_dir: &Path) -> hooks_config::Config {
+    fs::read_to_string(hooks_config::get_config_path(target_dir))
+        .ok()
+        .and_then(|s| toml::from_str(&s).ok())
+        .unwrap_or_else(|| {
+            let cfg = hooks_config::default();
+            let _ = toml::to_string_pretty(&cfg)
+                .ok()
+                .and_then(|s| fs::write(hooks_config::get_config_path(target_dir), s).ok());
+            cfg
+        })
+}
+
+fn main() {
+    enable_console();
+    catch_panics();
+
+    tracing_subscriber::registry()
+        .with(tracing_subscriber::fmt::layer())
+        .with(tracing_subscriber::EnvFilter::from_default_env())
+        .init();
+
+    let target_dir = find_target_dir();
+    println!("Found target dir {target_dir:?}");
+
+    #[cfg(feature = "embed-dll")]
+    drop_dll(&target_dir);
+
+    let mut cfg = load_config(&target_dir);
+    let mut saved_cfg = cfg.clone();
+    let mut api_server = cfg.api_server.to_string();
+    let adapters = sys::find_adapter_names();
+    let (adapters, adapter_ips) = adapters.into_iter().unzip::<_, _, Vec<_>, Vec<_>>();
+
+    /* create context */
+    let mut imgui = Context::create();
+    sc_style(imgui.style_mut());
+
+    /* disable creation of files on disc */
+    imgui.set_ini_filename(None);
+    imgui.set_log_filename(None);
+
+    /* setup platform and renderer, and fonts to imgui */
+    let header_font = setup_fonts(&mut imgui);
+
+    let mut selected_game = None;
+
+    let mut launch_error = None;
+
+    let mut addresses = None;
+
+    let mut exe_loader = { load_game_binaries(&target_dir) };
+
+    let dll_version = get_dll_version(target_dir.join("uplay_r1_loader.dll"));
+    let expected_dll_version: (usize, usize, usize) = {
+        let mut iter = env!("HOOKS_VERSION")
+            .split('.')
+            .flat_map(|s| s.parse().ok());
+        (
+            iter.next().unwrap_or_default(),
+            iter.next().unwrap_or_default(),
+            iter.next().unwrap_or_default(),
+        )
+    };
+
+    let mut show_outdated_dll_warning = dll_version.0 < expected_dll_version.0
+        || dll_version.0 == expected_dll_version.0 && dll_version.1 < expected_dll_version.1
+        || dll_version.0 == expected_dll_version.0
+            && dll_version.1 == expected_dll_version.1
+            && dll_version.2 < expected_dll_version.2;
+
+    render::render(
+        imgui,
+        |ui: &mut imgui::Ui, w: f32, h: f32, logo_texture: imgui::TextureId| {
+            /* create imgui UI here */
+            ui.window("Settings")
+                .size([w, h], imgui::Condition::Always)
+                .position([0f32, 0f32], imgui::Condition::Always)
+                .movable(false)
+                .resizable(false)
+                .title_bar(false)
+                .build(|| {
+                    if addresses.is_none() {
+                        addresses = draw_loading_screen(ui, &mut exe_loader);
+                        return;
+                    }
+
+                    let addresses = addresses.as_mut().unwrap();
+                    draw_title(ui, header_font, logo_texture);
+                    ui.separator();
+                    ui.set_window_font_scale(0.75);
+                    ui.text_disabled(format!(
+                        "Install dir: {}",
+                        target_dir.as_os_str().to_string_lossy()
+                    ));
+                    ui.text_disabled(format!("Launcher Version: {}", env!("CARGO_PKG_VERSION")));
+                    ui.same_line();
+                    #[cfg(feature = "embed-dll")]
+                    {
+                        ui.text_disabled(format!("Bundled DLL version: {}", env!("HOOKS_VERSION")));
+                    }
+                    #[cfg(not(feature = "embed-dll"))]
+                    {
+                        ui.text_disabled(format!("Current DLL version: {}", env!("HOOKS_VERSION")));
+                    }
+                    ui.same_line();
+                    ui.text_disabled(format!(
+                        "Installed DLL version: {}.{}.{}",
+                        dll_version.0, dll_version.1, dll_version.2
+                    ));
+                    ui.set_window_font_scale(1.0);
+
+                    ui.modal_popup("Outdated DLL", || {
+                        ui.text("Installed DLL is outdated.");
+                        if ui.button("Ok") {
+                            ui.close_current_popup();
+                        }
+                    });
+                    if show_outdated_dll_warning {
+                        show_outdated_dll_warning = false;
+                        ui.open_popup("Outdated DLL");
+                    }
+
+                    draw_main_settings(ui, &mut cfg);
+                    draw_networking_settings(
+                        ui,
+                        &mut cfg,
+                        &mut api_server,
+                        &adapters,
+                        &adapter_ips,
+                    );
+                    if let Some(GameHook {
+                        state: GameHookState::Resolved(ref addr),
+                        ..
+                    }) = selected_game.and_then(|sg| addresses.get(sg))
+                    {
+                        draw_debug_settings(ui, &mut cfg, addr);
+                    }
+                    ui.separator();
+                    ui.disabled(saved_cfg == cfg, || {
+                        if ui.button("Save") {
+                            if cfg.networking.adapter.is_some() {
+                                cfg.networking.ip_address.take();
+                            }
+                            fs::write(
+                                hooks_config::get_config_path("."),
+                                toml::to_string_pretty(&cfg).unwrap(),
+                            )
+                            .unwrap();
+                            saved_cfg = cfg.clone();
+                        }
+                    });
+                    ui.same_line();
+                    ui.disabled(saved_cfg == cfg, || {
+                        if ui.button("Reset") {
+                            cfg = saved_cfg.clone();
+                        }
+                    });
+                    ui.same_line();
+
+                    selected_game = get_selected_executable(ui, addresses, selected_game);
+                    ui.same_line();
+
+                    ui.enabled(saved_cfg == cfg && selected_game.is_some(), || {
+                        if ui.button("Launch") {
+                            let executable = selected_game.unwrap().full_path(&target_dir);
+                            match std::process::Command::new(&executable).spawn() {
+                                Err(e) => launch_error = Some(format!("{executable:?}: {e}")),
+                                Ok(_) => std::process::exit(0),
+                            }
+                        }
+                        if let Some(error) = &launch_error {
+                            ui.text_colored([1.0, 0.0, 0.0, 1.0], error)
+                        }
+                    });
+
+                    let should_open_search_modal = ui.modal_popup_config(ID_MODAL_ASK_SEARCH)
+                        .resizable(false)
+                        .movable(false)
+                        .build(|| {
+                            ui.text("None of the executabels seem to be known by this launcher.\n\nAttempt to identify?");
+                            if ui.button("Yes") {
+                                addresses.start_searching();
+                                ui.close_current_popup();
+                                return true;
+                            }
+                            ui.same_line();
+                            if ui.button("No") {
+                                addresses.ignore_unknown_binaries();
+                                ui.close_current_popup();
+                            }
+                            false
+                        });
+
+                    let search_modal_opened = ui.modal_popup_config(ID_MODAL_SEARCHING)
+                        .resizable(false )
+                        .movable(false)
+                        .always_auto_resize(true)
+                        .build(|| {
+                            {
+                                ui.text("Identifying...");
+                                for hook in addresses.iter() {
+                                    ui.text(format!("{}: ", hook.version.label()));
+                                    ui.same_line();
+                                    match &hook.state {
+                                        GameHookState::Resolved(_) => ui.text_colored([0f32, 1f32, 0f32, 1f32], "OK"),
+                                        GameHookState::FileNotFound => ui.text_colored([0f32, 0f32, 0f32, 1f32], "Not found"),
+                                        GameHookState::Searching => ui.text_colored([1f32, 1f32, 0f32, 1f32], "Testing..."),
+                                        GameHookState::Ignored => ui.text_colored([0.4f32, 0.4f32, 0.4f32, 1f32], "IGNORED"),
+                                        GameHookState::UnsupportedBinary => ui.text_colored([1f32, 0f32, 0f32, 1f32], "UNSUPPORTED"),
+                                        GameHookState::Failed(f) => ui.text_colored([1f32, 0f32, 0f32, 1f32], format!("FAILURE: {f}")),
+                                    }
+                                }
+                                if addresses.search_status() && ui.button("Close") {
+                                    let gen_hash = |g: &GameHook| {
+                                        let GameHookState::Resolved(a) = &g.state else { return None; };
+                                        let Ok(hash) = hooks_addresses::hash_file(g.version.full_path(&g.target_dir)) else {return None;};
+                                        Some(HashMap::from([(hash, *a.clone())]))
+                                    };
+                                    let dx9 = addresses.get(GameVersion::SplinterCellBlacklistDx9).and_then(gen_hash).unwrap_or_default();
+                                    let dx11 = addresses.get(GameVersion::SplinterCellBlacklistDx11).and_then(gen_hash).unwrap_or_default();
+                                    hooks_addresses::save_addresses(&target_dir, dx9, dx11);
+                                    ui.close_current_popup();
+                                }
+                            }
+                        }).is_some();
+
+                    if should_open_search_modal.is_none() && !search_modal_opened && addresses.has_only_unknown() {
+                        ui.open_popup(ID_MODAL_ASK_SEARCH);
+                    } else if let Some(true) = should_open_search_modal {
+                        ui.open_popup(ID_MODAL_SEARCHING);
+                    }
+                });
+        },
+    );
+}
+
+fn find_target_dir() -> PathBuf {
     let mut target_dir = std::env::current_exe()
         .unwrap()
         .parent()
@@ -232,158 +617,47 @@ fn main() {
             }
         }
     }
-
-    #[cfg(feature = "embed-dll")]
-    drop_dll(&target_dir);
-
-    let mut cfg = fs::read_to_string(hooks_config::get_config_path(target_dir.as_path()))
-        .ok()
-        .and_then(|s| toml::from_str(&s).ok())
-        .unwrap_or_else(|| {
-            let cfg = hooks_config::default();
-            let _ = toml::to_string_pretty(&cfg).ok().and_then(|s| {
-                fs::write(hooks_config::get_config_path(target_dir.as_path()), s).ok()
-            });
-            cfg
-        });
-    let mut saved_cfg = cfg.clone();
-    let mut api_server = cfg.api_server.to_string();
-    let adapters = sys::find_adapter_names();
-    let (adapters, adapter_ips) = adapters.into_iter().unzip::<_, _, Vec<_>, Vec<_>>();
-
-    /* create context */
-    let mut imgui = Context::create();
-    sc_style(imgui.style_mut());
-
-    /* disable creation of files on disc */
-    imgui.set_ini_filename(None);
-    imgui.set_log_filename(None);
-
-    /* setup platform and renderer, and fonts to imgui */
-    let header_font = setup_fonts(&mut imgui);
-
-    let mut selected_game = GameVersion::SplinterCellBlacklistDx9;
-
-    let mut launch_error = None;
-
-    let addresses = [
-        GameVersion::SplinterCellBlacklistDx9,
-        GameVersion::SplinterCellBlacklistDx11,
-    ]
-    .into_iter()
-    .filter_map(|gv| {
-        Some((
-            gv,
-            hooks_addresses::get_from_path(&gv.full_path(&target_dir)).ok()?,
-        ))
-    })
-    .collect::<HashMap<_, _>>();
-
-    render::render(
-        imgui,
-        |ui: &mut imgui::Ui, w: f32, h: f32, logo_texture: imgui::TextureId| {
-            /* create imgui UI here */
-            ui.window("Settings")
-                .size([w, h], imgui::Condition::Always)
-                .position([0f32, 0f32], imgui::Condition::Always)
-                .movable(false)
-                .resizable(false)
-                .title_bar(false)
-                .build(|| {
-                    draw_title(ui, header_font, logo_texture);
-                    ui.separator();
-                    ui.set_window_font_scale(0.75);
-                    ui.text_disabled(format!(
-                        "Install dir: {}",
-                        target_dir.as_os_str().to_string_lossy()
-                    ));
-                    ui.text_disabled(format!("Launcher Version: {}", env!("CARGO_PKG_VERSION")));
-                    ui.same_line();
-                    let dll_version = get_dll_version(target_dir.join("uplay_r1_loader.dll"));
-                    ui.text_disabled(format!(
-                        "DLL version: {}.{}.{}",
-                        dll_version.0, dll_version.1, dll_version.2
-                    ));
-                    #[cfg(feature = "embed-dll")]
-                    {
-                        ui.same_line();
-                        ui.text_disabled(format!("Bundled DLL version: {}", env!("HOOKS_VERSION")));
-                    }
-                    ui.set_window_font_scale(1.0);
-                    draw_main_settings(ui, &mut cfg);
-                    draw_networking_settings(
-                        ui,
-                        &mut cfg,
-                        &mut api_server,
-                        &adapters,
-                        &adapter_ips,
-                    );
-                    if let Some(addr) = addresses.get(&selected_game) {
-                        draw_debug_settings(ui, &mut cfg, addr);
-                    }
-                    ui.separator();
-                    ui.disabled(saved_cfg == cfg, || {
-                        if ui.button("Save") {
-                            if cfg.networking.adapter.is_some() {
-                                cfg.networking.ip_address.take();
-                            }
-                            fs::write(
-                                hooks_config::get_config_path("."),
-                                toml::to_string_pretty(&cfg).unwrap(),
-                            )
-                            .unwrap();
-                            saved_cfg = cfg.clone();
-                        }
-                    });
-                    ui.same_line();
-                    ui.disabled(saved_cfg == cfg, || {
-                        if ui.button("Reset") {
-                            cfg = saved_cfg.clone();
-                        }
-                    });
-                    ui.same_line();
-
-                    selected_game = get_selected_executable(ui, selected_game);
-                    ui.same_line();
-
-                    ui.enabled(saved_cfg == cfg, || {
-                        if ui.button("Launch") {
-                            let executable = selected_game.full_path(&target_dir);
-                            match std::process::Command::new(&executable).spawn() {
-                                Err(e) => launch_error = Some(format!("{executable:?}: {e}")),
-                                Ok(_) => std::process::exit(0),
-                            }
-                        }
-                        if let Some(error) = &launch_error {
-                            ui.text_colored([1.0, 0.0, 0.0, 1.0], error)
-                        }
-                    });
-                });
-        },
-    );
+    target_dir
 }
 
-fn get_selected_executable(ui: &imgui::Ui, game_version: GameVersion) -> GameVersion {
-    let options = ["DirectX 9", "DirectX 11"];
-    let versions = [
-        GameVersion::SplinterCellBlacklistDx9,
-        GameVersion::SplinterCellBlacklistDx11,
-    ];
+fn get_selected_executable(
+    ui: &imgui::Ui,
+    games: &GameHooks,
+    selected_gv: Option<GameVersion>,
+) -> Option<GameVersion> {
+    let mut versions = games
+        .iter_ready()
+        .map(|g| match g.version {
+            GameVersion::SplinterCellBlacklistDx11 => (g.version, "DirectX 11"),
+            GameVersion::SplinterCellBlacklistDx9 => (g.version, "DirectX 9"),
+        })
+        .collect::<Vec<_>>();
+    versions.sort_by_key(|(gv, _)| *gv);
+
+    let (versions, options): (Vec<GameVersion>, Vec<&str>) = versions.into_iter().unzip();
     let largest_text = options
         .iter()
         .map(|s| ui.calc_text_size(s)[0])
         .max_by(|a, b| a.abs().partial_cmp(&b.abs()).unwrap())
-        .unwrap()
+        .unwrap_or_default()
         + ui.frame_height()
         + unsafe { ui.style() }.frame_padding[0];
-    let mut selected = versions
-        .iter()
-        .enumerate()
-        .find_map(|(idx, gv)| if *gv == game_version { Some(idx) } else { None })
-        .unwrap_or_default();
+    let mut selected = if let Some(sgv) = selected_gv {
+        versions
+            .iter()
+            .enumerate()
+            .find_map(|(idx, gv)| if *gv == sgv { Some(idx) } else { None })
+            .unwrap_or_default()
+    } else {
+        0
+    };
     let _token = ui.push_item_width(largest_text);
     ui.combo_simple_string("##game", &mut selected, &options);
-    versions[selected]
+    if versions.is_empty() {
+        None
+    } else {
+        Some(versions[selected])
+    }
 }
 
 fn setup_fonts(imgui: &mut Context) -> imgui::FontId {
@@ -423,9 +697,11 @@ fn setup_fonts(imgui: &mut Context) -> imgui::FontId {
     header_font
 }
 
+#[derive(Default)]
 enum BackgroundValue<T> {
     Handle(std::thread::JoinHandle<T>),
     Value(T),
+    #[default]
     Unset,
 }
 
@@ -460,6 +736,51 @@ impl<T> BackgroundValue<T> {
             None
         }
     }
+
+    fn try_take(&mut self) -> Option<T> {
+        self.maybe_value();
+        if let BackgroundValue::Value(_) = self {
+            let v = std::mem::replace(self, BackgroundValue::Unset);
+            Some(v.into_inner())
+        } else {
+            None
+        }
+    }
+
+    fn into_inner(self) -> T {
+        match self {
+            BackgroundValue::Handle(h) => h.join().unwrap(),
+            BackgroundValue::Value(v) => v,
+            BackgroundValue::Unset => unreachable!(),
+        }
+    }
+}
+
+fn load_game_binaries(target_dir: &Path) -> BackgroundValue<GameHooks> {
+    let target_dir = target_dir.to_path_buf();
+    BackgroundValue::Handle(std::thread::spawn(move || {
+        GameHooks::new(
+            [
+                GameVersion::SplinterCellBlacklistDx9,
+                GameVersion::SplinterCellBlacklistDx11,
+            ]
+            .into_iter()
+            .map(|gv| (gv, GameHook::new(gv, target_dir.clone())))
+            .collect(),
+        )
+    }))
+}
+
+fn draw_loading_screen(
+    ui: &imgui::Ui,
+    exe_loader: &mut BackgroundValue<GameHooks>,
+) -> Option<GameHooks> {
+    ui.modal_popup_config(ID_MODAL_LOADING)
+        .movable(false)
+        .resizable(false)
+        .build(|| ui.text("Searching for executables..."));
+    ui.open_popup(ID_MODAL_LOADING);
+    exe_loader.try_take()
 }
 
 fn draw_login(ui: &imgui::Ui, cfg: &mut hooks_config::Config) -> Option<Option<String>> {
@@ -562,12 +883,12 @@ fn draw_register(ui: &imgui::Ui, cfg: &mut hooks_config::Config) {
         cfg.user.username.is_empty() || cfg.user.password.is_empty(),
         || {
             if ui.button("Register") {
-                ui.open_popup("Register");
+                ui.open_popup(ID_MODAL_REGISTER);
             }
         },
     );
 
-    ui.modal_popup_config("Register")
+    ui.modal_popup_config(ID_MODAL_REGISTER)
         .movable(false)
         .always_auto_resize(true)
         .resizable(false)

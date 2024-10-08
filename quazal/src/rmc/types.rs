@@ -222,10 +222,10 @@ pub struct DateTime(pub u64);
 impl Debug for DateTime {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let second = self.0 & 0b1_1111;
-        let minute = self.0 >> 6 & 0b1_1111;
-        let hour = self.0 >> 12 & 0b1111;
-        let day = self.0 >> 17 & 0b1111;
-        let month = self.0 >> 22 & 0b111;
+        let minute = (self.0 >> 6) & 0b1_1111;
+        let hour = (self.0 >> 12) & 0b1111;
+        let day = (self.0 >> 17) & 0b1111;
+        let month = (self.0 >> 22) & 0b111;
         let year = self.0 >> 26;
         f.debug_tuple("DateTime")
             .field(&self.0)

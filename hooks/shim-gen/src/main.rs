@@ -19,11 +19,8 @@ fn parse_pe(pe: goblin::pe::PE) -> Vec<String> {
 fn main() {
     let args: Args = argh::from_env();
     let data = std::fs::read(&args.library).expect("valid file");
-    let library = goblin::Object::parse(&data).expect("valid library");
-    let exports = match library {
-        goblin::Object::PE(pe) => parse_pe(pe),
-        _ => unimplemented!(),
-    };
+    let library = goblin::pe::PE::parse(&data).expect("valid library");
+    let exports = parse_pe(library);
     eprintln!("{exports:?}");
 
     let preamble = r"lazy_static::lazy_static! {

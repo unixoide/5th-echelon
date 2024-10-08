@@ -3,8 +3,6 @@ name = "shim-gen"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
-argh = "0.1"
-goblin = "0.7"
+argh = { workspace = true }
+goblin = { workspace = true, features = ["pe32", "pe64", "std"] }

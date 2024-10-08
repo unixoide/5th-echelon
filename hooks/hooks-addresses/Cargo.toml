@@ -3,8 +3,25 @@ name = "hooks-addresses"
 version = "0.1.0"
 edition = "2021"
 
+[[bin]]
+name = "generate_patterns"
+required-features = ["generate_patterns"]
+
+[features]
+generate_patterns = ["dep:argh"]
+
 [dependencies]
+argh = { workspace = true, optional = true }
 anyhow = { workspace = true }
+goblin = { workspace = true }
 hooks-config = { path = "../hooks-config" }
-sha2 = "0.10"
-tracing = "0.1"
+iced-x86 = { workspace = true, default-features = false, features = [
+    "decoder",
+    "intel",
+    "std",
+] }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+sha2 = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
