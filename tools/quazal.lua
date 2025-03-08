@@ -87,9 +87,9 @@ local function rmc_proto_dissector(buffer, pinfo, tree)
     local is_request = true
     local proto = 0
     local pt = nil
-    if buffer(4, 1):uint() == 0xff then
+    if buffer(4, 1):uint() == 0x7f or buffer(4, 1):uint() == 0xff then
         pt = subtree:add_le(rmc_proto.fields.prot_id_long, buffer(5, 2))
-        is_request = buffer(5, 1):bitfield(0, 1) ~= 0
+        is_request = buffer(4, 1):bitfield(0, 1) ~= 0
         off = 7
         proto = buffer(5, 2):le_uint()
     else
