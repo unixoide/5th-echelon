@@ -22,6 +22,7 @@ quazal-macros = { path = "../quazal/quazal-macros" }
 rand = { workspace = true }
 sc_bl_protocols = { path = "./sc_bl_protocols" }
 serde = { workspace = true }
+serde_json = { workspace = true }
 server_api = { path = "../api", package = "api" }
 slog = { workspace = true, features = ["max_level_trace"] }
 sloggers = { workspace = true, features = ["json"] }

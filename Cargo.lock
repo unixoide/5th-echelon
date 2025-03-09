@@ -768,6 +768,7 @@ dependencies = [
  "rand 0.9.0",
  "sc_bl_protocols",
  "serde",
+ "serde_json",
  "slog",
  "sloggers",
  "sodiumoxide",

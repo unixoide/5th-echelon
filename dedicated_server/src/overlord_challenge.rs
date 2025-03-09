@@ -7,6 +7,7 @@ use quazal::rmc::types::DateTime;
 use quazal::rmc::types::Variant;
 use quazal::rmc::Protocol;
 use quazal::Context;
+use serde::Deserialize;
 
 use crate::login_required;
 
@@ -15,7 +16,7 @@ struct GetChallengesRequest {
     class: String,
 }
 
-#[derive(Debug, ToStream, FromStream)]
+#[derive(Debug, ToStream, FromStream, Deserialize)]
 struct Challenge {
     unk1: u32,
     unk2: String,
@@ -72,8 +73,12 @@ impl<T> Protocol<T> for OverlordChallengeProtocol {
         match request.method_id {
             1 => {
                 let _request: GetChallengesRequest = FromStream::from_bytes(&request.parameters)?;
-                Ok(GetChallengesResponse {
-                    challenges: vec![Challenge{
+
+                let challenges = std::fs::File::open("data/challenges.json")
+                    .map(serde_json::from_reader)
+                    .ok()
+                    .and_then(Result::ok)
+                    .unwrap_or(vec![Challenge {
                         unk1: 16_0200,
                         unk2: String::from("{}"),
                         some_xml: String::from("<Challenge Name=\"LocID_SNN_ReminderGoneDark_20\" Desc=\"LocID_SNDES_ReminderGoneDark_20\" Guid=\"160200\" ShortDesc=\"LocID_SNSD_ReminderGoneDark_20\" Category=\"OnlineChallengeGoneDarkHeader\"><GoneDark id=\"160200\" PosX=\"262\" PosY=\"397\" Resource=\"GD_Grim_004\" title=\"LocID_C_INT_20_Title\" loc=\"LocID_C_INT_20_Loc_0\" desc=\"LocID_C_INT_20_Desc_1\" /><Definition><GameEvent><Event><GoneDarkUI><ID Op=\"Equal\" Value=\"160200\" /></GoneDarkUI></Event></GameEvent></Definition><StepReward Count=\"123\"><UnlockChallenge><ID val=\"160201\" /></UnlockChallenge></StepReward></Challenge>"),
@@ -88,14 +93,16 @@ impl<T> Protocol<T> for OverlordChallengeProtocol {
                         unk12: String::from("{}"),
                         unk13: String::from("{}"),
                         unk14: HashMap::default(),
-                        unk15: HashMap::from([(String::from("s"), Variant::I64(1)), (String::from("p"), Variant::I64(123))]),
+                        unk15: HashMap::from([
+                            (String::from("s"), Variant::I64(1)),
+                            (String::from("p"), Variant::I64(123)),
+                        ]),
                         unk16: HashMap::default(),
                         unk17: 2,
                         unk18: DateTime(0xFFFF_FFFF_FFFF_FFFF),
                         unk19: HashMap::default(),
-                    }],
-                }
-                .to_bytes())
+                    }]);
+                Ok(GetChallengesResponse { challenges }.to_bytes())
             }
             2..=6 => {
                 error!(logger, "not implemented yet");

@@ -8,6 +8,7 @@ use std::str::FromStr;
 
 use byteorder::ReadBytesExt;
 use byteorder::WriteBytesExt;
+use serde::Deserialize;
 
 use super::basic::FromStream;
 use super::basic::FromStreamError;
@@ -216,7 +217,7 @@ impl<V: std::fmt::Debug, K: FromStream> FromStream for Any<V, K> {
     }
 }
 
-#[derive(Clone, Copy, Default)]
+#[derive(Clone, Copy, Default, Deserialize)]
 pub struct DateTime(pub u64);
 
 impl Debug for DateTime {
@@ -258,7 +259,7 @@ impl FromStream for DateTime {
 #[derive(Debug, FromStream, ToStream)]
 pub struct Data;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Deserialize)]
 pub enum Variant {
     None,
     I64(i64),
