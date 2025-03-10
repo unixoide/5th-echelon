@@ -13,23 +13,21 @@ use glutin::surface::GlSurface;
 use glutin::surface::Surface;
 use glutin::surface::SurfaceAttributesBuilder;
 use glutin::surface::WindowSurface;
-use imgui_glow_renderer::TextureMap;
+use imgui_winit_support::HiDpiMode;
+use imgui_winit_support::WinitPlatform;
 use imgui_winit_support::winit::dpi::LogicalSize;
 use imgui_winit_support::winit::event_loop::EventLoop;
 #[allow(deprecated)]
 use imgui_winit_support::winit::raw_window_handle::HasRawWindowHandle;
 use imgui_winit_support::winit::window::Window;
 use imgui_winit_support::winit::{self};
-use imgui_winit_support::HiDpiMode;
-use imgui_winit_support::WinitPlatform;
+use windows::Win32::Foundation::HWND;
 
-static LOGO_PIXELS: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/logo.dat"));
-pub const LOGO_WIDTH: i32 = 440;
-pub const LOGO_HEIGTH: i32 = 419;
+use crate::clipboard;
 
 pub fn render(
     mut imgui_context: imgui::Context,
-    mut do_render: impl FnMut(&mut imgui::Ui, f32, f32, imgui::TextureId),
+    mut do_render: impl FnMut(&mut imgui::Ui, f32, f32),
 ) {
     let (event_loop, window, surface, context) = create_window();
     let mut winit_platform = imgui_init(&window, &mut imgui_context);
@@ -37,47 +35,9 @@ pub fn render(
     // OpenGL context from glow
     let gl = glow_context(&context);
 
-    let texture = unsafe {
-        let texture = gl.create_texture().unwrap();
-        gl.bind_texture(glow::TEXTURE_2D, Some(texture));
-        gl.tex_parameter_i32(
-            glow::TEXTURE_2D,
-            glow::TEXTURE_MIN_FILTER,
-            glow::LINEAR as i32,
-        );
-        gl.tex_parameter_i32(
-            glow::TEXTURE_2D,
-            glow::TEXTURE_MAG_FILTER,
-            glow::LINEAR as i32,
-        );
-        gl.tex_parameter_i32(
-            glow::TEXTURE_2D,
-            glow::TEXTURE_WRAP_S,
-            glow::CLAMP_TO_EDGE as i32,
-        );
-        gl.tex_parameter_i32(
-            glow::TEXTURE_2D,
-            glow::TEXTURE_WRAP_T,
-            glow::CLAMP_TO_EDGE as i32,
-        );
-        gl.tex_image_2d(
-            glow::TEXTURE_2D,
-            0,
-            glow::RGBA8 as i32,
-            LOGO_WIDTH,
-            LOGO_HEIGTH,
-            0,
-            glow::RGBA,
-            glow::UNSIGNED_BYTE,
-            Some(LOGO_PIXELS),
-        );
-        texture
-    };
-
     // OpenGL renderer from this crate
     let mut ig_renderer = imgui_glow_renderer::AutoRenderer::new(gl, &mut imgui_context)
         .expect("failed to create renderer");
-    let logo_texture = ig_renderer.texture_map_mut().register(texture).unwrap();
 
     let mut last_frame = Instant::now();
 
@@ -112,7 +72,7 @@ pub fn render(
                     let size = size.to_logical(window.scale_factor());
                     let h = size.height;
                     let w = size.width;
-                    do_render(ui, w, h, logo_texture);
+                    do_render(ui, w, h);
 
                     winit_platform.prepare_render(ui, &window);
                     let draw_data = imgui_context.render();
@@ -162,16 +122,8 @@ fn create_window() -> (
     let event_loop = EventLoop::new().expect("event loop");
 
     let attr = Window::default_attributes()
-        .with_title("5th Echelon - Launcher")
-        .with_inner_size(LogicalSize::new(1024, 768))
-        .with_window_icon(
-            winit::window::Icon::from_rgba(
-                LOGO_PIXELS.to_vec(),
-                LOGO_WIDTH as u32,
-                LOGO_HEIGTH as u32,
-            )
-            .ok(),
-        );
+        .with_title("5th Echelon - UMD Browser")
+        .with_inner_size(LogicalSize::new(1024, 768));
     let (window, cfg) = glutin_winit::DisplayBuilder::new()
         .with_window_attributes(Some(attr))
         .build(&event_loop, ConfigTemplateBuilder::new(), |mut configs| {
@@ -230,7 +182,18 @@ fn imgui_init(window: &Window, imgui: &mut imgui::Context) -> WinitPlatform {
         winit_platform.attach_window(imgui.io_mut(), window, dpi_mode);
     }
 
-    imgui.io_mut().font_global_scale = (1.0 / winit_platform.hidpi_factor()) as f32;
+    // imgui.io_mut().font_global_scale = (1.0 / winit_platform.hidpi_factor()) as f32;
+
+    #[allow(deprecated)]
+    let raw_handle = window.raw_window_handle().expect("raw window handle");
+    let hwnd = match raw_handle {
+        winit::raw_window_handle::RawWindowHandle::Win32(win32_window_handle) => {
+            HWND(win32_window_handle.hwnd.into())
+        }
+        _ => unreachable!(),
+    };
+
+    imgui.set_clipboard_backend(clipboard::WindowsClipboard { hwnd });
 
     winit_platform
 }

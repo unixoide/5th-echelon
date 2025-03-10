@@ -1,0 +1,32 @@
+[package]
+name = "umd_browser"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+enumflags2 = { workspace = true }
+color-eyre = { workspace = true }
+windows = { version = "0.54.0", features = [
+    "Win32_Foundation",
+    "Win32_Networking_WinSock",
+    "Win32_NetworkManagement_IpHelper",
+    "Win32_NetworkManagement_Ndis",
+    "Win32_System_Com",
+    "Win32_System_Console",
+    "Win32_System_DataExchange",
+    "Win32_System_Diagnostics_Debug",
+    "Win32_System_Memory",
+    "Win32_System_Registry",
+    "Win32_UI_Shell_Common",
+    "Win32_UI_Shell",
+    "Win32_UI_WindowsAndMessaging",
+] }
+glow = { workspace = true }
+glutin = { workspace = true }
+glutin-winit = { workspace = true }
+imgui = { workspace = true, features = ["tables-api"] }
+imgui-glow-renderer = { workspace = true }
+imgui-winit-support = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true, features = ["env-filter"] }
+flate2 = { workspace = true }

@@ -24,18 +24,19 @@ impl<T> PlayerStatsProtocolServerTrait<T> for PlayerStatsProtocolServerImpl {
         _logger: &Logger,
         _ctx: &Context,
         ci: &mut ClientInfo<T>,
-        _request: ReadStatsByPlayersRequest,
+        request: ReadStatsByPlayersRequest,
         _client_registry: &ClientRegistry<T>,
         _socket: &std::net::UdpSocket,
     ) -> Result<ReadStatsByPlayersResponse, Error> {
         login_required(&*ci)?;
+
         Ok(ReadStatsByPlayersResponse {
             results: vec![StatboardResult {
                 board_id: 1,
                 context_id: 0,
                 reset_frequency: 1,
                 player_stat_sets: vec![PlayerStatSet {
-                    player_pid: 0x00aa_bbcc,
+                    player_pid: *request.player_pids.first().unwrap(),
                     player_name: "foobar".to_string(),
                     submitted_time: quazal::rmc::types::DateTime(0x1f_9635_4343),
                     stats: vec![
@@ -82,6 +83,14 @@ impl<T> PlayerStatsProtocolServerTrait<T> for PlayerStatsProtocolServerImpl {
                         PropertyVariant {
                             id: 0xc8,
                             value: quazal::rmc::types::Variant::I64(1),
+                        },
+                        PropertyVariant {
+                            id: 122, // wins
+                            value: quazal::rmc::types::Variant::I64(1337),
+                        },
+                        PropertyVariant {
+                            id: 182,
+                            value: quazal::rmc::types::Variant::I64(1337),
                         },
                     ]
                     .into(),

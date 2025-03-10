@@ -15,6 +15,7 @@ members = [
   "tools/storm_parser",
   # "tools/wireshark-dissector",
   "launcher",
+  "tools/umd_browser",
 ]
 # v2 panics with
 # activated_features for invalid package: features did not find PackageId { name: "windows_i686_msvc", version: "0.48.0", source: "registry `crates-io`" } NormalOrDev
@@ -95,3 +96,4 @@ tracing-appender = "0.2"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 url = { version = "2.5", features = ["serde"] }
 winres = "0.1.12"
+flate2 = "1.0"

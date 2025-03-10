@@ -4463,6 +4463,24 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e36a83ea2b3c704935a01b4642946aadd445cea40b10935e3f8bd8052b8193d6"
 
 [[package]]
+name = "umd_browser"
+version = "0.1.0"
+dependencies = [
+ "color-eyre",
+ "enumflags2",
+ "flate2",
+ "glow",
+ "glutin",
+ "glutin-winit",
+ "imgui",
+ "imgui-glow-renderer",
+ "imgui-winit-support",
+ "tracing",
+ "tracing-subscriber",
+ "windows 0.54.0",
+]
+
+[[package]]
 name = "unicode-bidi"
 version = "0.3.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
