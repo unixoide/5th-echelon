@@ -616,6 +616,25 @@ fn gear_str_constructor(this: *mut GearBasicString, x: *mut c_char) -> *mut Gear
     unsafe { SomeGearStrConstructor.call(this, x) }
 }
 
+static_detour! {
+    static ArcOpenFileHook: unsafe extern "thiscall" fn(*mut c_void, *mut i8) -> usize;
+}
+
+
+#[instrument(skip_all)]
+fn arc_open_file(this: *mut c_void, fname: *mut i8) -> usize {
+    if !fname.is_null() {
+        let cstr = unsafe { CStr::from_ptr(fname.cast_const()) };
+        if let Ok(fname) = cstr.to_str() {
+            if std::fs::metadata(fname).is_ok() {
+                warn!("Overriding packaged {fname}");
+                return 0;
+            }
+        }
+    }
+    unsafe { ArcOpenFileHook.call(this, fname) }
+}
+
 unsafe fn hook_with_name<T, F>(hook: &retour::StaticDetour<T>, target: Option<T>, f: F, name: &str)
 where
     T: retour::Function,
@@ -674,6 +693,7 @@ pub unsafe fn init(config: &Config, addr: &Addresses) {
     configurable_hook!(config, Hook::StormSetState, StormSetStateHook ; addr.func_storm_maybe_set_state => storm_set_state);
     configurable_hook!(config, Hook::StormStateMachineActionExecute, StormStateMachineActionExecuteHook ; addr.func_storm_statemachineaction_execute => storm_statemachineaction_execute);
     configurable_hook!(config, Hook::Thread, ThreadStarterHook ; addr.func_thread_starter => set_thread_name);
+    configurable_hook!(config, Hook::OverridePackaged, ArcOpenFileHook; addr.func_open_file_from_archive => arc_open_file);
     if false {
         // always disable for now
         configurable_hook!(config, Hook::NetCore, NetCoreHook ; addr.func_net_core => net_core);
@@ -745,6 +765,7 @@ pub unsafe fn deinit(config: &Config) {
         StormStateMachineActionExecuteHook
     );
     disable_configurable_hook!(config, Hook::Thread, ThreadStarterHook);
+    disable_configurable_hook!(config, Hook::OverridePackaged, ArcOpenFileHook);
     storm::deinit_hooks(config);
     quazal::deinit_hooks(config);
 }

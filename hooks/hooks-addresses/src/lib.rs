@@ -76,6 +76,7 @@ pub struct Addresses {
     pub func_rmc_send_message: Option<Address>,
     pub func_storm_event_handler: Option<Address>,
     pub func_another_gear_str_destructor: Option<Address>,
+    pub func_open_file_from_archive: Option<Address>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -136,6 +137,7 @@ impl Addresses {
             ),
             // dynamically found at runtime
             Hook::GetAdaptersInfo | Hook::Gethostbyname | Hook::StormPackets => Some(vec![]),
+            Hook::OverridePackaged => option2vec!(self.func_open_file_from_archive),
         }
     }
 
@@ -180,6 +182,7 @@ impl Addresses {
             }
             // dynamically found at runtime
             Hook::GetAdaptersInfo | Hook::Gethostbyname | Hook::StormPackets => {}
+            Hook::OverridePackaged => self.func_open_file_from_archive = addrs.next(),
         }
     }
 }
@@ -226,6 +229,7 @@ fn dx9_addresses() -> HashMap<[u8; 32], Addresses> {
         func_rmc_send_message: Some(0x021b7050),
         func_storm_event_handler: Some(0x020ca850),
         func_another_gear_str_destructor: Some(0x004c58a0),
+        func_open_file_from_archive: Some(0x070_9040),
     };
 
     let dx9_hashes = [
@@ -483,6 +487,7 @@ fn dx11_addresses() -> HashMap<[u8; 32], Addresses> {
         func_rmc_send_message: Some(0x021DE540),
         func_storm_event_handler: Some(0x20f1d40),
         func_another_gear_str_destructor: Some(0x41F630),
+        func_open_file_from_archive: Some(0x45ab20),
     };
     HashMap::from(dx11_hashes.map(|h| (h, dx11_addrs.clone())))
 }
@@ -757,6 +762,7 @@ static HOOK_PATTERNS: LazyLock<Vec<(Hook, Vec<Pattern>)>> = LazyLock::new(|| {
         (Hook::GearStrDestructor, vec![Pattern::from_str("55 8B EC 56 57 8B F1 E8 ?? ?? ?? ?? 8B 7D ?? 89 06 33 C0 C6 46 ?? ?? 89 46 ?? C7 46 ?? ?? ?? ?? ?? C7 46 ?? ?? ?? ?? ??").unwrap()]),
         (Hook::StormEventDispatcher, vec![Pattern::from_str("55 8B EC 51 53 56 57 8B F9 8D 4D ??").unwrap(), Pattern::from_str("55 8B EC 8B 89 ?? ?? ?? ?? 56 85 C9 74 ?? 80 79 ?? ?? 74 ?? 8B 45 ?? 8B 75 ?? 83 F8 ?? 75 ?? 68 ?? ?? ?? ?? 8B CE E8 ?? ?? ?? ?? 8B C6 5E 5D C2 ?? ?? 8B 55 ?? 52").unwrap(), Pattern::from_str("55 8B EC 83 EC ?? 53 56 8B F1 57 33 DB").unwrap(), Pattern::from_str("55 8B EC 8B 45 ?? 53 56 57 8B F1 85 C0 0F 84 ?? ?? ?? ??").unwrap()]),
         (Hook::RMCMessages, vec![Pattern::from_str("55 8B EC 8B 45 ?? 8B 4D ?? 8B 55 ?? 50 51 52 E8 ?? ?? ?? ?? 83 C4 ?? 5D C3 CC CC CC CC CC CC CC C3").unwrap(), Pattern::from_str("55 8B EC 8B 4D ?? 6A ?? 6A ?? 8D 45 ?? 50 E8 ?? ?? ?? ?? 5D C3 CC CC CC CC CC CC CC CC CC CC CC 55 8B EC 51 8B 4D ??").unwrap(), Pattern::from_str("55 8B EC 83 EC ?? 53 8B 5D ?? 56 57 8B F9 85 DB 0F 84 ?? ?? ?? ?? 80 7F ?? ??").unwrap()]),
+        (Hook::OverridePackaged, vec![Pattern::from_str("55 8B EC 6A ?? 68 ?? ?? ?? ?? 64 A1 ?? ?? ?? ?? 50 83 EC ?? 53 56 57 A1 ?? ?? ?? ?? 33 C5 50 8D 45 ?? 64 A3 ?? ?? ?? ?? 8B F1 8B 45 ?? 50 8D 4D ?? 51").unwrap()]),
         ]
 });
 
@@ -863,6 +869,7 @@ pub fn search_patterns(filepath: &Path) -> Result<Addresses, Error> {
         func_rmc_send_message: None,
         func_storm_event_handler: None,
         func_another_gear_str_destructor: None,
+        func_open_file_from_archive: None,
     };
 
     for (hook, patterns) in HOOK_PATTERNS.iter() {

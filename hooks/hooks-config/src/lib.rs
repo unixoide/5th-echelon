@@ -161,6 +161,8 @@ enum_gui! {
         StormPackets,
         #[label="Log RMC messages"]
         RMCMessages,
+        #[label="Override packaged files"]
+        OverridePackaged,
     }
 }
 
