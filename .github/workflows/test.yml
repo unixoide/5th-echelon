@@ -10,7 +10,7 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
+  build_test_windows:
 
     runs-on: windows-latest
 
@@ -36,3 +36,32 @@ jobs:
       run: cargo test --verbose
       env:
         PROTOC: ${{runner.temp}}/protoc/bin/protoc.exe
+
+  build_test_linux:
+
+    runs-on: ubuntu-latest
+
+    permissions: 
+      contents: read
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Download protoc
+      id: downloader
+      uses: robinraju/release-downloader@v1
+      with:
+        repository: protocolbuffers/protobuf
+        fileName: "protoc-*-linux-x86_64.zip"
+        latest: true
+    - name: Unpack protoc
+      run: 7z x -o${{runner.temp}}/protoc ${{ fromJson(steps.downloader.outputs.downloaded_files)[0] }}
+    - name: Mark executable
+      run: chmod +x ${{runner.temp}}/protoc/bin/protoc
+    - name: Build
+      run: cargo build --verbose -p dedicated_server
+      env:
+        PROTOC: ${{runner.temp}}/protoc/bin/protoc
+    - name: Run tests
+      run: cargo test --verbose -p dedicated_server
+      env:
+        PROTOC: ${{runner.temp}}/protoc/bin/protoc

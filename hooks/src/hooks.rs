@@ -625,13 +625,42 @@ static_detour! {
     static ArcOpenFileHook: unsafe extern "thiscall" fn(*mut c_void, *mut i8) -> usize;
 }
 
+static FILE_COUNTER: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
+
+pub fn is_modded() -> bool {
+    if FILE_COUNTER.load(std::sync::atomic::Ordering::Relaxed) > 1 {
+        error!("GAME IS MODDED");
+        true
+    } else {
+        false
+    }
+}
+
+include!(concat!(env!("OUT_DIR"), "/preload.rs"));
+
+fn check_file_name(fname: &str) -> bool {
+    let normalized = fname.to_lowercase().replace('\\', "/");
+    if !normalized.starts_with("../../data/") {
+        return false;
+    }
+    let normalized = &normalized[11..];
+    for p in PRELOAD {
+        if p == normalized {
+            return false;
+        }
+    }
+
+    true
+}
+
 #[instrument(skip_all)]
 fn arc_open_file(this: *mut c_void, fname: *mut i8) -> usize {
     if !fname.is_null() {
         let cstr = unsafe { CStr::from_ptr(fname.cast_const()) };
         if let Ok(fname) = cstr.to_str() {
-            if std::fs::metadata(fname).is_ok() {
+            if check_file_name(fname) && std::fs::metadata(fname).is_ok() {
                 warn!("Overriding packaged {fname}");
+                FILE_COUNTER.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
                 return 0;
             }
         }
@@ -697,6 +726,7 @@ pub unsafe fn init(config: &Config, addr: &Addresses) {
     configurable_hook!(config, Hook::StormSetState, StormSetStateHook ; addr.func_storm_maybe_set_state => storm_set_state);
     configurable_hook!(config, Hook::StormStateMachineActionExecute, StormStateMachineActionExecuteHook ; addr.func_storm_statemachineaction_execute => storm_statemachineaction_execute);
     configurable_hook!(config, Hook::Thread, ThreadStarterHook ; addr.func_thread_starter => set_thread_name);
+    #[cfg(feature = "modding")]
     configurable_hook!(config, Hook::OverridePackaged, ArcOpenFileHook; addr.func_open_file_from_archive => arc_open_file);
 
     // always enable these hooks
@@ -766,6 +796,7 @@ pub unsafe fn deinit(config: &Config) {
         StormStateMachineActionExecuteHook
     );
     disable_configurable_hook!(config, Hook::Thread, ThreadStarterHook);
+    #[cfg(feature = "modding")]
     disable_configurable_hook!(config, Hook::OverridePackaged, ArcOpenFileHook);
     storm::deinit_hooks(config);
     quazal::deinit_hooks(config);

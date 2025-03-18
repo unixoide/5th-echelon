@@ -396,7 +396,7 @@ fn main() {
     /* setup platform and renderer, and fonts to imgui */
     let header_font = setup_fonts(&mut imgui);
 
-    let mut selected_game = None;
+    let mut selected_game: Option<(GameVersion, GameState)> = None;
 
     let mut launch_error = None;
 
@@ -485,7 +485,7 @@ fn main() {
                     if let Some(GameHook {
                         state: GameHookState::Resolved(ref addr),
                         ..
-                    }) = selected_game.and_then(|sg| addresses.get(sg))
+                    }) = selected_game.and_then(|sg| addresses.get(sg.0))
                     {
                         draw_debug_settings(ui, &mut cfg, addr);
                     }
@@ -511,12 +511,12 @@ fn main() {
                     });
                     ui.same_line();
 
-                    selected_game = get_selected_executable(ui, addresses, selected_game);
+                    selected_game = get_selected_executable(ui, addresses, selected_game.map(|(gv, _)| gv));
                     ui.same_line();
 
-                    ui.enabled(saved_cfg == cfg && selected_game.is_some(), || {
+                    ui.enabled(saved_cfg == cfg && matches!(selected_game, Some((_, GameState::Ready))), || {
                         if ui.button("Launch") {
-                            let executable = selected_game.unwrap().full_path(&target_dir);
+                            let executable = selected_game.unwrap().0.full_path(&target_dir);
                             match std::process::Command::new(&executable).spawn() {
                                 Err(e) => launch_error = Some(format!("{executable:?}: {e}")),
                                 Ok(_) => std::process::exit(0),
@@ -524,6 +524,13 @@ fn main() {
                         }
                         if let Some(error) = &launch_error {
                             ui.text_colored([1.0, 0.0, 0.0, 1.0], error)
+                        }
+                    });
+                    ui.same_line();
+                    ui.enabled(saved_cfg == cfg && matches!(selected_game, Some((_, GameState::NotReady))), || {
+                        if ui.button("Identify") {                            
+                            ui.open_popup(ID_MODAL_SEARCHING);
+                            addresses.start_searching();
                         }
                     });
 
@@ -564,7 +571,7 @@ fn main() {
                                         GameHookState::Failed(f) => ui.text_colored([1f32, 0f32, 0f32, 1f32], format!("FAILURE: {f}")),
                                     }
                                 }
-                                if addresses.search_status() && ui.button("Close") {
+                                if addresses.search_status() && ui.button("Save Results") {
                                     let gen_hash = |g: &GameHook| {
                                         let GameHookState::Resolved(a) = &g.state else { return None; };
                                         let Ok(hash) = hooks_addresses::hash_file(g.version.full_path(&g.target_dir)) else {return None;};
@@ -620,21 +627,42 @@ fn find_target_dir() -> PathBuf {
     target_dir
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+enum GameState {
+    Ready,
+    NotReady,
+}
+
+impl From<bool> for GameState {
+    fn from(b: bool) -> Self {
+        if b {
+            GameState::Ready
+        } else {
+            GameState::NotReady
+        }
+    }
+}
+
 fn get_selected_executable(
     ui: &imgui::Ui,
     games: &GameHooks,
     selected_gv: Option<GameVersion>,
-) -> Option<GameVersion> {
+) -> Option<(GameVersion, GameState)> {
     let mut versions = games
-        .iter_ready()
+        .iter()
         .map(|g| match g.version {
-            GameVersion::SplinterCellBlacklistDx11 => (g.version, "DirectX 11"),
-            GameVersion::SplinterCellBlacklistDx9 => (g.version, "DirectX 9"),
+            GameVersion::SplinterCellBlacklistDx11 => {
+                ((g.version, g.is_ready().into()), "DirectX 11")
+            }
+            GameVersion::SplinterCellBlacklistDx9 => {
+                ((g.version, g.is_ready().into()), "DirectX 9")
+            }
         })
         .collect::<Vec<_>>();
-    versions.sort_by_key(|(gv, _)| *gv);
+    versions.sort_by_key(|(gv, _)| gv.0);
 
-    let (versions, options): (Vec<GameVersion>, Vec<&str>) = versions.into_iter().unzip();
+    let (versions, options): (Vec<(GameVersion, GameState)>, Vec<&str>) =
+        versions.into_iter().unzip();
     let largest_text = options
         .iter()
         .map(|s| ui.calc_text_size(s)[0])
@@ -646,7 +674,7 @@ fn get_selected_executable(
         versions
             .iter()
             .enumerate()
-            .find_map(|(idx, gv)| if *gv == sgv { Some(idx) } else { None })
+            .find_map(|(idx, gv)| if gv.0 == sgv { Some(idx) } else { None })
             .unwrap_or_default()
     } else {
         0

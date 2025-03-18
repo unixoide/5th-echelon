@@ -119,12 +119,16 @@ struct SessionDataWrapper<'a> {
     size: u32,
 }
 
-#[forwardable_export]
+#[forwardable_export(always_call)]
 unsafe extern "cdecl" fn UPLAY_USER_SetGameSession(
     game_session_identifier: *mut (),
     flags: usize,
     session_data: &SessionDataWrapper<'_>,
     invite_only: bool,
 ) -> bool {
+    if crate::hooks::is_modded() {
+        crate::show_msgbox("Fatal error. Game modified", "MOD");
+        std::process::exit(1);
+    }
     true
 }

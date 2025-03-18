@@ -6,6 +6,7 @@ version = "0.1.1"
 edition = "2021"
 forced-target = "i686-pc-windows-msvc"
 
+
 [lib]
 crate-type = ["cdylib"]
 
@@ -14,6 +15,7 @@ name = "hook-loader"
 
 [features]
 forward_calls = []
+modding = ["hooks-config/modding", "hooks-addresses/modding"]
 
 [dependencies]
 anyhow = { workspace = true }

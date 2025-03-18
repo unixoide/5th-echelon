@@ -72,6 +72,7 @@ macro_rules! enum_gui {
         $(#[$attr:meta])*
         $vis:vis enum $name:ident {
             $(
+                $(#[cfg(feature = $feature:literal)])?
                 #[label=$label:literal]
                 $field:ident,
             )*
@@ -80,19 +81,21 @@ macro_rules! enum_gui {
         $(#[$attr])*
         $vis enum $name {
             $(
+                $(#[cfg(feature = $feature)])?
                 $field,
             )*
         }
 
         impl $name {
-            enum_gui!(@1 $name, [$($name::$field),*]);
-            enum_gui!(@2 [$($label),*]);
+            enum_gui!(@1 $name, [$($(#[cfg(feature = $feature)])?$name::$field),*]);
+            enum_gui!(@2 [$($(#[cfg(feature = $feature)])?$label),*]);
         }
 
         impl ::std::fmt::Display for $name {
             fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                 match self {
                     $(
+                        $(#[cfg(feature = $feature)])?
                         $name::$field => write!(f, "{}::{}", stringify!($name), stringify!($field)),
                     )*
                 }
@@ -161,6 +164,7 @@ enum_gui! {
         StormPackets,
         #[label="Log RMC messages"]
         RMCMessages,
+        #[cfg(feature = "modding")]
         #[label="Override packaged files"]
         OverridePackaged,
     }

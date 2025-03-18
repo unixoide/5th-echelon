@@ -12,9 +12,10 @@ jobs:
     runs-on: windows-latest
     permissions:
       contents: write
-    outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
     
+    # always run, regardless if release was successful
+    if: ${{ always() }}
+    needs: release
 
     steps:
     - uses: actions/checkout@v4
@@ -40,12 +41,26 @@ jobs:
         name: 5th-echelon.zip
         path: ${{runner.temp}}/5th-echelon/
         overwrite: true
+    - name: Upload Release Asset
+      id: upload-release-asset 
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.release.outputs.upload_url }}
+        asset_path: ./5th-echelon.zip
+        asset_name: 5th-echelon.zip
+        asset_content_type: application/zip
 
 
   build_linux:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+
+    # always run, regardless if release was successful
+    if: ${{ always() }}
+    needs: release
 
     steps:
     - uses: actions/checkout@v4
@@ -67,14 +82,24 @@ jobs:
         name: dedicated_server-linux-x86_64
         path: ./target/release/dedicated_server
         overwrite: true
+    - name: Upload Release Asset
+      id: upload-release-asset 
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.release.outputs.upload_url }}
+        asset_path: ./target/release/dedicated_server
+        asset_name: dedicated_server-linux-x86_64
+        asset_content_type: application/octet-stream
 
   release:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
     
-    needs: [build_windows, build_linux]
-
     steps:
     - name: Create Release
       id: create_release
@@ -86,23 +111,3 @@ jobs:
         release_name: ${{ github.ref }}
         draft: true
         prerelease: false
-    # - name: Upload Release Asset
-    #   id: upload-release-asset 
-    #   uses: actions/upload-release-asset@v1
-    #   env:
-    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    #   with:
-    #     upload_url: ${{ steps.create_release.outputs.upload_url }}
-    #     asset_path: ./5th-echelon.zip
-    #     asset_name: 5th-echelon.zip
-    #     asset_content_type: application/zip
-    # - name: Upload Release Asset
-    #   id: upload-release-asset 
-    #   uses: actions/upload-release-asset@v1
-    #   env:
-    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    #   with:
-    #     upload_url: ${{ needs.build.outputs.upload_url }}
-    #     asset_path: ./target/release/dedicated_server
-    #     asset_name: dedicated_server-linux-x86_64
-    #     asset_content_type: application/octet-stream

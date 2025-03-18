@@ -253,7 +253,7 @@ unsafe extern "cdecl" fn UPLAY_Release(ptr: *mut List) -> bool {
     true
 }
 
-#[forwardable_export]
+#[forwardable_export(always_call)]
 unsafe extern "cdecl" fn UPLAY_Startup(
     uplay_id: usize,
     game_version: usize,
@@ -261,6 +261,7 @@ unsafe extern "cdecl" fn UPLAY_Startup(
 ) -> isize {
     if let Some(config) = crate::config::get() {
         if config.enable_overlay {
+            info!("Initializing overlay");
             let (tx, rx) = crossbeam_channel::unbounded();
             // needs to be done in a separate thread, otherwise it'll not work
             std::thread::Builder::new()
@@ -270,10 +271,13 @@ unsafe extern "cdecl" fn UPLAY_Startup(
                         error!("Couldn't identify DX version");
                         return;
                     };
+                    info!("Detected DX version {engine:?}");
                     // TODO: blocks game if running in fullscreen mode. Waiting 10s seems to do the trick
                     std::thread::sleep(std::time::Duration::from_secs(10));
                     if let Err(err) = crate::overlay::init(engine, rx) {
                         error!("Couldn't initialize overlay: {err}");
+                    } else {
+                        info!("Overlay initialized");
                     }
                 })
                 .unwrap();
@@ -307,7 +311,11 @@ unsafe extern "cdecl" fn UPLAY_Startup(
                     });
                 })
                 .unwrap();
+        } else {
+            info!("Overlay is disabled");
         }
+    } else {
+        warn!("config not loaded!");
     }
     0 // 0 = all good, 1 = error occured, 2 = ??? (), 3 = ??? (potentially offline mode)
 }

@@ -9,6 +9,7 @@ required-features = ["generate_patterns"]
 
 [features]
 generate_patterns = ["dep:argh"]
+modding = []
 
 [dependencies]
 argh = { workspace = true, optional = true }
