@@ -67,17 +67,19 @@ pub fn serve_many(
             let data = std::fs::read(path)?;
 
             let resp = format!(
-        "HTTP/1.0 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {}\r\n\r\n",
-        data.len(),
-    );
+                "HTTP/1.0 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {}\r\n\r\n",
+                data.len(),
+            );
             debug!(logger, "Status 200");
             let mut resp = resp.into_bytes();
             resp.extend(data);
             if let Err(e) = stream.write_all(&resp) {
                 error!(logger, "simple_http: write error: {:?}", e);
-                continue;
             }
-        } else if let Err(e) = stream.write_all(b"HTTP/1.0 404 Not Found\r\n\r\n") {
+            continue;
+        }
+
+        if let Err(e) = stream.write_all(b"HTTP/1.0 404 Not Found\r\n\r\n") {
             error!(logger, "simple_http: write error: {:?}", e);
             continue;
         }
