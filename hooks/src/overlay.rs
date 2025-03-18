@@ -139,52 +139,8 @@ struct MyRenderLoop {
 
 impl MyRenderLoop {
     fn render_show(&mut self, ui: &imgui::Ui) {
-        let win_size = ui.io().display_size;
-        ui.window("Debug")
-            .position([win_size[0] - 10.0, 10.0], imgui::Condition::FirstUseEver)
-            .position_pivot([1.0, 0.0])
-            .size([300.0, 110.0], imgui::Condition::FirstUseEver)
-            .build(|| {
-                ui.input_text("username", &mut self.username).build();
-                if ui.button("Friend Accepted Invite") {
-                    info!("Send friend invite accept for {}", self.username);
-                    self.tx
-                        .send(Event::FriendsGameInviteAccepted(self.username.clone()))
-                        .unwrap();
-                }
-                ui.same_line();
-                if ui.button("Party Accepted Invite") {
-                    info!("Send party invite accept for {}", self.username);
-                    self.tx
-                        .send(Event::PartyGameInviteAccepted(self.username.clone()))
-                        .unwrap();
-                }
-            });
-
-        if !self.active_invites.is_empty() {
-            ui.window("Invites").position_pivot([0.5, 0.5]).build(|| {
-                for invite in &mut self.active_invites {
-                    if let Some(ref sender) = invite.event.sender {
-                        ui.text(sender.username.as_str());
-                        ui.disabled(invite.clicked, || {
-                            if ui.button("Accept") {
-                                self.tx
-                                    .send(Event::FriendsGameInviteAccepted(sender.id.clone()))
-                                    .unwrap();
-                                self.ui_state = UiState::Hide;
-                                invite.clicked = true;
-                            }
-                        });
-                    }
-                }
-            });
-        }
-
-        let color = [0.0, 0.0, 0.0, 0.5];
-        ui.get_background_draw_list()
-            .add_rect([0.0, 0.0], win_size, color)
-            .filled(true)
-            .build();
+        self.show_debug(ui);
+        self.show_advanced(ui);
     }
 
     #[allow(
@@ -300,6 +256,118 @@ impl MyRenderLoop {
                 });
         }
     }
+
+    #[allow(clippy::unused_self)]
+    fn show_advanced(&mut self, ui: &imgui::Ui) {
+        ui.window("Advanced")
+            .always_auto_resize(true)
+            .resizable(false)
+            .build(|| {
+                let mut has_fields = false;
+                if let Some(mpv) = unsafe { get_min_players_var().as_mut() } {
+                    ui.input_int("Min Number of Players", mpv).build();
+                    has_fields = true;
+                }
+                if let Some(mpv) = unsafe { get_max_players_var().as_mut() } {
+                    ui.input_int("Max Number of Players", mpv).build();
+                    has_fields = true;
+                }
+
+                if !has_fields {
+                    ui.text_colored([1.0, 1.0, 0.0, 0.0], "No advanced settings available!");
+                }
+            });
+    }
+
+    fn show_debug(&mut self, ui: &imgui::Ui) {
+        let win_size = ui.io().display_size;
+        ui.window("Debug")
+            .position([win_size[0] - 10.0, 10.0], imgui::Condition::FirstUseEver)
+            .position_pivot([1.0, 0.0])
+            .always_auto_resize(true)
+            .build(|| {
+                ui.input_text("username", &mut self.username).build();
+                if ui.button("Friend Accepted Invite") {
+                    info!("Send friend invite accept for {}", self.username);
+                    self.tx
+                        .send(Event::FriendsGameInviteAccepted(self.username.clone()))
+                        .unwrap();
+                }
+                ui.same_line();
+                if ui.button("Party Accepted Invite") {
+                    info!("Send party invite accept for {}", self.username);
+                    self.tx
+                        .send(Event::PartyGameInviteAccepted(self.username.clone()))
+                        .unwrap();
+                }
+            });
+
+        if !self.active_invites.is_empty() {
+            ui.window("Invites").position_pivot([0.5, 0.5]).build(|| {
+                for invite in &mut self.active_invites {
+                    if let Some(ref sender) = invite.event.sender {
+                        ui.text(sender.username.as_str());
+                        ui.disabled(invite.clicked, || {
+                            if ui.button("Accept") {
+                                self.tx
+                                    .send(Event::FriendsGameInviteAccepted(sender.id.clone()))
+                                    .unwrap();
+                                self.ui_state = UiState::Hide;
+                                invite.clicked = true;
+                            }
+                        });
+                    }
+                }
+            });
+        }
+
+        let color = [0.0, 0.0, 0.0, 0.5];
+        ui.get_background_draw_list()
+            .add_rect([0.0, 0.0], win_size, color)
+            .filled(true)
+            .build();
+    }
+}
+
+fn get_game_settings() -> *mut i32 {
+    if let Some(ncaddr) = unsafe { crate::hooks::NET_CORE_ADDR } {
+        unsafe {
+            // let g_netcore = std::ptr::read(0x32b_5dc4 as *mut *mut *mut i32);
+            let g_netcore = ncaddr as *mut *mut i32;
+            if g_netcore.is_null() {
+                return std::ptr::null_mut();
+            }
+            let game_session = std::ptr::read(g_netcore.byte_add(0x5d0));
+            if game_session.is_null() {
+                return std::ptr::null_mut();
+            }
+            game_session.byte_add(0x594)
+        }
+    } else {
+        std::ptr::null_mut()
+    }
+}
+
+fn get_max_players_var() -> *mut i32 {
+    unsafe {
+        let game_settings = get_game_settings();
+        if game_settings.is_null() {
+            return std::ptr::null_mut();
+        }
+
+        game_settings.byte_add(0x20)
+    }
+}
+
+fn get_min_players_var() -> *mut i32 {
+    unsafe {
+        let game_settings = get_game_settings();
+        if game_settings.is_null() {
+            return std::ptr::null_mut();
+        }
+
+        game_settings.byte_add(0x1c)
+    }
 }
 
 impl ImguiRenderLoop for MyRenderLoop {
@@ -310,6 +378,7 @@ impl ImguiRenderLoop for MyRenderLoop {
     ) {
         sc_style(ctx.style_mut());
         setup_fonts(ctx);
+        ctx.io_mut().font_global_scale = 2.0;
     }
     fn render(&mut self, ui: &mut imgui::Ui) {
         #[allow(clippy::cast_possible_wrap)]

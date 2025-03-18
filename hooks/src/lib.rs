@@ -17,8 +17,6 @@ use std::os::raw::c_void;
 use std::os::windows::ffi::OsStringExt;
 use std::path::Path;
 use std::path::PathBuf;
-use std::thread;
-use std::time;
 
 use addresses::Addresses;
 use hooks_config as config;
@@ -35,10 +33,7 @@ use windows::Win32::System::SystemServices::DLL_PROCESS_DETACH;
 use windows::Win32::System::SystemServices::DLL_THREAD_ATTACH;
 use windows::Win32::System::SystemServices::DLL_THREAD_DETACH;
 use windows::Win32::UI::WindowsAndMessaging::MessageBoxA;
-use windows::Win32::UI::WindowsAndMessaging::IDOK;
-use windows::Win32::UI::WindowsAndMessaging::MB_ICONQUESTION;
 use windows::Win32::UI::WindowsAndMessaging::MB_OK;
-use windows::Win32::UI::WindowsAndMessaging::MB_OKCANCEL;
 
 mod addresses;
 mod api;
@@ -240,19 +235,6 @@ fn show_msgbox(msg: &str, caption: &str) {
     }
 }
 
-fn show_msgbox_ok_cancel(msg: &str, caption: &str) -> bool {
-    let msg = CString::new(msg).unwrap();
-    let caption = CString::new(caption).unwrap();
-    unsafe {
-        MessageBoxA(
-            None,
-            PCSTR(msg.as_ptr().cast::<u8>()),
-            PCSTR(caption.as_ptr().cast::<u8>()),
-            MB_OKCANCEL | MB_ICONQUESTION,
-        ) == IDOK
-    }
-}
-
 fn get_executable(hinst: HMODULE) -> Option<PathBuf> {
     let mut path = vec![0u16; 4096];
     let sz = unsafe { GetModuleFileNameW(hinst, &mut path) } as usize;
@@ -290,9 +272,7 @@ fn get_target_dir(hinst: Option<HMODULE>) -> PathBuf {
     path.unwrap_or_default()
 }
 
-fn init_log(
-    target_dir: &Path,
-) -> tracing_subscriber::reload::Handle<
+type ReconfigurableLogger = tracing_subscriber::reload::Handle<
     tracing_subscriber::EnvFilter,
     tracing_subscriber::layer::Layered<
         tracing_subscriber::fmt::Layer<
@@ -303,7 +283,9 @@ fn init_log(
         >,
         tracing_subscriber::Registry,
     >,
-> {
+>;
+
+fn init_log(target_dir: &Path) -> ReconfigurableLogger {
     let path = target_dir.join("bl-tracing.log");
     let _ = std::fs::remove_file(&path);
     let subscriber_builder = tracing_subscriber::FmtSubscriber::builder()

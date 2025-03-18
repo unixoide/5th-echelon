@@ -42,6 +42,8 @@ use self::datatypes::NetFiniteStateID;
 use self::datatypes::NetFiniteStateMachine;
 use self::datatypes::QuazalStep;
 
+pub(crate) static mut NET_CORE_ADDR: Option<hooks_addresses::Address> = None;
+
 #[repr(C)]
 struct SomeStormAddrType {
     vtable: *const c_void,
@@ -294,11 +296,14 @@ fn change_state(
 #[instrument(skip_all)]
 fn net_core(inst: *mut c_void) -> *mut c_void {
     let inst = unsafe { NetCoreHook.call(inst) };
+    // unsafe {
+    //     let lanmode = inst.cast::<u8>().offset(0x5c8);
+    //     assert_eq!(*lanmode, 0);
+    //     *lanmode = 1;
+    // };
     unsafe {
-        let lanmode = inst.cast::<u8>().offset(0x5c8);
-        assert_eq!(*lanmode, 0);
-        *lanmode = 1;
-    };
+        NET_CORE_ADDR = Some(inst as hooks_addresses::Address);
+    }
     inst
 }
 
@@ -620,7 +625,6 @@ static_detour! {
     static ArcOpenFileHook: unsafe extern "thiscall" fn(*mut c_void, *mut i8) -> usize;
 }
 
-
 #[instrument(skip_all)]
 fn arc_open_file(this: *mut c_void, fname: *mut i8) -> usize {
     if !fname.is_null() {
@@ -694,12 +698,9 @@ pub unsafe fn init(config: &Config, addr: &Addresses) {
     configurable_hook!(config, Hook::StormStateMachineActionExecute, StormStateMachineActionExecuteHook ; addr.func_storm_statemachineaction_execute => storm_statemachineaction_execute);
     configurable_hook!(config, Hook::Thread, ThreadStarterHook ; addr.func_thread_starter => set_thread_name);
     configurable_hook!(config, Hook::OverridePackaged, ArcOpenFileHook; addr.func_open_file_from_archive => arc_open_file);
-    if false {
-        // always disable for now
-        configurable_hook!(config, Hook::NetCore, NetCoreHook ; addr.func_net_core => net_core);
-    }
 
     // always enable these hooks
+    hook!(NetCoreHook, addr.func_net_core, net_core);
     // if config.enable_all_hooks || config.enable_hooks.contains(&Hook::GetAdaptersInfo)
     {
         let lib = LoadLibraryA(s!("iphlpapi.dll")).unwrap();
