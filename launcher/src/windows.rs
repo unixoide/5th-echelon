@@ -5,12 +5,15 @@ use std::net::Ipv4Addr;
 use std::net::Ipv6Addr;
 
 use anyhow::bail;
+use imgui_winit_support::winit;
+use raw_window_handle::HasWindowHandle as _;
 use windows::core::PWSTR;
 use windows::Win32::Foundation::GetLastError;
 use windows::Win32::Foundation::LocalFree;
 use windows::Win32::Foundation::ERROR_BUFFER_OVERFLOW;
 use windows::Win32::Foundation::ERROR_SUCCESS;
 use windows::Win32::Foundation::HLOCAL;
+use windows::Win32::Foundation::HWND;
 use windows::Win32::Foundation::WIN32_ERROR;
 use windows::Win32::NetworkManagement::IpHelper::GetAdaptersAddresses;
 use windows::Win32::NetworkManagement::IpHelper::GetAdaptersInfo;
@@ -25,6 +28,19 @@ use windows::Win32::Networking::WinSock::SOCKADDR_IN;
 use windows::Win32::Networking::WinSock::SOCKADDR_IN6;
 use windows::Win32::System::Diagnostics::Debug::FormatMessageW;
 use windows::Win32::System::Diagnostics::Debug::FORMAT_MESSAGE_ALLOCATE_BUFFER;
+
+mod clipboard_win;
+
+pub fn clipboard_backend(window: &winit::window::Window) -> clipboard_win::WindowsClipboard {
+    let raw_handle = window.window_handle().expect("raw window handle").as_raw();
+    let hwnd = match raw_handle {
+        winit::raw_window_handle::RawWindowHandle::Win32(win32_window_handle) => {
+            HWND(win32_window_handle.hwnd.into())
+        }
+        _ => unreachable!(),
+    };
+    clipboard_win::WindowsClipboard { hwnd }
+}
 
 pub fn find_adapter_names() -> Vec<(String, IpAddr)> {
     let res = if cfg!(feature = "GetAdapterInfos") {

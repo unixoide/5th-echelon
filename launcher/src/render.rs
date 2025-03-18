@@ -232,5 +232,7 @@ fn imgui_init(window: &Window, imgui: &mut imgui::Context) -> WinitPlatform {
 
     imgui.io_mut().font_global_scale = (1.0 / winit_platform.hidpi_factor()) as f32;
 
+    imgui.set_clipboard_backend(crate::sys::clipboard_backend(window));
+
     winit_platform
 }

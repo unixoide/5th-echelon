@@ -17,8 +17,7 @@ use imgui_winit_support::HiDpiMode;
 use imgui_winit_support::WinitPlatform;
 use imgui_winit_support::winit::dpi::LogicalSize;
 use imgui_winit_support::winit::event_loop::EventLoop;
-#[allow(deprecated)]
-use imgui_winit_support::winit::raw_window_handle::HasRawWindowHandle;
+use imgui_winit_support::winit::raw_window_handle::HasWindowHandle as _;
 use imgui_winit_support::winit::window::Window;
 use imgui_winit_support::winit::{self};
 use windows::Win32::Foundation::HWND;
@@ -133,8 +132,7 @@ fn create_window() -> (
 
     let window = window.unwrap();
 
-    #[allow(deprecated)]
-    let raw_handle = window.raw_window_handle().expect("raw window handle");
+    let raw_handle = window.window_handle().expect("raw window handle").as_raw();
     let context_attribs = ContextAttributesBuilder::new().build(Some(raw_handle));
     let context = unsafe {
         cfg.display()
@@ -184,8 +182,7 @@ fn imgui_init(window: &Window, imgui: &mut imgui::Context) -> WinitPlatform {
 
     // imgui.io_mut().font_global_scale = (1.0 / winit_platform.hidpi_factor()) as f32;
 
-    #[allow(deprecated)]
-    let raw_handle = window.raw_window_handle().expect("raw window handle");
+    let raw_handle = window.window_handle().expect("raw window handle").as_raw();
     let hwnd = match raw_handle {
         winit::raw_window_handle::RawWindowHandle::Win32(win32_window_handle) => {
             HWND(win32_window_handle.hwnd.into())
