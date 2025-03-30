@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package games;
+
+service GamesAdmin {
+  rpc List(ListRequest) returns (ListResponse);
+  rpc Delete(DeleteRequest) returns (DeleteResponse);
+}
+
+message ListRequest {}
+
+message ListResponse { repeated Game games = 1; }
+
+message DeleteRequest { uint32 id = 1; }
+
+message DeleteResponse {}
+
+message Game {
+  uint32 id = 1;
+  string creator = 2;
+  repeated string participants = 3;
+  string game_type = 4;
+}

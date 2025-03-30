@@ -53,7 +53,7 @@ pub enum Error {
 
     #[display("Stream handler error {_0}")]
     #[from(ignore)]
-    StreamHandler(#[error(ignore)] Box<dyn std::error::Error>),
+    StreamHandler(#[error(ignore)] Box<dyn std::error::Error + Send>),
 
     Unimplemented,
 }
@@ -102,13 +102,11 @@ impl<T> StreamHandlerRegistry<T> {
     }
 
     pub fn register(&mut self, port: VPort, handler: Box<dyn StreamHandler<T>>) {
-        debug!(
-            self.logger,
-            "Registering handler for stream type {:?}", port
-        );
+        debug!(self.logger, "Registering handler for stream type {:?}", port);
         self.handlers.insert(port, handler);
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn handle_packet(
         &self,
         logger: &Logger,
@@ -136,8 +134,7 @@ impl VPort {
         let val = rdr.read_u8()?;
         Ok(Self {
             port: val & 0xF,
-            stream_type: StreamType::try_from(val >> 4)
-                .map_err(|e| Error::InvalidStreamType(e.number))?,
+            stream_type: StreamType::try_from(val >> 4).map_err(|e| Error::InvalidStreamType(e.number))?,
         })
     }
 
@@ -209,10 +206,8 @@ impl QPacket {
         let source = VPort::from_reader(rdr)?;
         let destination = VPort::from_reader(rdr)?;
         let type_flag = rdr.read_u8()?;
-        let packet_type = PacketType::try_from(type_flag & 0x7)
-            .map_err(|e| Error::InvalidPacketType(e.number))?;
-        let flags = BitFlags::from_bits(type_flag >> 3)
-            .map_err(|e| Error::InvalidFlag(e.invalid_bits()))?;
+        let packet_type = PacketType::try_from(type_flag & 0x7).map_err(|e| Error::InvalidPacketType(e.number))?;
+        let flags = BitFlags::from_bits(type_flag >> 3).map_err(|e| Error::InvalidFlag(e.invalid_bits()))?;
         let session_id = rdr.read_u8()?;
         let signature = rdr.read_u32::<LittleEndian>()?;
         let sequence = rdr.read_u16::<LittleEndian>()?;
@@ -235,28 +230,25 @@ impl QPacket {
             let l = rdr.stream_len();
             let p = rdr.stream_position();
             l.and_then(|l| p.map(|p| l - p - 1))
-                .expect("getting length and position from buffer should never fail")
-                as usize
+                .expect("getting length and position from buffer should never fail") as usize
         };
 
         let mut payload = vec![0u8; payload_size];
         rdr.read_exact(&mut payload)?;
 
-        let use_compression = if !matches!(packet_type, PacketType::Syn)
-            && matches!(source.stream_type, StreamType::RVSec)
-        {
-            payload = crypt(ctx, &payload);
-            let use_compression = !payload.is_empty() && payload[0] != 0;
-            if use_compression {
-                payload = decompress_to_vec_zlib(&payload.as_slice()[1..])
-                    .map_err(Error::DecompressFailed)?;
-            } else if !payload.is_empty() {
-                payload.remove(0);
-            }
-            use_compression
-        } else {
-            false
-        };
+        let use_compression =
+            if !matches!(packet_type, PacketType::Syn) && matches!(source.stream_type, StreamType::RVSec) {
+                payload = crypt(ctx, &payload);
+                let use_compression = !payload.is_empty() && payload[0] != 0;
+                if use_compression {
+                    payload = decompress_to_vec_zlib(&payload.as_slice()[1..]).map_err(Error::DecompressFailed)?;
+                } else if !payload.is_empty() {
+                    payload.remove(0);
+                }
+                use_compression
+            } else {
+                false
+            };
         let checksum = rdr.read_u8()?;
 
         Ok(Self {
@@ -277,10 +269,7 @@ impl QPacket {
 
     #[must_use]
     pub(crate) fn calc_checksum(&self, ctx: &Context) -> u8 {
-        calc_checksum_from_data(
-            ctx.key(self.destination.stream_type),
-            &self.to_data_bytes(ctx),
-        )
+        calc_checksum_from_data(ctx.key(self.destination.stream_type), &self.to_data_bytes(ctx))
     }
 
     #[must_use]
@@ -295,8 +284,7 @@ impl QPacket {
                     mac.update(payload);
                     let result = mac.finalize();
                     let mut rdr = Cursor::new(result.into_bytes());
-                    rdr.read_u32::<LittleEndian>()
-                        .expect("convert digest to u32")
+                    rdr.read_u32::<LittleEndian>().expect("convert digest to u32")
                 }
             }
             PacketType::Syn => todo!(),
@@ -332,11 +320,7 @@ impl QPacket {
             PacketType::Data => {
                 data.push(self.fragment_id.expect("fragment id required"));
             }
-            PacketType::Disconnect
-            | PacketType::Ping
-            | PacketType::User
-            | PacketType::Route
-            | PacketType::Raw => {}
+            PacketType::Disconnect | PacketType::Ping | PacketType::User | PacketType::Route | PacketType::Raw => {}
         }
 
         let payload = if self.payload.is_empty() {
@@ -352,13 +336,12 @@ impl QPacket {
             tmp
         };
 
-        let mut payload = if !matches!(self.packet_type, PacketType::Syn)
-            && matches!(self.source.stream_type, StreamType::RVSec)
-        {
-            crypt(ctx, &payload)
-        } else {
-            payload
-        };
+        let mut payload =
+            if !matches!(self.packet_type, PacketType::Syn) && matches!(self.source.stream_type, StreamType::RVSec) {
+                crypt(ctx, &payload)
+            } else {
+                payload
+            };
 
         if self.flags.contains(PacketFlag::HasSize) {
             #[allow(clippy::cast_possible_truncation)]
@@ -373,20 +356,12 @@ impl QPacket {
     #[must_use]
     pub fn to_bytes(&self, ctx: &Context) -> Vec<u8> {
         let mut data = self.to_data_bytes(ctx);
-        data.push(calc_checksum_from_data(
-            ctx.key(self.destination.stream_type),
-            &data,
-        ));
+        data.push(calc_checksum_from_data(ctx.key(self.destination.stream_type), &data));
         data
     }
 
     pub fn validate(&self, ctx: &Context, data: &[u8]) -> Result<(), Error> {
-        if self.checksum
-            != calc_checksum_from_data(
-                ctx.key(self.destination.stream_type),
-                &data[..data.len() - 1],
-            )
-        {
+        if self.checksum != calc_checksum_from_data(ctx.key(self.destination.stream_type), &data[..data.len() - 1]) {
             return Err(Error::InvalidChecksum);
         }
         Ok(())
@@ -406,9 +381,7 @@ fn calc_checksum_from_data(key: u32, data: &[u8]) -> u8 {
         .iter()
         .fold(Wrapping(0u8), |acc, x| acc + Wrapping(*x));
 
-    let trailer_sum = &data[l..]
-        .iter()
-        .fold(Wrapping(0u8), |acc, x| acc + Wrapping(*x));
+    let trailer_sum = &data[l..].iter().fold(Wrapping(0u8), |acc, x| acc + Wrapping(*x));
 
     #[allow(clippy::cast_possible_truncation)]
     let res = data_sum + Wrapping(key as u8) + trailer_sum;
@@ -448,9 +421,7 @@ impl Rc4 {
         }
         let mut j: u8 = 0;
         for i in 0..256 {
-            j = j
-                .wrapping_add(rc4.state[i])
-                .wrapping_add(key[i % key.len()]);
+            j = j.wrapping_add(rc4.state[i]).wrapping_add(key[i % key.len()]);
             rc4.state.swap(i, j as usize);
         }
         rc4
@@ -464,8 +435,7 @@ impl Iterator for Rc4 {
         self.i = self.i.wrapping_add(1);
         self.j = self.j.wrapping_add(self.state[self.i as usize]);
         self.state.swap(self.i as usize, self.j as usize);
-        let k = self.state
-            [(self.state[self.i as usize].wrapping_add(self.state[self.j as usize])) as usize];
+        let k = self.state[(self.state[self.i as usize].wrapping_add(self.state[self.j as usize])) as usize];
         Some(k)
     }
 }
@@ -518,10 +488,7 @@ impl Iterator for Rc4 {
 ///     }
 /// );
 /// ```
-pub fn parse<R: std::io::Read + std::io::Seek>(
-    ctx: &Context,
-    rdr: &mut R,
-) -> Result<QPacket, Error> {
+pub fn parse<R: std::io::Read + std::io::Seek>(ctx: &Context, rdr: &mut R) -> Result<QPacket, Error> {
     let start = rdr.stream_position()?;
     let pkt = QPacket::from_reader(ctx, rdr)?;
     let end = rdr.stream_position()?;
@@ -540,8 +507,7 @@ mod tests {
     fn test_syn() {
         let ctx = &Context::splinter_cell_blacklist();
         let data = [
-            0x3f, 0x31, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            0x40,
+            0x3f, 0x31, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40,
         ];
 
         let pkt = dbg!(QPacket::from_bytes(ctx, &data).unwrap()).0;

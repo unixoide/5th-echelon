@@ -161,9 +161,7 @@ impl Addresses {
             Hook::StormHostPortToString => self.func_storm_host_port_to_str = addrs.next(),
             Hook::GenerateID => self.func_generate_id = addrs.next(),
             Hook::StormSetState => self.func_storm_maybe_set_state = addrs.next(),
-            Hook::StormStateMachineActionExecute => {
-                self.func_storm_statemachineaction_execute = addrs.next()
-            }
+            Hook::StormStateMachineActionExecute => self.func_storm_statemachineaction_execute = addrs.next(),
             Hook::StormErrorFormatter => self.func_storm_some_error_formatter = addrs.next(),
             Hook::GearStrDestructor => {
                 self.func_gear_str_destructor = addrs.next();
@@ -197,10 +195,7 @@ fn dx9_addresses() -> HashMap<[u8; 32], Addresses> {
         onlineconfig_url: 0x02cc0650,
         unreal_commandline: Some(0x0323b97c),
 
-        debug_print: Some((
-            0x033d5c94,
-            vec![0x021f1144..0x021f1144 + 5, 0x021f1167..0x021f1167 + 4],
-        )),
+        debug_print: Some((0x033d5c94, vec![0x021f1144..0x021f1144 + 5, 0x021f1167..0x021f1167 + 4])),
 
         // hooks
         func_printer: Some(0x04b19e0),
@@ -236,15 +231,13 @@ fn dx9_addresses() -> HashMap<[u8; 32], Addresses> {
 
     let dx9_hashes = [
         [
-            0x15, 0x8e, 0xfc, 0x5d, 0x9, 0x40, 0xfc, 0xaf, 0x3e, 0x4b, 0x16, 0x95, 0x2c, 0x8f,
-            0x88, 0x61, 0xe1, 0x60, 0x61, 0x50, 0x9d, 0x9e, 0xb8, 0xeb, 0x5f, 0xf4, 0xae, 0x32,
-            0x49, 0xbb, 0x5a, 0x5,
+            0x15, 0x8e, 0xfc, 0x5d, 0x9, 0x40, 0xfc, 0xaf, 0x3e, 0x4b, 0x16, 0x95, 0x2c, 0x8f, 0x88, 0x61, 0xe1, 0x60,
+            0x61, 0x50, 0x9d, 0x9e, 0xb8, 0xeb, 0x5f, 0xf4, 0xae, 0x32, 0x49, 0xbb, 0x5a, 0x5,
         ],
         // Same binary except of 2 bytes of the COFF header checksum?? (offset 0x1a9 and 0x1aa)
         [
-            0x7f, 0xcd, 0x3a, 0x18, 0xd4, 0xdc, 0xc6, 0x92, 0x71, 0x99, 0x84, 0xb0, 0x72, 0x68,
-            0xbd, 0x42, 0x76, 0x41, 0x8, 0xe7, 0xdf, 0x37, 0x4, 0x9f, 0x14, 0x90, 0xf2, 0x9, 0x29,
-            0xf9, 0x92, 0x5d,
+            0x7f, 0xcd, 0x3a, 0x18, 0xd4, 0xdc, 0xc6, 0x92, 0x71, 0x99, 0x84, 0xb0, 0x72, 0x68, 0xbd, 0x42, 0x76, 0x41,
+            0x8, 0xe7, 0xdf, 0x37, 0x4, 0x9f, 0x14, 0x90, 0xf2, 0x9, 0x29, 0xf9, 0x92, 0x5d,
         ],
         /*
         Byte Diffs :
@@ -331,9 +324,8 @@ fn dx9_addresses() -> HashMap<[u8; 32], Addresses> {
             019d8047    0x02       0x90
          */
         [
-            0xaf, 0x06, 0x72, 0x09, 0x45, 0x88, 0x04, 0xe6, 0xad, 0xce, 0xca, 0x43, 0x2b, 0x50,
-            0xfb, 0x25, 0x52, 0x08, 0x71, 0x6f, 0xb2, 0x30, 0x37, 0xe8, 0x25, 0x24, 0x4d, 0xbc,
-            0x9f, 0x3b, 0x19, 0x5c,
+            0xaf, 0x06, 0x72, 0x09, 0x45, 0x88, 0x04, 0xe6, 0xad, 0xce, 0xca, 0x43, 0x2b, 0x50, 0xfb, 0x25, 0x52, 0x08,
+            0x71, 0x6f, 0xb2, 0x30, 0x37, 0xe8, 0x25, 0x24, 0x4d, 0xbc, 0x9f, 0x3b, 0x19, 0x5c,
         ],
     ];
 
@@ -345,9 +337,8 @@ fn dx11_addresses() -> HashMap<[u8; 32], Addresses> {
 
     let dx11_hashes = [
         [
-            0xc6, 0xb9, 0xf3, 0x30, 0xfa, 0xc1, 0x41, 0x2f, 0x19, 0xf3, 0x2a, 0x6f, 0xd8, 0x6e,
-            0xdb, 0x4c, 0x66, 0x29, 0x1a, 0x69, 0x2, 0x61, 0x1e, 0x94, 0x33, 0xb9, 0xb0, 0xea,
-            0x65, 0x9e, 0xb4, 0xbc,
+            0xc6, 0xb9, 0xf3, 0x30, 0xfa, 0xc1, 0x41, 0x2f, 0x19, 0xf3, 0x2a, 0x6f, 0xd8, 0x6e, 0xdb, 0x4c, 0x66, 0x29,
+            0x1a, 0x69, 0x2, 0x61, 0x1e, 0x94, 0x33, 0xb9, 0xb0, 0xea, 0x65, 0x9e, 0xb4, 0xbc,
         ],
         /*
         Byte Diffs :
@@ -356,9 +347,8 @@ fn dx11_addresses() -> HashMap<[u8; 32], Addresses> {
             00400199    0x97       0x98
          */
         [
-            0xc5, 0x2b, 0x3d, 0x09, 0x27, 0x59, 0x1e, 0x47, 0x74, 0x24, 0xf3, 0x89, 0xff, 0x0b,
-            0x13, 0x14, 0xa3, 0x00, 0x93, 0x8e, 0x19, 0xce, 0x61, 0xa7, 0xb0, 0xa7, 0xbc, 0x09,
-            0xf8, 0x1c, 0x2c, 0x89,
+            0xc5, 0x2b, 0x3d, 0x09, 0x27, 0x59, 0x1e, 0x47, 0x74, 0x24, 0xf3, 0x89, 0xff, 0x0b, 0x13, 0x14, 0xa3, 0x00,
+            0x93, 0x8e, 0x19, 0xce, 0x61, 0xa7, 0xb0, 0xa7, 0xbc, 0x09, 0xf8, 0x1c, 0x2c, 0x89,
         ],
         /*
         Byte Diffs :
@@ -444,9 +434,8 @@ fn dx11_addresses() -> HashMap<[u8; 32], Addresses> {
 
          */
         [
-            0xb5, 0x21, 0xc4, 0xb0, 0x23, 0x62, 0x72, 0xe7, 0x3f, 0xcb, 0xf9, 0x35, 0xdb, 0x33,
-            0x80, 0xa8, 0x4b, 0x7c, 0x0f, 0xa9, 0x80, 0x47, 0x66, 0x43, 0x77, 0xdb, 0x1c, 0xda,
-            0xaf, 0xde, 0x06, 0x7f,
+            0xb5, 0x21, 0xc4, 0xb0, 0x23, 0x62, 0x72, 0xe7, 0x3f, 0xcb, 0xf9, 0x35, 0xdb, 0x33, 0x80, 0xa8, 0x4b, 0x7c,
+            0x0f, 0xa9, 0x80, 0x47, 0x66, 0x43, 0x77, 0xdb, 0x1c, 0xda, 0xaf, 0xde, 0x06, 0x7f,
         ],
     ];
 
@@ -455,10 +444,7 @@ fn dx11_addresses() -> HashMap<[u8; 32], Addresses> {
         onlineconfig_url: 0x02d12b60,
         unreal_commandline: Some(0x33099B4),
 
-        debug_print: Some((
-            0x34CA4D4,
-            vec![0x02218634..0x02218634 + 5, 0x02218657..0x02218657 + 4],
-        )),
+        debug_print: Some((0x34CA4D4, vec![0x02218634..0x02218634 + 5, 0x02218657..0x02218657 + 4])),
 
         // hooks
         func_printer: Some(0x636D20),
@@ -530,10 +516,7 @@ pub fn load_custom_addresses(dir: &Path) -> HashMap<String, HashMap<[u8; 32], Ad
     let dehex = |s: String| -> anyhow::Result<[u8; 32]> {
         anyhow::ensure!(s.len() == 64, "hash should be 64 hex chars");
         anyhow::ensure!(s.is_ascii(), "hash should be a hex string");
-        anyhow::ensure!(
-            s.chars().all(|c| c.is_ascii_hexdigit()),
-            "hash should be a hex string"
-        );
+        anyhow::ensure!(s.chars().all(|c| c.is_ascii_hexdigit()), "hash should be a hex string");
         let mut out = [0u8; 32];
         for i in 0..s.len() / 2 {
             out[i] = u8::from_str_radix(&s[i * 2..i * 2 + 2], 16)?;
@@ -542,18 +525,13 @@ pub fn load_custom_addresses(dir: &Path) -> HashMap<String, HashMap<[u8; 32], Ad
     };
 
     let convert = |hm: HashMap<String, Addresses>| -> anyhow::Result<HashMap<[u8; 32], Addresses>> {
-        hm.into_iter()
-            .map(|(key, value)| Ok((dehex(key)?, value)))
-            .collect()
+        hm.into_iter().map(|(key, value)| Ok((dehex(key)?, value))).collect()
     };
 
     let build = || -> anyhow::Result<_> {
         Ok(HashMap::from([
             (String::from("blacklist_game.exe"), convert(saved.dx9)?),
-            (
-                String::from("blacklist_dx11_game.exe"),
-                convert(saved.dx11)?,
-            ),
+            (String::from("blacklist_dx11_game.exe"), convert(saved.dx11)?),
         ]))
     };
 
@@ -584,9 +562,7 @@ fn save_builtin_addresses() {
     save_addresses_impl(
         exec_path.parent().unwrap(),
         inbuilt.remove("blacklist_game.exe").unwrap_or_default(),
-        inbuilt
-            .remove("blacklist_dx11_game.exe")
-            .unwrap_or_default(),
+        inbuilt.remove("blacklist_dx11_game.exe").unwrap_or_default(),
         false,
     )
 }
@@ -616,12 +592,7 @@ fn save_addresses_impl(
         }
     };
 
-    let hex = |b: [u8; 32]| -> String {
-        b.into_iter()
-            .map(|b| format!("{b:02x}"))
-            .collect::<Vec<_>>()
-            .join("")
-    };
+    let hex = |b: [u8; 32]| -> String { b.into_iter().map(|b| format!("{b:02x}")).collect::<Vec<_>>().join("") };
 
     let convert = |a: HashMap<[u8; 32], Addresses>| -> HashMap<String, Addresses> {
         a.into_iter()
@@ -642,11 +613,7 @@ fn save_addresses_impl(
 }
 
 #[instrument]
-pub fn save_addresses(
-    dir: &Path,
-    dx9: HashMap<[u8; 32], Addresses>,
-    dx11: HashMap<[u8; 32], Addresses>,
-) {
+pub fn save_addresses(dir: &Path, dx9: HashMap<[u8; 32], Addresses>, dx11: HashMap<[u8; 32], Addresses>) {
     save_addresses_impl(dir, dx9, dx11, true);
 }
 
@@ -723,16 +690,11 @@ pub fn get_from_path(filepath: &Path) -> Result<Addresses, Error> {
 }
 
 fn find_subsequence(haystack: &[u8], needle: &[u8]) -> Option<usize> {
-    haystack
-        .windows(needle.len())
-        .position(|window| window == needle)
+    haystack.windows(needle.len()).position(|window| window == needle)
 }
 
 static ONLINE_CLIENT_CFG_PATTERN: LazyLock<Pattern> = LazyLock::new(|| {
-    Pattern::from_str(
-        "A1 ?? ?? ?? ?? 50 8D 4? ?? 51 8B 0D ?? ?? ?? ?? 8D 5? ?? 52 8D 4? ?? 50 E8 ?? ?? ?? ??",
-    )
-    .unwrap()
+    Pattern::from_str("A1 ?? ?? ?? ?? 50 8D 4? ?? 51 8B 0D ?? ?? ?? ?? 8D 5? ?? 52 8D 4? ?? 50 E8 ?? ?? ?? ??").unwrap()
 });
 
 static CMDLINE_PATTERN: LazyLock<Pattern> = LazyLock::new(|| {
@@ -773,8 +735,7 @@ static HOOK_PATTERNS: LazyLock<Vec<(Hook, Vec<Pattern>)>> = LazyLock::new(|| {
 pub fn search_patterns(filepath: &Path) -> Result<Addresses, Error> {
     let content = std::fs::read(filepath)?;
 
-    let pe =
-        goblin::pe::PE::parse(&content).map_err(|_| std::io::Error::other("parsing failed"))?;
+    let pe = goblin::pe::PE::parse(&content).map_err(|_| std::io::Error::other("parsing failed"))?;
 
     let rdata_section = pe
         .sections
@@ -786,7 +747,7 @@ pub fn search_patterns(filepath: &Path) -> Result<Addresses, Error> {
         .data(&content)
         .map_err(|_| std::io::Error::other("parsing failed"))?
         .ok_or(std::io::Error::other("parsing failed"))?;
-    let data_section = pe
+    let _data_section = pe
         .sections
         .iter()
         .find(|s| &s.name == b".data\0\0\0")
@@ -804,9 +765,7 @@ pub fn search_patterns(filepath: &Path) -> Result<Addresses, Error> {
 
     let image_base = pe.image_base;
 
-    let Some(onlineconfig_url_offset) =
-        find_subsequence(&rdata_content, b"onlineconfigservice.ubi.com\0")
-    else {
+    let Some(onlineconfig_url_offset) = find_subsequence(&rdata_content, b"onlineconfigservice.ubi.com\0") else {
         return Err(Error::IdFailed);
     };
 
@@ -840,9 +799,7 @@ pub fn search_patterns(filepath: &Path) -> Result<Addresses, Error> {
 
     let mut addr = Addresses {
         global_onlineconfig_client: onlinecfg_client_addr,
-        onlineconfig_url: image_base
-            + rdata_section.virtual_address as usize
-            + onlineconfig_url_offset,
+        onlineconfig_url: image_base + rdata_section.virtual_address as usize + onlineconfig_url_offset,
         unreal_commandline,
         debug_print: None,
         func_printer: None,

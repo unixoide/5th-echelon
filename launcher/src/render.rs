@@ -14,7 +14,6 @@ use glutin::surface::Surface;
 use glutin::surface::SurfaceAttributesBuilder;
 use glutin::surface::WindowSurface;
 use imgui_glow_renderer::TextureMap;
-use imgui_winit_support::winit::dpi::LogicalSize;
 use imgui_winit_support::winit::event_loop::EventLoop;
 #[allow(deprecated)]
 use imgui_winit_support::winit::raw_window_handle::HasRawWindowHandle;
@@ -24,42 +23,31 @@ use imgui_winit_support::HiDpiMode;
 use imgui_winit_support::WinitPlatform;
 
 static LOGO_PIXELS: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/logo.dat"));
-pub const LOGO_WIDTH: i32 = 440;
-pub const LOGO_HEIGTH: i32 = 419;
+pub const LOGO_WIDTH: i32 = 256;
+pub const LOGO_HEIGTH: i32 = 256;
+
+static OLD_LOGO_PIXELS: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/old_logo.dat"));
+pub const OLD_LOGO_WIDTH: i32 = 440;
+pub const OLD_LOGO_HEIGTH: i32 = 419;
 
 pub fn render(
+    initial_size: winit::dpi::LogicalSize<u32>,
     mut imgui_context: imgui::Context,
     mut do_render: impl FnMut(&mut imgui::Ui, f32, f32, imgui::TextureId),
 ) {
-    let (event_loop, window, surface, context) = create_window();
+    let (event_loop, window, surface, context) = create_window(initial_size);
     let mut winit_platform = imgui_init(&window, &mut imgui_context);
 
     // OpenGL context from glow
     let gl = glow_context(&context);
 
-    let texture = unsafe {
+    let logo_texture = unsafe {
         let texture = gl.create_texture().unwrap();
         gl.bind_texture(glow::TEXTURE_2D, Some(texture));
-        gl.tex_parameter_i32(
-            glow::TEXTURE_2D,
-            glow::TEXTURE_MIN_FILTER,
-            glow::LINEAR as i32,
-        );
-        gl.tex_parameter_i32(
-            glow::TEXTURE_2D,
-            glow::TEXTURE_MAG_FILTER,
-            glow::LINEAR as i32,
-        );
-        gl.tex_parameter_i32(
-            glow::TEXTURE_2D,
-            glow::TEXTURE_WRAP_S,
-            glow::CLAMP_TO_EDGE as i32,
-        );
-        gl.tex_parameter_i32(
-            glow::TEXTURE_2D,
-            glow::TEXTURE_WRAP_T,
-            glow::CLAMP_TO_EDGE as i32,
-        );
+        gl.tex_parameter_i32(glow::TEXTURE_2D, glow::TEXTURE_MIN_FILTER, glow::LINEAR as i32);
+        gl.tex_parameter_i32(glow::TEXTURE_2D, glow::TEXTURE_MAG_FILTER, glow::LINEAR as i32);
+        gl.tex_parameter_i32(glow::TEXTURE_2D, glow::TEXTURE_WRAP_S, glow::CLAMP_TO_EDGE as i32);
+        gl.tex_parameter_i32(glow::TEXTURE_2D, glow::TEXTURE_WRAP_T, glow::CLAMP_TO_EDGE as i32);
         gl.tex_image_2d(
             glow::TEXTURE_2D,
             0,
@@ -74,10 +62,32 @@ pub fn render(
         texture
     };
 
+    let old_logo_texture = unsafe {
+        let texture = gl.create_texture().unwrap();
+        gl.bind_texture(glow::TEXTURE_2D, Some(texture));
+        gl.tex_parameter_i32(glow::TEXTURE_2D, glow::TEXTURE_MIN_FILTER, glow::LINEAR as i32);
+        gl.tex_parameter_i32(glow::TEXTURE_2D, glow::TEXTURE_MAG_FILTER, glow::LINEAR as i32);
+        gl.tex_parameter_i32(glow::TEXTURE_2D, glow::TEXTURE_WRAP_S, glow::CLAMP_TO_EDGE as i32);
+        gl.tex_parameter_i32(glow::TEXTURE_2D, glow::TEXTURE_WRAP_T, glow::CLAMP_TO_EDGE as i32);
+        gl.tex_image_2d(
+            glow::TEXTURE_2D,
+            0,
+            glow::RGBA8 as i32,
+            OLD_LOGO_WIDTH,
+            OLD_LOGO_HEIGTH,
+            0,
+            glow::RGBA,
+            glow::UNSIGNED_BYTE,
+            Some(OLD_LOGO_PIXELS),
+        );
+        texture
+    };
+
     // OpenGL renderer from this crate
-    let mut ig_renderer = imgui_glow_renderer::AutoRenderer::new(gl, &mut imgui_context)
-        .expect("failed to create renderer");
-    let logo_texture = ig_renderer.texture_map_mut().register(texture).unwrap();
+    let mut ig_renderer =
+        imgui_glow_renderer::AutoRenderer::new(gl, &mut imgui_context).expect("failed to create renderer");
+    let _logo_texture = ig_renderer.texture_map_mut().register(logo_texture).unwrap();
+    let old_logo_texture = ig_renderer.texture_map_mut().register(old_logo_texture).unwrap();
 
     let mut last_frame = Instant::now();
 
@@ -88,15 +98,11 @@ pub fn render(
             match event {
                 winit::event::Event::NewEvents(_) => {
                     let now = Instant::now();
-                    imgui_context
-                        .io_mut()
-                        .update_delta_time(now.duration_since(last_frame));
+                    imgui_context.io_mut().update_delta_time(now.duration_since(last_frame));
                     last_frame = now;
                 }
                 winit::event::Event::AboutToWait => {
-                    winit_platform
-                        .prepare_frame(imgui_context.io_mut(), &window)
-                        .unwrap();
+                    winit_platform.prepare_frame(imgui_context.io_mut(), &window).unwrap();
                     window.request_redraw();
                 }
                 winit::event::Event::WindowEvent {
@@ -112,19 +118,15 @@ pub fn render(
                     let size = size.to_logical(window.scale_factor());
                     let h = size.height;
                     let w = size.width;
-                    do_render(ui, w, h, logo_texture);
+                    do_render(ui, w, h, old_logo_texture);
 
                     winit_platform.prepare_render(ui, &window);
                     let draw_data = imgui_context.render();
 
                     // This is the only extra render step to add
-                    ig_renderer
-                        .render(draw_data)
-                        .expect("error rendering imgui");
+                    ig_renderer.render(draw_data).expect("error rendering imgui");
 
-                    surface
-                        .swap_buffers(&context)
-                        .expect("Failed to swap buffers");
+                    surface.swap_buffers(&context).expect("Failed to swap buffers");
                 }
                 winit::event::Event::WindowEvent {
                     event: winit::event::WindowEvent::CloseRequested,
@@ -153,24 +155,16 @@ pub fn render(
         .expect("main event loop");
 }
 
-fn create_window() -> (
-    EventLoop<()>,
-    Window,
-    Surface<WindowSurface>,
-    PossiblyCurrentContext,
-) {
+fn create_window(
+    initial_size: winit::dpi::LogicalSize<u32>,
+) -> (EventLoop<()>, Window, Surface<WindowSurface>, PossiblyCurrentContext) {
     let event_loop = EventLoop::new().expect("event loop");
 
     let attr = Window::default_attributes()
         .with_title("5th Echelon - Launcher")
-        .with_inner_size(LogicalSize::new(1024, 768))
+        .with_inner_size(initial_size)
         .with_window_icon(
-            winit::window::Icon::from_rgba(
-                LOGO_PIXELS.to_vec(),
-                LOGO_WIDTH as u32,
-                LOGO_HEIGTH as u32,
-            )
-            .ok(),
+            winit::window::Icon::from_rgba(LOGO_PIXELS.to_vec(), LOGO_WIDTH as u32, LOGO_HEIGTH as u32).ok(),
         );
     let (window, cfg) = glutin_winit::DisplayBuilder::new()
         .with_window_attributes(Some(attr))
@@ -194,8 +188,8 @@ fn create_window() -> (
         .with_srgb(Some(true))
         .build(
             raw_handle,
-            NonZeroU32::new(1024).unwrap(),
-            NonZeroU32::new(768).unwrap(),
+            NonZeroU32::new(initial_size.width).unwrap(),
+            NonZeroU32::new(initial_size.height).unwrap(),
         );
     let surface = unsafe {
         cfg.display()

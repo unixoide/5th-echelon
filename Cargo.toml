@@ -2,6 +2,7 @@
 members = [
   "api",
   "dedicated_server",
+  "dedicated_server/config",
   "dedicated_server/sc_bl_protocols",
   "hooks",
   "hooks/hooks-addresses",
@@ -17,13 +18,23 @@ members = [
   "launcher",
   "tools/umd_browser",
 ]
+
 # v2 panics with
 # activated_features for invalid package: features did not find PackageId { name: "windows_i686_msvc", version: "0.48.0", source: "registry `crates-io`" } NormalOrDev
 resolver = "1"
 
 [patch.'crates-io']
-# TODO: remove this once the fix to imgui-rs/imgui-rs#775 gets released.
+# TODO: remove this once the fix to imgui-rs/imgui-rs#775 gets released. Fixes a panic with hudhook
 imgui = { git = "https://github.com/imgui-rs/imgui-rs", rev = "cb8beeb" }
+
+# The following fixes numblock inconsistencies, but can't be combined with the patch above.
+# TODO: remove this once the fix from https://github.com/imgui-rs/imgui-winit-support/pull/2 gets released (imgui-winit-support>0.13)
+# imgui-winit-support = { git = "https://github.com/imgui-rs/imgui-winit-support", rev = "031aaec" }
+
+# TODO: remove this once the fix from https://github.com/imgui-rs/imgui-winit-support/pull/2 gets released (imgui-winit-support>0.13)
+# required as the patch above references the GH repository instead of crates.io, which results in a conflict
+# [patch.'https://github.com/imgui-rs/imgui-rs']
+# imgui = { version = "0.12" }
 
 [profile.release]
 strip = true
@@ -55,12 +66,17 @@ goblin = { version = "0.9", default-features = false, features = [
   "std",
 ] }
 hmac = "0.12"
-iced-x86 = "1.21"
+iced-x86 = { version = "1.21", default-features = false, features = [
+  "decoder",
+  "intel",
+  "std",
+] }
 image = { version = "0.25", default-features = false, features = ["png"] }
 imgui = "0.12"
 imgui-glow-renderer = "0.13"
 imgui-winit-support = "0.13"
-json = "0.12.4"
+itertools = "0.14"
+jzon = "0.12.5"
 lazy_static = "1.4"
 libc = "0.2"
 md-5 = "0.10"
@@ -91,6 +107,7 @@ toml = "0.8"
 tonic = "0.12" # tonic-async-interceptor
 tonic-async-interceptor = "0.12"
 tonic-build = "0.12"
+tonic-reflection = "0.12"
 tracing = "0.1"
 tracing-appender = "0.2"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }

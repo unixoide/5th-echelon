@@ -205,13 +205,7 @@ fn net_result_base(this: *mut c_void, string: *mut GearBasicString) {
 }
 
 #[instrument(skip_all)]
-fn something_with_goal(
-    this: *mut *mut c_void,
-    a1: usize,
-    mg: *mut MaybeGoal,
-    a3: usize,
-    a4: usize,
-) {
+fn something_with_goal(this: *mut *mut c_void, a1: usize, mg: *mut MaybeGoal, a3: usize, a4: usize) {
     unsafe {
         if !mg.is_null() {
             let goal = (*mg).name();
@@ -219,11 +213,7 @@ fn something_with_goal(
                 "goal: {:?} (this: {:?} -> {:?})",
                 goal, //.to_string_lossy(),
                 this,
-                if this.is_null() {
-                    std::ptr::null()
-                } else {
-                    *this
-                }
+                if this.is_null() { std::ptr::null() } else { *this }
             );
         }
         SomethingWithGoalHook.call(this, a1, mg, a3, a4);
@@ -269,16 +259,10 @@ fn set_thread_name(worker: *mut c_void) {
 }
 
 #[instrument(skip_all)]
-fn change_state(
-    goal_ptr: *mut MaybeGoal,
-    state_ptr: *mut NetFiniteState,
-    next_state_ptr: *mut NetFiniteStateID,
-) {
+fn change_state(goal_ptr: *mut MaybeGoal, state_ptr: *mut NetFiniteState, next_state_ptr: *mut NetFiniteStateID) {
     unsafe {
-        if let Some(((goal, state), next_state)) = goal_ptr
-            .as_ref()
-            .zip(state_ptr.as_ref())
-            .zip(next_state_ptr.as_ref())
+        if let Some(((goal, state), next_state)) =
+            goal_ptr.as_ref().zip(state_ptr.as_ref()).zip(next_state_ptr.as_ref())
         {
             info!(
                 "Goal {:?} with {}, state={}(id={:x}), next_state_id={}",
@@ -335,11 +319,7 @@ fn net_result_session(this: *mut c_void, code: usize, text: *mut GearBasicString
     unsafe { NetResultSessionHook.call(this, code, text) }
 }
 
-fn net_result_rdv_session(
-    this: *mut c_void,
-    code: usize,
-    text: *mut GearBasicString,
-) -> *mut c_void {
+fn net_result_rdv_session(this: *mut c_void, code: usize, text: *mut GearBasicString) -> *mut c_void {
     unsafe {
         if !text.is_null() && text.is_aligned() && !(*text).internal.is_null() {
             let string2 = &mut *text;
@@ -368,11 +348,7 @@ fn net_result_lobby(this: *mut c_void, code: usize, text: *mut GearBasicString) 
 }
 
 #[instrument(skip_all)]
-fn storm_host_port_to_str(
-    this: *mut SomeStormAddrType,
-    x: *mut c_void,
-    y: *mut c_void,
-) -> *mut c_void {
+fn storm_host_port_to_str(this: *mut SomeStormAddrType, x: *mut c_void, y: *mut c_void) -> *mut c_void {
     unsafe {
         let host = (*this).addr;
         let port = (*this).port;
@@ -409,8 +385,7 @@ fn get_adapters_info(adapter_info: *mut IP_ADAPTER_INFO, sizepointer: *mut u32) 
         let mut adapter = adapter_info;
 
         while !adapter.is_null() {
-            let data = &*(std::ptr::from_ref::<[i8]>(&(*adapter).IpAddressList.IpAddress.String)
-                as *const [u8]);
+            let data = &*(std::ptr::from_ref::<[i8]>(&(*adapter).IpAddressList.IpAddress.String) as *const [u8]);
             let addr = CStr::from_bytes_until_nul(data).unwrap();
             debug!("{addr:?} == {target:?} ?");
             if addr == target.as_ref() {
@@ -431,25 +406,19 @@ fn get_adapters_info(adapter_info: *mut IP_ADAPTER_INFO, sizepointer: *mut u32) 
                 std::ptr::copy(adapter, adapter_info, 1);
             } else {
                 warn!(
-                "adapter structs are unaligned. {:?} should align to {}. Trying to copy from {:?} as u8",
-                adapter,
-                std::mem::align_of::<IP_ADAPTER_INFO>(),
-                adapter_info,
-            );
-                let dst = std::slice::from_raw_parts_mut(
-                    adapter_info.cast::<u8>(),
-                    std::mem::size_of::<IP_ADAPTER_INFO>(),
+                    "adapter structs are unaligned. {:?} should align to {}. Trying to copy from {:?} as u8",
+                    adapter,
+                    std::mem::align_of::<IP_ADAPTER_INFO>(),
+                    adapter_info,
                 );
-                let src = std::slice::from_raw_parts(
-                    adapter.cast::<u8>(),
-                    std::mem::size_of::<IP_ADAPTER_INFO>(),
-                );
+                let dst =
+                    std::slice::from_raw_parts_mut(adapter_info.cast::<u8>(), std::mem::size_of::<IP_ADAPTER_INFO>());
+                let src = std::slice::from_raw_parts(adapter.cast::<u8>(), std::mem::size_of::<IP_ADAPTER_INFO>());
                 dst.copy_from_slice(src);
             }
         }
 
-        let data = &*(std::ptr::from_ref::<[i8]>(&(*adapter_info).IpAddressList.IpAddress.String)
-            as *const [u8]);
+        let data = &*(std::ptr::from_ref::<[i8]>(&(*adapter_info).IpAddressList.IpAddress.String) as *const [u8]);
         debug!("{:?}", CStr::from_bytes_until_nul(data).unwrap());
     }
 
@@ -506,12 +475,7 @@ fn gethostbyname(name: *const c_char) -> *mut HOSTENT {
     ent
 }
 
-fn generate_id(
-    this: *mut NetFiniteStateID,
-    name_ptr: *const i8,
-    insensitive: bool,
-    b: *mut c_void,
-) {
+fn generate_id(this: *mut NetFiniteStateID, name_ptr: *const i8, insensitive: bool, b: *mut c_void) {
     let name = unsafe {
         if name_ptr.is_null() {
             None
@@ -523,8 +487,7 @@ fn generate_id(
 
     if let Some(this) = unsafe { this.as_ref() } {
         if let Some(name) = name.map(CStr::to_str).and_then(Result::ok) {
-            static CREATED: std::sync::atomic::AtomicBool =
-                std::sync::atomic::AtomicBool::new(false);
+            static CREATED: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
             let mut path = std::env::current_exe().unwrap();
             path.set_file_name("maphashes.txt");
             let file = if CREATED.swap(true, std::sync::atomic::Ordering::AcqRel) {
@@ -532,11 +495,7 @@ fn generate_id(
             } else {
                 std::fs::File::create(path)
             };
-            let name = if insensitive {
-                name.to_lowercase()
-            } else {
-                name.into()
-            };
+            let name = if insensitive { name.to_lowercase() } else { name.into() };
             if let Ok(mut f) = file {
                 let _ = writeln!(f, "{name}\t{:x}", this.id);
                 let _ = f.flush();
@@ -590,10 +549,7 @@ fn storm_statemachineaction_execute(
 }
 
 #[instrument]
-fn storm_some_error_formatter(
-    this: *mut c_void,
-    out: *mut GearBasicString,
-) -> *mut GearBasicString {
+fn storm_some_error_formatter(this: *mut c_void, out: *mut GearBasicString) -> *mut GearBasicString {
     let out = unsafe { StormErrorFormatter.call(this, out) };
     if !out.is_null() {
         info!("storm error: {}", unsafe { &*out }.as_str());
@@ -638,6 +594,8 @@ pub fn is_modded() -> bool {
 
 include!(concat!(env!("OUT_DIR"), "/preload.rs"));
 
+// function is used below, but still flagged as dead??
+#[allow(dead_code)]
 fn check_file_name(fname: &str) -> bool {
     let normalized = fname.to_lowercase().replace('\\', "/");
     if !normalized.starts_with("../../data/") {
@@ -763,11 +721,7 @@ pub(crate) use hook;
 pub unsafe fn deinit(config: &Config) {
     disable_configurable_hook!(config, Hook::ChangeState, ChangeStateHook);
     disable_configurable_hook!(config, Hook::GearStrDestructor, GearStrDestructor);
-    disable_configurable_hook!(
-        config,
-        Hook::GearStrDestructor,
-        AnotherGearStrDestructorHook
-    );
+    disable_configurable_hook!(config, Hook::GearStrDestructor, AnotherGearStrDestructorHook);
     disable_configurable_hook!(config, Hook::GearStrDestructor, SomeGearStrConstructor);
     disable_configurable_hook!(config, Hook::GenerateID, GenerateIDHook);
     disable_configurable_hook!(config, Hook::GetAdaptersInfo, GetAdaptersInfoHook);
@@ -784,11 +738,7 @@ pub unsafe fn deinit(config: &Config) {
     disable_configurable_hook!(config, Hook::Printer, PrinterHook);
     disable_configurable_hook!(config, Hook::SetStep, QuazalStepSequenceJobSetStateHook);
     disable_configurable_hook!(config, Hook::StormErrorFormatter, StormErrorFormatter);
-    disable_configurable_hook!(
-        config,
-        Hook::StormHostPortToString,
-        StormHostPortToStringHook
-    );
+    disable_configurable_hook!(config, Hook::StormHostPortToString, StormHostPortToStringHook);
     disable_configurable_hook!(config, Hook::StormSetState, StormSetStateHook);
     disable_configurable_hook!(
         config,

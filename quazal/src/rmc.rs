@@ -55,6 +55,26 @@ impl Error {
         };
         code | 0x8000_0000
     }
+
+    pub fn from_error_code(code: u32) -> std::result::Result<Self, u32> {
+        let code = if code & 0x8000_0000 != 0 {
+            code & !0x8000_0000
+        } else {
+            return Err(code);
+        };
+
+        let err = match code {
+            0x0001_0001 => Error::UnknownProtocol,
+            0x0001_0002 => Error::UnimplementedMethod,
+            0x0001_0006 => Error::AccessDenied,
+            0x0001_0009 => Error::MissingData(0, 0),
+            0x0001_000A => Error::ParsingError,
+            0x0001_0012 => Error::InternalError,
+            _ => return Err(code),
+        };
+
+        Ok(err)
+    }
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -248,6 +268,14 @@ impl Packet {
             Ok(Packet::Request(Request::from_bytes(data)?))
         }
     }
+
+    #[must_use]
+    pub fn to_bytes(&self) -> Vec<u8> {
+        match self {
+            Packet::Request(r) => r.to_bytes(),
+            Packet::Response(r) => r.to_bytes(),
+        }
+    }
 }
 
 pub trait Protocol<T> {
@@ -374,10 +402,13 @@ impl<T> StreamHandler<T> for RVSecHandler<T> {
         };
 
         let result = match maybe_protocol {
-            Err(e) => Err(ResponseError {
-                error_code: e.to_error_code(),
-                call_id: rmc_packet.call_id,
-            }),
+            Err(e) => {
+                error!(logger, "handling request failed"; "error" => %e);
+                Err(ResponseError {
+                    error_code: e.to_error_code(),
+                    call_id: rmc_packet.call_id,
+                })
+            }
             Ok(data) => Ok(ResponseData {
                 call_id: rmc_packet.call_id,
                 method_id: rmc_packet.method_id,

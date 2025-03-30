@@ -42,7 +42,7 @@ dll-syringe = "0.15"
 retour = { version = "0.3", features = ["thiscall-abi", "static-detour"] }
 
 [target.'cfg(target_os = "windows")'.dependencies.hudhook]
-version = "0.7"
+version = "0.8"
 default-features = false
 features = ["dx9", "dx11"]
 
@@ -61,3 +61,9 @@ features = [
 
 [build-dependencies]
 winres = { workspace = true }
+
+[package.metadata.winres]
+ProductName = "UPlay R1 Loader for 5th Echelon"
+FileDescription = "Library from https://github.com/unixoide/5th-echelon"
+OriginalFilename = "uplay_r1_loader.dll"
+InternalName = "hooks"

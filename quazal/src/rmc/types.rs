@@ -182,6 +182,16 @@ pub struct Any<V, K> {
     pd: PhantomData<V>,
 }
 
+impl<V, K> Any<V, K> {
+    pub fn new(type_name: K, data: Vec<u8>) -> Self {
+        Self {
+            type_name,
+            data,
+            pd: PhantomData,
+        }
+    }
+}
+
 impl<V, K: ToString> Any<V, K> {
     pub fn into_inner(self, class_list: &ClassRegistry) -> Result<ClassPtr, FromStreamError> {
         match class_list.instantiate(&self.type_name.to_string(), &self.data) {
@@ -192,12 +202,13 @@ impl<V, K: ToString> Any<V, K> {
     }
 }
 
-impl<V, K> ToStream for Any<V, K> {
-    fn to_stream<W>(&self, _stream: &mut WriteStream<W>) -> io::Result<usize>
+impl<V, K: ToStream> ToStream for Any<V, K> {
+    fn to_stream<W>(&self, stream: &mut WriteStream<W>) -> io::Result<usize>
     where
         W: WriteBytesExt,
     {
-        unimplemented!()
+        let data = Vec::to_bytes(&self.data);
+        Ok(stream.write(&self.type_name)? + stream.write(&data)?)
     }
 }
 

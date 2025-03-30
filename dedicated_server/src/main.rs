@@ -6,7 +6,6 @@ extern crate quazal_macros;
 #[macro_use]
 extern crate slog;
 
-use std::env;
 use std::fs;
 use std::io;
 use std::io::Write;
@@ -24,6 +23,8 @@ use slog::Drain;
 use slog::Logger;
 use sloggers::Build;
 use storage::Storage;
+
+const DEFAULT_MP_DATA: &str = include_str!("../../data/mp_balancing.ini");
 
 const SERVER_PID: u32 = 0x1000;
 
@@ -66,7 +67,7 @@ mod user_storage;
 
 use crate::config::Config;
 
-fn start_server(logger: &slog::Logger, ctx: &Context, storage: &Arc<Storage>, is_secure: bool) {
+fn start_server(logger: &slog::Logger, ctx: &Context, storage: &Arc<Storage>, is_secure: bool) -> io::Result<()> {
     use quazal::prudp::packet::StreamHandlerRegistry;
     use quazal::prudp::packet::StreamType;
     use quazal::prudp::packet::VPort;
@@ -127,8 +128,9 @@ fn start_server(logger: &slog::Logger, ctx: &Context, storage: &Arc<Storage>, is
     if is_secure {
         server.user_handler = Some(handle_user_packet);
     }
-    server.bind(ctx.listen).unwrap();
+    server.bind(ctx.listen)?;
     server.serve();
+    Ok(())
 }
 
 fn handle_user_packet(_logger: &Logger, packet: QPacket, client: SocketAddr, socket: &UdpSocket) {
@@ -139,13 +141,7 @@ fn handle_user_packet(_logger: &Logger, packet: QPacket, client: SocketAddr, soc
     let payload = packet.payload;
 
     let mut response = payload;
-    write!(
-        &mut response,
-        "udp:/address={};port={}\0",
-        client.ip(),
-        client.port()
-    )
-    .unwrap();
+    write!(&mut response, "udp:/address={};port={}\0", client.ip(), client.port()).unwrap();
     // TODO: reenable
     socket.send_to(&response, client).unwrap();
 }
@@ -180,11 +176,7 @@ fn rotate_log_files<S: AsRef<Path>>(fname: S, i: i32) -> io::Result<PathBuf> {
             .and_then(|s| s.to_str())
             .and_then(|s| s.parse::<i32>().ok());
         let new_fname = match maybe_iteration {
-            Some(j) if j == i - 1 => format!(
-                "{}.{}",
-                fname.file_stem().and_then(|f| f.to_str()).unwrap(),
-                i
-            ),
+            Some(j) if j == i - 1 => format!("{}.{}", fname.file_stem().and_then(|f| f.to_str()).unwrap(), i),
             _ => format!("{}.{}", fname.display(), i),
         };
         if i < 10 {
@@ -205,17 +197,49 @@ fn build_file_logger() -> Logger {
         .unwrap()
 }
 
+fn ensure_data_dir() -> io::Result<()> {
+    let mp_ini = std::env::current_exe()?
+        .parent()
+        .unwrap()
+        .join("data")
+        .join("mp_balancing.ini");
+    if mp_ini.exists() {
+        return Ok(());
+    }
+    fs::create_dir_all(mp_ini.parent().unwrap())?;
+    fs::write(mp_ini, DEFAULT_MP_DATA)?;
+    Ok(())
+}
+
+#[derive(argh::FromArgs)]
+/// dedicated server
+struct Args {
+    /// path to config file (default: service.toml)
+    #[argh(option, short = 'c', long = "config")]
+    config_path: Option<PathBuf>,
+
+    /// started through launcher
+    #[argh(switch)]
+    launcher: bool,
+}
+
 fn main() -> color_eyre::Result<()> {
     color_eyre::install()?;
-    let logger = build_term_logger();
-    let logger = Logger::root(slog::Duplicate(logger, build_file_logger()).fuse(), o!());
+    let args = argh::from_env::<Args>();
+
+    let logger = if args.launcher {
+        Logger::root(build_file_logger(), o!())
+    } else {
+        let logger = build_term_logger();
+        Logger::root(slog::Duplicate(logger, build_file_logger()).fuse(), o!())
+    };
     let storage = Arc::new(Storage::init(logger.clone())?);
 
-    let config_filename = env::args()
-        .nth(1)
-        .unwrap_or_else(|| "service.toml".to_string());
+    let config_filename = args.config_path.unwrap_or_else(|| PathBuf::from("service.toml"));
 
     let config = Config::load_from_file_or_default(&logger, config_filename)?;
+
+    ensure_data_dir()?;
 
     warn!(logger, "Clearing stale sessions");
     storage.invalidate_sessions()?;
@@ -226,18 +250,26 @@ fn main() -> color_eyre::Result<()> {
         info!(logger, "Loaded service {:#?}", svc);
         let storage = Arc::clone(&storage);
         let handle = match svc {
-            quazal::Service::Authentication(ctx) => std::thread::Builder::new()
-                .name(name)
-                .spawn(move || start_server(&logger, &ctx, &storage, false)),
-            quazal::Service::Secure(ctx) => std::thread::Builder::new()
-                .name(name)
-                .spawn(move || start_server(&logger, &ctx, &storage, true)),
-            quazal::Service::Config(cfg) => std::thread::Builder::new()
-                .name(name)
-                .spawn(move || simple_http::serve(&logger, cfg.listen, &cfg.content()).unwrap()),
-            quazal::Service::Content(srv) => std::thread::Builder::new()
-                .name(name)
-                .spawn(move || simple_http::serve_many(&logger, srv.listen, &srv.files).unwrap()),
+            quazal::Service::Authentication(ctx) => std::thread::Builder::new().name(name).spawn(move || {
+                if let Err(e) = start_server(&logger, &ctx, &storage, false) {
+                    crit!(logger, "Error running authentication server: {e:?}");
+                }
+            }),
+            quazal::Service::Secure(ctx) => std::thread::Builder::new().name(name).spawn(move || {
+                if let Err(e) = start_server(&logger, &ctx, &storage, true) {
+                    crit!(logger, "Error running secure server: {e:?}");
+                }
+            }),
+            quazal::Service::Config(cfg) => std::thread::Builder::new().name(name).spawn(move || {
+                if let Err(e) = simple_http::serve(&logger, cfg.listen, &cfg.content()) {
+                    crit!(logger, "Error running config server: {e:?}");
+                }
+            }),
+            quazal::Service::Content(srv) => std::thread::Builder::new().name(name).spawn(move || {
+                if let Err(e) = simple_http::serve_many(&logger, srv.listen, &srv.files) {
+                    crit!(logger, "Error running content server: {e:?}");
+                }
+            }),
         };
         threads.push(handle.unwrap());
     }
@@ -246,15 +278,16 @@ fn main() -> color_eyre::Result<()> {
         std::thread::Builder::new()
             .name(String::from("api"))
             .spawn(move || {
-                tokio::runtime::Runtime::new()
-                    .unwrap()
-                    .block_on(api::start_server(
-                        logger.new(o!("service" => "api")),
-                        storage,
-                        config.api_server,
-                        Arc::new(config.debug),
-                    ))
-                    .unwrap();
+                let logger = logger.new(o!("service" => "api"));
+                if let Err(e) = tokio::runtime::Runtime::new().unwrap().block_on(api::start_server(
+                    logger.clone(),
+                    storage,
+                    config.api_server,
+                    Arc::new(config.debug),
+                    args.launcher,
+                )) {
+                    crit!(logger, "Error running api server: {e:?}");
+                }
             })
             .unwrap(),
     );

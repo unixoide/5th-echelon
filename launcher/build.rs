@@ -1,10 +1,13 @@
 use std::env;
 use std::fs;
 use std::io::Write;
+#[cfg(feature = "embed-dll")]
 use std::path::Path;
 use std::path::PathBuf;
+#[cfg(feature = "embed-dll")]
 use std::process::Command;
 
+#[cfg(feature = "embed-dll")]
 fn root_manifest_dir() -> PathBuf {
     let output = &String::from_utf8(
         Command::new("cargo")
@@ -22,9 +25,10 @@ fn root_manifest_dir() -> PathBuf {
     path.parent().unwrap().to_owned()
 }
 
+#[cfg(feature = "embed-dll")]
 fn embed_dll() {
     use brotli::enc::BrotliEncoderParams;
-    use json::JsonValue;
+    use jzon::JsonValue;
 
     let is_release = env::var("PROFILE").unwrap() == "release";
     let dir = root_manifest_dir();
@@ -51,7 +55,7 @@ fn embed_dll() {
 
     let artifacts = results
         .lines()
-        .map(json::parse)
+        .map(jzon::parse)
         .map(Result::unwrap)
         .filter_map(|event| {
             let JsonValue::Object(obj) = event else {
@@ -84,12 +88,7 @@ fn embed_dll() {
             Some(filenames)
         })
         .flatten()
-        .filter(|artifact| {
-            artifact
-                .extension()
-                .map(|ext| ext == "dll")
-                .unwrap_or_default()
-        })
+        .filter(|artifact| artifact.extension().map(|ext| ext == "dll").unwrap_or_default())
         .collect::<Vec<PathBuf>>();
 
     assert_eq!(artifacts.len(), 1);
@@ -101,14 +100,8 @@ fn embed_dll() {
     let data = fs::read(&dll_path).unwrap();
     let dll = dll::parse(&data).unwrap();
 
-    println!(
-        "cargo:warning=Dll version: {}.{}.{}",
-        dll.version.0, dll.version.1, dll.version.2
-    );
-    println!(
-        "cargo:rustc-env=HOOKS_VERSION={}.{}.{}",
-        dll.version.0, dll.version.1, dll.version.2
-    );
+    println!("cargo:warning=Dll version: {}", dll.version);
+    println!("cargo:rustc-env=HOOKS_VERSION={}", dll.version);
 
     let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
     let payload_path = out_dir.join("uplay_r1_loader.dll.brotli");
@@ -123,27 +116,62 @@ fn embed_dll() {
 }
 
 mod dll {
-    include!("src/dll_utils.rs");
+    include!("src/dll_utils/parse.rs");
+}
+
+mod version {
+    include!("src/version.rs");
 }
 
 fn main() {
-    let dir = root_manifest_dir();
-    let hooks_dir = dir.join("hooks");
-    println!("cargo:rerun-if-changed={}", hooks_dir.to_str().unwrap());
-    embed_dll();
+    #[cfg(feature = "embed-dll")]
+    {
+        let dir = root_manifest_dir();
+        let hooks_dir = dir.join("hooks");
+        println!("cargo:rerun-if-changed={}", hooks_dir.to_str().unwrap());
+        embed_dll();
+    }
 
     #[cfg(target_os = "windows")]
     {
         winres::WindowsResource::new()
             .set_icon("logo.ico")
+            .set_manifest(
+                r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+<assemblyIdentity
+    version="1.0.0.0"
+    processorArchitecture="*"
+    name="app"
+    type="win32"
+/>
+<dependency>
+    <dependentAssembly>
+        <assemblyIdentity
+            type="win32"
+            name="Microsoft.Windows.Common-Controls"
+            version="6.0.0.0"
+            processorArchitecture="*"
+            publicKeyToken="6595b64144ccf1df"
+            language="*"
+        />
+    </dependentAssembly>
+</dependency>
+</assembly>
+"#,
+            )
             .compile()
             .unwrap();
         println!("cargo:rerun-if-changed=logo.ico");
     }
 
     let img = image::open("../docs/logo.png").unwrap();
-    let mut f =
-        fs::File::create(PathBuf::from(env::var("OUT_DIR").unwrap()).join("logo.dat")).unwrap();
+    let mut f = fs::File::create(PathBuf::from(env::var("OUT_DIR").unwrap()).join("logo.dat")).unwrap();
     f.write_all(img.as_rgba8().unwrap()).unwrap();
     println!("cargo:rerun-if-changed=../docs/logo.png");
+
+    let img = image::open("../docs/old_logo.png").unwrap();
+    let mut f = fs::File::create(PathBuf::from(env::var("OUT_DIR").unwrap()).join("old_logo.dat")).unwrap();
+    f.write_all(img.as_rgba8().unwrap()).unwrap();
+    println!("cargo:rerun-if-changed=../docs/old_logo.png");
 }

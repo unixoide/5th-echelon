@@ -13,6 +13,8 @@ use derive_more::From;
 #[derive(Error, Display, Debug, From)]
 pub enum FromStreamError {
     IO(#[error(source)] std::io::Error),
+    #[display("{_0} bytes missing")]
+    MissingBytes(#[error(ignore)] usize),
     ParseInt(#[error(source)] std::num::ParseIntError),
     ParseStationURL(#[error(source)] super::types::StationURLParseError),
     ParseCString(#[error(source)] std::ffi::FromVecWithNulError),
@@ -65,8 +67,13 @@ impl<R: ReadBytesExt> ReadStream<R> {
 
     pub fn read_n_bytes(&mut self, l: usize) -> std::result::Result<Vec<u8>, FromStreamError> {
         let mut buf = vec![0u8; l];
-        self.rdr.read_exact(&mut buf)?;
-        Ok(buf)
+        match self.rdr.read_exact(&mut buf) {
+            Ok(()) => Ok(buf),
+            Err(e) if e.kind() == io::ErrorKind::UnexpectedEof => {
+                Err(FromStreamError::MissingBytes(l))
+            }
+            Err(e) => Err(FromStreamError::IO(e)),
+        }
     }
 
     pub fn buf_u8(&mut self) -> std::result::Result<Vec<u8>, FromStreamError> {

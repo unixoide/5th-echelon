@@ -2,3 +2,4 @@ edition = "2021"
 imports_granularity = "Item"
 group_imports = "StdExternalCrate"
 format_code_in_doc_comments = true
+max_width = 120

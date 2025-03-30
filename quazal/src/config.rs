@@ -166,11 +166,11 @@ impl Default for OnlineConfig {
                 content: OnlineConfigContent::Typed(vec![
                     OnlineConfigItem {
                         name: "SandboxUrl".into(),
-                        values: vec!["prudp:/address=127.0.0.1;port=21170".into()],
+                        values: vec!["prudp:/address=127.0.0.1;port=21126".into()],
                     },
                     OnlineConfigItem {
                         name: "SandboxUrlWS".into(),
-                        values: vec!["127.0.0.1:21170".into()],
+                        values: vec!["127.0.0.1:21126".into()],
                     },
                     // OnlineConfigItem { name: "punch_DetectUrls".into(), values: vec!["b-prod-mm-detect01.ubisoft.com:11020".into(),"lb-prod-mm-detect02.ubisoft.com:11020".into()]},
                     // OnlineConfigItem { name: "SandboxUrl".into(), values: vec!["prudp:/address=mdc-mm-rdv66.ubisoft.com;port=21170".into()]},
@@ -190,6 +190,45 @@ impl OnlineConfig {
         match &self.content {
             OnlineConfigContent::Raw(s) => s.clone(),
             OnlineConfigContent::Typed(items) => serde_json::to_string(items).unwrap_or_default(),
+        }
+    }
+
+    pub fn set_ips(&mut self, ip: std::net::IpAddr, public_ip: std::net::IpAddr) {
+        self.listen.set_ip(ip);
+
+        match &mut self.content {
+            OnlineConfigContent::Raw(s) => {
+                let Some(idx) = s.find(r#""Name":"SandboxUrl","#) else {
+                    return;
+                };
+                let value = &s[idx..];
+                let Some(start_idx) = value.find("address=").map(|i| i + "address=".len() + idx) else {
+                    return;
+                };
+                let Some(end_idx) = value.find(";port").map(|i| i + idx) else {
+                    return;
+                };
+                let rest = s.split_off(start_idx);
+                s.push_str(&public_ip.to_string());
+                s.push_str(&rest[end_idx - start_idx..]);
+            }
+            OnlineConfigContent::Typed(online_config_items) => {
+                for item in online_config_items.iter_mut() {
+                    if item.name == "SandboxUrl" {
+                        for value in &mut item.values {
+                            let Some(start_idx) = value.find("address=").map(|i| i + "address=".len()) else {
+                                continue;
+                            };
+                            let Some(end_idx) = value.find(";port") else {
+                                continue;
+                            };
+                            let rest = value.split_off(start_idx);
+                            value.push_str(&public_ip.to_string());
+                            value.push_str(&rest[end_idx - start_idx..]);
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -273,26 +312,21 @@ impl<'de> Deserialize<'de> for Service {
     }
 }
 
-#[derive(Serialize, Deserialize, Default)]
+#[derive(Serialize, Deserialize, Default, Debug)]
 pub struct Config {
     pub services: std::collections::HashSet<String>,
     pub service: std::collections::HashMap<String, Service>,
 }
 
 impl Config {
-    pub fn load_from_file<P: AsRef<std::path::Path>>(
-        path: P,
-    ) -> Result<Self, Box<dyn std::error::Error>> {
+    pub fn load_from_file<P: AsRef<std::path::Path>>(path: P) -> Result<Self, Box<dyn std::error::Error>> {
         let data = std::fs::read_to_string(path)?;
         let w: Config = toml::from_str(&data)?;
         Ok(w)
     }
 
     pub fn into_services(self) -> Result<Vec<(String, Service)>, Error> {
-        let Config {
-            mut services,
-            service,
-        } = self;
+        let Config { mut services, service } = self;
         let service_contexts = service
             .into_iter()
             .filter_map(|(ref name, ctx)| {
@@ -312,10 +346,7 @@ impl Config {
         }
     }
 
-    pub fn save_to_file<P: AsRef<std::path::Path>>(
-        &self,
-        path: P,
-    ) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn save_to_file<P: AsRef<std::path::Path>>(&self, path: P) -> Result<(), Box<dyn std::error::Error>> {
         let data = toml::to_string_pretty(self)?;
         std::fs::write(path, data)?;
         Ok(())

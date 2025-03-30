@@ -36,11 +36,7 @@ impl TicketGrantingProtocolServerImpl {
     }
 
     #[allow(unreachable_code)]
-    fn get_password_by_pid(
-        &self,
-        logger: &slog::Logger,
-        pid: u32,
-    ) -> quazal::rmc::Result<Option<String>> {
+    fn get_password_by_pid(&self, logger: &slog::Logger, pid: u32) -> quazal::rmc::Result<Option<String>> {
         self.storage.find_password_for_user(pid).map_err(|e| {
             eprintln!("Error finding user password: {e}");
             error!(logger, "Error finding user password: {e}");
@@ -48,11 +44,7 @@ impl TicketGrantingProtocolServerImpl {
         })
     }
 
-    fn get_password_by_username(
-        &self,
-        logger: &slog::Logger,
-        username: &str,
-    ) -> quazal::rmc::Result<Option<String>> {
+    fn get_password_by_username(&self, logger: &slog::Logger, username: &str) -> quazal::rmc::Result<Option<String>> {
         Ok(self
             .get_pid_by_username(logger, username)?
             .map(|uid| self.get_password_by_pid(logger, uid))
@@ -61,11 +53,7 @@ impl TicketGrantingProtocolServerImpl {
     }
 
     #[allow(unreachable_code)]
-    fn get_pid_by_username(
-        &self,
-        logger: &slog::Logger,
-        username: &str,
-    ) -> quazal::rmc::Result<Option<u32>> {
+    fn get_pid_by_username(&self, logger: &slog::Logger, username: &str) -> quazal::rmc::Result<Option<u32>> {
         self.storage.find_user_id_by_name(username).map_err(|e| {
             eprintln!("Error finding user password: {e}");
             error!(logger, "Error finding user password: {e}");
@@ -74,17 +62,15 @@ impl TicketGrantingProtocolServerImpl {
     }
 
     #[allow(unreachable_code)]
-    fn login(
-        &self,
-        logger: &slog::Logger,
-        username: &str,
-        password: &str,
-    ) -> quazal::rmc::Result<Option<u32>> {
-        self.storage.login_user(username, password).map_err(|e| {
-            eprintln!("Error finding user password: {e}");
-            error!(logger, "Error finding user password: {e}");
-            quazal::rmc::Error::InternalError
-        })
+    fn login(&self, logger: &slog::Logger, username: &str, password: &str) -> quazal::rmc::Result<Option<u32>> {
+        self.storage
+            .login_user(username, password)
+            .map_err(|e| {
+                eprintln!("Error finding user password: {e}");
+                error!(logger, "Error finding user password: {e}");
+                quazal::rmc::Error::InternalError
+            })
+            .map(Result::ok)
     }
 }
 
@@ -139,10 +125,7 @@ impl<T> TicketGrantingProtocolServerTrait<T> for TicketGrantingProtocolServerImp
         let password = self
             .get_password_by_username(logger, &request.str_user_name)?
             .or_else(|| {
-                warn!(
-                    logger,
-                    "user {} has no plaintext password", request.str_user_name
-                );
+                warn!(logger, "user {} has no plaintext password", request.str_user_name);
                 None
             });
         ci.user_id = Some(user_id);
@@ -176,8 +159,7 @@ impl<T> TicketGrantingProtocolServerTrait<T> for TicketGrantingProtocolServerImp
     ) -> Result<LoginExResponse, quazal::rmc::Error> {
         let username = request.str_user_name;
         let mut registry = quazal::rmc::types::ClassRegistry::default();
-        registry
-            .register_class::<UbiAuthenticationLoginCustomData>("UbiAuthenticationLoginCustomData");
+        registry.register_class::<UbiAuthenticationLoginCustomData>("UbiAuthenticationLoginCustomData");
         let ubi_data = request.o_extra_data.into_inner(&registry)?;
         let ubi_data: Option<&UbiAuthenticationLoginCustomData> = ubi_data.as_any().downcast_ref();
         let Some(UbiAuthenticationLoginCustomData {
@@ -186,6 +168,7 @@ impl<T> TicketGrantingProtocolServerTrait<T> for TicketGrantingProtocolServerImp
             ..
         }) = ubi_data
         else {
+            error!(logger, "Error parsing UbiAuthenticationLoginCustomData");
             return Err(quazal::rmc::Error::ParsingError);
         };
 
@@ -257,7 +240,7 @@ impl<T> TicketGrantingProtocolServerTrait<T> for TicketGrantingProtocolServerImp
 }
 
 pub fn new_protocol<T: 'static>(storage: Arc<Storage>) -> Box<dyn Protocol<T>> {
-    Box::new(TicketGrantingProtocolServer::new(
-        TicketGrantingProtocolServerImpl { storage },
-    ))
+    Box::new(TicketGrantingProtocolServer::new(TicketGrantingProtocolServerImpl {
+        storage,
+    }))
 }

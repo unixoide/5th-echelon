@@ -27,16 +27,23 @@ impl<T> PrivilegesProtocolServerTrait<T> for PrivilegesProtocolServerImpl {
         _socket: &std::net::UdpSocket,
     ) -> Result<GetPrivilegesResponse, Error> {
         login_required(&*ci)?;
-        // TODO add all privileges
-        Ok(GetPrivilegesResponse {
-            privileges: HashMap::from([(
-                1,
-                Privilege {
-                    id: 1,
-                    description: "PlayOnline".into(),
-                },
-            )]),
-        })
+        let mut privileges = HashMap::from([(
+            1,
+            Privilege {
+                id: 1,
+                description: "PlayOnline".into(),
+            },
+        )]);
+        // for id in 2000..2045 {
+        //     privileges.insert(
+        //         id,
+        //         Privilege {
+        //             id,
+        //             description: format!("Priv {id}"),
+        //         },
+        //     );
+        // }
+        Ok(GetPrivilegesResponse { privileges })
     }
 }
 

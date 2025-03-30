@@ -13,6 +13,7 @@ argh = { workspace = true }
 argon2 = { workspace = true }
 byteorder = { workspace = true }
 color-eyre = { workspace = true }
+dedicated_server_config = { path = "./config" }
 eyre = { workspace = true }
 hmac = { workspace = true }
 md-5 = { workspace = true }
@@ -33,6 +34,17 @@ tokio = { workspace = true, features = ["rt-multi-thread"] }
 toml = { workspace = true }
 tonic = { workspace = true }
 tonic-async-interceptor = { workspace = true }
+tonic-reflection = { workspace = true }
+
+[target.'cfg(target_os = "windows")'.build-dependencies.winres]
+workspace = true
+
 
 [dev-dependencies]
 diff = { workspace = true }
+
+[package.metadata.winres]
+ProductName = "5th Echelon Server"
+FileDescription = "https://github.com/unixoide/5th-echelon"
+OriginalFilename = "dedicated_server.exe"
+InternalName = "dedicated_server"

@@ -1,4 +1,4 @@
-use dedicated_server::storage::Storage;
+// use dedicated_server::storage::Storage;
 use rand::distr::Alphanumeric;
 use rand::rng;
 use rand::Rng;
@@ -13,18 +13,18 @@ use tonic::Request;
 
 static URL: &str = "http://192.168.56.1:50051";
 
-#[derive(argh::FromArgs, PartialEq, Debug)]
-#[argh(subcommand, name = "new-user")]
-/// add a new user
-struct SubCommandNewUser {
-    /// password
-    #[argh(option, short = 'p')]
-    password: Option<String>,
+// #[derive(argh::FromArgs, PartialEq, Debug)]
+// #[argh(subcommand, name = "new-user")]
+// /// add a new user
+// struct SubCommandNewUser {
+//     /// password
+//     #[argh(option, short = 'p')]
+//     password: Option<String>,
 
-    /// username
-    #[argh(positional)]
-    username: String,
-}
+//     /// username
+//     #[argh(positional)]
+//     username: String,
+// }
 
 #[derive(argh::FromArgs, PartialEq, Debug)]
 #[argh(subcommand, name = "send-invite")]
@@ -58,7 +58,7 @@ struct SubCommandGetEvent {
 #[derive(argh::FromArgs, PartialEq, Debug)]
 #[argh(subcommand)]
 enum SubCommand {
-    NewUser(SubCommandNewUser),
+    // NewUser(SubCommandNewUser),
     SendInvite(SubCommandSendInvite),
     GetEvent(SubCommandGetEvent),
 }
@@ -73,22 +73,21 @@ struct Args {
 fn main() -> color_eyre::Result<()> {
     let args: Args = argh::from_env();
 
-    let logger = sloggers::terminal::TerminalLoggerBuilder::new().build()?;
-
     match args.command {
-        SubCommand::NewUser(cmd) => {
-            let storage = Storage::init(logger)?;
-            let password = cmd.password.unwrap_or_else(|| {
-                let p = rng()
-                    .sample_iter(&Alphanumeric)
-                    .take(30)
-                    .map(char::from)
-                    .collect();
-                println!("Password: {p}");
-                p
-            });
-            storage.register_user(&cmd.username, &password, None)?;
-        }
+        // SubCommand::NewUser(cmd) => {
+        //     let logger = sloggers::terminal::TerminalLoggerBuilder::new().build()?;
+        //     let storage = Storage::init(logger)?;
+        //     let password = cmd.password.unwrap_or_else(|| {
+        //         let p = rng()
+        //             .sample_iter(&Alphanumeric)
+        //             .take(30)
+        //             .map(char::from)
+        //             .collect();
+        //         println!("Password: {p}");
+        //         p
+        //     });
+        //     storage.register_user(&cmd.username, &password, None)?;
+        // }
         SubCommand::SendInvite(cmd) => {
             tokio::runtime::Runtime::new()?.block_on(async {
                 let mut client = UsersClient::connect(URL).await?;
@@ -102,9 +101,7 @@ fn main() -> color_eyre::Result<()> {
                 let mut client = FriendsClient::connect(URL).await?;
 
                 let mut request = Request::new(InviteRequest { id: cmd.target });
-                request
-                    .metadata_mut()
-                    .insert("authorization", token.parse()?);
+                request.metadata_mut().insert("authorization", token.parse()?);
 
                 client.invite(request).await?;
                 Ok::<(), color_eyre::Report>(())
@@ -123,9 +120,7 @@ fn main() -> color_eyre::Result<()> {
                 let mut client = MiscClient::connect(URL).await?;
 
                 let mut request = Request::new(EventRequest {});
-                request
-                    .metadata_mut()
-                    .insert("authorization", token.parse()?);
+                request.metadata_mut().insert("authorization", token.parse()?);
 
                 dbg!(client.event(request).await?);
                 Ok::<(), color_eyre::Report>(())

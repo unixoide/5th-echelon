@@ -60,9 +60,6 @@ fn default_username() -> String {
 fn default_account_id() -> String {
     String::from("00000000-0000-4000-0000-000000000000")
 }
-fn default_pattern() -> String {
-    String::from("Save{slot}.sav")
-}
 fn default_overlay() -> bool {
     true
 }
@@ -174,12 +171,14 @@ enum_gui! {
 #[serde(rename_all = "PascalCase")]
 pub struct Config {
     pub user: User,
+    #[serde(default)]
+    #[serde(skip_serializing_if = "Save::is_default")]
     pub save: Save,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub forward_calls: Vec<String>,
     #[serde(default)]
     pub forward_all_calls: bool,
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "String::is_empty")]
     pub internal_command_line: String,
     #[serde(default, skip_serializing_if = "HashSet::is_empty")]
     pub enable_hooks: HashSet<Hook>,
@@ -190,14 +189,16 @@ pub struct Config {
     pub config_server: Option<String>,
     pub api_server: url::Url,
     #[serde(default)]
+    #[serde(skip_serializing_if = "Networking::is_default")]
     pub networking: Networking,
     #[serde(default)]
+    #[serde(skip_serializing_if = "Logging::is_default")]
     pub logging: Logging,
     #[serde(default)]
     pub auto_join_invite: bool,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Default, Deserialize, Serialize, Clone, PartialEq, Eq)]
 #[serde(rename_all = "PascalCase")]
 pub struct User {
     #[serde(default = "default_username")]
@@ -219,15 +220,24 @@ pub enum SaveDir {
     Custom(String),
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Eq)]
+impl SaveDir {
+    pub fn is_default(&self) -> bool {
+        matches!(self, SaveDir::Roaming)
+    }
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Eq, Default)]
 #[serde(rename_all = "PascalCase")]
 pub struct Save {
     #[serde(default)]
+    #[serde(skip_serializing_if = "SaveDir::is_default")]
     pub save_dir: SaveDir,
-    #[serde(default = "default_pattern")]
-    pub pattern: String,
-    // #[serde(default)]
-    // pub saves: Vec<SaveGame>,
+}
+
+impl Save {
+    pub fn is_default(&self) -> bool {
+        self.save_dir.is_default()
+    }
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Eq)]
@@ -242,6 +252,12 @@ pub struct SaveGame {
 pub struct Networking {
     pub ip_address: Option<std::net::Ipv4Addr>,
     pub adapter: Option<String>,
+}
+
+impl Networking {
+    pub fn is_default(&self) -> bool {
+        self.ip_address.is_none() && self.adapter.is_none()
+    }
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, Default, PartialEq, PartialOrd, Eq, Ord, Copy)]
@@ -272,6 +288,12 @@ impl AsRef<str> for LogLevel {
 pub struct Logging {
     #[serde(default)]
     pub level: LogLevel,
+}
+
+impl Logging {
+    pub fn is_default(&self) -> bool {
+        matches!(self.level, LogLevel::Info)
+    }
 }
 
 const DEFAULT_CONFIG: &str = r#"
@@ -316,13 +338,10 @@ fn get_adapter_infos<T>(
 
     let mut adapterinfo = vec![0u8; std::mem::size_of::<IP_ADAPTER_INFO>()];
     let mut size = adapterinfo.len() as u32;
-    let mut res =
-        WIN32_ERROR(unsafe { GetAdaptersInfo(Some(adapterinfo.as_mut_ptr().cast()), &mut size) });
+    let mut res = WIN32_ERROR(unsafe { GetAdaptersInfo(Some(adapterinfo.as_mut_ptr().cast()), &mut size) });
     if res == ERROR_BUFFER_OVERFLOW {
         adapterinfo.resize(size as usize, 0);
-        res = WIN32_ERROR(unsafe {
-            GetAdaptersInfo(Some(adapterinfo.as_mut_ptr().cast()), &mut size)
-        });
+        res = WIN32_ERROR(unsafe { GetAdaptersInfo(Some(adapterinfo.as_mut_ptr().cast()), &mut size) });
     }
     match res {
         ERROR_BUFFER_OVERFLOW => {
@@ -354,9 +373,7 @@ fn get_adapter_infos<T>(
 
 #[cfg(target_os = "windows")]
 fn get_adapter_addresses<T>(
-    f: impl Fn(
-        *mut windows::Win32::NetworkManagement::IpHelper::IP_ADAPTER_ADDRESSES_LH,
-    ) -> anyhow::Result<T>,
+    f: impl Fn(*mut windows::Win32::NetworkManagement::IpHelper::IP_ADAPTER_ADDRESSES_LH) -> anyhow::Result<T>,
 ) -> anyhow::Result<T> {
     #![allow(
         clippy::cast_possible_truncation,
@@ -386,10 +403,7 @@ fn get_adapter_addresses<T>(
     let mut res = WIN32_ERROR(unsafe {
         GetAdaptersAddresses(
             AF_INET.0 as u32,
-            GAA_FLAG_SKIP_UNICAST
-                | GAA_FLAG_SKIP_ANYCAST
-                | GAA_FLAG_SKIP_MULTICAST
-                | GAA_FLAG_SKIP_DNS_SERVER,
+            GAA_FLAG_SKIP_UNICAST | GAA_FLAG_SKIP_ANYCAST | GAA_FLAG_SKIP_MULTICAST | GAA_FLAG_SKIP_DNS_SERVER,
             None,
             Some(adapter_addresses.as_mut_ptr().cast()),
             &mut size,
@@ -456,11 +470,9 @@ fn find_ipaddress_for_adapter(target_adapter: &str) -> anyhow::Result<Option<std
                 debug!("{adapter_name:?} == {target_adapter:?}");
                 if adapter_name.to_str()? == target_adapter {
                     result = Some(
-                        CStr::from_bytes_until_nul(
-                            &current_adapter.IpAddressList.IpAddress.String,
-                        )?
-                        .to_str()?
-                        .parse()?,
+                        CStr::from_bytes_until_nul(&current_adapter.IpAddressList.IpAddress.String)?
+                            .to_str()?
+                            .parse()?,
                     );
                     break;
                 }
@@ -481,13 +493,7 @@ fn find_ipaddress_for_adapter(target_adapter: &str) -> anyhow::Result<Option<std
                 if adapter_name.as_str() == target_adapter {
                     if let Some(ip) = unsafe { current_adapter.FirstUnicastAddress.as_ref() } {
                         #[allow(clippy::cast_ptr_alignment)]
-                        let sockaddr = unsafe {
-                            ip.Address
-                                .lpSockaddr
-                                .cast::<SOCKADDR_IN>()
-                                .as_ref()
-                                .unwrap()
-                        };
+                        let sockaddr = unsafe { ip.Address.lpSockaddr.cast::<SOCKADDR_IN>().as_ref().unwrap() };
                         if sockaddr.sin_family == AF_INET {
                             result = Some(Ipv4Addr::new(
                                 unsafe { sockaddr.sin_addr.S_un.S_un_b.s_b1 },
@@ -530,10 +536,7 @@ fn _get_or_load(path: &Path) -> anyhow::Result<&'static Config> {
                 ) =>
         {
             fs::write(path, DEFAULT_CONFIG)?;
-            msgbox::show_msgbox(
-                &format!("Config file placed at {}", path.to_str().unwrap()),
-                "Done",
-            );
+            msgbox::show_msgbox(&format!("Config file placed at {}", path.to_str().unwrap()), "Done");
             std::process::exit(0);
         }
         Err(err) => return Err(err.into()),

@@ -143,11 +143,7 @@ impl MyRenderLoop {
         self.show_advanced(ui);
     }
 
-    #[allow(
-        clippy::unused_self,
-        unused_variables,
-        clippy::needless_pass_by_ref_mut
-    )]
+    #[allow(clippy::unused_self, unused_variables, clippy::needless_pass_by_ref_mut)]
     fn render_hide(&mut self, ui: &mut imgui::Ui) {}
 
     fn join_session(&self, sender: &User) {
@@ -243,9 +239,7 @@ impl MyRenderLoop {
                         crate::api::Error::GRPCStatus(e) => match e.code() {
                             tonic::Code::Ok => unreachable!(),
                             tonic::Code::DeadlineExceeded => "Connection lost".into(),
-                            tonic::Code::Unauthenticated => {
-                                "Unauthenticated. Relogin required".into()
-                            }
+                            tonic::Code::Unauthenticated => "Unauthenticated. Relogin required".into(),
                             _ => format!("{}", e.code()),
                         },
                         crate::api::Error::LoginFailure => "Login failed".into(),
@@ -371,15 +365,12 @@ fn get_min_players_var() -> *mut i32 {
 }
 
 impl ImguiRenderLoop for MyRenderLoop {
-    fn initialize(
-        &mut self,
-        ctx: &mut imgui::Context,
-        _render_context: &mut dyn hudhook::RenderContext,
-    ) {
+    fn initialize(&mut self, ctx: &mut imgui::Context, _render_context: &mut dyn hudhook::RenderContext) {
         sc_style(ctx.style_mut());
         setup_fonts(ctx);
         ctx.io_mut().font_global_scale = 2.0;
     }
+
     fn render(&mut self, ui: &mut imgui::Ui) {
         #[allow(clippy::cast_possible_wrap)]
         let f5 = unsafe { GetAsyncKeyState(VK_F5.0.into()) & 0x8000u16 as i16 != 0 };
@@ -410,9 +401,7 @@ impl ImguiRenderLoop for MyRenderLoop {
                                 .replace((Instant::now(), sender.username.clone()));
                         }
                         let force_join = evt.force_join;
-                        if evt.sender.is_some()
-                            && (force_join || hooks_config::get().unwrap().auto_join_invite)
-                        {
+                        if evt.sender.is_some() && (force_join || hooks_config::get().unwrap().auto_join_invite) {
                             self.join_session(&evt.sender.unwrap());
                         } else {
                             self.active_invites.push(Invite {

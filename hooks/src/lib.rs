@@ -1,10 +1,4 @@
-#![feature(
-    unboxed_closures,
-    tuple_trait,
-    c_variadic,
-    once_cell_try,
-    mapped_lock_guards
-)]
+#![feature(unboxed_closures, tuple_trait, c_variadic, once_cell_try, mapped_lock_guards)]
 #![deny(clippy::pedantic)]
 
 use std::ffi::c_char;
@@ -45,9 +39,7 @@ mod uplay_r1_loader;
 use macros::fatal_error;
 
 unsafe fn writemem(ptr: *mut u8, data: &[u8]) {
-    if let Ok(_handle) =
-        region::protect_with_handle(ptr, data.len(), region::Protection::READ_WRITE)
-    {
+    if let Ok(_handle) = region::protect_with_handle(ptr, data.len(), region::Protection::READ_WRITE) {
         std::ptr::copy(data.as_ptr(), ptr, data.len());
     }
 }
@@ -67,10 +59,7 @@ unsafe fn patch_url(new_server: &str, addrs: &Addresses) {
     info!("Global onlineconfig client: {:?}", g_cfg_client);
     if g_cfg_client.is_null() {
         info!("Patching rodata with {}", new_server);
-        writemem(
-            addrs.onlineconfig_url as *mut u8,
-            new_server_cstr.as_bytes_with_nul(),
-        );
+        writemem(addrs.onlineconfig_url as *mut u8, new_server_cstr.as_bytes_with_nul());
         return;
     }
     let hostname_ptr = g_cfg_client.add(0x24);
@@ -214,11 +203,7 @@ impl<'a> tracing_subscriber::fmt::MakeWriter<'a> for FileWriter {
     type Writer = File;
 
     fn make_writer(&'a self) -> Self::Writer {
-        File::options()
-            .create(true)
-            .append(true)
-            .open(&self.0)
-            .unwrap()
+        File::options().create(true).append(true).open(&self.0).unwrap()
     }
 }
 
@@ -336,6 +321,10 @@ fn init_log(target_dir: &Path) -> ReconfigurableLogger {
         tracing::error!("{}", msg);
 
         show_msgbox(&msg, "PANIC");
+
+        unsafe {
+            std::arch::asm!("int3");
+        }
 
         std::process::exit(1);
     }));

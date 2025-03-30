@@ -4,13 +4,50 @@ package users;
 
 service Users {
   rpc Login(LoginRequest) returns (LoginResponse);
-//  rpc Me(MeRequest) returns (MeResponse);
+  //  rpc Me(MeRequest) returns (MeResponse);
   rpc Register(RegisterRequest) returns (RegisterResponse);
 }
+
+service UsersAdmin {
+  rpc List(ListRequest) returns (ListResponse);
+  rpc Get(GetRequest) returns (GetResponse);
+  // rpc Update(UpdateRequest) returns (UpdateResponse);
+  rpc Delete(DeleteRequest) returns (DeleteResponse);
+}
+
+message ListRequest {
+  // string query = 1;
+  // int32 limit = 2;
+  // int32 offset = 3;
+}
+
+message ListResponse {
+  repeated User users = 1;
+  int32 total = 2;
+}
+
+message GetRequest { string id = 1; }
+
+message GetResponse { User user = 1; }
+
+// message UpdateRequest {
+//   string id = 1;
+//   string username = 2;
+// }
+
+// message UpdateResponse {
+//   string error = 1;
+//   User user = 2;
+// }
+
+message DeleteRequest { string id = 1; }
+
+message DeleteResponse {}
 
 message User {
   string id = 1;
   string username = 2;
+  repeated string ips = 3;
 }
 
 message LoginRequest {

@@ -34,9 +34,7 @@ mod clipboard_win;
 pub fn clipboard_backend(window: &winit::window::Window) -> clipboard_win::WindowsClipboard {
     let raw_handle = window.window_handle().expect("raw window handle").as_raw();
     let hwnd = match raw_handle {
-        winit::raw_window_handle::RawWindowHandle::Win32(win32_window_handle) => {
-            HWND(win32_window_handle.hwnd.into())
-        }
+        winit::raw_window_handle::RawWindowHandle::Win32(win32_window_handle) => HWND(win32_window_handle.hwnd.into()),
         _ => unreachable!(),
     };
     clipboard_win::WindowsClipboard { hwnd }
@@ -74,12 +72,8 @@ pub fn find_adapter_names() -> Vec<(String, IpAddr)> {
             while let Some(current_adapter) = unsafe { next_adapter.as_ref() } {
                 if let Ok(adapter_name) = unsafe { current_adapter.FriendlyName.to_string() } {
                     if let Some(addr) = unsafe { current_adapter.FirstUnicastAddress.as_ref() } {
-                        let addr = if addr.Address.iSockaddrLength as usize
-                            == std::mem::size_of::<SOCKADDR_IN>()
-                        {
-                            let sockaddr =
-                                unsafe { addr.Address.lpSockaddr.cast::<SOCKADDR_IN>().as_ref() }
-                                    .unwrap();
+                        let addr = if addr.Address.iSockaddrLength as usize == std::mem::size_of::<SOCKADDR_IN>() {
+                            let sockaddr = unsafe { addr.Address.lpSockaddr.cast::<SOCKADDR_IN>().as_ref() }.unwrap();
                             unsafe {
                                 IpAddr::V4(Ipv4Addr::new(
                                     sockaddr.sin_addr.S_un.S_un_b.s_b1,
@@ -89,9 +83,7 @@ pub fn find_adapter_names() -> Vec<(String, IpAddr)> {
                                 ))
                             }
                         } else {
-                            let sockaddr =
-                                unsafe { addr.Address.lpSockaddr.cast::<SOCKADDR_IN6>().as_ref() }
-                                    .unwrap();
+                            let sockaddr = unsafe { addr.Address.lpSockaddr.cast::<SOCKADDR_IN6>().as_ref() }.unwrap();
                             unsafe {
                                 IpAddr::V6(Ipv6Addr::new(
                                     sockaddr.sin6_addr.u.Word[0],
@@ -114,7 +106,15 @@ pub fn find_adapter_names() -> Vec<(String, IpAddr)> {
         })
     };
 
-    let mut res: Vec<(String, IpAddr)> = res.unwrap_or_default().into_iter().collect();
+    let mut res: Vec<(String, IpAddr)> = res
+        .unwrap_or_default()
+        .into_iter()
+        .filter(|(_, ip)| match ip {
+            // ignore windows default IPs (168.254.x.x)
+            IpAddr::V4(v4) => !v4.is_link_local(),
+            _ => true,
+        })
+        .collect();
     res.sort_by(|a, b| a.0.cmp(&b.0));
     res
 }
@@ -126,13 +126,10 @@ fn get_adapter_infos<T>(
 
     let mut adapterinfo = vec![0u8; std::mem::size_of::<IP_ADAPTER_INFO>()];
     let mut size = adapterinfo.len() as u32;
-    let mut res =
-        WIN32_ERROR(unsafe { GetAdaptersInfo(Some(adapterinfo.as_mut_ptr().cast()), &mut size) });
+    let mut res = WIN32_ERROR(unsafe { GetAdaptersInfo(Some(adapterinfo.as_mut_ptr().cast()), &mut size) });
     if res == ERROR_BUFFER_OVERFLOW {
         adapterinfo.resize(size as usize, 0);
-        res = WIN32_ERROR(unsafe {
-            GetAdaptersInfo(Some(adapterinfo.as_mut_ptr().cast()), &mut size)
-        });
+        res = WIN32_ERROR(unsafe { GetAdaptersInfo(Some(adapterinfo.as_mut_ptr().cast()), &mut size) });
     }
     match res {
         ERROR_BUFFER_OVERFLOW => {
@@ -156,10 +153,7 @@ fn get_adapter_infos<T>(
             } else {
                 String::from("unknown")
             };
-            if !LocalFree(std::mem::transmute::<PWSTR, HLOCAL>(buffer_ptr))
-                .0
-                .is_null()
-            {
+            if !LocalFree(std::mem::transmute::<PWSTR, HLOCAL>(buffer_ptr)).0.is_null() {
                 bail!("Error freeing buffer: {}", GetLastError().to_hresult());
             }
             bail!("Couldn't enumerate adapters: {}", msg);
@@ -168,9 +162,7 @@ fn get_adapter_infos<T>(
 }
 
 fn get_adapter_addresses<T>(
-    f: impl Fn(
-        *mut windows::Win32::NetworkManagement::IpHelper::IP_ADAPTER_ADDRESSES_LH,
-    ) -> anyhow::Result<T>,
+    f: impl Fn(*mut windows::Win32::NetworkManagement::IpHelper::IP_ADAPTER_ADDRESSES_LH) -> anyhow::Result<T>,
 ) -> anyhow::Result<T> {
     #![allow(
         clippy::cast_possible_truncation,
@@ -182,10 +174,7 @@ fn get_adapter_addresses<T>(
     let mut res = WIN32_ERROR(unsafe {
         GetAdaptersAddresses(
             AF_INET.0 as u32,
-            GAA_FLAG_SKIP_UNICAST
-                | GAA_FLAG_SKIP_ANYCAST
-                | GAA_FLAG_SKIP_MULTICAST
-                | GAA_FLAG_SKIP_DNS_SERVER,
+            GAA_FLAG_SKIP_UNICAST | GAA_FLAG_SKIP_ANYCAST | GAA_FLAG_SKIP_MULTICAST | GAA_FLAG_SKIP_DNS_SERVER,
             None,
             Some(adapter_addresses.as_mut_ptr().cast()),
             &mut size,
@@ -225,10 +214,7 @@ fn get_adapter_addresses<T>(
             } else {
                 String::from("unknown")
             };
-            if !LocalFree(std::mem::transmute::<PWSTR, HLOCAL>(buffer_ptr))
-                .0
-                .is_null()
-            {
+            if !LocalFree(std::mem::transmute::<PWSTR, HLOCAL>(buffer_ptr)).0.is_null() {
                 bail!("Error freeing buffer: {}", GetLastError().to_hresult());
             }
             bail!("Couldn't enumerate adapters: {}", msg);

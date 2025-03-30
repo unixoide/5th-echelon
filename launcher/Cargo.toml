@@ -12,17 +12,22 @@ GetAdapterInfos = []
 [dependencies]
 anyhow = { workspace = true }
 brotli = { workspace = true, optional = true }
+bytes = "1.10.1"
+dedicated_server_config = { path = "../dedicated_server/config" }
 glow = { workspace = true }
 glutin = { workspace = true }
 glutin-winit = { workspace = true }
+futures = "0.3.31"
 hooks-addresses = { path = "../hooks/hooks-addresses" }
 hooks-config = { path = "../hooks/hooks-config" }
-imgui = { workspace = true }
+imgui = { workspace = true, features = ["tables-api", "docking"] }
 imgui-glow-renderer = { workspace = true }
 imgui-winit-support = { workspace = true }
+itertools = { workspace = true }
 libc = { workspace = true }
 raw-window-handle = { workspace = true }
 toml = { workspace = true }
+jzon = { workspace = true }
 server_api = { path = "../api", package = "api" }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true, features = ["env-filter"] }
@@ -33,6 +38,15 @@ goblin = { workspace = true, default-features = false, features = [
     "pe64",
     "std",
 ] }
+mint = "0.5.9"
+rand = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+url = { workspace = true }
+quazal = { path = "../quazal" }
+sc_bl_protocols = { path = "../dedicated_server/sc_bl_protocols" }
+reqwest = { version = "0.12", features = ["stream"] }
 
 [target.'cfg(target_os = "windows")'.dependencies.windows]
 version = "0.54.0" # hudhook
@@ -46,12 +60,17 @@ features = [
     "Win32_System_Diagnostics_Debug",
     "Win32_System_Memory",
     "Win32_System_Registry",
+    "Win32_UI_Controls",
     "Win32_UI_WindowsAndMessaging",
+    "Win32_System_Threading",
+    "Win32_System_Diagnostics_ToolHelp",
+    "Win32_System_ProcessStatus",
+    "Win32_Security",
 ]
 
 [build-dependencies]
 brotli = { workspace = true }
-json = { workspace = true }
+jzon = { workspace = true }
 winres = { workspace = true }
 image = { workspace = true, default-features = false, features = ["png"] }
 goblin = { workspace = true, default-features = false, features = [
@@ -59,3 +78,9 @@ goblin = { workspace = true, default-features = false, features = [
     "pe64",
     "std",
 ] }
+
+[package.metadata.winres]
+ProductName = "5th Echelon Launcher"
+FileDescription = "https://github.com/unixoide/5th-echelon"
+OriginalFilename = "launcher.exe"
+InternalName = "launcher"

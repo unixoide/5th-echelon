@@ -6,6 +6,7 @@ import "users.proto";
 
 service Misc {
     rpc Event(EventRequest) returns (EventResponse);
+    rpc TestP2P(TestP2PRequest) returns (TestP2PResponse);
 }
 
 message EventRequest {}
@@ -17,4 +18,11 @@ message InviteEvent {
     int64 id = 1;
     users.User sender = 2;
     bool force_join = 3;
+}
+
+message TestP2PRequest {
+    bytes challenge = 1;
+}
+message TestP2PResponse {
+    bytes challenge = 2;
 }
