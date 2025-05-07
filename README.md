@@ -27,7 +27,7 @@ Download the binaries from the latest [release](https://github.com/unixoide/5th-
 1. Start the server `dedicated_server.exe`
 2. Note the (public) IP address of the server (like your VPN IP if you're using radmin/hamachi)
 3. Open `service.toml` file and change all Values, secure_server_addr, storage_host, from 127.0.0.1 to your address from step 2
-3. Make sure the ports tcp/80, tcp/50051, tcp/8000, udp/21120 and udp/21127 are open to your peers (allowed in firewall or firewall off)
+3. Make sure the ports tcp/80, tcp/50051, tcp/8000, udp/21126 and udp/21127 are open to your peers (allowed in firewall or firewall off)
 
 ### On the clients (all players who want to connect to the community server)
 
