@@ -52,7 +52,7 @@ jobs:
         asset_name: 5th-echelon.zip
         asset_content_type: application/zip
     - name: Upload Release Asset
-      id: upload-release-asset 
+      id: upload-release-asset-launcher
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -62,7 +62,7 @@ jobs:
         asset_name: launcher.exe
         asset_content_type: application/octet-stream
     - name: Upload Release Asset
-      id: upload-release-asset 
+      id: upload-release-asset-server
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
