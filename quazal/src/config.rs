@@ -211,6 +211,21 @@ impl OnlineConfig {
                 let rest = s.split_off(start_idx);
                 s.push_str(&public_ip.to_string());
                 s.push_str(&rest[end_idx - start_idx..]);
+				
+				// repeat the same for SandboxUrlWS
+                let Some(idx) = s.find(r#""Name":"SandboxUrlWS","#) else {
+                    return;
+                };
+                let value = &s[idx..];
+                let Some(start_idx) = value.find("\"Values\":[\"").map(|i| i + "\"Values\":[\"".len() + idx) else {
+                    return;
+                };
+                let Some(end_idx) = value.find("\"]").map(|i| i + idx) else {
+                    return;
+                };
+                let rest = s.split_off(start_idx);
+                s.push_str(&public_ip.to_string());
+                s.push_str(&rest[end_idx - start_idx..]);
             }
             OnlineConfigContent::Typed(online_config_items) => {
                 for item in online_config_items.iter_mut() {
@@ -225,6 +240,14 @@ impl OnlineConfig {
                             let rest = value.split_off(start_idx);
                             value.push_str(&public_ip.to_string());
                             value.push_str(&rest[end_idx - start_idx..]);
+                        }
+                    }
+					if item.name == "SandboxUrlWS" {
+                        for value in &mut item.values {
+                            if let Ok(mut addr) = value.parse::<SocketAddr>() {
+                                addr.set_ip(public_ip);
+                                *value = addr.to_string();
+                            }
                         }
                     }
                 }
