@@ -131,7 +131,7 @@ checksum = "e16d2d3311acee920a9eb8d33b8cbc1787ce4a264e85f964c2404b969bdcd487"
 
 [[package]]
 name = "api"
-version = "0.2.0"
+version = "0.2.2"
 dependencies = [
  "prost",
  "tonic",
@@ -751,7 +751,7 @@ checksum = "04d2cd9c18b9f454ed67da600630b021a8a80bf33f8c95896ab33aaf1c26b728"
 
 [[package]]
 name = "dedicated_server"
-version = "0.2.0"
+version = "0.2.2"
 dependencies = [
  "api",
  "argh",
@@ -785,7 +785,7 @@ dependencies = [
 
 [[package]]
 name = "dedicated_server_config"
-version = "0.2.0"
+version = "0.2.2"
 dependencies = [
  "color-eyre",
  "eyre",
@@ -1550,7 +1550,7 @@ dependencies = [
 
 [[package]]
 name = "hooks"
-version = "0.2.0"
+version = "0.2.2"
 dependencies = [
  "anyhow",
  "api",
@@ -1579,7 +1579,7 @@ dependencies = [
 
 [[package]]
 name = "hooks-addresses"
-version = "0.2.0"
+version = "0.2.2"
 dependencies = [
  "anyhow",
  "argh",
@@ -1595,7 +1595,7 @@ dependencies = [
 
 [[package]]
 name = "hooks-config"
-version = "0.2.0"
+version = "0.2.2"
 dependencies = [
  "anyhow",
  "serde",
@@ -1608,7 +1608,7 @@ dependencies = [
 
 [[package]]
 name = "hooks-proc"
-version = "0.2.0"
+version = "0.2.2"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2135,7 +2135,7 @@ dependencies = [
 
 [[package]]
 name = "launcher"
-version = "0.2.0"
+version = "0.2.2"
 dependencies = [
  "anyhow",
  "api",
@@ -3210,7 +3210,7 @@ dependencies = [
 
 [[package]]
 name = "quazal"
-version = "0.2.0"
+version = "0.2.2"
 dependencies = [
  "byteorder",
  "derive_more",
@@ -3232,7 +3232,7 @@ dependencies = [
 
 [[package]]
 name = "quazal-macros"
-version = "0.2.0"
+version = "0.2.2"
 dependencies = [
  "proc-macro-crate",
  "proc-macro2",
@@ -3243,7 +3243,7 @@ dependencies = [
 
 [[package]]
 name = "quazal-tools"
-version = "0.2.0"
+version = "0.2.2"
 dependencies = [
  "byteorder",
  "clap",
@@ -3262,7 +3262,7 @@ dependencies = [
 
 [[package]]
 name = "quazal-tools-macros"
-version = "0.2.0"
+version = "0.2.2"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -3663,7 +3663,7 @@ dependencies = [
 
 [[package]]
 name = "sc_bl_protocols"
-version = "0.2.0"
+version = "0.2.2"
 dependencies = [
  "byteorder",
  "num_enum 0.7.3",
@@ -3848,7 +3848,7 @@ dependencies = [
 
 [[package]]
 name = "shim-gen"
-version = "0.2.0"
+version = "0.2.2"
 dependencies = [
  "argh",
  "goblin 0.9.3",
@@ -4305,7 +4305,7 @@ checksum = "911ece10388afa48417f99e01df038460b6249a3ee0255f6446a6881b702fbb4"
 
 [[package]]
 name = "storm_parser"
-version = "0.2.0"
+version = "0.2.2"
 dependencies = [
  "nom",
 ]
@@ -4928,7 +4928,7 @@ checksum = "e36a83ea2b3c704935a01b4642946aadd445cea40b10935e3f8bd8052b8193d6"
 
 [[package]]
 name = "umd_browser"
-version = "0.2.0"
+version = "0.2.2"
 dependencies = [
  "color-eyre",
  "enumflags2",
