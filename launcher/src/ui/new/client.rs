@@ -14,6 +14,8 @@ use tracing::info;
 
 use super::colors::GREEN;
 use super::colors::RED;
+use super::colors::YELLOW;
+use super::server::SERVER_PROCESS;
 use crate::config::ConfigMut;
 use crate::config::Profile;
 use crate::config::P2P_DEFAULT_PORT;
@@ -444,6 +446,11 @@ impl ClientMenu<'_> {
         ))
         .always_auto_resize(true)
         .build(|| {
+            if unsafe { SERVER_PROCESS.is_some() } {
+                ui.text_colored(YELLOW.to_rgba_f32s(),"WARNING:");
+                ui.same_line();
+                ui.text("If you're also running the server on this machine,\nthe following tests are not very reliable. Especially P2P");
+            }
             if let Some(table) = ui.begin_table_with_flags("DiagnoseTable", 2, TableFlags::NO_CLIP)
             {
                 ui.table_setup_column_with(TableColumnSetup {
@@ -500,7 +507,10 @@ impl ClientMenu<'_> {
                 ui.table_next_column();
                 ui.text("P2P Connection");
                 ui.table_next_column();
-                show_result(self.test_p2p.as_mut(), &[&format!("Make sure that you allow connections to UDP port `{P2P_DEFAULT_PORT}` in your firewall")]);
+                show_result(self.test_p2p.as_mut(), &[
+                    &format!("Make sure that you allow connections to UDP port `{P2P_DEFAULT_PORT}` in your firewall"),
+                    "`NOTE`: If you're currently in a game, the client can't perform this check.\nIn this case you can ignore the \"client did not respond in time\" error!",
+                    ]);
                 table.end();
             }
 
