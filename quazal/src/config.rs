@@ -242,7 +242,7 @@ impl OnlineConfig {
                             value.push_str(&rest[end_idx - start_idx..]);
                         }
                     }
-					if item.name == "SandboxUrlWS" {
+                    if item.name == "SandboxUrlWS" {
                         for value in &mut item.values {
                             if let Ok(mut addr) = value.parse::<SocketAddr>() {
                                 addr.set_ip(public_ip);
