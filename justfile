@@ -37,8 +37,7 @@ run_game: uplay
 run_game_release: uplay_release
     cd "C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\"; .\Blacklist_game.exe
 
-# release: release_server release_uplay release_launcher_embed
-release: release_server release_uplay release_launcher
+release: release_server release_uplay release_launcher_embed
     7z a -tzip 5th-echelon.zip data\ .\target\release\dedicated_server.exe .\target\release\launcher.exe .\target_i686\i686-pc-windows-msvc\release\hooks.dll
     7z rn 5th-echelon.zip hooks.dll uplay_r1_loader.dll
 
