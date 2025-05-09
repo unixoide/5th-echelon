@@ -1,6 +1,5 @@
 use std::cell::RefCell;
 use std::net::IpAddr;
-use std::net::Ipv4Addr;
 use std::net::ToSocketAddrs;
 use std::path::Path;
 use std::rc::Rc;

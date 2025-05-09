@@ -1,5 +1,8 @@
 #![windows_subsystem = "windows"]
 
+use tracing::info;
+use tracing::warn;
+
 #[cfg(target_os = "windows")]
 #[path = "windows.rs"]
 mod sys;
@@ -63,7 +66,16 @@ fn ask_for_ui_version() -> config::UIVersion {
 }
 
 fn main() {
+    #![allow(clippy::option_env_unwrap)]
     logging::init();
+
+    if matches!(option_env!("GITHUB_REF_NAME"), Some(gh_ref) if gh_ref != format!("v{}", *VERSION)) {
+        warn!(
+            "Launcher built on GH has a mismatch in cargo version and tag: {} != v{}",
+            option_env!("GITHUB_REF_NAME").unwrap(),
+            *VERSION
+        );
+    }
 
     let runtime = tokio::runtime::Builder::new_multi_thread()
         .enable_all()
@@ -73,20 +85,28 @@ fn main() {
     let assets = runtime.block_on(<updater::Updater>::check_for_updates());
     let launcher_asset = assets.into_iter().find(|a| a.name == "launcher.exe");
 
-    eprintln!("Launcher asset: {:?}", launcher_asset);
+    info!("Launcher asset: {:?}", launcher_asset);
 
     if let Some("update") = std::env::args().nth(1).as_deref() {
         runtime.block_on(<updater::Updater>::update_self(
             launcher_asset.expect("Launcher asset not found"),
         ));
         return;
+    } else {
+        updater::remove_updater_if_needed();
     }
-    let update_available = launcher_asset.map(|a| a.version > *VERSION).unwrap_or(false);
+    let mut update_available = launcher_asset.filter(|a| a.version > *VERSION).map(|a| a.version);
+
+    if matches!(update_available.zip(option_env!("GITHUB_REF_NAME")), Some((latest, gh_ref)) if format!("v{latest}") == gh_ref)
+    {
+        warn!("Identified update for launcher while it was built with the same tag name");
+        update_available = None;
+    }
 
     drop(runtime);
 
     let target_dir = games::find_target_dir().expect("Game not found. Try to place the launcher in the games folder.");
-    println!("Found target dir {target_dir:?}");
+    info!("Found target dir {target_dir:?}");
 
     #[cfg(feature = "embed-dll")]
     dll_utils::drop_dll(&target_dir);
@@ -105,7 +125,7 @@ fn main() {
             cfg.into_inner(),
             &adapter_names,
             &adapter_ips,
-            update_available,
+            update_available.is_some(),
         ),
     }
 }

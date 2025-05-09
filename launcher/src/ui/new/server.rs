@@ -164,7 +164,13 @@ impl ServerMenu {
             self.latest_version.try_get().zip(self.server_version)
         {
             if latest_version > server_version {
-                ui.text_colored(YELLOW.to_rgba_f32s(), "Dedicated server outdated");
+                ui.text_colored(
+                    YELLOW.to_rgba_f32s(),
+                    format!(
+                        "Dedicated server outdated (current: {}, latest: {})",
+                        server_version, latest_version
+                    ),
+                );
                 if ui.button("Download") {
                     let progress = self.download_progress.clone();
                     let dedicated_server_path = self.dedicated_server_path.clone();
@@ -555,11 +561,20 @@ impl ServerMenu {
                 if let Some(()) = self.downloader.as_mut().and_then(BackgroundValue::try_take) {
                     ui.close_current_popup();
                     self.downloader.take();
+                    self.server_version = if self.dedicated_server_path.exists() {
+                        crate::dll_utils::get_dll_version(&self.dedicated_server_path).ok()
+                    } else {
+                        None
+                    };
                 }
                 self.download_text.update();
                 ui.text(self.download_text.text());
                 ProgressBar::new(self.download_progress.load(Ordering::Relaxed) as f32 / 100.0).build(ui);
             });
+    }
+
+    pub fn server_version(&self) -> Option<Version> {
+        self.server_version
     }
 }
 

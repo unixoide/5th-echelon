@@ -10,6 +10,7 @@ use futures::Stream;
 use futures::StreamExt;
 use jzon::JsonValue;
 use tokio::io::AsyncWriteExt;
+use tracing::debug;
 
 use crate::version::Version;
 
@@ -109,16 +110,16 @@ impl UpdaterClient for reqwest::Client {
             .get(" https://api.github.com/repos/unixoide/5th-echelon/releases/latest")
             .send()
             .await?;
-        let resp = jzon::parse(&resp.text().await.unwrap()).unwrap();
+        let body = resp.text().await.unwrap();
+        let resp = jzon::parse(&body).unwrap();
         let JsonValue::Object(obj) = resp else {
+            debug!("Unexpected response from server: {}", body);
             return Ok(Vec::new());
         };
         let Some(JsonValue::Short(tag_name)) = obj.get("tag_name") else {
+            debug!("tag_name not found ({:?})", obj.get("tag_name"));
             return Ok(Vec::new());
         };
-        if tag_name == option_env!("GITHUB_REF_NAME").unwrap_or_default() {
-            return Ok(Vec::new());
-        }
 
         let version = if let Some(tag_name) = tag_name.strip_prefix("v") {
             tag_name.parse::<Version>().ok()
@@ -127,10 +128,12 @@ impl UpdaterClient for reqwest::Client {
         };
 
         let Some(version) = version else {
+            debug!("unexpected tag_name {tag_name}");
             return Ok(Vec::new());
         };
 
         let Some(JsonValue::Array(assets)) = obj.get("assets") else {
+            debug!("assets not found");
             return Ok(Vec::new());
         };
 
@@ -138,15 +141,19 @@ impl UpdaterClient for reqwest::Client {
             .iter()
             .filter_map(|asset| {
                 let JsonValue::Object(obj) = asset else {
+                    debug!("asset is not an object");
                     return None;
                 };
                 let Some(JsonValue::Short(name)) = obj.get("name") else {
+                    debug!("asset has no name");
                     return None;
                 };
                 let Some(JsonValue::String(url)) = obj.get("browser_download_url") else {
+                    debug!("asset has no browser_download_url");
                     return None;
                 };
                 let Some(JsonValue::Number(size)) = obj.get("size") else {
+                    debug!("asset has no size");
                     return None;
                 };
                 Some(Asset {
@@ -292,27 +299,9 @@ impl<CF: UpdaterClientFactory + 'static> Updater<CF> {
         DOWNLOADED_SIZE.store(0, Ordering::SeqCst);
         let downloader = tokio::spawn(Self::download_with_progress(
             asset.clone(),
-            launcher_exe,
+            launcher_exe.clone(),
             &DOWNLOADED_SIZE,
         ));
-
-        // let downloader = tokio::spawn(async move {
-        //     let mut launcher_exe_file = tokio::fs::File::create(launcher_exe.with_extension("download"))
-        //         .await
-        //         .unwrap();
-        //     let client = CF::new();
-        //     let resp = client.download(asset.url).await.unwrap();
-        //     tokio::pin!(resp);
-        //     while let Some(Ok(chunk)) = resp.next().await {
-        //         launcher_exe_file.write_all(&chunk).await.unwrap();
-        //         DOWNLOADED_SIZE.fetch_add(chunk.len(), Ordering::SeqCst);
-        //     }
-        //     launcher_exe_file.flush().await.unwrap();
-        //     drop(launcher_exe_file);
-        //     tokio::fs::rename(launcher_exe.with_extension("download"), launcher_exe)
-        //         .await
-        //         .unwrap();
-        // });
 
         let progress = tokio::task::spawn_blocking(move || unsafe {
             let buttons = [TASKDIALOG_BUTTON {
@@ -339,7 +328,7 @@ impl<CF: UpdaterClientFactory + 'static> Updater<CF> {
             TaskDialogIndirect(&task_dlg_cfg, Some(&mut selected_button), None, None).unwrap();
         });
 
-        tokio::select! {
+        let done = tokio::select! {
             _ = downloader => {
                 unsafe {
                     let hwnd_ptr = TASKDIALOG_HWND.load(Ordering::SeqCst);
@@ -348,19 +337,48 @@ impl<CF: UpdaterClientFactory + 'static> Updater<CF> {
                         PostMessageW(hwnd, WM_CLOSE, WPARAM(0), LPARAM(0)).unwrap();
                     }
                 }
+                true
             }
-            _ = progress => {}
-        }
+            _ = progress => false
+        };
         let hwnd_ptr = TASKDIALOG_HWND.swap(std::ptr::null_mut(), Ordering::SeqCst);
         if !hwnd_ptr.is_null() {
             unsafe {
                 let _ = Box::from_raw(hwnd_ptr);
             }
         }
+
+        if done {
+            let mut child = std::process::Command::new(launcher_exe).spawn().unwrap();
+            child.try_wait().unwrap();
+        }
     }
 
     pub async fn check_for_updates() -> Vec<Asset> {
         CF::new().fetch_latest_assets().await.unwrap()
+    }
+}
+
+pub fn start_update_process_and_terminate() {
+    let myself = std::env::current_exe().unwrap();
+    let dest_dir = myself.parent().unwrap();
+    let updater = dest_dir.join("launcher_updater.exe");
+    std::fs::copy(&myself, &updater).unwrap();
+    let mut child = std::process::Command::new(updater)
+        .arg("update")
+        .arg(myself.as_os_str())
+        .spawn()
+        .unwrap();
+    child.try_wait().unwrap();
+    std::process::exit(0);
+}
+
+pub fn remove_updater_if_needed() {
+    let myself = std::env::current_exe().unwrap();
+    let dest_dir = myself.parent().unwrap();
+    let updater = dest_dir.join("launcher_updater.exe");
+    if updater.exists() {
+        std::fs::remove_file(updater).unwrap();
     }
 }
 

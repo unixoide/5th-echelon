@@ -21,9 +21,7 @@ fn show_msgbox(msg: &str, caption: &str) {
 
 fn enable_console() {
     unsafe {
-        let _ = windows::Win32::System::Console::AttachConsole(
-            windows::Win32::System::Console::ATTACH_PARENT_PROCESS,
-        );
+        let _ = windows::Win32::System::Console::AttachConsole(windows::Win32::System::Console::ATTACH_PARENT_PROCESS);
     }
 }
 
@@ -68,6 +66,10 @@ pub fn init() {
 
     tracing_subscriber::registry()
         .with(tracing_subscriber::fmt::layer())
-        .with(tracing_subscriber::EnvFilter::from_default_env())
+        .with(
+            tracing_subscriber::EnvFilter::builder()
+                .with_default_directive(tracing_subscriber::filter::LevelFilter::WARN.into())
+                .from_env_lossy(),
+        )
         .init();
 }

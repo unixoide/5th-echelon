@@ -8,6 +8,7 @@ use server::SERVER_PROCESS;
 use super::Fonts;
 use super::Size;
 use crate::config::ConfigMut;
+use crate::version::Version;
 
 mod client;
 mod colors;
@@ -16,7 +17,7 @@ mod server;
 mod settings;
 pub mod themes;
 
-pub fn run(target_dir: PathBuf, cfg: ConfigMut, adapters: &[(String, IpAddr)], update_available: bool) {
+pub fn run(target_dir: PathBuf, cfg: ConfigMut, adapters: &[(String, IpAddr)], update_available: Option<Version>) {
     let mut imgui = imgui::Context::create();
     themes::new(imgui.style_mut());
 

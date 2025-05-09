@@ -42,7 +42,8 @@ pub struct Main<'a> {
     cfg: Rc<RefCell<ConfigMut>>,
     adapters: &'a [(String, IpAddr)],
     exe_loader: Rc<RefCell<BackgroundValue<GameHooks>>>,
-    show_outdated_launcher_warning: bool,
+    update_available: Option<Version>,
+    show_update_modal: bool,
     target_dir: &'a Path,
     fonts: Fonts,
     launcher_version: Version,
@@ -56,7 +57,7 @@ impl<'a> Main<'a> {
         cfg: ConfigMut,
         adapters: &'a [(String, IpAddr)],
         exe_loader: BackgroundValue<GameHooks>,
-        update_available: bool,
+        update_available: Option<Version>,
         target_dir: &'a Path,
         fonts: Fonts,
     ) -> Self {
@@ -78,7 +79,8 @@ impl<'a> Main<'a> {
             cfg: Rc::new(RefCell::new(cfg)),
             adapters,
             exe_loader: Rc::new(RefCell::new(exe_loader)),
-            show_outdated_launcher_warning: update_available,
+            show_update_modal: update_available.is_some(),
+            update_available,
             target_dir,
             fonts,
             bundled_dll_version,
@@ -116,6 +118,10 @@ impl<'a> Main<'a> {
                         font.end();
                         ui.set_window_font_scale(0.7);
                         ui.text_disabled(format!("Launcher Version: {}", self.launcher_version));
+                        if let Some(gh_ref) = option_env!("GITHUB_REF_NAME") {
+                            ui.same_line();
+                            ui.text_disabled(format!("GitHub Tag: {gh_ref}"));
+                        }
                         if let Some(bundled_dll_version) = self.bundled_dll_version {
                             ui.same_line();
                             ui.text_disabled(format!("Bundled DLL Version: {bundled_dll_version}"));
@@ -124,7 +130,12 @@ impl<'a> Main<'a> {
                             ui.same_line();
                             ui.text_disabled(format!("Installed DLL Version: {installed_dll_version}"));
                         }
-                        if let Some(server_version) = self.server_version {
+                        let server_version = if let MainMenuType::Server(ref server_menu) = self.menu_type {
+                            server_menu.server_version()
+                        } else {
+                            None
+                        };
+                        if let Some(server_version) = server_version.or(self.server_version) {
                             ui.same_line();
                             ui.text_disabled(format!("Server Version: {server_version}"));
                         }
@@ -138,20 +149,17 @@ impl<'a> Main<'a> {
                             MainMenuType::None => {
                                 ui.modal_popup("Outdated Launcher", || {
                                     ui.text("Launcher is outdated.");
+                                    ui.text(format!("Current: {}", self.launcher_version,));
+                                    ui.text(format!("Latest: {}", self.update_available.unwrap()));
                                     if ui.button("Update Now") {
-                                        let mut child = std::process::Command::new(std::env::current_exe().unwrap())
-                                            .arg("update")
-                                            .spawn()
-                                            .unwrap();
-                                        child.try_wait().unwrap();
-                                        std::process::exit(0);
+                                        crate::updater::start_update_process_and_terminate();
                                     }
                                     if ui.button("Discard") {
                                         ui.close_current_popup();
                                     }
                                 });
-                                if self.show_outdated_launcher_warning {
-                                    self.show_outdated_launcher_warning = false;
+                                if self.show_update_modal {
+                                    self.show_update_modal = false;
                                     ui.open_popup("Outdated Launcher");
                                 }
 
