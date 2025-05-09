@@ -139,6 +139,13 @@ def estimate_changes():
     return classfication
 
 
+def version_type(s: str) -> Version:
+    match = re.match(r"^v?(\d+)\.(\d+)\.(\d+)$", s)
+    if not match:
+        raise argparse.ArgumentTypeError(f"Invalid version: {s}")
+    return Version(*map(int, match.groups()))
+
+
 def main():
     parser = argparse.ArgumentParser()
     grp = parser.add_mutually_exclusive_group()
@@ -146,7 +153,7 @@ def main():
     grp.add_argument("--minor", action="store_true")
     grp.add_argument("--patch", action="store_true")
     parser.add_argument("--auto", action="store_true")
-    parser.add_argument("--set")
+    parser.add_argument("--set", type=version_type)
     args = parser.parse_args()
 
     manifests = [
@@ -156,23 +163,26 @@ def main():
     print("highest version:", highest_version.version, f"({highest_version.name})")
     highest_version = highest_version.version
 
-    if args.auto:
-        classification = estimate_changes()
-        print("Estimated changes:", classification)
-    elif args.major:
-        classification = ChangeType.MAJOR
-    elif args.minor:
-        classification = ChangeType.MINOR
-    elif args.patch:
-        classification = ChangeType.PATCH
+    if args.set:
+        new_version = args.set
+    else:
+        if args.auto:
+            classification = estimate_changes()
+            print("Estimated changes:", classification)
+        elif args.major:
+            classification = ChangeType.MAJOR
+        elif args.minor:
+            classification = ChangeType.MINOR
+        elif args.patch:
+            classification = ChangeType.PATCH
 
-    match classification:
-        case ChangeType.MAJOR:
-            new_version = highest_version.increase_major()
-        case ChangeType.MINOR:
-            new_version = highest_version.increase_minor()
-        case ChangeType.PATCH:
-            new_version = highest_version.increase_patch()
+        match classification:
+            case ChangeType.MAJOR:
+                new_version = highest_version.increase_major()
+            case ChangeType.MINOR:
+                new_version = highest_version.increase_minor()
+            case ChangeType.PATCH:
+                new_version = highest_version.increase_patch()
 
     print("New version:", new_version)
 
@@ -180,8 +190,12 @@ def main():
         print("Updating", manifest.path)
         manifest.write_version_to_file(new_version)
 
+    subprocess.run(["cargo", "generate-lockfile"], check=True)
+
     print("Committing changes")
-    subprocess.run(["git", "add", *map(str, find_cargo_files())], check=True)
+    subprocess.run(
+        ["git", "add", *map(str, find_cargo_files()), "Cargo.lock"], check=True
+    )
     subprocess.run(["git", "commit", "-m", f"release {new_version}"], check=True)
     subprocess.run(
         ["git", "tag", "-a", f"v{new_version}", "-m", f"v{new_version}"], check=True
