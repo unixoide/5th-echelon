@@ -11,6 +11,11 @@ use tracing::instrument;
 use url::Url;
 
 #[cfg(target_os = "windows")]
+mod saves;
+#[cfg(target_os = "windows")]
+pub use saves::SaveGameExt;
+
+#[cfg(target_os = "windows")]
 mod msgbox {
     use std::ffi::CString;
 

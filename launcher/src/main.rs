@@ -16,6 +16,7 @@ mod dll_utils;
 mod games;
 mod logging;
 mod network;
+mod registry;
 mod render;
 mod ui;
 mod updater;

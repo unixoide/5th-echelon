@@ -1,15 +1,21 @@
 use std::cell::RefCell;
+use std::ffi::OsStr;
+use std::fs;
+use std::io::Write as _;
 use std::net::IpAddr;
 use std::net::ToSocketAddrs;
 use std::path::Path;
+use std::path::PathBuf;
 use std::rc::Rc;
 use std::time::Duration;
 
+use hooks_config::SaveGameExt;
 use imgui::ImColor32;
 use imgui::TableColumnFlags;
 use imgui::TableColumnSetup;
 use imgui::TableFlags;
 use tracing::debug;
+use tracing::error;
 use tracing::info;
 
 use super::colors::GREEN;
@@ -25,6 +31,7 @@ use crate::config::RPC_DEFAULT_PORT;
 use crate::games::GameVersion;
 use crate::network;
 use crate::network::try_locate_server;
+use crate::registry;
 use crate::ui::icons::*;
 use crate::ui::AnimatedText;
 use crate::ui::BackgroundValue;
@@ -34,6 +41,41 @@ type BackgroundNetworkTest = BackgroundValue<Option<network::Error>>;
 type BackgroundNetwork<T> = BackgroundValue<Result<T, network::Error>>;
 
 static mut CLIENT_PROCESS: Option<std::process::Child> = None;
+
+const SC_BL_UBI_GAME_ID: &str = "449";
+
+fn find_ubisoft_launcher_dir() -> Option<PathBuf> {
+    registry::read_string(registry::Key::LocaLMachine, "SOFTWARE/Ubisoft/Launcher", "InstallDir")
+        .as_deref()
+        .and_then(OsStr::to_str)
+        .map(PathBuf::from)
+}
+
+fn preexisting_savegame() -> Option<PathBuf> {
+    let launcher_dir = find_ubisoft_launcher_dir()?;
+
+    let savegames_dir = launcher_dir.join("savegames");
+    if !savegames_dir.exists() {
+        return None;
+    }
+
+    for entry in savegames_dir.read_dir().unwrap() {
+        let Ok(entry) = entry else {
+            continue;
+        };
+
+        let game_save_dir = entry.path().join(SC_BL_UBI_GAME_ID);
+        if !game_save_dir.exists() {
+            continue;
+        }
+        let save_file = game_save_dir.join("1.save");
+        if save_file.exists() {
+            return Some(save_file);
+        }
+    }
+
+    None
+}
 
 pub struct ClientMenu<'a> {
     cfg: Rc<RefCell<ConfigMut>>,
@@ -48,6 +90,8 @@ pub struct ClientMenu<'a> {
     system_dir: &'a Path,
     selected_game_version: Option<usize>,
     game_versions: Rc<RefCell<BackgroundValue<GameHooks>>>,
+    has_savegame: bool,
+    preexisting_savegame: Option<PathBuf>,
 }
 
 impl<'a> ClientMenu<'a> {
@@ -64,6 +108,8 @@ impl<'a> ClientMenu<'a> {
             .position(|p| p.name == cfg.borrow().default_profile)
             .unwrap_or_default();
         let profile_editor = ProfileEditor::new(Rc::clone(&cfg), adapters);
+        let has_savegame = { cfg.borrow().hook_config.save.get_savegame_path(1).exists() };
+        let preexisting_savegame = preexisting_savegame();
         Self {
             cfg,
             selected_profile,
@@ -77,6 +123,8 @@ impl<'a> ClientMenu<'a> {
             system_dir,
             selected_game_version: None,
             game_versions,
+            has_savegame,
+            preexisting_savegame,
         }
     }
 
@@ -92,6 +140,12 @@ impl<'a> ClientMenu<'a> {
         }
         if !no_profiles {
             self.diagnose_modal(ui);
+        }
+
+        self.import_savegame_modal(ui);
+        if !self.has_savegame {
+            ui.open_popup("Import Savegame");
+            self.has_savegame = true;
         }
 
         if ui.arrow_button("Back", imgui::Direction::Left) {
@@ -521,6 +575,42 @@ impl ClientMenu<'_> {
                 ui.close_current_popup();
             }
         });
+    }
+
+    fn import_savegame_modal(&mut self, ui: &imgui::Ui) {
+        ui.modal_popup_config("Import Savegame")
+            .always_auto_resize(true)
+            .build(|| {
+                ui.text("Looks like you don't have a 5th Echelon savegame yet.");
+                ui.text("Please choose one of the following options:");
+                if self.preexisting_savegame.is_some() {
+                    if ui.button("Import existing savegame") {
+                        import_save_game(
+                            &self.cfg.borrow().hook_config,
+                            self.preexisting_savegame.as_deref().unwrap(),
+                        );
+                        ui.close_current_popup();
+                    }
+                    if ui.is_item_hovered() {
+                        ui.tooltip_text("Imports your save game from the Ubisoft Launcher");
+                    }
+                    ui.same_line();
+                }
+                if ui.button("Generate new savegame") {
+                    generate_save_game(&self.cfg.borrow().hook_config);
+                    ui.close_current_popup();
+                }
+                if ui.is_item_hovered() {
+                    ui.tooltip_text("Rank 5 + a little bit of cash");
+                }
+                ui.same_line();
+                if ui.button("Don't do anything") {
+                    ui.close_current_popup();
+                }
+                if ui.is_item_hovered() {
+                    ui.tooltip_text("Do a fresh start");
+                }
+            });
     }
 }
 
@@ -953,4 +1043,81 @@ impl<'a> ProfileEditor<'a> {
                 }
             });
     }
+}
+
+fn import_save_game(hooks_config: &hooks_config::Config, preexisting_save_game: &Path) {
+    let Ok(content) = fs::read(preexisting_save_game) else {
+        error!("Failed to read preexisting savegame");
+        return;
+    };
+    let mut metadata_size = [0u8; 4];
+    if content.len() < 4 {
+        error!("Invalid preexisting savegame. Empty");
+        return;
+    }
+    metadata_size.copy_from_slice(&content[..4]);
+    let metadata_size = u32::from_le_bytes(metadata_size);
+    if content.len() - 4 < metadata_size as usize {
+        error!("Invalid preexisting savegame. Not enough data");
+        return;
+    }
+    let savegame_data = &content[metadata_size as usize + 4..];
+
+    if savegame_data.is_empty() {
+        error!("Invalid preexisting savegame. Empty payload");
+        return;
+    }
+    if savegame_data[0] != 1 {
+        error!("Invalid preexisting savegame. Invalid data");
+        return;
+    }
+    let sg_path = hooks_config.save.get_savegame_path(1);
+    let sg_dir = sg_path.parent().unwrap();
+    if !sg_dir.exists() {
+        if let Err(e) = fs::create_dir_all(sg_dir) {
+            error!("Failed to create savegame directory: {e}");
+            return;
+        }
+    }
+    if let Err(e) = fs::write(&sg_path, savegame_data) {
+        error!("Failed to write savegame: {e}");
+    }
+
+    let _ = fs::write(sg_path.with_extension("meta"), b"sc6_save.sav");
+}
+
+fn generate_save_game(hooks_config: &hooks_config::Config) {
+    let sg_path = hooks_config.save.get_savegame_path(1);
+    let sg_dir = sg_path.parent().unwrap();
+    if !sg_dir.exists() {
+        if let Err(e) = fs::create_dir_all(sg_dir) {
+            error!("Failed to create savegame directory: {e}");
+            return;
+        }
+    }
+    let Ok(mut f) = fs::File::create(&sg_path) else {
+        error!("Failed to create savegame");
+        return;
+    };
+    if let Err(e) = f.write_all(&[1, 0, 0, 0, 0, 0]) {
+        error!("Failed to write savegame: {e}");
+        return;
+    }
+    let save_game_data = include_bytes!("base_savegame.xml");
+    let payload_length = save_game_data.len() as u32 + 4;
+    if let Err(e) = f.write_all(&payload_length.to_le_bytes()) {
+        error!("Failed to write savegame: {e}");
+        return;
+    }
+    if let Err(e) = f.write_all(b"masW") {
+        error!("Failed to write savegame: {e}");
+    }
+    if let Err(e) = f.write_all(save_game_data) {
+        error!("Failed to write savegame: {e}");
+    }
+    if let Err(e) = f.flush() {
+        error!("Failed to write savegame: {e}");
+    }
+
+    let _ = fs::write(sg_path.with_extension("meta"), b"sc6_save.sav");
 }

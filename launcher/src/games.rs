@@ -11,6 +11,8 @@ use windows::Win32::Foundation::ERROR_MORE_DATA;
 use windows::Win32::Foundation::ERROR_SUCCESS;
 use windows::Win32::System::Registry;
 
+use crate::registry;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum GameVersion {
     SplinterCellBlacklistDx9,
@@ -45,40 +47,14 @@ impl GameVersion {
 }
 
 fn get_install_dir() -> Option<PathBuf> {
-    let mut buf = vec![0u16; 2048];
-    let mut bufsz = buf.len() as u32 * 2;
-    let buf = loop {
-        let e = unsafe {
-            Registry::RegGetValueW(
-                Registry::HKEY_LOCAL_MACHINE,
-                w!(r"SOFTWARE\Ubisoft\Splinter Cell Blacklist"),
-                w!("installdir"),
-                Registry::RRF_RT_REG_SZ | Registry::RRF_SUBKEY_WOW6432KEY,
-                None,
-                Some(buf.as_mut_ptr().cast()),
-                Some(&mut bufsz),
-            )
-        };
-        match e {
-            ERROR_MORE_DATA => {
-                buf.resize(bufsz as usize / 2, 0);
-            }
-            ERROR_SUCCESS => {
-                // RegGetValue returns null terminated data
-                buf.resize(bufsz as usize / 2 - 1, 0);
-                break Some(buf);
-            }
-            _ => {
-                break None;
-            }
-        }
-    };
-
-    buf.as_deref()
-        .map(OsString::from_wide)
-        .as_deref()
-        .and_then(OsStr::to_str)
-        .map(PathBuf::from)
+    registry::read_string(
+        registry::Key::LocaLMachine,
+        r"SOFTWARE\Ubisoft\Splinter Cell Blacklist",
+        "installdir",
+    )
+    .as_deref()
+    .and_then(OsStr::to_str)
+    .map(PathBuf::from)
 }
 
 pub fn find_target_dir() -> Option<PathBuf> {
