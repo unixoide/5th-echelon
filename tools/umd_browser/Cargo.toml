@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 enumflags2 = { workspace = true }
 color-eyre = { workspace = true }
+clap = { version = "4.5", features = ["color", "derive"] }
 windows = { version = "0.54.0", features = [
     "Win32_Foundation",
     "Win32_Networking_WinSock",
