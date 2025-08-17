@@ -670,7 +670,7 @@ fn to_rust_type(ty: &SubType) -> syn::Path {
 fn to_rust_type_impl(s: &str) -> Option<syn::Path> {
     match s {
         "bool" => Some(parse_quote!(bool)),
-        "byte" | "uint8" => Some(parse_quote!(u8)),
+        "byte" | "uint8" | "char" => Some(parse_quote!(u8)),
         "uint16" => Some(parse_quote!(u16)),
         "uint32" => Some(parse_quote!(u32)),
         "uint64" => Some(parse_quote!(u64)),
@@ -679,6 +679,7 @@ fn to_rust_type_impl(s: &str) -> Option<syn::Path> {
         "int32" => Some(parse_quote!(i32)),
         "int64" => Some(parse_quote!(i64)),
         "double" => Some(parse_quote!(f64)),
+		"float" => Some(parse_quote!(f32)),
         "string" => Some(parse_quote!(String)),
         "qlist" => Some(parse_quote!(quazal::rmc::types::QList)),
         "std_list" | "qvector" => Some(parse_quote!(Vec)),
