@@ -763,7 +763,7 @@ pub fn search_patterns(filepath: &Path) -> Result<Addresses, Error> {
         .map_err(|_| std::io::Error::other("parsing failed"))?
         .ok_or(std::io::Error::other("parsing failed"))?;
 
-    let image_base = pe.image_base;
+    let image_base = pe.image_base as usize;
 
     let Some(onlineconfig_url_offset) = find_subsequence(&rdata_content, b"onlineconfigservice.ubi.com\0") else {
         return Err(Error::IdFailed);

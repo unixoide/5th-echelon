@@ -27,7 +27,7 @@ impl<T> PrivilegesProtocolServerTrait<T> for PrivilegesProtocolServerImpl {
         _socket: &std::net::UdpSocket,
     ) -> Result<GetPrivilegesResponse, Error> {
         login_required(&*ci)?;
-        let mut privileges = HashMap::from([(
+        let privileges = HashMap::from([(
             1,
             Privilege {
                 id: 1,

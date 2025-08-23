@@ -56,10 +56,7 @@ impl<T> Protocol<T> for OverlordCoreProtocol {
             ("FILESERVICE_UNLOCKS_UPLOAD_ENABLED".to_owned(), I64(1)),
             ("2739184075".to_owned(), I64(1)),
             ("2942435614".to_owned(), I64(1)),
-            (
-                "SN_FRIENDCHALLENGES_MAX_READ_INTERVAL".to_owned(),
-                F64(900.0),
-            ),
+            ("SN_FRIENDCHALLENGES_MAX_READ_INTERVAL".to_owned(), F64(900.0)),
             ("NC_CONNECTION_JOIN_TIMEOUT".to_owned(), F64(15.0)),
             ("1027449109".to_owned(), I64(1)),
             ("4175756708".to_owned(), I64(1)),
@@ -76,10 +73,7 @@ impl<T> Protocol<T> for OverlordCoreProtocol {
             ("2505766166".to_owned(), I64(1)),
             ("11866509".to_owned(), I64(1)),
             ("SN_FRIENDCHALLENGES_ENABLE".to_owned(), I64(1)),
-            (
-                "FILESERVICE_UNLOCKS_UPLOAD_INTERVAL".to_owned(),
-                F64(3600.0),
-            ),
+            ("FILESERVICE_UNLOCKS_UPLOAD_INTERVAL".to_owned(), F64(3600.0)),
             ("2524360986".to_owned(), I64(1)),
             ("721797971".to_owned(), I64(1)),
             ("1525666223".to_owned(), I64(1)),
@@ -148,7 +142,7 @@ mod tests {
         let expected = include_bytes!("../../testdata/overlord_core_config.bin");
         assert_eq!(expected.len(), resp.len());
         assert_eq!(
-            expected.as_ref(),
+            expected.as_slice(),
             resp.as_slice(),
             "{}",
             diff::slice(expected.as_ref(), resp.as_slice())

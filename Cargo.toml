@@ -43,9 +43,9 @@ lto = "fat"
 [workspace.dependencies]
 anyhow = "1.0"
 argh = "0.1"
-argon2 = "0.5"
-bindgen = "0.71"
-brotli = { version = "7.0" }
+argon2 = "0.6.0-rc.0" # required for rand 0.9
+bindgen = "0.72"
+brotli = { version = "8.0" }
 byteorder = "1.5"
 clap = "~2.33.0"
 color-eyre = "0.6"
@@ -55,12 +55,12 @@ crossbeam-channel = "0.5"
 derive_more = "2.0"
 diff = "0.1"
 enumflags2 = "0.7"
-etherparse = "0.17"
+etherparse = "0.19"
 eyre = "0.6"
 glow = "0.14.2" # imgui-glow-renderer
 glutin = "0.32"
 glutin-winit = "0.5"
-goblin = { version = "0.9", default-features = false, features = [
+goblin = { version = "0.10", default-features = false, features = [
   "pe32",
   "pe64",
   "std",
@@ -84,11 +84,11 @@ miniz_oxide = "0.8"
 nom = "7.1"
 num_enum = "0.7"
 num-traits = "0.2"
-pcap-parser = { version = "0.16", features = ["data"] }
+pcap-parser = { version = "0.17", features = ["data"] }
 pkg-config = "0.3"
 proc-macro-crate = "3.1"
 proc-macro2 = "1.0"
-prost = "0.13"
+prost = "0.14"
 quote = "1.0"
 rand = "0.9"
 raw-window-handle = "0.6" # winit
@@ -103,11 +103,12 @@ sqlx = { version = "0.8", features = ["runtime-tokio", "sqlite"] }
 syn = "2.0"
 thiserror = "2.0"
 tokio = { version = "1.36", features = ["rt-multi-thread"] }
-toml = "0.8"
-tonic = "0.12" # tonic-async-interceptor
-tonic-async-interceptor = "0.12"
-tonic-build = "0.12"
-tonic-reflection = "0.12"
+toml = "0.9"
+tonic = "0.14" # tonic-async-interceptor
+tonic-async-interceptor = "0.14"
+tonic-prost = "0.14"
+tonic-prost-build = "0.14"
+tonic-reflection = "0.14"
 tracing = "0.1"
 tracing-appender = "0.2"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }

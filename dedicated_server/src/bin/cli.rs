@@ -1,14 +1,10 @@
 // use dedicated_server::storage::Storage;
-use rand::distr::Alphanumeric;
-use rand::rng;
-use rand::Rng;
 use server_api::friends::friends_client::FriendsClient;
 use server_api::friends::InviteRequest;
 use server_api::misc::misc_client::MiscClient;
 use server_api::misc::EventRequest;
 use server_api::users::users_client::UsersClient;
 use server_api::users::LoginRequest;
-use sloggers::Build;
 use tonic::Request;
 
 static URL: &str = "http://192.168.56.1:50051";

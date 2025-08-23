@@ -41,11 +41,7 @@ pub fn ddl_parser_dervice(input: proc_macro::TokenStream) -> proc_macro::TokenSt
 }
 
 #[allow(clippy::too_many_lines)]
-fn derive_struct(
-    data: DataStruct,
-    ident: &Ident,
-    _attrs: &[Attribute],
-) -> proc_macro2::TokenStream {
+fn derive_struct(data: DataStruct, ident: &Ident, _attrs: &[Attribute]) -> proc_macro2::TokenStream {
     let name = ident;
     let func_name = Ident::new(&name.to_string().to_lowercase(), Span::call_site());
 
@@ -87,13 +83,7 @@ fn derive_struct(
                     return Some((name, error(span, "not supported")));
                 };
                 let ty_name = Ident::new(
-                    &ty.path
-                        .segments
-                        .first()
-                        .unwrap()
-                        .ident
-                        .to_string()
-                        .to_lowercase(),
+                    &ty.path.segments.first().unwrap().ident.to_string().to_lowercase(),
                     ty.span(),
                 );
                 let ty_name = translate_type(ty_name);
@@ -126,13 +116,7 @@ fn derive_struct(
                     return Some((name, error(span, "not supported")));
                 };
                 let ty_name = Ident::new(
-                    &ty.path
-                        .segments
-                        .first()
-                        .unwrap()
-                        .ident
-                        .to_string()
-                        .to_lowercase(),
+                    &ty.path.segments.first().unwrap().ident.to_string().to_lowercase(),
                     ty.span(),
                 );
                 let ty_name = translate_type(ty_name);
@@ -158,14 +142,14 @@ fn derive_struct(
     if field_names.len() > 1 {
         quote! {
             fn #func_name(input: &[u8]) -> IResult<&[u8], #ident> {
-                let (input, (#(#field_names),*)) = context(#name_str, tuple((#(#tokens),*)))(input)?;
+                let (input, (#(#field_names),*)) = context(#name_str, tuple((#(#tokens),*))).parse(input)?;
                 Ok((input, dump_value(#name { #(#field_names,)* #(#skipped_fields)* })))
             }
         }
     } else {
         quote! {
             fn #func_name(input: &[u8]) -> IResult<&[u8], #ident> {
-                let (input, #(#field_names),*) = context(#name_str, dbg_dmp(#(#tokens),*, #name_str))(input)?;
+                let (input, #(#field_names),*) = context(#name_str, dbg_dmp(#(#tokens),*, #name_str)).parse(input)?;
                 Ok((input, dump_value(#name { #(#field_names,)* #(#skipped_fields)* })))
             }
         }
@@ -201,10 +185,7 @@ fn derive_enum(data: &DataEnum, ident: &Ident, attrs: &[Attribute]) -> proc_macr
             Some("u8") => "be_u8",
             Some("u16") => "be_u16",
             Some("u32") => "be_u32",
-            t => {
-                return Error::new(ident.span(), format!("Invalid tag type {t:?}"))
-                    .to_compile_error()
-            }
+            t => return Error::new(ident.span(), format!("Invalid tag type {t:?}")).to_compile_error(),
         },
         Span::call_site(),
     );
@@ -257,7 +238,7 @@ fn derive_enum(data: &DataEnum, ident: &Ident, attrs: &[Attribute]) -> proc_macr
                     func_name.clone(),
                     quote! {
                         fn #func_name(input: &[u8]) -> IResult<&[u8], #ident> {
-                            let (input, value) = context(#name_str, tag(&[#(#tag),*]))(input)?;
+                            let (input, value) = context(#name_str, tag(&[#(#tag),*] as &[_])).parse(input)?;
                             Ok(
                                 (
                                     input,
@@ -287,7 +268,7 @@ fn derive_enum(data: &DataEnum, ident: &Ident, attrs: &[Attribute]) -> proc_macr
             func_name.clone(),
             quote! {
                 fn #func_name(input: &[u8]) -> IResult<&[u8], #ident> {
-                    let (input, value) = context(#name_str, preceded(tag(&[#(#tag),*]), dbg_dmp(#func_inner, #name_str)))(input)?;
+                    let (input, value) = context(#name_str, preceded(tag(&[#(#tag),*] as &[_]), dbg_dmp(#func_inner, #name_str))).parse(input)?;
                     Ok(
                         (
                             input,
@@ -306,7 +287,7 @@ fn derive_enum(data: &DataEnum, ident: &Ident, attrs: &[Attribute]) -> proc_macr
 
     quote! {
         fn #func_name(input: &[u8]) -> IResult<&[u8], #ident> {
-            context(#name_str, dbg_dmp(alt((#(#ident::#names),*)), #name_str))(input)
+            context(#name_str, dbg_dmp(alt((#(#ident::#names),*)), #name_str)).parse(input)
         }
         impl #ident {
             #(

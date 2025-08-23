@@ -1,15 +1,9 @@
 use std::ffi::OsStr;
-use std::ffi::OsString;
-use std::os::windows::ffi::OsStringExt as _;
 use std::path::Path;
 use std::path::PathBuf;
 
 use serde::Deserialize;
 use serde::Serialize;
-use windows::core::w;
-use windows::Win32::Foundation::ERROR_MORE_DATA;
-use windows::Win32::Foundation::ERROR_SUCCESS;
-use windows::Win32::System::Registry;
 
 use crate::registry;
 

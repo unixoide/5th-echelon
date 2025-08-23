@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 prost = { workspace = true }
 tonic = { workspace = true }
+tonic-prost = { workspace = true }
 
 [build-dependencies]
-tonic-build = { workspace = true }
+tonic-prost-build = { workspace = true }

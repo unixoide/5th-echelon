@@ -89,30 +89,23 @@ fn some_event_hook(this: *mut c_void, a: *mut c_void, b: *mut c_void) -> *mut c_
     unsafe { SomeEventHook.call(this, a, b) }
 }
 
-#[instrument(skip(this, a, b, c))]
+#[instrument(skip(this, arg1, arg2, arg3))]
 fn some_event2(
     this: *mut c_void,
-    a: *mut c_void,
-    b: *mut c_void,
-    c: *mut c_void,
-    d: *mut c_void,
-    e: *mut c_void,
+    arg1: *mut c_void,
+    arg2: *mut c_void,
+    arg3: *mut c_void,
+    arg4: *mut c_void,
+    arg5: *mut c_void,
 ) -> *mut c_void {
-    if let Some(evt_name) = get_storm_event_name(c.cast()) {
+    if let Some(evt_name) = get_storm_event_name(arg3.cast()) {
         info!("event2: {evt_name:?}");
     }
-    unsafe { SomeEvent2Hook.call(this, a, b, c, d, e) }
+    unsafe { SomeEvent2Hook.call(this, arg1, arg2, arg3, arg4, arg5) }
 }
 
 #[instrument(skip_all)]
-fn sendto(
-    s: usize,
-    buf: *const c_char,
-    len: c_int,
-    flag: c_int,
-    to: *const SOCKADDR,
-    tolen: c_int,
-) -> c_int {
+fn sendto(s: usize, buf: *const c_char, len: c_int, flag: c_int, to: *const SOCKADDR, tolen: c_int) -> c_int {
     if let Some(to_ref) = unsafe { to.as_ref() } {
         let port = 13000u16;
         #[allow(clippy::cast_possible_truncation)]
@@ -220,8 +213,7 @@ mod tests {
         let name = b"hello world\0";
         let name_addr = name.as_ptr();
         let id_obj = [name_addr];
-        let id_addr: [u8; std::mem::size_of::<*const u8>()] =
-            unsafe { std::mem::transmute(id_obj.as_ptr()) };
+        let id_addr: [u8; std::mem::size_of::<*const u8>()] = unsafe { std::mem::transmute(id_obj.as_ptr()) };
         let mut func = vec![0x83, 0x3d];
         for c in id_addr {
             func.push(c);

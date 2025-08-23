@@ -102,7 +102,7 @@ impl Storage {
     }
 
     pub async fn register_user_async(&self, username: &str, password: &str, ubi_id: Option<&str>) -> Result<()> {
-        let salt = SaltString::generate(&mut OsRng);
+        let salt = SaltString::try_from_rng(&mut OsRng).unwrap();
         let password_hash = Argon2::default()
             .hash_password(password.as_bytes(), salt.as_salt())
             .map_err(|_| eyre!("password hashing failed"))?
