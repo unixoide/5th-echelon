@@ -30,26 +30,14 @@ mod msgbox {
         let msg = CString::new(msg).unwrap();
         let caption = CString::new(caption).unwrap();
         unsafe {
-            MessageBoxA(
-                None,
-                PCSTR(msg.as_ptr().cast::<u8>()),
-                PCSTR(caption.as_ptr().cast::<u8>()),
-                MB_OK,
-            );
+            MessageBoxA(None, PCSTR(msg.as_ptr().cast::<u8>()), PCSTR(caption.as_ptr().cast::<u8>()), MB_OK);
         }
     }
 
     pub fn show_msgbox_ok_cancel(msg: &str, caption: &str) -> bool {
         let msg = CString::new(msg).unwrap();
         let caption = CString::new(caption).unwrap();
-        unsafe {
-            MessageBoxA(
-                None,
-                PCSTR(msg.as_ptr().cast::<u8>()),
-                PCSTR(caption.as_ptr().cast::<u8>()),
-                MB_OKCANCEL | MB_ICONQUESTION,
-            ) == IDOK
-        }
+        unsafe { MessageBoxA(None, PCSTR(msg.as_ptr().cast::<u8>()), PCSTR(caption.as_ptr().cast::<u8>()), MB_OKCANCEL | MB_ICONQUESTION) == IDOK }
     }
 }
 
@@ -324,9 +312,7 @@ pub fn get() -> Option<&'static Config> {
 }
 
 #[cfg(target_os = "windows")]
-fn get_adapter_infos<T>(
-    f: impl Fn(*mut windows::Win32::NetworkManagement::IpHelper::IP_ADAPTER_INFO) -> anyhow::Result<T>,
-) -> anyhow::Result<T> {
+fn get_adapter_infos<T>(f: impl Fn(*mut windows::Win32::NetworkManagement::IpHelper::IP_ADAPTER_INFO) -> anyhow::Result<T>) -> anyhow::Result<T> {
     #![allow(clippy::cast_possible_truncation, clippy::crosspointer_transmute)]
 
     use anyhow::bail;
@@ -356,15 +342,7 @@ fn get_adapter_infos<T>(
         _ => unsafe {
             let mut buffer_ptr: PWSTR = PWSTR::null();
             let ptr_ptr: *mut PWSTR = &mut buffer_ptr;
-            let chars = FormatMessageW(
-                FORMAT_MESSAGE_ALLOCATE_BUFFER,
-                None,
-                res.0,
-                0,
-                std::mem::transmute::<*mut PWSTR, PWSTR>(ptr_ptr),
-                256,
-                None,
-            );
+            let chars = FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER, None, res.0, 0, std::mem::transmute::<*mut PWSTR, PWSTR>(ptr_ptr), 256, None);
             let msg = if chars > 0 {
                 String::from_utf16(std::slice::from_raw_parts(buffer_ptr.0, chars as _))?
             } else {
@@ -377,14 +355,8 @@ fn get_adapter_infos<T>(
 }
 
 #[cfg(target_os = "windows")]
-fn get_adapter_addresses<T>(
-    f: impl Fn(*mut windows::Win32::NetworkManagement::IpHelper::IP_ADAPTER_ADDRESSES_LH) -> anyhow::Result<T>,
-) -> anyhow::Result<T> {
-    #![allow(
-        clippy::cast_possible_truncation,
-        clippy::crosspointer_transmute,
-        clippy::cast_lossless
-    )]
+fn get_adapter_addresses<T>(f: impl Fn(*mut windows::Win32::NetworkManagement::IpHelper::IP_ADAPTER_ADDRESSES_LH) -> anyhow::Result<T>) -> anyhow::Result<T> {
+    #![allow(clippy::cast_possible_truncation, clippy::crosspointer_transmute, clippy::cast_lossless)]
 
     use anyhow::bail;
     use windows::core::PWSTR;
@@ -434,15 +406,7 @@ fn get_adapter_addresses<T>(
         _ => unsafe {
             let mut buffer_ptr: PWSTR = PWSTR::null();
             let ptr_ptr: *mut PWSTR = &mut buffer_ptr;
-            let chars = FormatMessageW(
-                FORMAT_MESSAGE_ALLOCATE_BUFFER,
-                None,
-                res.0,
-                0,
-                std::mem::transmute::<*mut PWSTR, PWSTR>(ptr_ptr),
-                256,
-                None,
-            );
+            let chars = FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER, None, res.0, 0, std::mem::transmute::<*mut PWSTR, PWSTR>(ptr_ptr), 256, None);
             let msg = if chars > 0 {
                 String::from_utf16(std::slice::from_raw_parts(buffer_ptr.0, chars as _))?
             } else {
@@ -474,11 +438,7 @@ fn find_ipaddress_for_adapter(target_adapter: &str) -> anyhow::Result<Option<std
                 let adapter_name = CStr::from_bytes_until_nul(&current_adapter.Description)?;
                 debug!("{adapter_name:?} == {target_adapter:?}");
                 if adapter_name.to_str()? == target_adapter {
-                    result = Some(
-                        CStr::from_bytes_until_nul(&current_adapter.IpAddressList.IpAddress.String)?
-                            .to_str()?
-                            .parse()?,
-                    );
+                    result = Some(CStr::from_bytes_until_nul(&current_adapter.IpAddressList.IpAddress.String)?.to_str()?.parse()?);
                     break;
                 }
                 next_adapter = current_adapter.Next;
@@ -533,13 +493,7 @@ fn _get_or_load(path: &Path) -> anyhow::Result<&'static Config> {
     let content = match fs::read_to_string(path) {
         Ok(content) => content,
         #[cfg(target_os = "windows")]
-        Err(ref err)
-            if err.kind() == std::io::ErrorKind::NotFound
-                && msgbox::show_msgbox_ok_cancel(
-                    "Configuration not found, generate and exit?",
-                    "Configuration not found",
-                ) =>
-        {
+        Err(ref err) if err.kind() == std::io::ErrorKind::NotFound && msgbox::show_msgbox_ok_cancel("Configuration not found, generate and exit?", "Configuration not found") => {
             fs::write(path, DEFAULT_CONFIG)?;
             msgbox::show_msgbox(&format!("Config file placed at {}", path.to_str().unwrap()), "Done");
             std::process::exit(0);
@@ -567,13 +521,9 @@ fn _get_or_load(path: &Path) -> anyhow::Result<&'static Config> {
     }
 
     // if let Some(ref api_server) = cfg.api_server {
-    crate::URL
-        .set(cfg.api_server.clone())
-        .map_err(|cfg| anyhow::anyhow!("Couldn't store api url {:?}", cfg))?;
+    crate::URL.set(cfg.api_server.clone()).map_err(|cfg| anyhow::anyhow!("Couldn't store api url {:?}", cfg))?;
     // }
-    CONFIG
-        .set(cfg)
-        .map_err(|cfg| anyhow::anyhow!("Couldn't store config {:?}", cfg))?;
+    CONFIG.set(cfg).map_err(|cfg| anyhow::anyhow!("Couldn't store config {:?}", cfg))?;
 
     get().ok_or_else(|| anyhow::anyhow!("Config not loaded"))
 }

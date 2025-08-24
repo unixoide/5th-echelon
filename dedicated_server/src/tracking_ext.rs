@@ -65,7 +65,5 @@ impl<T> TrackingExtensionProtocolServerTrait<T> for TrackingExtensionProtocolSer
 }
 
 pub fn new_protocol<T: 'static>() -> Box<dyn Protocol<T>> {
-    Box::new(TrackingExtensionProtocolServer::new(
-        TrackingExtensionProtocolServerImpl,
-    ))
+    Box::new(TrackingExtensionProtocolServer::new(TrackingExtensionProtocolServerImpl))
 }

@@ -31,9 +31,7 @@ impl<T> UbiAccountManagementProtocolServerTrait<T> for UbiAccountManagementProto
     ) -> Result<LookupPrincipalIdsResponse, quazal::rmc::Error> {
         login_required(&*ci)?;
         if request.ubi_account_ids.is_empty() {
-            return Ok(LookupPrincipalIdsResponse {
-                pids: HashMap::default(),
-            });
+            return Ok(LookupPrincipalIdsResponse { pids: HashMap::default() });
         }
         let ubi_len = request.ubi_account_ids.len();
         let pids: HashMap<_, _> = request
@@ -88,12 +86,7 @@ impl<T> UbiAccountManagementProtocolServerTrait<T> for UbiAccountManagementProto
                     .map(|ubi_id| (uid, ubi_id))
             })
             .collect();
-        info!(
-            logger,
-            "Lookup requested for {} pids. Found {}",
-            pid_len,
-            ubiaccount_ids.len(),
-        );
+        info!(logger, "Lookup requested for {} pids. Found {}", pid_len, ubiaccount_ids.len(),);
         info!(
             logger,
             "Lookup requested for {} ({:?}) pids. Found {} ({:?})",
@@ -123,7 +116,5 @@ impl<T> UbiAccountManagementProtocolServerTrait<T> for UbiAccountManagementProto
 }
 
 pub fn new_protocol<T: 'static>(storage: Arc<Storage>) -> Box<dyn Protocol<T>> {
-    Box::new(UbiAccountManagementProtocolServer::new(
-        UbiAccountManagementProtocolServerImpl { storage },
-    ))
+    Box::new(UbiAccountManagementProtocolServer::new(UbiAccountManagementProtocolServerImpl { storage }))
 }

@@ -94,10 +94,7 @@ impl Directory {
             })
             .collect::<io::Result<_>>()?;
 
-        Ok(Directory {
-            name_entries,
-            id_entries,
-        })
+        Ok(Directory { name_entries, id_entries })
     }
 }
 
@@ -140,9 +137,7 @@ pub fn parse(data: &[u8]) -> io::Result<Dll> {
         let _value_length = version_data.u16()?;
         let _type = version_data.u16()?;
 
-        let name = std::iter::from_fn(|| version_data.u16().ok())
-            .take_while(|&c| c != 0)
-            .collect::<Vec<u16>>();
+        let name = std::iter::from_fn(|| version_data.u16().ok()).take_while(|&c| c != 0).collect::<Vec<u16>>();
         let pad = (4 - (name.len() * 2 % 4)) % 4;
 
         for _ in 0..pad {

@@ -45,10 +45,7 @@ fn extract_pattern(
         formatter.format(&instruction, output);
         let pos = (instruction.ip() - start_ip) as usize + start_pos;
         let instruction_bytes = &text_data[pos..pos + instruction.len()];
-        let code = instruction_bytes
-            .iter()
-            .map(|byte| format!("{:02x}", byte))
-            .collect::<String>();
+        let code = instruction_bytes.iter().map(|byte| format!("{:02x}", byte)).collect::<String>();
         println!("{:#x} {} {}", instruction.ip(), code, output);
 
         let const_off = decoder.get_constant_offsets(&instruction);
@@ -103,11 +100,7 @@ fn main() {
 
     let pe = goblin::pe::PE::parse(&binary_content).expect("valid PE");
     let image_base = pe.image_base;
-    let text_section = pe
-        .sections
-        .into_iter()
-        .find(|s| dbg!(s.name.as_ref()) == b".text\0\0\0")
-        .expect("text section");
+    let text_section = pe.sections.into_iter().find(|s| dbg!(s.name.as_ref()) == b".text\0\0\0").expect("text section");
 
     let text_data = text_section.data(&binary_content).unwrap().unwrap();
     let relocations = text_section.relocations(&binary_content).unwrap();

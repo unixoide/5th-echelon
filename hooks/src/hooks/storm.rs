@@ -54,28 +54,16 @@ fn get_storm_event_name<'a>(instance_addr: *const c_void) -> Option<&'a CStr> {
         // info!("no cmp");
         return None;
     }
-    let imm = unsafe {
-        *event_type_method_addr
-            .cast::<u8>()
-            .add(2 + std::mem::size_of::<*const u8>())
-    };
+    let imm = unsafe { *event_type_method_addr.cast::<u8>().add(2 + std::mem::size_of::<*const u8>()) };
     if imm != 0 {
         // info!("non zero");
         return None;
     }
-    let mut id_addr = *deref_addr(unsafe {
-        std::ptr::read_unaligned(
-            event_type_method_addr
-                .cast::<u16>()
-                .add(1)
-                .cast::<*const *const c_char>(),
-        )
-    })?;
+    let mut id_addr = *deref_addr(unsafe { std::ptr::read_unaligned(event_type_method_addr.cast::<u16>().add(1).cast::<*const *const c_char>()) })?;
     if id_addr.is_null() {
         // info!("id_addr is null");
         // return None;
-        let func_ptr: extern "thiscall" fn(*const c_void) -> *const *const c_char =
-            unsafe { std::mem::transmute(event_type_method_addr) };
+        let func_ptr: extern "thiscall" fn(*const c_void) -> *const *const c_char = unsafe { std::mem::transmute(event_type_method_addr) };
         id_addr = *deref_addr((func_ptr)(instance_addr))?;
     }
     unsafe { Some(CStr::from_ptr(id_addr)) }
@@ -90,14 +78,7 @@ fn some_event_hook(this: *mut c_void, a: *mut c_void, b: *mut c_void) -> *mut c_
 }
 
 #[instrument(skip(this, arg1, arg2, arg3))]
-fn some_event2(
-    this: *mut c_void,
-    arg1: *mut c_void,
-    arg2: *mut c_void,
-    arg3: *mut c_void,
-    arg4: *mut c_void,
-    arg5: *mut c_void,
-) -> *mut c_void {
+fn some_event2(this: *mut c_void, arg1: *mut c_void, arg2: *mut c_void, arg3: *mut c_void, arg4: *mut c_void, arg5: *mut c_void) -> *mut c_void {
     if let Some(evt_name) = get_storm_event_name(arg3.cast()) {
         info!("event2: {evt_name:?}");
     }
@@ -109,11 +90,7 @@ fn sendto(s: usize, buf: *const c_char, len: c_int, flag: c_int, to: *const SOCK
     if let Some(to_ref) = unsafe { to.as_ref() } {
         let port = 13000u16;
         #[allow(clippy::cast_possible_truncation)]
-        if !buf.is_null()
-            && to_ref.sa_family == AF_INET
-            && to_ref.sa_data[0] == (port >> 8) as i8
-            && to_ref.sa_data[1] == port as i8
-        {
+        if !buf.is_null() && to_ref.sa_family == AF_INET && to_ref.sa_data[0] == (port >> 8) as i8 && to_ref.sa_data[1] == port as i8 {
             #[allow(clippy::cast_sign_loss)]
             let data = unsafe { std::slice::from_raw_parts(buf.cast::<u8>(), len as usize) };
             info!("sendto: {}", to_hex_stream(data));
@@ -123,24 +100,12 @@ fn sendto(s: usize, buf: *const c_char, len: c_int, flag: c_int, to: *const SOCK
 }
 
 #[instrument(skip_all)]
-fn recvfrom(
-    s: usize,
-    buf: *const c_char,
-    len: c_int,
-    flag: c_int,
-    from: *const SOCKADDR,
-    fromlen: *mut c_int,
-) -> c_int {
+fn recvfrom(s: usize, buf: *const c_char, len: c_int, flag: c_int, from: *const SOCKADDR, fromlen: *mut c_int) -> c_int {
     let outlen = unsafe { RecvFromHook.call(s, buf, len, flag, from, fromlen) };
     if let Some(from_ref) = unsafe { from.as_ref() } {
         let port = 13000u16;
         #[allow(clippy::cast_possible_truncation)]
-        if !buf.is_null()
-            && outlen > 0
-            && from_ref.sa_family == AF_INET
-            && from_ref.sa_data[0] == (port >> 8) as i8
-            && from_ref.sa_data[1] == port as i8
-        {
+        if !buf.is_null() && outlen > 0 && from_ref.sa_family == AF_INET && from_ref.sa_data[0] == (port >> 8) as i8 && from_ref.sa_data[1] == port as i8 {
             #[allow(clippy::cast_sign_loss)]
             let data = unsafe { std::slice::from_raw_parts(buf.cast::<u8>(), outlen as usize) };
             info!("recvfrom: {}", to_hex_stream(data));
@@ -162,14 +127,7 @@ fn event_queue_pop(this: usize) -> *const *const *const c_void {
 }
 
 #[instrument]
-fn event_handler(
-    this: *mut c_void,
-    param_1: *mut c_void,
-    param_2: *mut c_void,
-    param_3: *mut c_void,
-    param_4: *mut c_void,
-    param_5: *mut c_void,
-) -> usize {
+fn event_handler(this: *mut c_void, param_1: *mut c_void, param_2: *mut c_void, param_3: *mut c_void, param_4: *mut c_void, param_5: *mut c_void) -> usize {
     if !param_3.is_null() {
         if let Some(evt_name) = get_storm_event_name(param_3.cast()) {
             info!("event: {evt_name:?}");

@@ -46,19 +46,12 @@ pub fn find_adapter_names() -> Vec<(String, IpAddr)> {
             let mut res = HashSet::new();
             let mut next_adapter: *mut IP_ADAPTER_INFO = adapterinfo;
             while let Some(current_adapter) = unsafe { next_adapter.as_ref() } {
-                if let Some(name) = CStr::from_bytes_until_nul(unsafe {
-                    &*(current_adapter.Description.as_slice() as *const [i8] as *const [u8])
-                })
-                .ok()
-                .and_then(|cs| cs.to_str().ok())
+                if let Some(name) = CStr::from_bytes_until_nul(unsafe { &*(current_adapter.Description.as_slice() as *const [i8] as *const [u8]) })
+                    .ok()
+                    .and_then(|cs| cs.to_str().ok())
                 {
                     let ip_raw = current_adapter.IpAddressList.IpAddress.String;
-                    let ip = IpAddr::V4(Ipv4Addr::new(
-                        ip_raw[0] as u8,
-                        ip_raw[1] as u8,
-                        ip_raw[2] as u8,
-                        ip_raw[3] as u8,
-                    ));
+                    let ip = IpAddr::V4(Ipv4Addr::new(ip_raw[0] as u8, ip_raw[1] as u8, ip_raw[2] as u8, ip_raw[3] as u8));
                     res.insert((name.to_owned(), ip));
                 }
                 next_adapter = current_adapter.Next;
@@ -119,9 +112,7 @@ pub fn find_adapter_names() -> Vec<(String, IpAddr)> {
     res
 }
 
-fn get_adapter_infos<T>(
-    f: impl Fn(*mut windows::Win32::NetworkManagement::IpHelper::IP_ADAPTER_INFO) -> anyhow::Result<T>,
-) -> anyhow::Result<T> {
+fn get_adapter_infos<T>(f: impl Fn(*mut windows::Win32::NetworkManagement::IpHelper::IP_ADAPTER_INFO) -> anyhow::Result<T>) -> anyhow::Result<T> {
     #![allow(clippy::cast_possible_truncation, clippy::crosspointer_transmute)]
 
     let mut adapterinfo = vec![0u8; std::mem::size_of::<IP_ADAPTER_INFO>()];
@@ -139,15 +130,7 @@ fn get_adapter_infos<T>(
         _ => unsafe {
             let mut buffer_ptr: PWSTR = PWSTR::null();
             let ptr_ptr: *mut PWSTR = &mut buffer_ptr;
-            let chars = FormatMessageW(
-                FORMAT_MESSAGE_ALLOCATE_BUFFER,
-                None,
-                res.0,
-                0,
-                std::mem::transmute::<*mut PWSTR, PWSTR>(ptr_ptr),
-                256,
-                None,
-            );
+            let chars = FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER, None, res.0, 0, std::mem::transmute::<*mut PWSTR, PWSTR>(ptr_ptr), 256, None);
             let msg = if chars > 0 {
                 String::from_utf16(std::slice::from_raw_parts(buffer_ptr.0, chars as _))?
             } else {
@@ -161,14 +144,8 @@ fn get_adapter_infos<T>(
     }
 }
 
-fn get_adapter_addresses<T>(
-    f: impl Fn(*mut windows::Win32::NetworkManagement::IpHelper::IP_ADAPTER_ADDRESSES_LH) -> anyhow::Result<T>,
-) -> anyhow::Result<T> {
-    #![allow(
-        clippy::cast_possible_truncation,
-        clippy::crosspointer_transmute,
-        clippy::cast_lossless
-    )]
+fn get_adapter_addresses<T>(f: impl Fn(*mut windows::Win32::NetworkManagement::IpHelper::IP_ADAPTER_ADDRESSES_LH) -> anyhow::Result<T>) -> anyhow::Result<T> {
+    #![allow(clippy::cast_possible_truncation, clippy::crosspointer_transmute, clippy::cast_lossless)]
     let mut adapter_addresses = vec![0u8; std::mem::size_of::<IP_ADAPTER_ADDRESSES_LH>()];
     let mut size = adapter_addresses.len() as u32;
     let mut res = WIN32_ERROR(unsafe {
@@ -200,15 +177,7 @@ fn get_adapter_addresses<T>(
         _ => unsafe {
             let mut buffer_ptr: PWSTR = PWSTR::null();
             let ptr_ptr: *mut PWSTR = &mut buffer_ptr;
-            let chars = FormatMessageW(
-                FORMAT_MESSAGE_ALLOCATE_BUFFER,
-                None,
-                res.0,
-                0,
-                std::mem::transmute::<*mut PWSTR, PWSTR>(ptr_ptr),
-                256,
-                None,
-            );
+            let chars = FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER, None, res.0, 0, std::mem::transmute::<*mut PWSTR, PWSTR>(ptr_ptr), 256, None);
             let msg = if chars > 0 {
                 String::from_utf16(std::slice::from_raw_parts(buffer_ptr.0, chars as _))?
             } else {

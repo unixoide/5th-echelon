@@ -23,18 +23,13 @@ impl SettingsMenu {
                     let ui_versions = [None, Some(config::UIVersion::Old), Some(config::UIVersion::New)];
                     let mut selected_ui_version = ui_versions.iter().position(|v| v == &cfg.ui_version).unwrap_or(0);
 
-                    if ui.combo(
-                        "UI Version to use\n(requires launcher restart)",
-                        &mut selected_ui_version,
-                        &ui_versions,
-                        |uv| {
-                            std::borrow::Cow::Borrowed(match uv {
-                                Some(config::UIVersion::Old) => "Old",
-                                Some(config::UIVersion::New) => "New",
-                                None => "Choose on next start",
-                            })
-                        },
-                    ) {
+                    if ui.combo("UI Version to use\n(requires launcher restart)", &mut selected_ui_version, &ui_versions, |uv| {
+                        std::borrow::Cow::Borrowed(match uv {
+                            Some(config::UIVersion::Old) => "Old",
+                            Some(config::UIVersion::New) => "New",
+                            None => "Choose on next start",
+                        })
+                    }) {
                         cfg.ui_version = ui_versions[selected_ui_version];
                     }
                 });
@@ -51,17 +46,11 @@ impl SettingsMenu {
                     cfg.hook_config.logging.level = LOG_LEVELS[current_item];
 
                     ui.checkbox("Automatically join invites", &mut cfg.hook_config.auto_join_invite);
-                    ui.input_text("Unreal Engine command line", &mut cfg.hook_config.internal_command_line)
-                        .build();
+                    ui.input_text("Unreal Engine command line", &mut cfg.hook_config.internal_command_line).build();
                     ui.checkbox("Enable All Hooks", &mut cfg.hook_config.enable_all_hooks);
-                    if !cfg.hook_config.enable_all_hooks
-                        && ui.collapsing_header("Individual Hooks", imgui::TreeNodeFlags::FRAME_PADDING)
-                    {
+                    if !cfg.hook_config.enable_all_hooks && ui.collapsing_header("Individual Hooks", imgui::TreeNodeFlags::FRAME_PADDING) {
                         ui.indent();
-                        for (variant, label) in hooks_config::Hook::VARIANTS
-                            .iter()
-                            .zip(hooks_config::Hook::LABELS.iter())
-                        {
+                        for (variant, label) in hooks_config::Hook::VARIANTS.iter().zip(hooks_config::Hook::LABELS.iter()) {
                             // TODO
                             // if addr.hook_addr(*variant).is_none() {
                             //     continue;

@@ -27,11 +27,7 @@ impl<T> LadderHelperProtocolServerTrait<T> for LadderHelperProtocolServerImpl {
 
         #[allow(clippy::cast_possible_truncation)]
         Ok(GetUnixUtcResponse {
-            time: SystemTime::now()
-                .duration_since(SystemTime::UNIX_EPOCH)
-                .as_ref()
-                .map(Duration::as_secs)
-                .unwrap_or_default() as u32,
+            time: SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).as_ref().map(Duration::as_secs).unwrap_or_default() as u32,
         })
     }
 }

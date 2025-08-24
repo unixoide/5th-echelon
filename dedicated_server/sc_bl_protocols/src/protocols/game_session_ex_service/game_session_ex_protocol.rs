@@ -75,9 +75,7 @@ impl<T: GameSessionExProtocolServerTrait<CI>, CI> Protocol<CI> for GameSessionEx
         }
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        GameSessionExProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        GameSessionExProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
@@ -91,12 +89,7 @@ pub trait GameSessionExProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<SearchSessionsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionExProtocol",
-            stringify!(search_sessions)
-        );
+        warn!(logger, "Method {}.{} not implemented", "GameSessionExProtocol", stringify!(search_sessions));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }
@@ -122,33 +115,14 @@ impl<CI> ClientProtocol<CI> for GameSessionExProtocolClient<CI> {
         1u32
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        GameSessionExProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        GameSessionExProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
 impl<CI> GameSessionExProtocolClient<CI> {
-    pub fn search_sessions(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: SearchSessionsRequest,
-    ) -> Result<SearchSessionsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionExProtocol",
-            stringify!(search_sessions)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            GameSessionExProtocolMethod::SearchSessions as u32,
-            request.to_bytes(),
-        );
+    pub fn search_sessions(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: SearchSessionsRequest) -> Result<SearchSessionsResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "GameSessionExProtocol", stringify!(search_sessions));
+        self.send(logger, ctx, ci, GameSessionExProtocolMethod::SearchSessions as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }

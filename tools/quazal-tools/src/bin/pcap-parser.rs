@@ -22,33 +22,14 @@ use quazal::Context;
 fn main() {
     let matches = App::new("pcap-parser")
         .arg(Arg::with_name("input").required(true))
-        .arg(
-            Arg::with_name("port")
-                .short("p")
-                .long("port")
-                .takes_value(true)
-                .default_value("3074")
-                .validator(|v| {
-                    if v.parse::<u16>().is_ok() {
-                        return Ok(());
-                    }
-                    Err(format!("{} isn't a positive number", &*v))
-                }),
-        )
-        .arg(
-            Arg::with_name("crypto-key")
-                .short("ck")
-                .long("crypto-key")
-                .takes_value(true)
-                .default_value("CD&ML"),
-        )
-        .arg(
-            Arg::with_name("access-key")
-                .short("ak")
-                .long("access-key")
-                .takes_value(true)
-                .required(true),
-        )
+        .arg(Arg::with_name("port").short("p").long("port").takes_value(true).default_value("3074").validator(|v| {
+            if v.parse::<u16>().is_ok() {
+                return Ok(());
+            }
+            Err(format!("{} isn't a positive number", &*v))
+        }))
+        .arg(Arg::with_name("crypto-key").short("ck").long("crypto-key").takes_value(true).default_value("CD&ML"))
+        .arg(Arg::with_name("access-key").short("ak").long("access-key").takes_value(true).required(true))
         .get_matches();
 
     let file = File::open(matches.value_of("input").unwrap()).expect("Can't open file");
@@ -116,9 +97,7 @@ fn parse(data: &[u8], port: u16, crypto_key: &str, access_key: &str) -> bool {
                     false
                 }
             }
-            etherparse::TransportSlice::Tcp(_)
-            | etherparse::TransportSlice::Icmpv6(_)
-            | etherparse::TransportSlice::Icmpv4(_) => false,
+            etherparse::TransportSlice::Tcp(_) | etherparse::TransportSlice::Icmpv6(_) | etherparse::TransportSlice::Icmpv4(_) => false,
         }
     } else {
         false
@@ -154,24 +133,12 @@ fn dump(mut data: &[u8], crypto_key: &str, access_key: &str, src: SocketAddr, ds
             prudp.source.port,
             prudp.destination.port,
             prudp.destination.stream_type,
-            prudp
-                .flags
-                .iter()
-                .map(|f| format!("{f:?}"))
-                .collect::<Vec<_>>()
-                .join("|"),
+            prudp.flags.iter().map(|f| format!("{f:?}")).collect::<Vec<_>>().join("|"),
             prudp.packet_type,
-            if prudp.validate(&ctx, packet_data).is_ok() {
-                "valid"
-            } else {
-                "invalid"
-            }
+            if prudp.validate(&ctx, packet_data).is_ok() { "valid" } else { "invalid" }
         );
 
-        if matches!(prudp.packet_type, PacketType::Data)
-            && !prudp.flags.contains(PacketFlag::Ack)
-            && prudp.fragment_id.unwrap_or_default() == 0
-        {
+        if matches!(prudp.packet_type, PacketType::Data) && !prudp.flags.contains(PacketFlag::Ack) && prudp.fragment_id.unwrap_or_default() == 0 {
             if let Some(0) = prudp.fragment_id {
                 let rmc = match Packet::from_bytes(&prudp.payload) {
                     Ok(p) => p,

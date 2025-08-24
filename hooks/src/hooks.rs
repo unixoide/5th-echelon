@@ -225,11 +225,7 @@ fn quazal_stepsequencejob_setstep(step_sequence_job: *mut c_void, step: *mut Qua
     unsafe {
         if !step.is_null() && step.is_aligned() && !(*step).description.is_null() {
             let desc = CStr::from_ptr((*step).description);
-            info!(
-                "Next job step: {} (callback: {:?})",
-                desc.to_string_lossy(),
-                (*step).callback
-            );
+            info!("Next job step: {} (callback: {:?})", desc.to_string_lossy(), (*step).callback);
         }
 
         QuazalStepSequenceJobSetStateHook.call(step_sequence_job, step);
@@ -248,11 +244,7 @@ fn set_thread_name(worker: *mut c_void) {
         let mut widename: Vec<_> = ostr.encode_wide().collect();
         widename.push(0);
 
-        debug!(
-            "Thread handle: {:?} Thread id: {}",
-            thread_handle,
-            GetThreadId(thread_handle)
-        );
+        debug!("Thread handle: {:?} Thread id: {}", thread_handle, GetThreadId(thread_handle));
 
         let _ = SetThreadDescription(thread_handle, PCWSTR::from_raw(widename.as_ptr()));
     }
@@ -261,9 +253,7 @@ fn set_thread_name(worker: *mut c_void) {
 #[instrument(skip_all)]
 fn change_state(goal_ptr: *mut MaybeGoal, state_ptr: *mut NetFiniteState, next_state_ptr: *mut NetFiniteStateID) {
     unsafe {
-        if let Some(((goal, state), next_state)) =
-            goal_ptr.as_ref().zip(state_ptr.as_ref()).zip(next_state_ptr.as_ref())
-        {
+        if let Some(((goal, state), next_state)) = goal_ptr.as_ref().zip(state_ptr.as_ref()).zip(next_state_ptr.as_ref()) {
             info!(
                 "Goal {:?} with {}, state={}(id={:x}), next_state_id={}",
                 goal.name(),
@@ -411,8 +401,7 @@ fn get_adapters_info(adapter_info: *mut IP_ADAPTER_INFO, sizepointer: *mut u32) 
                     std::mem::align_of::<IP_ADAPTER_INFO>(),
                     adapter_info,
                 );
-                let dst =
-                    std::slice::from_raw_parts_mut(adapter_info.cast::<u8>(), std::mem::size_of::<IP_ADAPTER_INFO>());
+                let dst = std::slice::from_raw_parts_mut(adapter_info.cast::<u8>(), std::mem::size_of::<IP_ADAPTER_INFO>());
                 let src = std::slice::from_raw_parts(adapter.cast::<u8>(), std::mem::size_of::<IP_ADAPTER_INFO>());
                 dst.copy_from_slice(src);
             }
@@ -517,18 +506,9 @@ fn storm_set_state(this: *mut StormStateMachine, state_id: *mut NetFiniteStateID
 }
 
 #[instrument]
-fn storm_statemachineaction_execute(
-    this: *mut StormStateMachineAction,
-    unknown1: *mut *mut StormEvent,
-    unknown2: *mut StormEvent,
-) {
+fn storm_statemachineaction_execute(this: *mut StormStateMachineAction, unknown1: *mut *mut StormEvent, unknown2: *mut StormEvent) {
     let (transition, vtable) = unsafe { this.as_ref() }
-        .map(|this| {
-            (
-                this.callback,
-                unsafe { this.state_machine.as_ref() }.map(|sm| sm.vtable),
-            )
-        })
+        .map(|this| (this.callback, unsafe { this.state_machine.as_ref() }.map(|sm| sm.vtable)))
         .unzip();
     let event = unsafe {
         unknown2
@@ -632,12 +612,7 @@ static_detour! {
 }
 
 #[cfg(feature = "patch-free")]
-fn getaddrinfo(
-    p_node_name: *const c_char,
-    p_service_name: *const c_char,
-    p_hints: *const c_void,
-    pp_result: *mut *mut c_void,
-) -> i32 {
+fn getaddrinfo(p_node_name: *const c_char, p_service_name: *const c_char, p_hints: *const c_void, pp_result: *mut *mut c_void) -> i32 {
     let node_name = unsafe { CStr::from_ptr(p_node_name) };
     let service_name = unsafe { CStr::from_ptr(p_service_name) };
     info!("getaddrinfo({node_name:?}, {service_name:?}, {p_hints:?}, {pp_result:?})");
@@ -677,12 +652,7 @@ where
 
 macro_rules! hook {
     ($hook:expr, $addr:expr, $func:ident) => {
-        $crate::hooks::hook_with_name(
-            &$hook,
-            $addr.map(|a| unsafe { ::std::mem::transmute(a) }),
-            $func,
-            stringify!($hook),
-        );
+        $crate::hooks::hook_with_name(&$hook, $addr.map(|a| unsafe { ::std::mem::transmute(a) }), $func, stringify!($hook));
     };
 }
 
@@ -713,7 +683,8 @@ pub unsafe fn init(config: &Config, addr: &Addresses) {
     configurable_hook!(config, Hook::StormErrorFormatter, StormErrorFormatter ; addr.func_storm_some_error_formatter => storm_some_error_formatter);
     configurable_hook!(config, Hook::StormHostPortToString, StormHostPortToStringHook ; addr.func_storm_host_port_to_str => storm_host_port_to_str);
     configurable_hook!(config, Hook::StormSetState, StormSetStateHook ; addr.func_storm_maybe_set_state => storm_set_state);
-    configurable_hook!(config, Hook::StormStateMachineActionExecute, StormStateMachineActionExecuteHook ; addr.func_storm_statemachineaction_execute => storm_statemachineaction_execute);
+    configurable_hook!(config, Hook::StormStateMachineActionExecute, StormStateMachineActionExecuteHook ; 
+        addr.func_storm_statemachineaction_execute => storm_statemachineaction_execute);
     configurable_hook!(config, Hook::Thread, ThreadStarterHook ; addr.func_thread_starter => set_thread_name);
     #[cfg(feature = "modding")]
     configurable_hook!(config, Hook::OverridePackaged, ArcOpenFileHook; addr.func_open_file_from_archive => arc_open_file);
@@ -777,11 +748,7 @@ pub unsafe fn deinit(config: &Config) {
     disable_configurable_hook!(config, Hook::StormErrorFormatter, StormErrorFormatter);
     disable_configurable_hook!(config, Hook::StormHostPortToString, StormHostPortToStringHook);
     disable_configurable_hook!(config, Hook::StormSetState, StormSetStateHook);
-    disable_configurable_hook!(
-        config,
-        Hook::StormStateMachineActionExecute,
-        StormStateMachineActionExecuteHook
-    );
+    disable_configurable_hook!(config, Hook::StormStateMachineActionExecute, StormStateMachineActionExecuteHook);
     disable_configurable_hook!(config, Hook::Thread, ThreadStarterHook);
     #[cfg(feature = "modding")]
     disable_configurable_hook!(config, Hook::OverridePackaged, ArcOpenFileHook);

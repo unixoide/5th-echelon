@@ -35,12 +35,7 @@ unsafe extern "system" fn dialog_cb(
         TASKDIALOG_HWND.store(Box::into_raw(Box::new(hwnd)), Ordering::SeqCst);
     } else if msg == TDN_TIMER {
         let sz = DOWNLOADED_SIZE.load(Ordering::SeqCst);
-        SendMessageW(
-            hwnd,
-            TDM_SET_PROGRESS_BAR_POS.0 as u32,
-            WPARAM(sz * 100 / total_size),
-            LPARAM(0),
-        );
+        SendMessageW(hwnd, TDM_SET_PROGRESS_BAR_POS.0 as u32, WPARAM(sz * 100 / total_size), LPARAM(0));
         if sz >= total_size {
             SendMessageW(hwnd, WM_CLOSE, WPARAM(0), LPARAM(0));
         }
@@ -98,18 +93,12 @@ impl UpdaterClientFactory for GitHubClient {
 
 pub trait UpdaterClient: Send {
     fn fetch_latest_assets(&self) -> impl Future<Output = reqwest::Result<Vec<Asset>>> + Send;
-    fn download<U: reqwest::IntoUrl + Send>(
-        &self,
-        url: U,
-    ) -> impl Future<Output = reqwest::Result<impl Stream<Item = reqwest::Result<Bytes>> + Send>> + Send;
+    fn download<U: reqwest::IntoUrl + Send>(&self, url: U) -> impl Future<Output = reqwest::Result<impl Stream<Item = reqwest::Result<Bytes>> + Send>> + Send;
 }
 
 impl UpdaterClient for reqwest::Client {
     async fn fetch_latest_assets(&self) -> reqwest::Result<Vec<Asset>> {
-        let resp = self
-            .get(" https://api.github.com/repos/unixoide/5th-echelon/releases/latest")
-            .send()
-            .await?;
+        let resp = self.get(" https://api.github.com/repos/unixoide/5th-echelon/releases/latest").send().await?;
         let body = resp.text().await.unwrap();
         let resp = jzon::parse(&body).unwrap();
         let JsonValue::Object(obj) = resp else {
@@ -166,10 +155,7 @@ impl UpdaterClient for reqwest::Client {
             .collect())
     }
 
-    async fn download<U: reqwest::IntoUrl + Send>(
-        &self,
-        url: U,
-    ) -> reqwest::Result<impl Stream<Item = reqwest::Result<Bytes>> + Send> {
+    async fn download<U: reqwest::IntoUrl + Send>(&self, url: U) -> reqwest::Result<impl Stream<Item = reqwest::Result<Bytes>> + Send> {
         match self.get(url).send().await {
             Ok(resp) => Ok(resp.bytes_stream()),
             Err(err) => Err(err),
@@ -190,21 +176,13 @@ impl UpdaterClient for MockUpdaterClient {
         async {
             Ok(vec![
                 Asset {
-                    version: Version {
-                        major: 1,
-                        minor: 2,
-                        patch: 3,
-                    },
+                    version: Version { major: 1, minor: 2, patch: 3 },
                     name: "launcher.exe".to_string(),
                     url: "http://localhost/launcher.exe".to_string(),
                     size: 1024,
                 },
                 Asset {
-                    version: Version {
-                        major: 1,
-                        minor: 2,
-                        patch: 3,
-                    },
+                    version: Version { major: 1, minor: 2, patch: 3 },
                     name: "dedicated_server.exe".to_string(),
                     url: "http://localhost/dedicated_server.exe".to_string(),
                     size: 2048,
@@ -213,24 +191,11 @@ impl UpdaterClient for MockUpdaterClient {
         }
     }
 
-    async fn download<U: reqwest::IntoUrl + Send>(
-        &self,
-        url: U,
-    ) -> reqwest::Result<impl Stream<Item = reqwest::Result<Bytes>> + Send> {
+    async fn download<U: reqwest::IntoUrl + Send>(&self, url: U) -> reqwest::Result<impl Stream<Item = reqwest::Result<Bytes>> + Send> {
         let stream = if url.as_str() == "http://localhost/launcher.exe" {
-            futures::stream::iter(
-                vec![Bytes::from_owner([0u8; 512]); 2]
-                    .into_iter()
-                    .map(Ok)
-                    .collect::<Vec<_>>(),
-            )
+            futures::stream::iter(vec![Bytes::from_owner([0u8; 512]); 2].into_iter().map(Ok).collect::<Vec<_>>())
         } else if url.as_str() == "http://localhost/dedicated_server.exe" {
-            futures::stream::iter(
-                vec![Bytes::from_owner([0u8; 512]); 4]
-                    .into_iter()
-                    .map(Ok)
-                    .collect::<Vec<_>>(),
-            )
+            futures::stream::iter(vec![Bytes::from_owner([0u8; 512]); 4].into_iter().map(Ok).collect::<Vec<_>>())
         } else {
             unreachable!()
         };
@@ -252,9 +217,7 @@ pub struct Updater<CF: UpdaterClientFactory = GitHubClient> {
 impl<CF: UpdaterClientFactory + 'static> Updater<CF> {
     pub async fn download_with_progress(asset: Asset, target_path: impl AsRef<Path>, progress: &AtomicUsize) {
         let target_path = target_path.as_ref();
-        let mut launcher_exe_file = tokio::fs::File::create(target_path.with_extension("download"))
-            .await
-            .unwrap();
+        let mut launcher_exe_file = tokio::fs::File::create(target_path.with_extension("download")).await.unwrap();
         let client = CF::new();
         let resp = client.download(asset.url).await.unwrap();
         tokio::pin!(resp);
@@ -268,9 +231,7 @@ impl<CF: UpdaterClientFactory + 'static> Updater<CF> {
         launcher_exe_file.flush().await.unwrap();
         progress.store(10000, Ordering::SeqCst);
         drop(launcher_exe_file);
-        tokio::fs::rename(target_path.with_extension("download"), target_path)
-            .await
-            .unwrap();
+        tokio::fs::rename(target_path.with_extension("download"), target_path).await.unwrap();
     }
 
     pub async fn update_self(asset: Asset) {
@@ -297,20 +258,14 @@ impl<CF: UpdaterClientFactory + 'static> Updater<CF> {
         .0
         .unwrap();
         DOWNLOADED_SIZE.store(0, Ordering::SeqCst);
-        let downloader = tokio::spawn(Self::download_with_progress(
-            asset.clone(),
-            launcher_exe.clone(),
-            &DOWNLOADED_SIZE,
-        ));
+        let downloader = tokio::spawn(Self::download_with_progress(asset.clone(), launcher_exe.clone(), &DOWNLOADED_SIZE));
 
         let progress = tokio::task::spawn_blocking(move || unsafe {
             let buttons = [TASKDIALOG_BUTTON {
                 nButtonID: IDCANCEL.0, // must be cancel to work with PostMessage(WM_CLOSE)
                 pszButtonText: w!("Cancel"),
             }];
-            let mut content = OsString::from(format!("Fetching {} bytes from the server", asset.size))
-                .encode_wide()
-                .collect::<Vec<u16>>();
+            let mut content = OsString::from(format!("Fetching {} bytes from the server", asset.size)).encode_wide().collect::<Vec<u16>>();
             content.push(0);
             let task_dlg_cfg = TASKDIALOGCONFIG {
                 cbSize: std::mem::size_of::<TASKDIALOGCONFIG>() as u32,
@@ -364,11 +319,7 @@ pub fn start_update_process_and_terminate() {
     let dest_dir = myself.parent().unwrap();
     let updater = dest_dir.join("launcher_updater.exe");
     std::fs::copy(&myself, &updater).unwrap();
-    let mut child = std::process::Command::new(updater)
-        .arg("update")
-        .arg(myself.as_os_str())
-        .spawn()
-        .unwrap();
+    let mut child = std::process::Command::new(updater).arg("update").arg(myself.as_os_str()).spawn().unwrap();
     child.try_wait().unwrap();
     std::process::exit(0);
 }

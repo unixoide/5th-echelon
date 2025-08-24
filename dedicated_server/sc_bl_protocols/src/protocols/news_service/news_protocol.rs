@@ -182,36 +182,28 @@ impl<T: NewsProtocolServerTrait<CI>, CI> Protocol<CI> for NewsProtocolServer<T, 
             Some(NewsProtocolMethod::GetChannelsByTypes) => {
                 let req = GetChannelsByTypesRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_channels_by_types(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_channels_by_types(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(NewsProtocolMethod::GetSubscribableChannels) => {
                 let req = GetSubscribableChannelsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_subscribable_channels(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_subscribable_channels(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(NewsProtocolMethod::GetChannelsByIDs) => {
                 let req = GetChannelsByIDsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_channels_by_ids(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_channels_by_ids(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(NewsProtocolMethod::GetSubscribedChannels) => {
                 let req = GetSubscribedChannelsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_subscribed_channels(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_subscribed_channels(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
@@ -225,9 +217,7 @@ impl<T: NewsProtocolServerTrait<CI>, CI> Protocol<CI> for NewsProtocolServer<T, 
             Some(NewsProtocolMethod::UnsubscribeChannel) => {
                 let req = UnsubscribeChannelRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .unsubscribe_channel(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.unsubscribe_channel(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
@@ -255,27 +245,21 @@ impl<T: NewsProtocolServerTrait<CI>, CI> Protocol<CI> for NewsProtocolServer<T, 
             Some(NewsProtocolMethod::GetChannelByType) => {
                 let req = GetChannelByTypeRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_channel_by_type(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_channel_by_type(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(NewsProtocolMethod::GetNewsHeadersByType) => {
                 let req = GetNewsHeadersByTypeRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_news_headers_by_type(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_news_headers_by_type(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(NewsProtocolMethod::GetNewsMessagesByType) => {
                 let req = GetNewsMessagesByTypeRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_news_messages_by_type(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_news_messages_by_type(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
@@ -296,12 +280,7 @@ pub trait NewsProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetChannelsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "NewsProtocol",
-            stringify!(get_channels)
-        );
+        warn!(logger, "Method {}.{} not implemented", "NewsProtocol", stringify!(get_channels));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_channels_by_types(
@@ -313,12 +292,7 @@ pub trait NewsProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetChannelsByTypesResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "NewsProtocol",
-            stringify!(get_channels_by_types)
-        );
+        warn!(logger, "Method {}.{} not implemented", "NewsProtocol", stringify!(get_channels_by_types));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_subscribable_channels(
@@ -330,12 +304,7 @@ pub trait NewsProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetSubscribableChannelsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "NewsProtocol",
-            stringify!(get_subscribable_channels)
-        );
+        warn!(logger, "Method {}.{} not implemented", "NewsProtocol", stringify!(get_subscribable_channels));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_channels_by_ids(
@@ -347,12 +316,7 @@ pub trait NewsProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetChannelsByIDsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "NewsProtocol",
-            stringify!(get_channels_by_ids)
-        );
+        warn!(logger, "Method {}.{} not implemented", "NewsProtocol", stringify!(get_channels_by_ids));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_subscribed_channels(
@@ -364,12 +328,7 @@ pub trait NewsProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetSubscribedChannelsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "NewsProtocol",
-            stringify!(get_subscribed_channels)
-        );
+        warn!(logger, "Method {}.{} not implemented", "NewsProtocol", stringify!(get_subscribed_channels));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn subscribe_channel(
@@ -381,12 +340,7 @@ pub trait NewsProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<SubscribeChannelResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "NewsProtocol",
-            stringify!(subscribe_channel)
-        );
+        warn!(logger, "Method {}.{} not implemented", "NewsProtocol", stringify!(subscribe_channel));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn unsubscribe_channel(
@@ -398,12 +352,7 @@ pub trait NewsProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<UnsubscribeChannelResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "NewsProtocol",
-            stringify!(unsubscribe_channel)
-        );
+        warn!(logger, "Method {}.{} not implemented", "NewsProtocol", stringify!(unsubscribe_channel));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_news_headers(
@@ -415,12 +364,7 @@ pub trait NewsProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetNewsHeadersResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "NewsProtocol",
-            stringify!(get_news_headers)
-        );
+        warn!(logger, "Method {}.{} not implemented", "NewsProtocol", stringify!(get_news_headers));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_news_messages(
@@ -432,12 +376,7 @@ pub trait NewsProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetNewsMessagesResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "NewsProtocol",
-            stringify!(get_news_messages)
-        );
+        warn!(logger, "Method {}.{} not implemented", "NewsProtocol", stringify!(get_news_messages));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_number_of_news(
@@ -449,12 +388,7 @@ pub trait NewsProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetNumberOfNewsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "NewsProtocol",
-            stringify!(get_number_of_news)
-        );
+        warn!(logger, "Method {}.{} not implemented", "NewsProtocol", stringify!(get_number_of_news));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_channel_by_type(
@@ -466,12 +400,7 @@ pub trait NewsProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetChannelByTypeResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "NewsProtocol",
-            stringify!(get_channel_by_type)
-        );
+        warn!(logger, "Method {}.{} not implemented", "NewsProtocol", stringify!(get_channel_by_type));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_news_headers_by_type(
@@ -483,12 +412,7 @@ pub trait NewsProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetNewsHeadersByTypeResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "NewsProtocol",
-            stringify!(get_news_headers_by_type)
-        );
+        warn!(logger, "Method {}.{} not implemented", "NewsProtocol", stringify!(get_news_headers_by_type));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_news_messages_by_type(
@@ -500,12 +424,7 @@ pub trait NewsProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetNewsMessagesByTypeResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "NewsProtocol",
-            stringify!(get_news_messages_by_type)
-        );
+        warn!(logger, "Method {}.{} not implemented", "NewsProtocol", stringify!(get_news_messages_by_type));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }
@@ -536,48 +455,14 @@ impl<CI> ClientProtocol<CI> for NewsProtocolClient<CI> {
 }
 #[allow(unused_variables)]
 impl<CI> NewsProtocolClient<CI> {
-    pub fn get_channels(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetChannelsRequest,
-    ) -> Result<GetChannelsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "NewsProtocol",
-            stringify!(get_channels)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            NewsProtocolMethod::GetChannels as u32,
-            request.to_bytes(),
-        );
+    pub fn get_channels(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetChannelsRequest) -> Result<GetChannelsResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "NewsProtocol", stringify!(get_channels));
+        self.send(logger, ctx, ci, NewsProtocolMethod::GetChannels as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn get_channels_by_types(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetChannelsByTypesRequest,
-    ) -> Result<GetChannelsByTypesResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "NewsProtocol",
-            stringify!(get_channels_by_types)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            NewsProtocolMethod::GetChannelsByTypes as u32,
-            request.to_bytes(),
-        );
+    pub fn get_channels_by_types(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetChannelsByTypesRequest) -> Result<GetChannelsByTypesResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "NewsProtocol", stringify!(get_channels_by_types));
+        self.send(logger, ctx, ci, NewsProtocolMethod::GetChannelsByTypes as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn get_subscribable_channels(
@@ -587,41 +472,13 @@ impl<CI> NewsProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: GetSubscribableChannelsRequest,
     ) -> Result<GetSubscribableChannelsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "NewsProtocol",
-            stringify!(get_subscribable_channels)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            NewsProtocolMethod::GetSubscribableChannels as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "NewsProtocol", stringify!(get_subscribable_channels));
+        self.send(logger, ctx, ci, NewsProtocolMethod::GetSubscribableChannels as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn get_channels_by_ids(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetChannelsByIDsRequest,
-    ) -> Result<GetChannelsByIDsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "NewsProtocol",
-            stringify!(get_channels_by_ids)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            NewsProtocolMethod::GetChannelsByIDs as u32,
-            request.to_bytes(),
-        );
+    pub fn get_channels_by_ids(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetChannelsByIDsRequest) -> Result<GetChannelsByIDsResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "NewsProtocol", stringify!(get_channels_by_ids));
+        self.send(logger, ctx, ci, NewsProtocolMethod::GetChannelsByIDs as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn get_subscribed_channels(
@@ -631,151 +488,38 @@ impl<CI> NewsProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: GetSubscribedChannelsRequest,
     ) -> Result<GetSubscribedChannelsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "NewsProtocol",
-            stringify!(get_subscribed_channels)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            NewsProtocolMethod::GetSubscribedChannels as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "NewsProtocol", stringify!(get_subscribed_channels));
+        self.send(logger, ctx, ci, NewsProtocolMethod::GetSubscribedChannels as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn subscribe_channel(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: SubscribeChannelRequest,
-    ) -> Result<SubscribeChannelResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "NewsProtocol",
-            stringify!(subscribe_channel)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            NewsProtocolMethod::SubscribeChannel as u32,
-            request.to_bytes(),
-        );
+    pub fn subscribe_channel(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: SubscribeChannelRequest) -> Result<SubscribeChannelResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "NewsProtocol", stringify!(subscribe_channel));
+        self.send(logger, ctx, ci, NewsProtocolMethod::SubscribeChannel as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn unsubscribe_channel(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: UnsubscribeChannelRequest,
-    ) -> Result<UnsubscribeChannelResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "NewsProtocol",
-            stringify!(unsubscribe_channel)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            NewsProtocolMethod::UnsubscribeChannel as u32,
-            request.to_bytes(),
-        );
+    pub fn unsubscribe_channel(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: UnsubscribeChannelRequest) -> Result<UnsubscribeChannelResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "NewsProtocol", stringify!(unsubscribe_channel));
+        self.send(logger, ctx, ci, NewsProtocolMethod::UnsubscribeChannel as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn get_news_headers(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetNewsHeadersRequest,
-    ) -> Result<GetNewsHeadersResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "NewsProtocol",
-            stringify!(get_news_headers)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            NewsProtocolMethod::GetNewsHeaders as u32,
-            request.to_bytes(),
-        );
+    pub fn get_news_headers(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetNewsHeadersRequest) -> Result<GetNewsHeadersResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "NewsProtocol", stringify!(get_news_headers));
+        self.send(logger, ctx, ci, NewsProtocolMethod::GetNewsHeaders as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn get_news_messages(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetNewsMessagesRequest,
-    ) -> Result<GetNewsMessagesResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "NewsProtocol",
-            stringify!(get_news_messages)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            NewsProtocolMethod::GetNewsMessages as u32,
-            request.to_bytes(),
-        );
+    pub fn get_news_messages(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetNewsMessagesRequest) -> Result<GetNewsMessagesResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "NewsProtocol", stringify!(get_news_messages));
+        self.send(logger, ctx, ci, NewsProtocolMethod::GetNewsMessages as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn get_number_of_news(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetNumberOfNewsRequest,
-    ) -> Result<GetNumberOfNewsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "NewsProtocol",
-            stringify!(get_number_of_news)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            NewsProtocolMethod::GetNumberOfNews as u32,
-            request.to_bytes(),
-        );
+    pub fn get_number_of_news(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetNumberOfNewsRequest) -> Result<GetNumberOfNewsResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "NewsProtocol", stringify!(get_number_of_news));
+        self.send(logger, ctx, ci, NewsProtocolMethod::GetNumberOfNews as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn get_channel_by_type(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetChannelByTypeRequest,
-    ) -> Result<GetChannelByTypeResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "NewsProtocol",
-            stringify!(get_channel_by_type)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            NewsProtocolMethod::GetChannelByType as u32,
-            request.to_bytes(),
-        );
+    pub fn get_channel_by_type(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetChannelByTypeRequest) -> Result<GetChannelByTypeResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "NewsProtocol", stringify!(get_channel_by_type));
+        self.send(logger, ctx, ci, NewsProtocolMethod::GetChannelByType as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn get_news_headers_by_type(
@@ -785,19 +529,8 @@ impl<CI> NewsProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: GetNewsHeadersByTypeRequest,
     ) -> Result<GetNewsHeadersByTypeResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "NewsProtocol",
-            stringify!(get_news_headers_by_type)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            NewsProtocolMethod::GetNewsHeadersByType as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "NewsProtocol", stringify!(get_news_headers_by_type));
+        self.send(logger, ctx, ci, NewsProtocolMethod::GetNewsHeadersByType as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn get_news_messages_by_type(
@@ -807,19 +540,8 @@ impl<CI> NewsProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: GetNewsMessagesByTypeRequest,
     ) -> Result<GetNewsMessagesByTypeResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "NewsProtocol",
-            stringify!(get_news_messages_by_type)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            NewsProtocolMethod::GetNewsMessagesByType as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "NewsProtocol", stringify!(get_news_messages_by_type));
+        self.send(logger, ctx, ci, NewsProtocolMethod::GetNewsMessagesByType as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }

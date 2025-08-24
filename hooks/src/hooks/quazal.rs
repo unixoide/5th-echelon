@@ -36,14 +36,11 @@ fn parse_rmc_str() -> ProtocolMap {
 
             (protocol_id, protocol_name, method_id, method_name)
         })
-        .fold(
-            HashMap::new(),
-            |mut acc, (protocol_id, protocol_name, method_id, method_name)| {
-                let (_, meth_map) = acc.entry(protocol_id).or_insert((protocol_name, HashMap::new()));
-                meth_map.insert(method_id, method_name);
-                acc
-            },
-        )
+        .fold(HashMap::new(), |mut acc, (protocol_id, protocol_name, method_id, method_name)| {
+            let (_, meth_map) = acc.entry(protocol_id).or_insert((protocol_name, HashMap::new()));
+            meth_map.insert(method_id, method_name);
+            acc
+        })
 }
 
 fn resolve_protocol_method(protocol_id: u32, method_id: u32) -> String {
@@ -61,10 +58,7 @@ impl RmcMessage {
     fn get_for_pointer(ptr: *const c_void) -> std::sync::MappedMutexGuard<'static, RmcMessage> {
         let map_mutx = RMC_MESSAGES.get_or_init(|| Mutex::new(HashMap::new()));
         std::sync::MutexGuard::map(map_mutx.lock().unwrap(), |map: &mut HashMap<usize, RmcMessage>| {
-            map.entry(ptr as usize).or_insert(RmcMessage {
-                protocol_id: 0,
-                method_id: 0,
-            })
+            map.entry(ptr as usize).or_insert(RmcMessage { protocol_id: 0, method_id: 0 })
         })
     }
 
@@ -100,10 +94,7 @@ fn add_method_id_hook(message: *mut c_void, method_id: u32) {
 fn send_rmc_message_hook(protocol: *mut c_void, call_ctx: *mut c_void, message: *mut c_void) -> usize {
     {
         let rmc_msg = RmcMessage::get_for_pointer(message.cast_const());
-        info!(
-            "Sending rmc message: {}",
-            resolve_protocol_method(rmc_msg.protocol_id, rmc_msg.method_id)
-        );
+        info!("Sending rmc message: {}", resolve_protocol_method(rmc_msg.protocol_id, rmc_msg.method_id));
         drop(rmc_msg);
         RmcMessage::remove_from_pointer(message.cast_const());
     }

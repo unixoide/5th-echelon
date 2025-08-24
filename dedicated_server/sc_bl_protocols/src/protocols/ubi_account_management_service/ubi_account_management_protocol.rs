@@ -230,10 +230,7 @@ pub struct AcceptLatestTosRequest;
 pub struct AcceptLatestTosResponse {
     pub failed_reasons: Vec<ValidationFailureReason>,
 }
-pub struct UbiAccountManagementProtocolServer<T: UbiAccountManagementProtocolServerTrait<CI>, CI>(
-    T,
-    ::std::marker::PhantomData<CI>,
-);
+pub struct UbiAccountManagementProtocolServer<T: UbiAccountManagementProtocolServerTrait<CI>, CI>(T, ::std::marker::PhantomData<CI>);
 impl<T: UbiAccountManagementProtocolServerTrait<CI>, CI> UbiAccountManagementProtocolServer<T, CI> {
     pub fn new(implementation: T) -> Self {
         Self(implementation, ::std::marker::PhantomData)
@@ -334,45 +331,35 @@ impl<T: UbiAccountManagementProtocolServerTrait<CI>, CI> Protocol<CI> for UbiAcc
             Some(UbiAccountManagementProtocolMethod::LookupPrincipalIds) => {
                 let req = LookupPrincipalIdsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .lookup_principal_ids(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.lookup_principal_ids(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UbiAccountManagementProtocolMethod::LookupUbiAccountIDsByPids) => {
                 let req = LookupUbiAccountIDsByPidsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .lookup_ubi_account_ids_by_pids(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.lookup_ubi_account_ids_by_pids(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UbiAccountManagementProtocolMethod::LookupUbiAccountIDsByUsernames) => {
                 let req = LookupUbiAccountIDsByUsernamesRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .lookup_ubi_account_ids_by_usernames(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.lookup_ubi_account_ids_by_usernames(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UbiAccountManagementProtocolMethod::LookupUsernamesByUbiAccountIDs) => {
                 let req = LookupUsernamesByUbiAccountIDsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .lookup_usernames_by_ubi_account_ids(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.lookup_usernames_by_ubi_account_ids(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UbiAccountManagementProtocolMethod::LookupUbiAccountIDsByUsernameSubString) => {
                 let req = LookupUbiAccountIDsByUsernameSubStringRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .lookup_ubi_account_ids_by_username_sub_string(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.lookup_ubi_account_ids_by_username_sub_string(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
@@ -393,27 +380,21 @@ impl<T: UbiAccountManagementProtocolServerTrait<CI>, CI> Protocol<CI> for UbiAcc
             Some(UbiAccountManagementProtocolMethod::LookupUbiAccountIDsByUsernamesGlobal) => {
                 let req = LookupUbiAccountIDsByUsernamesGlobalRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .lookup_ubi_account_ids_by_usernames_global(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.lookup_ubi_account_ids_by_usernames_global(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UbiAccountManagementProtocolMethod::LookupUbiAccountIDsByEmailsGlobal) => {
                 let req = LookupUbiAccountIDsByEmailsGlobalRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .lookup_ubi_account_ids_by_emails_global(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.lookup_ubi_account_ids_by_emails_global(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UbiAccountManagementProtocolMethod::LookupUsernamesByUbiAccountIDsGlobal) => {
                 let req = LookupUsernamesByUbiAccountIDsGlobalRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .lookup_usernames_by_ubi_account_ids_global(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.lookup_usernames_by_ubi_account_ids_global(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
@@ -427,9 +408,7 @@ impl<T: UbiAccountManagementProtocolServerTrait<CI>, CI> Protocol<CI> for UbiAcc
             Some(UbiAccountManagementProtocolMethod::HasAcceptedLatestTos) => {
                 let req = HasAcceptedLatestTosRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .has_accepted_latest_tos(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.has_accepted_latest_tos(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
@@ -443,9 +422,7 @@ impl<T: UbiAccountManagementProtocolServerTrait<CI>, CI> Protocol<CI> for UbiAcc
         }
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        UbiAccountManagementProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        UbiAccountManagementProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
@@ -459,12 +436,7 @@ pub trait UbiAccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<CreateAccountResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UbiAccountManagementProtocol",
-            stringify!(create_account)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UbiAccountManagementProtocol", stringify!(create_account));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn update_account(
@@ -476,12 +448,7 @@ pub trait UbiAccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<UpdateAccountResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UbiAccountManagementProtocol",
-            stringify!(update_account)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UbiAccountManagementProtocol", stringify!(update_account));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_account(
@@ -493,12 +460,7 @@ pub trait UbiAccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetAccountResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UbiAccountManagementProtocol",
-            stringify!(get_account)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UbiAccountManagementProtocol", stringify!(get_account));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn link_account(
@@ -510,12 +472,7 @@ pub trait UbiAccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<LinkAccountResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UbiAccountManagementProtocol",
-            stringify!(link_account)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UbiAccountManagementProtocol", stringify!(link_account));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_tos(
@@ -527,12 +484,7 @@ pub trait UbiAccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetTosResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UbiAccountManagementProtocol",
-            stringify!(get_tos)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UbiAccountManagementProtocol", stringify!(get_tos));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn validate_username(
@@ -544,12 +496,7 @@ pub trait UbiAccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<ValidateUsernameResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UbiAccountManagementProtocol",
-            stringify!(validate_username)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UbiAccountManagementProtocol", stringify!(validate_username));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn validate_password(
@@ -561,12 +508,7 @@ pub trait UbiAccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<ValidatePasswordResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UbiAccountManagementProtocol",
-            stringify!(validate_password)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UbiAccountManagementProtocol", stringify!(validate_password));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn validate_email(
@@ -578,12 +520,7 @@ pub trait UbiAccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<ValidateEmailResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UbiAccountManagementProtocol",
-            stringify!(validate_email)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UbiAccountManagementProtocol", stringify!(validate_email));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_country_list(
@@ -595,12 +532,7 @@ pub trait UbiAccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetCountryListResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UbiAccountManagementProtocol",
-            stringify!(get_country_list)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UbiAccountManagementProtocol", stringify!(get_country_list));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn forget_password(
@@ -612,12 +544,7 @@ pub trait UbiAccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<ForgetPasswordResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UbiAccountManagementProtocol",
-            stringify!(forget_password)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UbiAccountManagementProtocol", stringify!(forget_password));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn lookup_principal_ids(
@@ -629,12 +556,7 @@ pub trait UbiAccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<LookupPrincipalIdsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UbiAccountManagementProtocol",
-            stringify!(lookup_principal_ids)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UbiAccountManagementProtocol", stringify!(lookup_principal_ids));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn lookup_ubi_account_ids_by_pids(
@@ -714,12 +636,7 @@ pub trait UbiAccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<UserHasPlayedResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UbiAccountManagementProtocol",
-            stringify!(user_has_played)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UbiAccountManagementProtocol", stringify!(user_has_played));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn is_user_playing(
@@ -731,12 +648,7 @@ pub trait UbiAccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<IsUserPlayingResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UbiAccountManagementProtocol",
-            stringify!(is_user_playing)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UbiAccountManagementProtocol", stringify!(is_user_playing));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn lookup_ubi_account_ids_by_usernames_global(
@@ -799,12 +711,7 @@ pub trait UbiAccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetTosExResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UbiAccountManagementProtocol",
-            stringify!(get_tos_ex)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UbiAccountManagementProtocol", stringify!(get_tos_ex));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn has_accepted_latest_tos(
@@ -816,12 +723,7 @@ pub trait UbiAccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<HasAcceptedLatestTosResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UbiAccountManagementProtocol",
-            stringify!(has_accepted_latest_tos)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UbiAccountManagementProtocol", stringify!(has_accepted_latest_tos));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn accept_latest_tos(
@@ -833,12 +735,7 @@ pub trait UbiAccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<AcceptLatestTosResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UbiAccountManagementProtocol",
-            stringify!(accept_latest_tos)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UbiAccountManagementProtocol", stringify!(accept_latest_tos));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }
@@ -864,253 +761,64 @@ impl<CI> ClientProtocol<CI> for UbiAccountManagementProtocolClient<CI> {
         23u32
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        UbiAccountManagementProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        UbiAccountManagementProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
 impl<CI> UbiAccountManagementProtocolClient<CI> {
-    pub fn create_account(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: CreateAccountRequest,
-    ) -> Result<CreateAccountResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UbiAccountManagementProtocol",
-            stringify!(create_account)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UbiAccountManagementProtocolMethod::CreateAccount as u32,
-            request.to_bytes(),
-        );
+    pub fn create_account(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: CreateAccountRequest) -> Result<CreateAccountResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UbiAccountManagementProtocol", stringify!(create_account));
+        self.send(logger, ctx, ci, UbiAccountManagementProtocolMethod::CreateAccount as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn update_account(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: UpdateAccountRequest,
-    ) -> Result<UpdateAccountResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UbiAccountManagementProtocol",
-            stringify!(update_account)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UbiAccountManagementProtocolMethod::UpdateAccount as u32,
-            request.to_bytes(),
-        );
+    pub fn update_account(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: UpdateAccountRequest) -> Result<UpdateAccountResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UbiAccountManagementProtocol", stringify!(update_account));
+        self.send(logger, ctx, ci, UbiAccountManagementProtocolMethod::UpdateAccount as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn get_account(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetAccountRequest,
-    ) -> Result<GetAccountResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UbiAccountManagementProtocol",
-            stringify!(get_account)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UbiAccountManagementProtocolMethod::GetAccount as u32,
-            request.to_bytes(),
-        );
+    pub fn get_account(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetAccountRequest) -> Result<GetAccountResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UbiAccountManagementProtocol", stringify!(get_account));
+        self.send(logger, ctx, ci, UbiAccountManagementProtocolMethod::GetAccount as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn link_account(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: LinkAccountRequest,
-    ) -> Result<LinkAccountResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UbiAccountManagementProtocol",
-            stringify!(link_account)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UbiAccountManagementProtocolMethod::LinkAccount as u32,
-            request.to_bytes(),
-        );
+    pub fn link_account(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: LinkAccountRequest) -> Result<LinkAccountResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UbiAccountManagementProtocol", stringify!(link_account));
+        self.send(logger, ctx, ci, UbiAccountManagementProtocolMethod::LinkAccount as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn get_tos(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetTosRequest,
-    ) -> Result<GetTosResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UbiAccountManagementProtocol",
-            stringify!(get_tos)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UbiAccountManagementProtocolMethod::GetTos as u32,
-            request.to_bytes(),
-        );
+    pub fn get_tos(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetTosRequest) -> Result<GetTosResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UbiAccountManagementProtocol", stringify!(get_tos));
+        self.send(logger, ctx, ci, UbiAccountManagementProtocolMethod::GetTos as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn validate_username(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: ValidateUsernameRequest,
-    ) -> Result<ValidateUsernameResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UbiAccountManagementProtocol",
-            stringify!(validate_username)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UbiAccountManagementProtocolMethod::ValidateUsername as u32,
-            request.to_bytes(),
-        );
+    pub fn validate_username(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: ValidateUsernameRequest) -> Result<ValidateUsernameResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UbiAccountManagementProtocol", stringify!(validate_username));
+        self.send(logger, ctx, ci, UbiAccountManagementProtocolMethod::ValidateUsername as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn validate_password(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: ValidatePasswordRequest,
-    ) -> Result<ValidatePasswordResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UbiAccountManagementProtocol",
-            stringify!(validate_password)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UbiAccountManagementProtocolMethod::ValidatePassword as u32,
-            request.to_bytes(),
-        );
+    pub fn validate_password(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: ValidatePasswordRequest) -> Result<ValidatePasswordResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UbiAccountManagementProtocol", stringify!(validate_password));
+        self.send(logger, ctx, ci, UbiAccountManagementProtocolMethod::ValidatePassword as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn validate_email(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: ValidateEmailRequest,
-    ) -> Result<ValidateEmailResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UbiAccountManagementProtocol",
-            stringify!(validate_email)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UbiAccountManagementProtocolMethod::ValidateEmail as u32,
-            request.to_bytes(),
-        );
+    pub fn validate_email(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: ValidateEmailRequest) -> Result<ValidateEmailResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UbiAccountManagementProtocol", stringify!(validate_email));
+        self.send(logger, ctx, ci, UbiAccountManagementProtocolMethod::ValidateEmail as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn get_country_list(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetCountryListRequest,
-    ) -> Result<GetCountryListResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UbiAccountManagementProtocol",
-            stringify!(get_country_list)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UbiAccountManagementProtocolMethod::GetCountryList as u32,
-            request.to_bytes(),
-        );
+    pub fn get_country_list(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetCountryListRequest) -> Result<GetCountryListResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UbiAccountManagementProtocol", stringify!(get_country_list));
+        self.send(logger, ctx, ci, UbiAccountManagementProtocolMethod::GetCountryList as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn forget_password(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: ForgetPasswordRequest,
-    ) -> Result<ForgetPasswordResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UbiAccountManagementProtocol",
-            stringify!(forget_password)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UbiAccountManagementProtocolMethod::ForgetPassword as u32,
-            request.to_bytes(),
-        );
+    pub fn forget_password(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: ForgetPasswordRequest) -> Result<ForgetPasswordResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UbiAccountManagementProtocol", stringify!(forget_password));
+        self.send(logger, ctx, ci, UbiAccountManagementProtocolMethod::ForgetPassword as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn lookup_principal_ids(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: LookupPrincipalIdsRequest,
-    ) -> Result<LookupPrincipalIdsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UbiAccountManagementProtocol",
-            stringify!(lookup_principal_ids)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UbiAccountManagementProtocolMethod::LookupPrincipalIds as u32,
-            request.to_bytes(),
-        );
+    pub fn lookup_principal_ids(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: LookupPrincipalIdsRequest) -> Result<LookupPrincipalIdsResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UbiAccountManagementProtocol", stringify!(lookup_principal_ids));
+        self.send(logger, ctx, ci, UbiAccountManagementProtocolMethod::LookupPrincipalIds as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn lookup_ubi_account_ids_by_pids(
@@ -1126,13 +834,7 @@ impl<CI> UbiAccountManagementProtocolClient<CI> {
             "UbiAccountManagementProtocol",
             stringify!(lookup_ubi_account_ids_by_pids)
         );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UbiAccountManagementProtocolMethod::LookupUbiAccountIDsByPids as u32,
-            request.to_bytes(),
-        );
+        self.send(logger, ctx, ci, UbiAccountManagementProtocolMethod::LookupUbiAccountIDsByPids as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn lookup_ubi_account_ids_by_usernames(
@@ -1201,48 +903,14 @@ impl<CI> UbiAccountManagementProtocolClient<CI> {
         );
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn user_has_played(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: UserHasPlayedRequest,
-    ) -> Result<UserHasPlayedResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UbiAccountManagementProtocol",
-            stringify!(user_has_played)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UbiAccountManagementProtocolMethod::UserHasPlayed as u32,
-            request.to_bytes(),
-        );
+    pub fn user_has_played(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: UserHasPlayedRequest) -> Result<UserHasPlayedResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UbiAccountManagementProtocol", stringify!(user_has_played));
+        self.send(logger, ctx, ci, UbiAccountManagementProtocolMethod::UserHasPlayed as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn is_user_playing(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: IsUserPlayingRequest,
-    ) -> Result<IsUserPlayingResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UbiAccountManagementProtocol",
-            stringify!(is_user_playing)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UbiAccountManagementProtocolMethod::IsUserPlaying as u32,
-            request.to_bytes(),
-        );
+    pub fn is_user_playing(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: IsUserPlayingRequest) -> Result<IsUserPlayingResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UbiAccountManagementProtocol", stringify!(is_user_playing));
+        self.send(logger, ctx, ci, UbiAccountManagementProtocolMethod::IsUserPlaying as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn lookup_ubi_account_ids_by_usernames_global(
@@ -1311,26 +979,9 @@ impl<CI> UbiAccountManagementProtocolClient<CI> {
         );
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn get_tos_ex(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetTosExRequest,
-    ) -> Result<GetTosExResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UbiAccountManagementProtocol",
-            stringify!(get_tos_ex)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UbiAccountManagementProtocolMethod::GetTosEx as u32,
-            request.to_bytes(),
-        );
+    pub fn get_tos_ex(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetTosExRequest) -> Result<GetTosExResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UbiAccountManagementProtocol", stringify!(get_tos_ex));
+        self.send(logger, ctx, ci, UbiAccountManagementProtocolMethod::GetTosEx as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn has_accepted_latest_tos(
@@ -1340,41 +991,13 @@ impl<CI> UbiAccountManagementProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: HasAcceptedLatestTosRequest,
     ) -> Result<HasAcceptedLatestTosResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UbiAccountManagementProtocol",
-            stringify!(has_accepted_latest_tos)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UbiAccountManagementProtocolMethod::HasAcceptedLatestTos as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "UbiAccountManagementProtocol", stringify!(has_accepted_latest_tos));
+        self.send(logger, ctx, ci, UbiAccountManagementProtocolMethod::HasAcceptedLatestTos as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn accept_latest_tos(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: AcceptLatestTosRequest,
-    ) -> Result<AcceptLatestTosResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UbiAccountManagementProtocol",
-            stringify!(accept_latest_tos)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UbiAccountManagementProtocolMethod::AcceptLatestTos as u32,
-            request.to_bytes(),
-        );
+    pub fn accept_latest_tos(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: AcceptLatestTosRequest) -> Result<AcceptLatestTosResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UbiAccountManagementProtocol", stringify!(accept_latest_tos));
+        self.send(logger, ctx, ci, UbiAccountManagementProtocolMethod::AcceptLatestTos as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }

@@ -102,11 +102,7 @@ mod tests {
 
     #[test]
     fn test_display() {
-        let version = Version {
-            major: 10,
-            minor: 20,
-            patch: 30,
-        };
+        let version = Version { major: 10, minor: 20, patch: 30 };
         assert_eq!(format!("{}", version), "10.20.30");
 
         let version_zero = Version::default();

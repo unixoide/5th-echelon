@@ -60,10 +60,7 @@ unsafe extern "cdecl" fn UPLAY_SAVE_Close(out_save_handle: *mut SaveHandle) -> b
 }
 
 #[forwardable_export]
-unsafe extern "cdecl" fn UPLAY_SAVE_GetSavegames(
-    out_games_list: *mut *mut List,
-    overlapped: *mut UplayOverlapped,
-) -> bool {
+unsafe extern "cdecl" fn UPLAY_SAVE_GetSavegames(out_games_list: *mut *mut List, overlapped: *mut UplayOverlapped) -> bool {
     if out_games_list.is_null() {
         error!("Invalid out_games_list");
         if !overlapped.is_null() {
@@ -94,12 +91,7 @@ unsafe extern "cdecl" fn UPLAY_SAVE_GetSavegames(
 }
 
 #[forwardable_export]
-unsafe extern "cdecl" fn UPLAY_SAVE_Open(
-    slot_id: usize,
-    mode: OpenMode,
-    out_save_handle: *mut *mut SaveHandle,
-    overlapped: *mut UplayOverlapped,
-) -> bool {
+unsafe extern "cdecl" fn UPLAY_SAVE_Open(slot_id: usize, mode: OpenMode, out_save_handle: *mut *mut SaveHandle, overlapped: *mut UplayOverlapped) -> bool {
     if out_save_handle.is_null() {
         error!("Invalid handle {out_save_handle:?}");
         return false;
@@ -224,12 +216,7 @@ unsafe extern "cdecl" fn UPLAY_SAVE_SetName(save_handle: *mut SaveHandle, name: 
 }
 
 #[forwardable_export]
-unsafe extern "cdecl" fn UPLAY_SAVE_Write(
-    save_handle: *mut SaveHandle,
-    num_of_bytes_to_write: usize,
-    buffer: *const *const u8,
-    overlapped: *mut UplayOverlapped,
-) -> bool {
+unsafe extern "cdecl" fn UPLAY_SAVE_Write(save_handle: *mut SaveHandle, num_of_bytes_to_write: usize, buffer: *const *const u8, overlapped: *mut UplayOverlapped) -> bool {
     // if save_handle.is_null() || !save_handle.is_aligned() {
     //     error!("Invalid save_handle {save_handle:?}");
     //     return false;

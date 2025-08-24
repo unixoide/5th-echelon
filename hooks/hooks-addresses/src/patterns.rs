@@ -133,12 +133,7 @@ impl FromStr for Pattern {
     type Err = ();
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let nibbles = s
-            .chars()
-            .filter(|c| *c != ' ')
-            .map(PatternNibble::parse)
-            .collect::<Option<Vec<_>>>()
-            .ok_or(())?;
+        let nibbles = s.chars().filter(|c| *c != ' ').map(PatternNibble::parse).collect::<Option<Vec<_>>>().ok_or(())?;
 
         let octets = nibbles
             .chunks(2)
@@ -221,18 +216,9 @@ mod tests {
         assert!(pattern_result.is_ok());
         let pattern = pattern_result.unwrap();
         assert_eq!(pattern.len(), 3);
-        assert!(matches!(
-            pattern.octets[0],
-            PatternOctet::Full([PatternNibble::Wildcard, PatternNibble::Wildcard])
-        ));
-        assert!(matches!(
-            pattern.octets[1],
-            PatternOctet::Full([PatternNibble::Exact(0), PatternNibble::Wildcard])
-        ));
-        assert!(matches!(
-            pattern.octets[2],
-            PatternOctet::Full([PatternNibble::Exact(0xF), PatternNibble::Exact(5)])
-        ));
+        assert!(matches!(pattern.octets[0], PatternOctet::Full([PatternNibble::Wildcard, PatternNibble::Wildcard])));
+        assert!(matches!(pattern.octets[1], PatternOctet::Full([PatternNibble::Exact(0), PatternNibble::Wildcard])));
+        assert!(matches!(pattern.octets[2], PatternOctet::Full([PatternNibble::Exact(0xF), PatternNibble::Exact(5)])));
 
         assert!(Pattern::from_str("?? ?? ?? ??").is_ok());
         assert!(Pattern::from_str("??").is_ok());

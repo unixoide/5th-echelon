@@ -190,11 +190,7 @@ impl List {
                 let username = unsafe { CString::from_raw(item.username) };
                 let id = id.into_string().map_err(anyhow::Error::from)?;
                 let username = username.into_string().map_err(anyhow::Error::from)?;
-                Ok(UplayFriend {
-                    id,
-                    username,
-                    is_online,
-                })
+                Ok(UplayFriend { id, username, is_online })
             })
             .collect()
     }

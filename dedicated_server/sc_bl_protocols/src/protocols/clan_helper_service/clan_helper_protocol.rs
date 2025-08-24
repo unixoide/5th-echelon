@@ -147,72 +147,56 @@ impl<T: ClanHelperProtocolServerTrait<CI>, CI> Protocol<CI> for ClanHelperProtoc
             Some(ClanHelperProtocolMethod::RemoveMemberByPid) => {
                 let req = RemoveMemberByPidRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .remove_member_by_pid(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.remove_member_by_pid(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(ClanHelperProtocolMethod::DisbandEntireClid) => {
                 let req = DisbandEntireClidRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .disband_entire_clid(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.disband_entire_clid(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(ClanHelperProtocolMethod::GetClanInfoByPid) => {
                 let req = GetClanInfoByPidRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_clan_info_by_pid(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_clan_info_by_pid(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(ClanHelperProtocolMethod::GetClanInfoByClid) => {
                 let req = GetClanInfoByClidRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_clan_info_by_clid(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_clan_info_by_clid(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(ClanHelperProtocolMethod::GetMemberListByPid) => {
                 let req = GetMemberListByPidRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_member_list_by_pid(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_member_list_by_pid(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(ClanHelperProtocolMethod::GetMemberListByClid) => {
                 let req = GetMemberListByClidRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_member_list_by_clid(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_member_list_by_clid(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(ClanHelperProtocolMethod::GenerateClanChallenges) => {
                 let req = GenerateClanChallengesRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .generate_clan_challenges(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.generate_clan_challenges(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
         }
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        ClanHelperProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        ClanHelperProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
@@ -226,12 +210,7 @@ pub trait ClanHelperProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<SetClanInfoResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "ClanHelperProtocol",
-            stringify!(set_clan_info)
-        );
+        warn!(logger, "Method {}.{} not implemented", "ClanHelperProtocol", stringify!(set_clan_info));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn add_pid_to_clid(
@@ -243,12 +222,7 @@ pub trait ClanHelperProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<AddPidToClidResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "ClanHelperProtocol",
-            stringify!(add_pid_to_clid)
-        );
+        warn!(logger, "Method {}.{} not implemented", "ClanHelperProtocol", stringify!(add_pid_to_clid));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn remove_member_by_pid(
@@ -260,12 +234,7 @@ pub trait ClanHelperProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<RemoveMemberByPidResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "ClanHelperProtocol",
-            stringify!(remove_member_by_pid)
-        );
+        warn!(logger, "Method {}.{} not implemented", "ClanHelperProtocol", stringify!(remove_member_by_pid));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn disband_entire_clid(
@@ -277,12 +246,7 @@ pub trait ClanHelperProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<DisbandEntireClidResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "ClanHelperProtocol",
-            stringify!(disband_entire_clid)
-        );
+        warn!(logger, "Method {}.{} not implemented", "ClanHelperProtocol", stringify!(disband_entire_clid));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_clan_info_by_pid(
@@ -294,12 +258,7 @@ pub trait ClanHelperProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetClanInfoByPidResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "ClanHelperProtocol",
-            stringify!(get_clan_info_by_pid)
-        );
+        warn!(logger, "Method {}.{} not implemented", "ClanHelperProtocol", stringify!(get_clan_info_by_pid));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_clan_info_by_clid(
@@ -311,12 +270,7 @@ pub trait ClanHelperProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetClanInfoByClidResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "ClanHelperProtocol",
-            stringify!(get_clan_info_by_clid)
-        );
+        warn!(logger, "Method {}.{} not implemented", "ClanHelperProtocol", stringify!(get_clan_info_by_clid));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_member_list_by_pid(
@@ -328,12 +282,7 @@ pub trait ClanHelperProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetMemberListByPidResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "ClanHelperProtocol",
-            stringify!(get_member_list_by_pid)
-        );
+        warn!(logger, "Method {}.{} not implemented", "ClanHelperProtocol", stringify!(get_member_list_by_pid));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_member_list_by_clid(
@@ -345,12 +294,7 @@ pub trait ClanHelperProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetMemberListByClidResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "ClanHelperProtocol",
-            stringify!(get_member_list_by_clid)
-        );
+        warn!(logger, "Method {}.{} not implemented", "ClanHelperProtocol", stringify!(get_member_list_by_clid));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn generate_clan_challenges(
@@ -362,12 +306,7 @@ pub trait ClanHelperProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GenerateClanChallengesResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "ClanHelperProtocol",
-            stringify!(generate_clan_challenges)
-        );
+        warn!(logger, "Method {}.{} not implemented", "ClanHelperProtocol", stringify!(generate_clan_challenges));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }
@@ -393,165 +332,44 @@ impl<CI> ClientProtocol<CI> for ClanHelperProtocolClient<CI> {
         9u32
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        ClanHelperProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        ClanHelperProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
 impl<CI> ClanHelperProtocolClient<CI> {
-    pub fn set_clan_info(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: SetClanInfoRequest,
-    ) -> Result<SetClanInfoResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "ClanHelperProtocol",
-            stringify!(set_clan_info)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            ClanHelperProtocolMethod::SetClanInfo as u32,
-            request.to_bytes(),
-        );
+    pub fn set_clan_info(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: SetClanInfoRequest) -> Result<SetClanInfoResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "ClanHelperProtocol", stringify!(set_clan_info));
+        self.send(logger, ctx, ci, ClanHelperProtocolMethod::SetClanInfo as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn add_pid_to_clid(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: AddPidToClidRequest,
-    ) -> Result<AddPidToClidResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "ClanHelperProtocol",
-            stringify!(add_pid_to_clid)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            ClanHelperProtocolMethod::AddPidToClid as u32,
-            request.to_bytes(),
-        );
+    pub fn add_pid_to_clid(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: AddPidToClidRequest) -> Result<AddPidToClidResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "ClanHelperProtocol", stringify!(add_pid_to_clid));
+        self.send(logger, ctx, ci, ClanHelperProtocolMethod::AddPidToClid as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn remove_member_by_pid(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: RemoveMemberByPidRequest,
-    ) -> Result<RemoveMemberByPidResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "ClanHelperProtocol",
-            stringify!(remove_member_by_pid)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            ClanHelperProtocolMethod::RemoveMemberByPid as u32,
-            request.to_bytes(),
-        );
+    pub fn remove_member_by_pid(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: RemoveMemberByPidRequest) -> Result<RemoveMemberByPidResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "ClanHelperProtocol", stringify!(remove_member_by_pid));
+        self.send(logger, ctx, ci, ClanHelperProtocolMethod::RemoveMemberByPid as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn disband_entire_clid(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: DisbandEntireClidRequest,
-    ) -> Result<DisbandEntireClidResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "ClanHelperProtocol",
-            stringify!(disband_entire_clid)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            ClanHelperProtocolMethod::DisbandEntireClid as u32,
-            request.to_bytes(),
-        );
+    pub fn disband_entire_clid(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: DisbandEntireClidRequest) -> Result<DisbandEntireClidResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "ClanHelperProtocol", stringify!(disband_entire_clid));
+        self.send(logger, ctx, ci, ClanHelperProtocolMethod::DisbandEntireClid as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn get_clan_info_by_pid(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetClanInfoByPidRequest,
-    ) -> Result<GetClanInfoByPidResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "ClanHelperProtocol",
-            stringify!(get_clan_info_by_pid)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            ClanHelperProtocolMethod::GetClanInfoByPid as u32,
-            request.to_bytes(),
-        );
+    pub fn get_clan_info_by_pid(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetClanInfoByPidRequest) -> Result<GetClanInfoByPidResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "ClanHelperProtocol", stringify!(get_clan_info_by_pid));
+        self.send(logger, ctx, ci, ClanHelperProtocolMethod::GetClanInfoByPid as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn get_clan_info_by_clid(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetClanInfoByClidRequest,
-    ) -> Result<GetClanInfoByClidResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "ClanHelperProtocol",
-            stringify!(get_clan_info_by_clid)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            ClanHelperProtocolMethod::GetClanInfoByClid as u32,
-            request.to_bytes(),
-        );
+    pub fn get_clan_info_by_clid(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetClanInfoByClidRequest) -> Result<GetClanInfoByClidResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "ClanHelperProtocol", stringify!(get_clan_info_by_clid));
+        self.send(logger, ctx, ci, ClanHelperProtocolMethod::GetClanInfoByClid as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn get_member_list_by_pid(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetMemberListByPidRequest,
-    ) -> Result<GetMemberListByPidResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "ClanHelperProtocol",
-            stringify!(get_member_list_by_pid)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            ClanHelperProtocolMethod::GetMemberListByPid as u32,
-            request.to_bytes(),
-        );
+    pub fn get_member_list_by_pid(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetMemberListByPidRequest) -> Result<GetMemberListByPidResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "ClanHelperProtocol", stringify!(get_member_list_by_pid));
+        self.send(logger, ctx, ci, ClanHelperProtocolMethod::GetMemberListByPid as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn get_member_list_by_clid(
@@ -561,19 +379,8 @@ impl<CI> ClanHelperProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: GetMemberListByClidRequest,
     ) -> Result<GetMemberListByClidResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "ClanHelperProtocol",
-            stringify!(get_member_list_by_clid)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            ClanHelperProtocolMethod::GetMemberListByClid as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "ClanHelperProtocol", stringify!(get_member_list_by_clid));
+        self.send(logger, ctx, ci, ClanHelperProtocolMethod::GetMemberListByClid as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn generate_clan_challenges(
@@ -583,19 +390,8 @@ impl<CI> ClanHelperProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: GenerateClanChallengesRequest,
     ) -> Result<GenerateClanChallengesResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "ClanHelperProtocol",
-            stringify!(generate_clan_challenges)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            ClanHelperProtocolMethod::GenerateClanChallenges as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "ClanHelperProtocol", stringify!(generate_clan_challenges));
+        self.send(logger, ctx, ci, ClanHelperProtocolMethod::GenerateClanChallenges as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }

@@ -62,10 +62,7 @@ pub fn serve_many(logger: &slog::Logger, addr: SocketAddr, files: &HashMap<Strin
         if let Some(path) = files.get(path) {
             let data = std::fs::read(path)?;
 
-            let resp = format!(
-                "HTTP/1.0 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {}\r\n\r\n",
-                data.len(),
-            );
+            let resp = format!("HTTP/1.0 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {}\r\n\r\n", data.len(),);
             debug!(logger, "Status 200");
             let mut resp = resp.into_bytes();
             resp.extend(data);

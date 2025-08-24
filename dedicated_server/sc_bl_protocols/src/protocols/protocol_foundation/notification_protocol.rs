@@ -65,18 +65,14 @@ impl<T: NotificationProtocolServerTrait<CI>, CI> Protocol<CI> for NotificationPr
             Some(NotificationProtocolMethod::ProcessNotificationEvent) => {
                 let req = ProcessNotificationEventRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .process_notification_event(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.process_notification_event(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
         }
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        NotificationProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        NotificationProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
@@ -90,12 +86,7 @@ pub trait NotificationProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<ProcessNotificationEventResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "NotificationProtocol",
-            stringify!(process_notification_event)
-        );
+        warn!(logger, "Method {}.{} not implemented", "NotificationProtocol", stringify!(process_notification_event));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }
@@ -121,9 +112,7 @@ impl<CI> ClientProtocol<CI> for NotificationProtocolClient<CI> {
         1u32
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        NotificationProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        NotificationProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
@@ -135,19 +124,8 @@ impl<CI> NotificationProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: ProcessNotificationEventRequest,
     ) -> Result<ProcessNotificationEventResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "NotificationProtocol",
-            stringify!(process_notification_event)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            NotificationProtocolMethod::ProcessNotificationEvent as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "NotificationProtocol", stringify!(process_notification_event));
+        self.send(logger, ctx, ci, NotificationProtocolMethod::ProcessNotificationEvent as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }

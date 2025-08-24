@@ -18,10 +18,7 @@ pub async fn try_locate_server(adapter: Option<(&str, IpAddr)>, adapters: &[(&st
         .map_err(|_| Error::TimedOut)?
 }
 
-async fn try_locate_server_inner(
-    adapter: Option<(&str, IpAddr)>,
-    adapters: &[(&str, IpAddr)],
-) -> Result<IpAddr, Error> {
+async fn try_locate_server_inner(adapter: Option<(&str, IpAddr)>, adapters: &[(&str, IpAddr)]) -> Result<IpAddr, Error> {
     if let Some((name, ip)) = adapter {
         info!("Trying to locate server through adapter {name} ({ip})");
         try_locate_server_from_ip(ip).await
@@ -69,8 +66,7 @@ async fn try_locate_server_from_ip(ip: IpAddr) -> Result<IpAddr, Error> {
     let mut buf = vec![0u8; 4096];
 
     let (n, peer) = socket.recv_from(&mut buf).await?;
-    let (syn_ack_pkt, _size) =
-        QPacket::from_bytes(&ctx, &buf[..n]).map_err(|e| std::io::Error::other(e.to_string()))?;
+    let (syn_ack_pkt, _size) = QPacket::from_bytes(&ctx, &buf[..n]).map_err(|e| std::io::Error::other(e.to_string()))?;
 
     if syn_ack_pkt.packet_type != PacketType::Syn || !syn_ack_pkt.flags.contains(PacketFlag::Ack) {
         return Err(Error::IO(std::io::Error::other("invalid syn ack")));

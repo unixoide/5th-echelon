@@ -100,11 +100,7 @@ where
 
     fn new_async(f: impl Future<Output = T> + Send + 'static) -> Self {
         Self::Handle(std::thread::spawn(move || {
-            tokio::runtime::Builder::new_current_thread()
-                .enable_all()
-                .build()
-                .unwrap()
-                .block_on(f)
+            tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap().block_on(f)
         }))
     }
 }
@@ -214,10 +210,7 @@ impl GameHook {
         self.background_search = BackgroundValue::Handle(std::thread::spawn(move || {
             hooks_addresses::search_patterns(&path)
                 .inspect_err(|e| println!("{e}"))
-                .map_or_else(
-                    |e| GameHookState::Failed(e.to_string()),
-                    |a| GameHookState::Resolved(Box::new(a)),
-                )
+                .map_or_else(|e| GameHookState::Failed(e.to_string()), |a| GameHookState::Resolved(Box::new(a)))
         }));
     }
 }
@@ -232,12 +225,10 @@ impl GameHooks {
     }
 
     fn has_only_unknown(&self) -> bool {
-        !self.games.values().any(|g| {
-            matches!(
-                g.state,
-                GameHookState::Resolved(_) | GameHookState::Ignored | GameHookState::Searching
-            )
-        })
+        !self
+            .games
+            .values()
+            .any(|g| matches!(g.state, GameHookState::Resolved(_) | GameHookState::Ignored | GameHookState::Searching))
     }
 
     fn is_searching(&self) -> bool {
@@ -291,13 +282,10 @@ fn load_game_binaries(target_dir: &Path) -> BackgroundValue<GameHooks> {
     let target_dir = target_dir.to_path_buf();
     BackgroundValue::Handle(std::thread::spawn(move || {
         GameHooks::new(
-            [
-                GameVersion::SplinterCellBlacklistDx9,
-                GameVersion::SplinterCellBlacklistDx11,
-            ]
-            .into_iter()
-            .map(|gv| (gv, GameHook::new(gv, target_dir.clone())))
-            .collect(),
+            [GameVersion::SplinterCellBlacklistDx9, GameVersion::SplinterCellBlacklistDx11]
+                .into_iter()
+                .map(|gv| (gv, GameHook::new(gv, target_dir.clone())))
+                .collect(),
         )
     }))
 }

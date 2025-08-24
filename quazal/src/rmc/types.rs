@@ -56,30 +56,19 @@ impl FromStr for StationURL {
             .ok_or(StationURLParseError::InvalidParameters)?;
 
         let address = params.remove("address").ok_or(StationURLParseError::MissingAddress)?;
-        let port = params
-            .remove("port")
-            .ok_or(StationURLParseError::MissingPort)?
-            .parse()?;
+        let port = params.remove("port").ok_or(StationURLParseError::MissingPort)?.parse()?;
 
-        Ok(Self {
-            scheme,
-            address,
-            port,
-            params,
-        })
+        Ok(Self { scheme, address, port, params })
     }
 }
 
 impl Display for StationURL {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let params = [
-            ("address", self.address.as_str()),
-            ("port", self.port.to_string().as_str()),
-        ]
-        .into_iter()
-        .chain(self.params.iter().map(|(k, v)| (k.as_str(), v.as_str())))
-        .map(|(k, v)| format!("{k}={v}"))
-        .collect::<Vec<_>>();
+        let params = [("address", self.address.as_str()), ("port", self.port.to_string().as_str())]
+            .into_iter()
+            .chain(self.params.iter().map(|(k, v)| (k.as_str(), v.as_str())))
+            .map(|(k, v)| format!("{k}={v}"))
+            .collect::<Vec<_>>();
         write!(f, "{}:/{}", self.scheme, params.join(";"))
     }
 }
@@ -155,9 +144,7 @@ pub struct ClassRegistry(HashMap<String, ClassFactory>);
 
 impl ClassRegistry {
     pub fn register_class<T: AnyClass + 'static>(&mut self, name: impl Into<String>) {
-        self.0.insert(name.into(), |data: &[u8]| {
-            T::from_bytes(data).map(|v| Box::new(v) as ClassPtr)
-        });
+        self.0.insert(name.into(), |data: &[u8]| T::from_bytes(data).map(|v| Box::new(v) as ClassPtr));
     }
 
     pub fn instantiate(&self, name: &str, data: &[u8]) -> Result<ClassPtr, Error> {
@@ -175,11 +162,7 @@ pub struct Any<V, K> {
 
 impl<V, K> Any<V, K> {
     pub fn new(type_name: K, data: Vec<u8>) -> Self {
-        Self {
-            type_name,
-            data,
-            pd: PhantomData,
-        }
+        Self { type_name, data, pd: PhantomData }
     }
 }
 
@@ -211,11 +194,7 @@ impl<V: std::fmt::Debug, K: FromStream> FromStream for Any<V, K> {
         let type_name = stream.read()?;
         let data: Vec<u8> = stream.read()?;
         let data = Vec::from_bytes(data.as_ref())?;
-        Ok(Self {
-            type_name,
-            data,
-            pd: PhantomData,
-        })
+        Ok(Self { type_name, data, pd: PhantomData })
     }
 }
 
@@ -232,9 +211,7 @@ impl Debug for DateTime {
         let year = self.0 >> 26;
         f.debug_tuple("DateTime")
             .field(&self.0)
-            .field(&format!(
-                "{year:04}-{month:02}-{day:02} {hour:02}:{minute:02}:{second:02}"
-            ))
+            .field(&format!("{year:04}-{month:02}-{day:02} {hour:02}:{minute:02}:{second:02}"))
             .finish()
     }
 }
@@ -353,11 +330,7 @@ impl TryFrom<Vec<&str>> for QList<StationURL> {
     type Error = StationURLParseError;
 
     fn try_from(vec: Vec<&str>) -> Result<Self, Self::Error> {
-        Ok(Self(
-            vec.into_iter()
-                .map(FromStr::from_str)
-                .collect::<Result<_, Self::Error>>()?,
-        ))
+        Ok(Self(vec.into_iter().map(FromStr::from_str).collect::<Result<_, Self::Error>>()?))
     }
 }
 
@@ -365,12 +338,7 @@ impl TryFrom<Vec<String>> for QList<StationURL> {
     type Error = StationURLParseError;
 
     fn try_from(vec: Vec<String>) -> Result<Self, Self::Error> {
-        Ok(Self(
-            vec.iter()
-                .map(String::as_str)
-                .map(FromStr::from_str)
-                .collect::<Result<_, Self::Error>>()?,
-        ))
+        Ok(Self(vec.iter().map(String::as_str).map(FromStr::from_str).collect::<Result<_, Self::Error>>()?))
     }
 }
 
@@ -496,8 +464,6 @@ mod tests {
         registry.register_class::<u32>("u32");
 
         let inst = registry.instantiate("u32", b"A");
-        assert!(
-            matches!(inst, Err(Error::ParsingFailed(FromStreamError::IO(e))) if e.kind() == std::io::ErrorKind::UnexpectedEof)
-        );
+        assert!(matches!(inst, Err(Error::ParsingFailed(FromStreamError::IO(e))) if e.kind() == std::io::ErrorKind::UnexpectedEof));
     }
 }

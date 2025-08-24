@@ -45,18 +45,8 @@ pub struct MyFriends {
 
 #[tonic::async_trait]
 impl Friends for MyFriends {
-    async fn invite(
-        &self,
-        request: Request<friends::InviteRequest>,
-    ) -> Result<Response<friends::InviteResponse>, Status> {
-        let sender: u32 = request
-            .metadata()
-            .get("user_id")
-            .unwrap()
-            .to_str()
-            .unwrap()
-            .parse()
-            .unwrap();
+    async fn invite(&self, request: Request<friends::InviteRequest>) -> Result<Response<friends::InviteResponse>, Status> {
+        let sender: u32 = request.metadata().get("user_id").unwrap().to_str().unwrap().parse().unwrap();
         debug!(self.logger, "Invite request: {:?} from {}", request, sender);
 
         let receiver = request.into_inner().id;
@@ -87,11 +77,7 @@ impl Friends for MyFriends {
             request,
             request.metadata().get("user_id").unwrap().to_str().unwrap()
         );
-        let users = self
-            .storage
-            .list_users_async()
-            .await
-            .map_err(|e| Status::internal(format!("{e}")))?;
+        let users = self.storage.list_users_async().await.map_err(|e| Status::internal(format!("{e}")))?;
         let friends = users
             .into_iter()
             .map(|u| Friend {
@@ -105,38 +91,20 @@ impl Friends for MyFriends {
     }
 }
 
-async fn check_token<T>(
-    logger: &Logger,
-    key: &Key,
-    storage: &Arc<Storage>,
-    mut req: Request<T>,
-) -> Result<Request<T>, Status> {
-    let token = req
-        .metadata()
-        .get("authorization")
-        .ok_or(Status::unauthenticated("Missing authorization"))?;
+async fn check_token<T>(logger: &Logger, key: &Key, storage: &Arc<Storage>, mut req: Request<T>) -> Result<Request<T>, Status> {
+    let token = req.metadata().get("authorization").ok_or(Status::unauthenticated("Missing authorization"))?;
 
-    let mut parts = token
-        .to_str()
-        .map_err(|_| Status::unauthenticated("Invalid token"))?
-        .split('.');
+    let mut parts = token.to_str().map_err(|_| Status::unauthenticated("Invalid token"))?.split('.');
     let c = parts.next().ok_or(Status::unauthenticated("Invalid token"))?;
     let n = parts.next().ok_or(Status::unauthenticated("Invalid token"))?;
     if parts.next().is_some() {
         return Err(Status::unauthenticated("Invalid token"));
     }
 
-    let c =
-        base64::decode(c, base64::Variant::UrlSafeNoPadding).map_err(|()| Status::unauthenticated("Invalid token"))?;
-    let n =
-        base64::decode(n, base64::Variant::UrlSafeNoPadding).map_err(|()| Status::unauthenticated("Invalid token"))?;
+    let c = base64::decode(c, base64::Variant::UrlSafeNoPadding).map_err(|()| Status::unauthenticated("Invalid token"))?;
+    let n = base64::decode(n, base64::Variant::UrlSafeNoPadding).map_err(|()| Status::unauthenticated("Invalid token"))?;
 
-    let user_id = secretbox::open(
-        &c,
-        &Nonce::from_slice(&n).ok_or(Status::unauthenticated("Invalid token"))?,
-        key,
-    )
-    .map_err(|()| Status::unauthenticated("Invalid token"))?;
+    let user_id = secretbox::open(&c, &Nonce::from_slice(&n).ok_or(Status::unauthenticated("Invalid token"))?, key).map_err(|()| Status::unauthenticated("Invalid token"))?;
 
     let user_id = std::str::from_utf8(&user_id).map_err(|_| Status::unauthenticated("Invalid user"))?;
 
@@ -153,10 +121,7 @@ async fn check_token<T>(
 
     debug!(logger, "Valid token for user {user_id}: {user}");
 
-    req.metadata_mut().insert(
-        "user_id",
-        user_id.parse().map_err(|_| Status::unauthenticated("Invalid user"))?,
-    );
+    req.metadata_mut().insert("user_id", user_id.parse().map_err(|_| Status::unauthenticated("Invalid user"))?);
 
     Ok(req)
 }
@@ -200,26 +165,17 @@ impl Users for MyUsers {
         }))
     }
 
-    async fn register(
-        &self,
-        request: Request<users::RegisterRequest>,
-    ) -> Result<Response<users::RegisterResponse>, Status> {
+    async fn register(&self, request: Request<users::RegisterRequest>) -> Result<Response<users::RegisterResponse>, Status> {
         let request = request.into_inner();
         let username = request.username;
         let password = request.password;
         let ubi_id = request.ubi_id;
 
-        let error = if let Err(err) = self
-            .storage
-            .register_user_async(&username, &password, Some(&ubi_id))
-            .await
-        {
+        let error = if let Err(err) = self.storage.register_user_async(&username, &password, Some(&ubi_id)).await {
             match err.downcast::<sqlx::Error>() {
                 Ok(sqlx::Error::Database(db_err)) => {
                     if db_err.is_unique_violation() {
-                        return Err(Status::already_exists(String::from(
-                            "Username already taken or Ubisoft ID already registered",
-                        )));
+                        return Err(Status::already_exists(String::from("Username already taken or Ubisoft ID already registered")));
                     }
                     return Err(Status::internal(db_err.to_string()));
                 }
@@ -243,14 +199,7 @@ pub struct MyMisc {
 #[tonic::async_trait]
 impl Misc for MyMisc {
     async fn event(&self, request: Request<misc::EventRequest>) -> Result<Response<misc::EventResponse>, Status> {
-        let user_id: u32 = request
-            .metadata()
-            .get("user_id")
-            .unwrap()
-            .to_str()
-            .unwrap()
-            .parse()
-            .unwrap();
+        let user_id: u32 = request.metadata().get("user_id").unwrap().to_str().unwrap().parse().unwrap();
 
         let Some(invite) = self.storage.take_invite_async(user_id).await.map_err(|e| {
             error!(self.logger, "Error getting latest invite for user: {e}");
@@ -281,13 +230,8 @@ impl Misc for MyMisc {
         }))
     }
 
-    async fn test_p2p(
-        &self,
-        request: Request<misc::TestP2pRequest>,
-    ) -> Result<Response<misc::TestP2pResponse>, Status> {
-        let mut client_addr = request
-            .remote_addr()
-            .ok_or(Status::failed_precondition("no client address"))?;
+    async fn test_p2p(&self, request: Request<misc::TestP2pRequest>) -> Result<Response<misc::TestP2pResponse>, Status> {
+        let mut client_addr = request.remote_addr().ok_or(Status::failed_precondition("no client address"))?;
         client_addr.set_port(13_000);
         let request = request.into_inner();
         let mut resp_data = b"P2P Test - ".to_vec();
@@ -305,10 +249,7 @@ impl Misc for MyMisc {
             return Err(Status::deadline_exceeded("client didn't response in time"));
         };
         let Ok(challenge): std::io::Result<Vec<u8>> = challenge else {
-            return Err(Status::unknown(format!(
-                "P2P communication failed: {}",
-                challenge.unwrap_err()
-            )));
+            return Err(Status::unknown(format!("P2P communication failed: {}", challenge.unwrap_err())));
         };
 
         Ok(Response::new(misc::TestP2pResponse { challenge }))
@@ -330,11 +271,7 @@ impl UsersAdmin for MyUsersAdmin {
 
         let mut users = vec![];
         for user in db_users {
-            let urls = self
-                .storage
-                .list_urls(user.id)
-                .await
-                .map_err(|e| Status::internal(format!("{e:?}")))?;
+            let urls = self.storage.list_urls(user.id).await.map_err(|e| Status::internal(format!("{e:?}")))?;
             let ips = urls
                 .into_iter()
                 .map(|u| u.parse::<StationURL>())
@@ -370,11 +307,7 @@ impl UsersAdmin for MyUsersAdmin {
             return Err(Status::not_found("User not found"));
         };
 
-        let urls = self
-            .storage
-            .list_urls(user.id)
-            .await
-            .map_err(|e| Status::internal(format!("{e:?}")))?;
+        let urls = self.storage.list_urls(user.id).await.map_err(|e| Status::internal(format!("{e:?}")))?;
         let ips = urls
             .into_iter()
             .map(|u| u.parse::<StationURL>())
@@ -451,19 +384,8 @@ impl GamesAdmin for MyGamesAdmin {
 
                     games::Game {
                         id: s.session_id,
-                        creator: s
-                            .participants
-                            .iter()
-                            .find(|p| p.user_id == s.creator_id)
-                            .unwrap()
-                            .name
-                            .clone(),
-                        participants: s
-                            .participants
-                            .into_iter()
-                            .filter(|p| p.user_id != s.creator_id)
-                            .map(|p| p.name)
-                            .collect(),
+                        creator: s.participants.iter().find(|p| p.user_id == s.creator_id).unwrap().name.clone(),
+                        participants: s.participants.into_iter().filter(|p| p.user_id != s.creator_id).map(|p| p.name).collect(),
                         game_type,
                     }
                 })
@@ -489,11 +411,8 @@ fn authenticated<S>(
     logger: Logger,
     key: Key,
     storage: Arc<Storage>,
-) -> tonic_async_interceptor::AsyncInterceptedService<
-    S,
-    impl tonic_async_interceptor::AsyncInterceptor<Future = impl Future<Output = Result<Request<()>, Status>> + Send>
-        + Clone,
-> {
+) -> tonic_async_interceptor::AsyncInterceptedService<S, impl tonic_async_interceptor::AsyncInterceptor<Future = impl Future<Output = Result<Request<()>, Status>> + Send> + Clone>
+{
     tonic_async_interceptor::AsyncInterceptedService::new(service, move |req: Request<()>| {
         let storage = Arc::clone(&storage);
         let logger = logger.clone();
@@ -508,18 +427,10 @@ fn authenticated<S>(
     })
 }
 
-fn preshared_authentication<S>(
-    service: S,
-    key: String,
-) -> tonic::service::interceptor::InterceptedService<S, impl tonic::service::Interceptor + Clone> {
+fn preshared_authentication<S>(service: S, key: String) -> tonic::service::interceptor::InterceptedService<S, impl tonic::service::Interceptor + Clone> {
     tonic::service::interceptor::InterceptedService::new(service, move |req: Request<()>| {
-        let header_value = req
-            .metadata()
-            .get("authorization")
-            .ok_or(Status::unauthenticated("Missing authorization"))?;
-        let token = header_value
-            .to_str()
-            .map_err(|_| Status::unauthenticated("Invalid token"))?;
+        let header_value = req.metadata().get("authorization").ok_or(Status::unauthenticated("Missing authorization"))?;
+        let token = header_value.to_str().map_err(|_| Status::unauthenticated("Invalid token"))?;
 
         if token == key {
             Ok(req)
@@ -621,10 +532,7 @@ pub async fn start_server(
                 }),
                 preshared.clone(),
             ))
-            .add_service(preshared_authentication(
-                GamesAdminServer::new(MyGamesAdmin { logger, storage }),
-                preshared,
-            ))
+            .add_service(preshared_authentication(GamesAdminServer::new(MyGamesAdmin { logger, storage }), preshared))
     } else {
         builder
     };

@@ -96,18 +96,8 @@ pub struct ClientMenu<'a> {
 }
 
 impl<'a> ClientMenu<'a> {
-    pub fn new(
-        cfg: Rc<RefCell<ConfigMut>>,
-        adapters: &'a [(String, IpAddr)],
-        system_dir: &'a Path,
-        game_versions: Rc<RefCell<BackgroundValue<GameHooks>>>,
-    ) -> Self {
-        let selected_profile = cfg
-            .borrow()
-            .profiles
-            .iter()
-            .position(|p| p.name == cfg.borrow().default_profile)
-            .unwrap_or_default();
+    pub fn new(cfg: Rc<RefCell<ConfigMut>>, adapters: &'a [(String, IpAddr)], system_dir: &'a Path, game_versions: Rc<RefCell<BackgroundValue<GameHooks>>>) -> Self {
+        let selected_profile = cfg.borrow().profiles.iter().position(|p| p.name == cfg.borrow().default_profile).unwrap_or_default();
         let profile_editor = ProfileEditor::new(Rc::clone(&cfg), adapters);
         let has_savegame = { cfg.borrow().hook_config.save.get_savegame_path(1).exists() };
         let preexisting_savegame = preexisting_savegame();
@@ -233,10 +223,7 @@ impl<'a> ClientMenu<'a> {
                     let game_versions: Vec<GameVersion> = hooks.iter_ready().map(|hook| hook.version).collect();
                     if self.selected_game_version.is_none() {
                         let dg = self.cfg.borrow().default_game;
-                        let selected_game_version = hooks
-                            .iter_ready()
-                            .position(|hook| hook.version == dg)
-                            .unwrap_or_default();
+                        let selected_game_version = hooks.iter_ready().position(|hook| hook.version == dg).unwrap_or_default();
                         self.selected_game_version = Some(selected_game_version);
                     }
                     if let Some(selected_game_version) = self.selected_game_version.as_mut() {
@@ -244,14 +231,8 @@ impl<'a> ClientMenu<'a> {
                             *selected_game_version = game_versions.len() - 1;
                         }
                         if !game_versions.is_empty() {
-                            ui.set_next_item_width(
-                                ui.calc_text_size(game_versions.last().unwrap().label())[0]
-                                    + unsafe { ui.style().frame_padding[0] * 2.0 }
-                                    + ui.frame_height(),
-                            );
-                            if ui.combo("###Game Version", selected_game_version, &game_versions, |gv| {
-                                std::borrow::Cow::Borrowed(gv.label())
-                            }) {
+                            ui.set_next_item_width(ui.calc_text_size(game_versions.last().unwrap().label())[0] + unsafe { ui.style().frame_padding[0] * 2.0 } + ui.frame_height());
+                            if ui.combo("###Game Version", selected_game_version, &game_versions, |gv| std::borrow::Cow::Borrowed(gv.label())) {
                                 self.cfg.borrow_mut().update(|cfg| {
                                     cfg.default_game = game_versions[*selected_game_version];
                                 });
@@ -268,10 +249,8 @@ impl<'a> ClientMenu<'a> {
                 if ui.button(format!("{} Diagnose", ICON_MAGNIFYING_GLASS)) {
                     let profile = &self.cfg.borrow().profiles[self.selected_profile];
                     let server = profile.server.clone();
-                    self.test_config_server = Some(BackgroundValue::new_async(async move {
-                        network::test_cfg_server(&server).await.err()
-                    }));
-                    
+                    self.test_config_server = Some(BackgroundValue::new_async(async move { network::test_cfg_server(&server).await.err() }));
+
                     ui.open_popup("###Diagnose");
                 }
             });
@@ -286,62 +265,41 @@ impl<'a> ClientMenu<'a> {
 
 impl ClientMenu<'_> {
     fn launch_login_is_testing(&self) -> bool {
-        !self
-            .launch_login_test
-            .as_ref()
-            .map(BackgroundValue::is_finished)
-            .unwrap_or(true)
+        !self.launch_login_test.as_ref().map(BackgroundValue::is_finished).unwrap_or(true)
     }
 
     fn launch_login_successful(&mut self) -> Option<String> {
-        if self
-            .launch_login_test
-            .as_mut()
-            .and_then(BackgroundValue::try_get)
-            .map(Result::is_ok)
-            .unwrap_or(false)
-        {
-            self.launch_login_test
-                .take()
-                .and_then(|mut bv| bv.try_take())
-                .and_then(Result::ok)
+        if self.launch_login_test.as_mut().and_then(BackgroundValue::try_get).map(Result::is_ok).unwrap_or(false) {
+            self.launch_login_test.take().and_then(|mut bv| bv.try_take()).and_then(Result::ok)
         } else {
             None
         }
     }
 
     fn launch_login_failed(&mut self) -> Option<&network::Error> {
-        self.launch_login_test
-            .as_mut()
-            .and_then(BackgroundValue::try_get)
-            .and_then(|r| r.as_ref().err())
+        self.launch_login_test.as_mut().and_then(BackgroundValue::try_get).and_then(|r| r.as_ref().err())
     }
 
     fn delete_profile_modal(&mut self, ui: &imgui::Ui) {
-        ui.modal_popup_config("Delete Profile##popup")
-            .always_auto_resize(true)
-            .build(|| {
-                ui.text(format!(
-                    "Delete profile {}?",
-                    self.cfg.borrow().profiles[self.profile_to_delete.unwrap()].name,
-                ));
-                if ui.button("Yes") {
-                    self.cfg.borrow_mut().update(|cfg| {
-                        cfg.profiles.remove(self.profile_to_delete.take().unwrap());
-                    });
-                    if self.cfg.borrow().profiles.is_empty() {
-                        self.selected_profile = 0;
-                    } else if self.selected_profile >= self.cfg.borrow().profiles.len() {
-                        self.selected_profile = self.cfg.borrow().profiles.len() - 1;
-                    }
+        ui.modal_popup_config("Delete Profile##popup").always_auto_resize(true).build(|| {
+            ui.text(format!("Delete profile {}?", self.cfg.borrow().profiles[self.profile_to_delete.unwrap()].name,));
+            if ui.button("Yes") {
+                self.cfg.borrow_mut().update(|cfg| {
+                    cfg.profiles.remove(self.profile_to_delete.take().unwrap());
+                });
+                if self.cfg.borrow().profiles.is_empty() {
+                    self.selected_profile = 0;
+                } else if self.selected_profile >= self.cfg.borrow().profiles.len() {
+                    self.selected_profile = self.cfg.borrow().profiles.len() - 1;
+                }
 
-                    ui.close_current_popup();
-                }
-                ui.same_line();
-                if ui.button("No") {
-                    ui.close_current_popup();
-                }
-            });
+                ui.close_current_popup();
+            }
+            ui.same_line();
+            if ui.button("No") {
+                ui.close_current_popup();
+            }
+        });
     }
 
     fn profiles_table(&mut self, ui: &imgui::Ui) {
@@ -437,9 +395,7 @@ impl ClientMenu<'_> {
             }
             table.end();
             if let Some(new_default_profile) = new_default_profile {
-                self.cfg
-                    .borrow_mut()
-                    .update(|cfg| cfg.default_profile = new_default_profile);
+                self.cfg.borrow_mut().update(|cfg| cfg.default_profile = new_default_profile);
             }
         }
     }
@@ -493,160 +449,160 @@ impl ClientMenu<'_> {
                 std::ptr::null_mut(),
             );
         }
-        ui.modal_popup_config(format!(
-            "Diagnosing {}###Diagnose",
-            self.cfg.borrow().profiles[self.selected_profile].name
-        ))
-        .always_auto_resize(true)
-        .build(|| {
-            if unsafe { SERVER_PROCESS.is_some() } {
-                ui.text_colored(YELLOW.to_rgba_f32s(),"WARNING:");
-                ui.same_line();
-                ui.text("If you're also running the server on this machine,\nthe following tests are not very reliable. Especially P2P");
-            }
-            if let Some(table) = ui.begin_table_with_flags("DiagnoseTable", 2, TableFlags::NO_CLIP)
-            {
-                ui.table_setup_column_with(TableColumnSetup {
-                    name: "",
-                    flags: TableColumnFlags::NO_CLIP
-                        | TableColumnFlags::NO_RESIZE
-                        | TableColumnFlags::WIDTH_FIXED,
-                    init_width_or_weight: ui.calc_text_size("Quazal Connection")[0],
-                    ..Default::default()
-                });
-
-                let profile = &self.cfg.borrow().profiles[self.selected_profile];
-                let api_server_url = profile.api_server_url().into_owned();
-                let api_url = profile.api_server_url().into_owned();
-                let api_port = api_url.port().unwrap_or(RPC_DEFAULT_PORT);
-                let quazal_port= QUAZAL_DEFAULT_PORT;
-                let server = profile.server.clone();
-                let username = profile.user.username.clone();
-                let password = profile.user.password.clone();
-
-                ui.table_next_row();
-                ui.table_next_column();
-                ui.text("Config Server");
-                ui.table_next_column();
-
-                if show_result(
-                    self.test_config_server.as_mut(),
-                    &[
-                        &format!("Make sure that TCP port `80` for the server at `{server}` is reachable"),
-                        // "In the server config, `listen` in `service.onlineconfig` should end in `:80`",
-                    ],) && self.test_rpc_login.is_none()
-                {
-                    let username = username.clone();
-                    let password = password.clone();
-                    self.test_rpc_login = Some(BackgroundValue::new_async(async move {
-                        crate::network::test_login(api_server_url.to_string(), &username, &password)
-                            .await
-                            .err()
-                    }));
-                }
-            
-                ui.table_next_row();
-                ui.table_next_column();
-                ui.text("RPC Connection");
-                ui.table_next_column();
-                if show_result(
-                    self.test_rpc_login.as_mut(),
-                    &[
-                        &format!("Make sure that the TCP port `{api_port}` for the server at `{server}` is reachable"),
-                        // &format!("In the server config, `api_server` should end in `:{api_port}`"),
-                        &format!("Verify that the password for the user `{username}` is correct"),
-                    ],
-                ) && self.test_quazal_login.is_none()
-                {
-                    let username = username.clone();
-                    let password = password.clone();
-                    let server = server.clone();
-                    self.test_quazal_login = Some(BackgroundValue::new_async(async move {
-                        network::test_quazal_login(&server, &username, &password)
-                            .await
-                            .err()
-                    }));
-                }
-                
-                ui.table_next_row();
-                ui.table_next_column();
-                ui.text("Quazal Connection");
-                ui.table_next_column();
-                if show_result(self.test_quazal_login.as_mut(), &[
-                    &format!("Make sure that the UDP port `{quazal_port}` for the server at `{server}` is reachable"),
-                    &format!("Make sure that you allow connections to UDP port `{QUAZAL_DEFAULT_LOCAL_PORT}` in your firewall"),
-                    // &format!("In the server config, `listen` in `service.sc_bl_auth` should end in `:{QUAZAL_DEFAULT_LOCAL_PORT}`"),
-                    &format!("Verify that the password for the user `{username}` is correct"),
-                ]) && self.test_p2p.is_none()
-                {
-                    let password = password.clone();
-                    self.test_p2p = Some(BackgroundValue::new_async(async move {
-                        network::test_p2p(api_url.to_string(), &username, &password).await.err()
-                    }));
-                }
-                ui.table_next_row();
-                ui.table_next_column();
-                ui.text("P2P Connection");
-                ui.table_next_column();
-                show_result(self.test_p2p.as_mut(), &[
-                    &format!("Make sure that you allow connections to UDP port `{P2P_DEFAULT_PORT}` in your firewall"),
-                    "`NOTE`: If you're currently in a game, the client can't perform this check.\nIn this case you can ignore the \"client did not respond in time\" error!",
-                    ]);
-                table.end();
-            }
-
-            if ui.button("Close") {
-                self.test_config_server.take();
-                self.test_rpc_login.take();
-                self.test_quazal_login.take();
-                self.test_p2p.take();
-                ui.close_current_popup();
-            }
-        });
-    }
-
-    fn import_savegame_modal(&mut self, ui: &imgui::Ui) {
-        ui.modal_popup_config("Import Savegame")
+        ui.modal_popup_config(format!("Diagnosing {}###Diagnose", self.cfg.borrow().profiles[self.selected_profile].name))
             .always_auto_resize(true)
             .build(|| {
-                ui.text("Looks like you don't have a 5th Echelon savegame yet.");
-                ui.text("Please choose one of the following options:");
-                if self.preexisting_savegame.is_some() {
-                    if ui.button("Import existing savegame") {
-                        import_save_game(
-                            &self.cfg.borrow().hook_config,
-                            self.preexisting_savegame.as_deref().unwrap(),
-                        );
-                        ui.close_current_popup();
-                    }
-                    if ui.is_item_hovered() {
-                        ui.tooltip_text("Imports your save game from the Ubisoft Launcher");
-                    }
+                if unsafe { SERVER_PROCESS.is_some() } {
+                    ui.text_colored(YELLOW.to_rgba_f32s(), "WARNING:");
                     ui.same_line();
+                    ui.text(
+                        "If you're also running the server on this machine,\n\
+the following tests are not very reliable. Especially P2P",
+                    );
                 }
-                if ui.button("Generate new savegame") {
-                    generate_save_game(&self.cfg.borrow().hook_config);
+                if let Some(table) = ui.begin_table_with_flags("DiagnoseTable", 2, TableFlags::NO_CLIP) {
+                    ui.table_setup_column_with(TableColumnSetup {
+                        name: "",
+                        flags: TableColumnFlags::NO_CLIP | TableColumnFlags::NO_RESIZE | TableColumnFlags::WIDTH_FIXED,
+                        init_width_or_weight: ui.calc_text_size("Quazal Connection")[0],
+                        ..Default::default()
+                    });
+
+                    let profile = &self.cfg.borrow().profiles[self.selected_profile];
+                    let api_server_url = profile.api_server_url().into_owned();
+                    let api_url = profile.api_server_url().into_owned();
+                    let api_port = api_url.port().unwrap_or(RPC_DEFAULT_PORT);
+                    let quazal_port = QUAZAL_DEFAULT_PORT;
+                    let server = profile.server.clone();
+                    let username = profile.user.username.clone();
+                    let password = profile.user.password.clone();
+
+                    ui.table_next_row();
+                    ui.table_next_column();
+                    ui.text("Config Server");
+                    ui.table_next_column();
+
+                    if show_result(
+                        self.test_config_server.as_mut(),
+                        &[
+                            &format!("Make sure that TCP port `80` for the server at `{server}` is reachable"),
+                            // "In the server config, `listen` in `service.onlineconfig` should end in `:80`",
+                        ],
+                    ) && self.test_rpc_login.is_none()
+                    {
+                        let username = username.clone();
+                        let password = password.clone();
+                        self.test_rpc_login = Some(BackgroundValue::new_async(async move {
+                            crate::network::test_login(api_server_url.to_string(), &username, &password).await.err()
+                        }));
+                    }
+
+                    ui.table_next_row();
+                    ui.table_next_column();
+                    ui.text("RPC Connection");
+                    ui.table_next_column();
+                    if show_result(
+                        self.test_rpc_login.as_mut(),
+                        &[
+                            &format!("Make sure that the TCP port `{api_port}` for the server at `{server}` is reachable"),
+                            // &format!("In the server config, `api_server` should end in `:{api_port}`"),
+                            &format!("Verify that the password for the user `{username}` is correct"),
+                        ],
+                    ) && self.test_quazal_login.is_none()
+                    {
+                        let username = username.clone();
+                        let password = password.clone();
+                        let server = server.clone();
+                        self.test_quazal_login = Some(BackgroundValue::new_async(
+                            async move { network::test_quazal_login(&server, &username, &password).await.err() },
+                        ));
+                    }
+
+                    ui.table_next_row();
+                    ui.table_next_column();
+                    ui.text("Quazal Connection");
+                    ui.table_next_column();
+                    if show_result(
+                        self.test_quazal_login.as_mut(),
+                        &[
+                            &format!("Make sure that the UDP port `{quazal_port}` for the server at `{server}` is reachable"),
+                            &format!(
+                                "Make sure that you allow connections to UDP port `{QUAZAL_DEFAULT_LOCAL_PORT}` \
+in your firewall"
+                            ),
+                            /*
+                                                &format!(
+                                                    "In the server config, `listen` in `service.sc_bl_auth` should end in \
+                            `:{QUAZAL_DEFAULT_LOCAL_PORT}`"
+                                                ),
+                                                */
+                            &format!("Verify that the password for the user `{username}` is correct"),
+                        ],
+                    ) && self.test_p2p.is_none()
+                    {
+                        let password = password.clone();
+                        self.test_p2p = Some(BackgroundValue::new_async(async move {
+                            network::test_p2p(api_url.to_string(), &username, &password).await.err()
+                        }));
+                    }
+                    ui.table_next_row();
+                    ui.table_next_column();
+                    ui.text("P2P Connection");
+                    ui.table_next_column();
+                    show_result(
+                        self.test_p2p.as_mut(),
+                        &[
+                            &format!("Make sure that you allow connections to UDP port `{P2P_DEFAULT_PORT}` in your firewall"),
+                            "`NOTE`: If you're currently in a game, the client can't perform this check.\n\
+In this case you can ignore the \"client did not respond in time\" error!",
+                        ],
+                    );
+                    table.end();
+                }
+
+                if ui.button("Close") {
+                    self.test_config_server.take();
+                    self.test_rpc_login.take();
+                    self.test_quazal_login.take();
+                    self.test_p2p.take();
                     ui.close_current_popup();
-                }
-                if ui.is_item_hovered() {
-                    ui.tooltip_text("Rank 5 + a little bit of cash");
-                }
-                ui.same_line();
-                if ui.button("Don't do anything") {
-                    ui.close_current_popup();
-                }
-                if ui.is_item_hovered() {
-                    ui.tooltip_text("Do a fresh start");
                 }
             });
     }
+
+    fn import_savegame_modal(&mut self, ui: &imgui::Ui) {
+        ui.modal_popup_config("Import Savegame").always_auto_resize(true).build(|| {
+            ui.text("Looks like you don't have a 5th Echelon savegame yet.");
+            ui.text("Please choose one of the following options:");
+            if self.preexisting_savegame.is_some() {
+                if ui.button("Import existing savegame") {
+                    import_save_game(&self.cfg.borrow().hook_config, self.preexisting_savegame.as_deref().unwrap());
+                    ui.close_current_popup();
+                }
+                if ui.is_item_hovered() {
+                    ui.tooltip_text("Imports your save game from the Ubisoft Launcher");
+                }
+                ui.same_line();
+            }
+            if ui.button("Generate new savegame") {
+                generate_save_game(&self.cfg.borrow().hook_config);
+                ui.close_current_popup();
+            }
+            if ui.is_item_hovered() {
+                ui.tooltip_text("Rank 5 + a little bit of cash");
+            }
+            ui.same_line();
+            if ui.button("Don't do anything") {
+                ui.close_current_popup();
+            }
+            if ui.is_item_hovered() {
+                ui.tooltip_text("Do a fresh start");
+            }
+        });
+    }
 }
 
-fn launch_game_test_first(
-    profile: &Profile,
-    launch_login_test: &mut Option<BackgroundNetwork<String>>,
-    _game_version: GameVersion,
-) {
+fn launch_game_test_first(profile: &Profile, launch_login_test: &mut Option<BackgroundNetwork<String>>, _game_version: GameVersion) {
     let server = profile.server.clone();
     let api_server_url = profile.api_server_url().into_owned();
     let username = profile.user.username.clone();
@@ -678,9 +634,7 @@ fn launch_game(profile_name: &str, cfg: &mut ConfigMut, game_version: GameVersio
         return;
     }
 
-    let child = std::process::Command::new(game_version.full_path(system_dir))
-        .spawn()
-        .unwrap();
+    let child = std::process::Command::new(game_version.full_path(system_dir)).spawn().unwrap();
     unsafe {
         CLIENT_PROCESS = Some(child);
     }
@@ -712,10 +666,7 @@ impl<'a> ProfileEditor<'a> {
             try_locate_server: Default::default(),
             hostname_cache: Default::default(),
             try_register: Default::default(),
-            search_text: AnimatedText::new(
-                &["Searching...", "Searching.", "Searching.."],
-                Duration::from_millis(200),
-            ),
+            search_text: AnimatedText::new(&["Searching...", "Searching.", "Searching.."], Duration::from_millis(200)),
             edit_existing: false,
             show_password: false,
             host_error: None,
@@ -763,11 +714,7 @@ impl<'a> ProfileEditor<'a> {
                     close_popup = true;
                 }
             }
-            let is_testing = !self
-                .add_profile_login_test
-                .as_ref()
-                .map(BackgroundValue::is_finished)
-                .unwrap_or(true);
+            let is_testing = !self.add_profile_login_test.as_ref().map(BackgroundValue::is_finished).unwrap_or(true);
             if close_popup {
                 ui.close_current_popup();
                 return true;
@@ -777,8 +724,7 @@ impl<'a> ProfileEditor<'a> {
                 let mut valid = true;
                 if let Some(profile) = self.profile.as_mut() {
                     ui.disabled(self.edit_existing, || {
-                        ui.input_text(format!("{} Profile Name", ICON_ADDRESS_CARD), &mut profile.name)
-                            .build();
+                        ui.input_text(format!("{} Profile Name", ICON_ADDRESS_CARD), &mut profile.name).build();
                         if ui.is_item_hovered() {
                             ui.tooltip_text("Provide a name for this profile");
                         }
@@ -788,23 +734,15 @@ impl<'a> ProfileEditor<'a> {
                         }
                     });
                     {
-                        let mut adapters = self
-                            .adapters
-                            .iter()
-                            .map(|(name, ip)| format!("{name} - {ip}"))
-                            .collect::<Vec<String>>();
+                        let mut adapters = self.adapters.iter().map(|(name, ip)| format!("{name} - {ip}")).collect::<Vec<String>>();
                         adapters.sort();
                         adapters.insert(0, String::from("Any adapter"));
-                        let mut selected_adapter = profile
-                            .adapter
-                            .as_ref()
-                            .and_then(|adapter| adapters.iter().position(|a| a == adapter))
-                            .unwrap_or(0);
+                        let mut selected_adapter = profile.adapter.as_ref().and_then(|adapter| adapters.iter().position(|a| a == adapter)).unwrap_or(0);
                         ui.combo_simple_string(format!("{} Adapter", ICON_PLUG), &mut selected_adapter, &adapters);
                         if ui.is_item_hovered() {
                             ui.tooltip_text(
                                 "Pin to a specific adapter.\n\
-                                Improves stability when attempting to join others",
+Improves stability when attempting to join others",
                             );
                         }
                         if selected_adapter == 0 {
@@ -814,10 +752,7 @@ impl<'a> ProfileEditor<'a> {
                         }
                     }
                     ui.disabled(!profile.server.is_empty(), || {
-                        if ui.button(format!(
-                            "{} Try to locate server automatically",
-                            ICON_MAGNIFYING_GLASS_LOCATION
-                        )) {
+                        if ui.button(format!("{} Try to locate server automatically", ICON_MAGNIFYING_GLASS_LOCATION)) {
                             info!("Trying to locate server automatically");
                             let adapter = profile
                                 .adapter
@@ -827,12 +762,8 @@ impl<'a> ProfileEditor<'a> {
                             let adapters = self.adapters.to_vec();
 
                             self.try_locate_server = Some(BackgroundValue::new_async(async move {
-                                let adapter: Option<(&str, IpAddr)> =
-                                    adapter.as_ref().map(|(name, ip)| (name.as_str(), *ip));
-                                let adapters = adapters
-                                    .iter()
-                                    .map(|(name, ip)| (name.as_str(), *ip))
-                                    .collect::<Vec<_>>();
+                                let adapter: Option<(&str, IpAddr)> = adapter.as_ref().map(|(name, ip)| (name.as_str(), *ip));
+                                let adapters = adapters.iter().map(|(name, ip)| (name.as_str(), *ip)).collect::<Vec<_>>();
                                 try_locate_server(adapter, &adapters).await
                             }));
                             ui.open_popup("Locate Server");
@@ -842,8 +773,7 @@ impl<'a> ProfileEditor<'a> {
                         }
                     });
                     {
-                        ui.input_text(format!("{} Server", ICON_SERVER), &mut profile.server)
-                            .build();
+                        ui.input_text(format!("{} Server", ICON_SERVER), &mut profile.server).build();
                         if ui.is_item_hovered() {
                             ui.tooltip_text("IP/Hostname of the server to join");
                         }
@@ -872,8 +802,7 @@ impl<'a> ProfileEditor<'a> {
                         }
                     }
                     {
-                        ui.input_text(format!("{} Username", ICON_PERSON), &mut profile.user.username)
-                            .build();
+                        ui.input_text(format!("{} Username", ICON_PERSON), &mut profile.user.username).build();
                         if ui.is_item_hovered() {
                             ui.tooltip_text("Your username");
                         }
@@ -898,9 +827,7 @@ impl<'a> ProfileEditor<'a> {
 
                         ui.checkbox("Use Different API Server", &mut different_api_server);
                         if different_api_server {
-                            let url = profile
-                                .api_server_url
-                                .get_or_insert(profile.api_server_url().into_owned());
+                            let url = profile.api_server_url.get_or_insert(profile.api_server_url().into_owned());
                             let mut url_text = url.to_string();
                             ui.input_text("API Server URL", &mut url_text).build();
                             if let Ok(url) = url::Url::parse(&url_text) {
@@ -913,11 +840,7 @@ impl<'a> ProfileEditor<'a> {
                             profile.api_server_url.take();
                         }
                     }
-                    valid = valid
-                        && !(profile.name.is_empty()
-                            || profile.server.is_empty()
-                            || profile.user.username.is_empty()
-                            || profile.user.password.is_empty());
+                    valid = valid && !(profile.name.is_empty() || profile.server.is_empty() || profile.user.username.is_empty() || profile.user.password.is_empty());
                 } else {
                     valid = false
                 };
@@ -931,9 +854,7 @@ impl<'a> ProfileEditor<'a> {
                             self.add_profile_login_test.take();
                             ui.open_popup("Try to register?");
                         }
-                        if let Some(Some(error)) =
-                            self.add_profile_login_test.as_mut().and_then(BackgroundValue::try_get)
-                        {
+                        if let Some(Some(error)) = self.add_profile_login_test.as_mut().and_then(BackgroundValue::try_get) {
                             ui.text_colored(RED.to_rgba_f32s(), error.to_string());
                         }
                     }
@@ -942,14 +863,10 @@ impl<'a> ProfileEditor<'a> {
                         let valid_ip = profile.server.is_empty() || profile.server.parse::<IpAddr>().is_ok();
                         let valid_hostname = profile.server.is_empty()
                             || valid_ip
-                            || *self.hostname_cache.entry(profile.server.clone()).or_insert_with(|| {
-                                format!("{}:0", profile.server)
-                                    .to_socket_addrs()
-                                    .ok()
-                                    .as_mut()
-                                    .and_then(Iterator::next)
-                                    .is_some()
-                            });
+                            || *self
+                                .hostname_cache
+                                .entry(profile.server.clone())
+                                .or_insert_with(|| format!("{}:0", profile.server).to_socket_addrs().ok().as_mut().and_then(Iterator::next).is_some());
                         if !valid_ip && !valid_hostname {
                             self.host_error = Some("Invalid server address".to_string());
                             return;
@@ -961,9 +878,7 @@ impl<'a> ProfileEditor<'a> {
                         let password = profile.user.password.clone();
 
                         self.add_profile_login_test = Some(BackgroundValue::new_async(async move {
-                            crate::network::test_login(api_server_url.to_string(), &username, &password)
-                                .await
-                                .err()
+                            crate::network::test_login(api_server_url.to_string(), &username, &password).await.err()
                         }));
                     }
                 });
@@ -996,51 +911,42 @@ impl<'a> ProfileEditor<'a> {
     }
 
     fn ask_register_modal(&mut self, ui: &imgui::Ui) {
-        ui.modal_popup_config("Try to register?")
-            .always_auto_resize(true)
-            .build(|| {
-                self.try_to_register_shown = true;
-                ui.text("User does not exist. Do you want to try to register?");
-                ui.disabled(self.try_register.is_some(), || {
-                    if ui.button("Yes") {
-                        let api_server_url = self.profile.as_ref().unwrap().api_server_url().into_owned();
-                        let username = self.profile.as_ref().unwrap().user.username.clone();
-                        let password = self.profile.as_ref().unwrap().user.password.clone();
-                        self.try_register = Some(BackgroundValue::new_async(async move {
-                            network::register(api_server_url.to_string(), &username, &password, &username)
-                                .await
-                                .err()
-                        }));
-                    }
-                    ui.same_line();
-                    if ui.button("No") {
-                        ui.close_current_popup();
-                    }
-                });
-                if let Some(res) = self.try_register.as_mut().and_then(BackgroundValue::try_get) {
-                    if let Some(err) = res {
-                        ui.text_colored(RED.to_rgba_f32s(), format!("{err}"));
-                    } else {
-                        ui.text_colored(GREEN.to_rgba_f32s(), "Successfully registered");
-                    }
-                    if ui.button("Close") {
-                        self.try_to_register_shown = false;
-                        self.try_register.take();
-                        ui.close_current_popup();
-                    }
+        ui.modal_popup_config("Try to register?").always_auto_resize(true).build(|| {
+            self.try_to_register_shown = true;
+            ui.text("User does not exist. Do you want to try to register?");
+            ui.disabled(self.try_register.is_some(), || {
+                if ui.button("Yes") {
+                    let api_server_url = self.profile.as_ref().unwrap().api_server_url().into_owned();
+                    let username = self.profile.as_ref().unwrap().user.username.clone();
+                    let password = self.profile.as_ref().unwrap().user.password.clone();
+                    self.try_register = Some(BackgroundValue::new_async(async move {
+                        network::register(api_server_url.to_string(), &username, &password, &username).await.err()
+                    }));
+                }
+                ui.same_line();
+                if ui.button("No") {
+                    ui.close_current_popup();
                 }
             });
+            if let Some(res) = self.try_register.as_mut().and_then(BackgroundValue::try_get) {
+                if let Some(err) = res {
+                    ui.text_colored(RED.to_rgba_f32s(), format!("{err}"));
+                } else {
+                    ui.text_colored(GREEN.to_rgba_f32s(), "Successfully registered");
+                }
+                if ui.button("Close") {
+                    self.try_to_register_shown = false;
+                    self.try_register.take();
+                    ui.close_current_popup();
+                }
+            }
+        });
     }
 
     fn locate_modal(&mut self, ui: &imgui::Ui) {
         ui.modal_popup_config("Locate Server")
             .resizable(false)
-            .always_auto_resize(
-                self.try_locate_server
-                    .as_mut()
-                    .and_then(BackgroundValue::try_get)
-                    .is_some(),
-            )
+            .always_auto_resize(self.try_locate_server.as_mut().and_then(BackgroundValue::try_get).is_some())
             .build(|| {
                 debug!("Popup opened");
                 if let Some(res) = self.try_locate_server.as_mut().and_then(BackgroundValue::try_get) {

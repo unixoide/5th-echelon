@@ -10,11 +10,7 @@ pub use rpc::test_login;
 
 pub async fn test_cfg_server(hostname: &str) -> Result<(), Error> {
     let url = format!("http://{hostname}/OnlineConfigService.svc/GetOnlineConfig");
-    let resp = reqwest::Client::new()
-        .get(url)
-        .send()
-        .await
-        .map_err(Error::ConfigServer)?;
+    let resp = reqwest::Client::new().get(url).send().await.map_err(Error::ConfigServer)?;
     resp.error_for_status().map_err(Error::ConfigServer)?;
     Ok(())
 }

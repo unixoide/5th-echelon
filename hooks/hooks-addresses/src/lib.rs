@@ -119,22 +119,14 @@ impl Addresses {
                 option2vec!(self.func_storm_statemachineaction_execute)
             }
             Hook::StormErrorFormatter => option2vec!(self.func_storm_some_error_formatter),
-            Hook::GearStrDestructor => option2vec!(
-                self.func_gear_str_destructor,
-                self.func_another_gear_str_destructor,
-                self.func_some_gear_str_constructor
-            ),
+            Hook::GearStrDestructor => option2vec!(self.func_gear_str_destructor, self.func_another_gear_str_destructor, self.func_some_gear_str_constructor),
             Hook::StormEventDispatcher => option2vec!(
                 self.func_storm_event_dispatch,
                 self.func_storm_event_dispatch2,
                 self.func_storm_event_maybe_queue_pop,
                 self.func_storm_event_handler
             ),
-            Hook::RMCMessages => option2vec!(
-                self.func_rmc_init_message,
-                self.func_rmc_add_method_id,
-                self.func_rmc_send_message
-            ),
+            Hook::RMCMessages => option2vec!(self.func_rmc_init_message, self.func_rmc_add_method_id, self.func_rmc_send_message),
             // dynamically found at runtime
             Hook::GetAdaptersInfo | Hook::Gethostbyname | Hook::StormPackets => Some(vec![]),
             #[cfg(feature = "modding")]
@@ -231,13 +223,13 @@ fn dx9_addresses() -> HashMap<[u8; 32], Addresses> {
 
     let dx9_hashes = [
         [
-            0x15, 0x8e, 0xfc, 0x5d, 0x9, 0x40, 0xfc, 0xaf, 0x3e, 0x4b, 0x16, 0x95, 0x2c, 0x8f, 0x88, 0x61, 0xe1, 0x60,
-            0x61, 0x50, 0x9d, 0x9e, 0xb8, 0xeb, 0x5f, 0xf4, 0xae, 0x32, 0x49, 0xbb, 0x5a, 0x5,
+            0x15, 0x8e, 0xfc, 0x5d, 0x9, 0x40, 0xfc, 0xaf, 0x3e, 0x4b, 0x16, 0x95, 0x2c, 0x8f, 0x88, 0x61, 0xe1, 0x60, 0x61, 0x50, 0x9d, 0x9e, 0xb8, 0xeb, 0x5f, 0xf4, 0xae, 0x32,
+            0x49, 0xbb, 0x5a, 0x5,
         ],
         // Same binary except of 2 bytes of the COFF header checksum?? (offset 0x1a9 and 0x1aa)
         [
-            0x7f, 0xcd, 0x3a, 0x18, 0xd4, 0xdc, 0xc6, 0x92, 0x71, 0x99, 0x84, 0xb0, 0x72, 0x68, 0xbd, 0x42, 0x76, 0x41,
-            0x8, 0xe7, 0xdf, 0x37, 0x4, 0x9f, 0x14, 0x90, 0xf2, 0x9, 0x29, 0xf9, 0x92, 0x5d,
+            0x7f, 0xcd, 0x3a, 0x18, 0xd4, 0xdc, 0xc6, 0x92, 0x71, 0x99, 0x84, 0xb0, 0x72, 0x68, 0xbd, 0x42, 0x76, 0x41, 0x8, 0xe7, 0xdf, 0x37, 0x4, 0x9f, 0x14, 0x90, 0xf2, 0x9,
+            0x29, 0xf9, 0x92, 0x5d,
         ],
         /*
         Byte Diffs :
@@ -324,8 +316,8 @@ fn dx9_addresses() -> HashMap<[u8; 32], Addresses> {
             019d8047    0x02       0x90
          */
         [
-            0xaf, 0x06, 0x72, 0x09, 0x45, 0x88, 0x04, 0xe6, 0xad, 0xce, 0xca, 0x43, 0x2b, 0x50, 0xfb, 0x25, 0x52, 0x08,
-            0x71, 0x6f, 0xb2, 0x30, 0x37, 0xe8, 0x25, 0x24, 0x4d, 0xbc, 0x9f, 0x3b, 0x19, 0x5c,
+            0xaf, 0x06, 0x72, 0x09, 0x45, 0x88, 0x04, 0xe6, 0xad, 0xce, 0xca, 0x43, 0x2b, 0x50, 0xfb, 0x25, 0x52, 0x08, 0x71, 0x6f, 0xb2, 0x30, 0x37, 0xe8, 0x25, 0x24, 0x4d, 0xbc,
+            0x9f, 0x3b, 0x19, 0x5c,
         ],
     ];
 
@@ -337,8 +329,8 @@ fn dx11_addresses() -> HashMap<[u8; 32], Addresses> {
 
     let dx11_hashes = [
         [
-            0xc6, 0xb9, 0xf3, 0x30, 0xfa, 0xc1, 0x41, 0x2f, 0x19, 0xf3, 0x2a, 0x6f, 0xd8, 0x6e, 0xdb, 0x4c, 0x66, 0x29,
-            0x1a, 0x69, 0x2, 0x61, 0x1e, 0x94, 0x33, 0xb9, 0xb0, 0xea, 0x65, 0x9e, 0xb4, 0xbc,
+            0xc6, 0xb9, 0xf3, 0x30, 0xfa, 0xc1, 0x41, 0x2f, 0x19, 0xf3, 0x2a, 0x6f, 0xd8, 0x6e, 0xdb, 0x4c, 0x66, 0x29, 0x1a, 0x69, 0x2, 0x61, 0x1e, 0x94, 0x33, 0xb9, 0xb0, 0xea,
+            0x65, 0x9e, 0xb4, 0xbc,
         ],
         /*
         Byte Diffs :
@@ -347,8 +339,8 @@ fn dx11_addresses() -> HashMap<[u8; 32], Addresses> {
             00400199    0x97       0x98
          */
         [
-            0xc5, 0x2b, 0x3d, 0x09, 0x27, 0x59, 0x1e, 0x47, 0x74, 0x24, 0xf3, 0x89, 0xff, 0x0b, 0x13, 0x14, 0xa3, 0x00,
-            0x93, 0x8e, 0x19, 0xce, 0x61, 0xa7, 0xb0, 0xa7, 0xbc, 0x09, 0xf8, 0x1c, 0x2c, 0x89,
+            0xc5, 0x2b, 0x3d, 0x09, 0x27, 0x59, 0x1e, 0x47, 0x74, 0x24, 0xf3, 0x89, 0xff, 0x0b, 0x13, 0x14, 0xa3, 0x00, 0x93, 0x8e, 0x19, 0xce, 0x61, 0xa7, 0xb0, 0xa7, 0xbc, 0x09,
+            0xf8, 0x1c, 0x2c, 0x89,
         ],
         /*
         Byte Diffs :
@@ -434,8 +426,8 @@ fn dx11_addresses() -> HashMap<[u8; 32], Addresses> {
 
          */
         [
-            0xb5, 0x21, 0xc4, 0xb0, 0x23, 0x62, 0x72, 0xe7, 0x3f, 0xcb, 0xf9, 0x35, 0xdb, 0x33, 0x80, 0xa8, 0x4b, 0x7c,
-            0x0f, 0xa9, 0x80, 0x47, 0x66, 0x43, 0x77, 0xdb, 0x1c, 0xda, 0xaf, 0xde, 0x06, 0x7f,
+            0xb5, 0x21, 0xc4, 0xb0, 0x23, 0x62, 0x72, 0xe7, 0x3f, 0xcb, 0xf9, 0x35, 0xdb, 0x33, 0x80, 0xa8, 0x4b, 0x7c, 0x0f, 0xa9, 0x80, 0x47, 0x66, 0x43, 0x77, 0xdb, 0x1c, 0xda,
+            0xaf, 0xde, 0x06, 0x7f,
         ],
     ];
 
@@ -524,9 +516,7 @@ pub fn load_custom_addresses(dir: &Path) -> HashMap<String, HashMap<[u8; 32], Ad
         Ok(out)
     };
 
-    let convert = |hm: HashMap<String, Addresses>| -> anyhow::Result<HashMap<[u8; 32], Addresses>> {
-        hm.into_iter().map(|(key, value)| Ok((dehex(key)?, value))).collect()
-    };
+    let convert = |hm: HashMap<String, Addresses>| -> anyhow::Result<HashMap<[u8; 32], Addresses>> { hm.into_iter().map(|(key, value)| Ok((dehex(key)?, value))).collect() };
 
     let build = || -> anyhow::Result<_> {
         Ok(HashMap::from([
@@ -567,12 +557,7 @@ fn save_builtin_addresses() {
     )
 }
 
-fn save_addresses_impl(
-    dir: &Path,
-    dx9: HashMap<[u8; 32], Addresses>,
-    dx11: HashMap<[u8; 32], Addresses>,
-    overwrite: bool,
-) {
+fn save_addresses_impl(dir: &Path, dx9: HashMap<[u8; 32], Addresses>, dx11: HashMap<[u8; 32], Addresses>, overwrite: bool) {
     let fname = "5th-echelon-addresses.json";
 
     let filepath = dir.join(fname);
@@ -674,17 +659,11 @@ pub fn get_from_path(filepath: &Path) -> Result<Addresses, Error> {
     let digest = hash_file(filepath);
 
     let game_map = build_game_map(filepath.parent().unwrap());
-    let game_map = game_map
-        .get(&file_name)
-        .ok_or(Error::UnknownBinary(file_name.clone()))?;
+    let game_map = game_map.get(&file_name).ok_or(Error::UnknownBinary(file_name.clone()))?;
 
     digest
         .ok()
-        .map(|digest| {
-            game_map
-                .get(&digest)
-                .ok_or(Error::BinaryMismatch(file_name.clone(), hex(digest)))
-        })
+        .map(|digest| game_map.get(&digest).ok_or(Error::BinaryMismatch(file_name.clone(), hex(digest))))
         .unwrap_or(Err(Error::BinaryMismatch(file_name, Default::default())))
         .cloned()
 }
@@ -693,43 +672,108 @@ fn find_subsequence(haystack: &[u8], needle: &[u8]) -> Option<usize> {
     haystack.windows(needle.len()).position(|window| window == needle)
 }
 
-static ONLINE_CLIENT_CFG_PATTERN: LazyLock<Pattern> = LazyLock::new(|| {
-    Pattern::from_str("A1 ?? ?? ?? ?? 50 8D 4? ?? 51 8B 0D ?? ?? ?? ?? 8D 5? ?? 52 8D 4? ?? 50 E8 ?? ?? ?? ??").unwrap()
-});
+static ONLINE_CLIENT_CFG_PATTERN: LazyLock<Pattern> =
+    LazyLock::new(|| Pattern::from_str("A1 ?? ?? ?? ?? 50 8D 4? ?? 51 8B 0D ?? ?? ?? ?? 8D 5? ?? 52 8D 4? ?? 50 E8 ?? ?? ?? ??").unwrap());
 
 static CMDLINE_PATTERN: LazyLock<Pattern> = LazyLock::new(|| {
-    Pattern::from_str(
-"68 ?? ?? ?? ?? E8 ?? ?? ?? ?? 83 C4 ?? A3 ?? ?? ?? ?? 3B FB 0F 85 ?? ?? ?? ?? 68 ?? ?? ?? ?? 8D 9? ?? ?? ?? ?? 53 52 C6 8? ?? ?? ?? ?? ??"
-)
-.unwrap()
+    Pattern::from_str("68 ?? ?? ?? ?? E8 ?? ?? ?? ?? 83 C4 ?? A3 ?? ?? ?? ?? 3B FB 0F 85 ?? ?? ?? ?? 68 ?? ?? ?? ?? 8D 9? ?? ?? ?? ?? 53 52 C6 8? ?? ?? ?? ?? ??").unwrap()
 });
 
 static HOOK_PATTERNS: LazyLock<Vec<(Hook, Vec<Pattern>)>> = LazyLock::new(|| {
     vec![
-        (Hook::Printer, vec![Pattern::from_str("55 8B EC 56 57 8B F1 E8 ?? ?? ?? ?? 8B 7D ?? 89 06 33 C0 C6 46 ?? ?? 89 46 ?? C7 46 ?? ?? ?? ?? ?? C7 46 ?? ?? ?? ?? ??").unwrap()]),
-        (Hook::LeaveState, vec![Pattern::from_str("55 8B EC 56 57 8B F1 8D 7E ?? 57 FF 15 ?? ?? ?? ?? 8B 4D ?? 8B 06").unwrap()]),
-        (Hook::NextState, vec![Pattern::from_str("55 8B EC 6A ?? 68 ?? ?? ?? ?? 64 A1 ?? ?? ?? ?? 50 83 EC ?? 53 56 57 A1 ?? ?? ?? ?? 33 C5 50 8D 45 ?? 64 A3 ?? ?? ?? ?? 8B F9 8B 45 ?? 33 DB 89 5D ?? 8B 08").unwrap()]),
-        (Hook::NetResultBase, vec![Pattern::from_str("55 8B EC 6A ?? 68 ?? ?? ?? ?? 64 A1 ?? ?? ?? ?? 50 51 56 A1 ?? ?? ?? ?? 33 C5 50 8D 45 ?? 64 A3 ?? ?? ?? ?? 8B C1 89 45 ?? 8B 4D ?? C7 00 ?? ?? ?? ?? 8B 11 89 50 ?? 8B 51 ?? 89 50 ?? C7 40 ?? ?? ?? ?? ?? C7 40 ?? ?? ?? ?? ?? 8B 51 ?? 85 D2 74 ?? BE ?? ?? ?? ?? F0 0F C1 32 8B 49 ?? 89 48 ?? EB ?? C7 40 ?? ?? ?? ?? ?? C7 45 ?? ?? ?? ?? ?? 8B 4D ??").unwrap()]),
+        (
+            Hook::Printer,
+            vec![Pattern::from_str("55 8B EC 56 57 8B F1 E8 ?? ?? ?? ?? 8B 7D ?? 89 06 33 C0 C6 46 ?? ?? 89 46 ?? C7 46 ?? ?? ?? ?? ?? C7 46 ?? ?? ?? ?? ??").unwrap()],
+        ),
+        (
+            Hook::LeaveState,
+            vec![Pattern::from_str("55 8B EC 56 57 8B F1 8D 7E ?? 57 FF 15 ?? ?? ?? ?? 8B 4D ?? 8B 06").unwrap()],
+        ),
+        (
+            Hook::NextState,
+            vec![Pattern::from_str(
+                "55 8B EC 6A ?? 68 ?? ?? ?? ?? 64 A1 ?? ?? ?? ?? 50 83 EC ?? 53 56 57 A1 ?? ?? ?? ?? 33 C5 50 8D 45 ?? 64 A3 ?? ?? ?? ?? 8B F9 8B 45 ?? 33 DB 89 \
+5D ?? 8B 08",
+            )
+            .unwrap()],
+        ),
+        (
+            Hook::NetResultBase,
+            vec![Pattern::from_str(
+                "55 8B EC 6A ?? 68 ?? ?? ?? ?? 64 A1 ?? ?? ?? ?? 50 51 56 A1 ?? ?? ?? ?? 33 C5 50 8D 45 ?? 64 A3 ?? ?? ?? ?? 8B C1 89 45 ?? \
+8B 4D ?? C7 00 ?? ?? ?? ?? 8B 11 89 50 ?? 8B 51 ?? 89 50 ?? C7 40 ?? ?? ?? ?? ?? C7 40 ?? ?? ?? ?? ?? 8B 51 ?? 85 D2 74 ?? BE ?? ?? ?? ?? F0 0F C1 32 8B 49 ?? 89 48 ?? EB ?? C7 \
+40 ?? ?? ?? ?? ?? C7 45 ?? ?? ?? ?? ?? 8B 4D ??",
+            )
+            .unwrap()],
+        ),
         (Hook::Goal, vec![]),
-        (Hook::SetStep, vec![Pattern::from_str("55 8B EC 83 EC ?? 56 8D 45 ?? 6A ?? 50 8B F1 E8 ?? ?? ?? ?? 8B 4D ?? 8B 55 ?? 8B 45 ??").unwrap()]),
+        (
+            Hook::SetStep,
+            vec![Pattern::from_str("55 8B EC 83 EC ?? 56 8D 45 ?? 6A ?? 50 8B F1 E8 ?? ?? ?? ?? 8B 4D ?? 8B 55 ?? 8B 45 ??").unwrap()],
+        ),
         (Hook::Thread, vec![Pattern::from_str("56 8B F1 8B 46 ?? C6 86 ?? ?? ?? ?? ?? 83 F8 ??").unwrap()]),
         (Hook::ChangeState, vec![Pattern::from_str("55 8B EC 56 8B F1 8B 4D ?? 8B 01 57 8B 3D ?? ?? ?? ??").unwrap()]),
-        (Hook::NetCore, vec![Pattern::from_str("55 8B EC 6A ?? 68 ?? ?? ?? ?? 64 A1 ?? ?? ?? ?? 50 83 EC ?? 53 56 57 A1 ?? ?? ?? ?? 33 C5 50 8D 45 ?? 64 A3 ?? ?? ?? ?? 8B F1 89 75 ?? E8 ?? ?? ?? ?? 33 DB 89 5D ?? 8D 8E ?? ?? ?? ?? C7 06 ?? ?? ?? ?? E8 ?? ?? ?? ??").unwrap()]),
+        (
+            Hook::NetCore,
+            vec![Pattern::from_str(
+                "55 8B EC 6A ?? 68 ?? ?? ?? ?? 64 A1 ?? ?? ?? ?? 50 83 EC ?? 53 56 57 A1 ?? ?? ?? ?? 33 C5 50 8D 45 ?? 64 A3 ?? ?? ?? ?? 8B F1 89 \
+75 ?? E8 ?? ?? ?? ?? 33 DB 89 5D ?? 8D 8E ?? ?? ?? ?? C7 06 ?? ?? ?? ?? E8 ?? ?? ?? ??",
+            )
+            .unwrap()],
+        ),
         (Hook::NetResultCore, vec![]),
         (Hook::NetResultSession, vec![]),
         (Hook::NetResultRdvSession, vec![]),
         (Hook::NetResultLobby, vec![]),
-        (Hook::StormHostPortToString, vec![Pattern::from_str("55 8B EC 83 EC ?? 53 56 6A ?? 8D 45 ?? 6A ??").unwrap()]),
-        (Hook::GenerateID, vec![Pattern::from_str("55 8B EC 8B 45 ?? 56 8B F1 85 C0 74 ?? 80 38 ?? 74 ?? 80 7D ?? ??").unwrap()]),
+        (
+            Hook::StormHostPortToString,
+            vec![Pattern::from_str("55 8B EC 83 EC ?? 53 56 6A ?? 8D 45 ?? 6A ??").unwrap()],
+        ),
+        (
+            Hook::GenerateID,
+            vec![Pattern::from_str("55 8B EC 8B 45 ?? 56 8B F1 85 C0 74 ?? 80 38 ?? 74 ?? 80 7D ?? ??").unwrap()],
+        ),
         (Hook::StormSetState, vec![Pattern::from_str("55 8B EC 8B 41 ?? 8B 55 ?? 85 C0 74 ?? 8B 40 ??").unwrap()]),
         (Hook::StormStateMachineActionExecute, vec![]),
-        (Hook::StormErrorFormatter, vec![Pattern::from_str("55 8B EC 83 EC ?? 56 8B F1 57 8D 4D ?? E8 ?? ?? ?? ?? 68 ?? ?? ?? ??").unwrap()]),
-        (Hook::GearStrDestructor, vec![Pattern::from_str("55 8B EC 56 57 8B F1 E8 ?? ?? ?? ?? 8B 7D ?? 89 06 33 C0 C6 46 ?? ?? 89 46 ?? C7 46 ?? ?? ?? ?? ?? C7 46 ?? ?? ?? ?? ??").unwrap()]),
-        (Hook::StormEventDispatcher, vec![Pattern::from_str("55 8B EC 51 53 56 57 8B F9 8D 4D ??").unwrap(), Pattern::from_str("55 8B EC 8B 89 ?? ?? ?? ?? 56 85 C9 74 ?? 80 79 ?? ?? 74 ?? 8B 45 ?? 8B 75 ?? 83 F8 ?? 75 ?? 68 ?? ?? ?? ?? 8B CE E8 ?? ?? ?? ?? 8B C6 5E 5D C2 ?? ?? 8B 55 ?? 52").unwrap(), Pattern::from_str("55 8B EC 83 EC ?? 53 56 8B F1 57 33 DB").unwrap(), Pattern::from_str("55 8B EC 8B 45 ?? 53 56 57 8B F1 85 C0 0F 84 ?? ?? ?? ??").unwrap()]),
-        (Hook::RMCMessages, vec![Pattern::from_str("55 8B EC 8B 45 ?? 8B 4D ?? 8B 55 ?? 50 51 52 E8 ?? ?? ?? ?? 83 C4 ?? 5D C3 CC CC CC CC CC CC CC C3").unwrap(), Pattern::from_str("55 8B EC 8B 4D ?? 6A ?? 6A ?? 8D 45 ?? 50 E8 ?? ?? ?? ?? 5D C3 CC CC CC CC CC CC CC CC CC CC CC 55 8B EC 51 8B 4D ??").unwrap(), Pattern::from_str("55 8B EC 83 EC ?? 53 8B 5D ?? 56 57 8B F9 85 DB 0F 84 ?? ?? ?? ?? 80 7F ?? ??").unwrap()]),
+        (
+            Hook::StormErrorFormatter,
+            vec![Pattern::from_str("55 8B EC 83 EC ?? 56 8B F1 57 8D 4D ?? E8 ?? ?? ?? ?? 68 ?? ?? ?? ??").unwrap()],
+        ),
+        (
+            Hook::GearStrDestructor,
+            vec![Pattern::from_str("55 8B EC 56 57 8B F1 E8 ?? ?? ?? ?? 8B 7D ?? 89 06 33 C0 C6 46 ?? ?? 89 46 ?? C7 46 ?? ?? ?? ?? ?? C7 46 ?? ?? ?? ?? ??").unwrap()],
+        ),
+        (
+            Hook::StormEventDispatcher,
+            vec![
+                Pattern::from_str("55 8B EC 51 53 56 57 8B F9 8D 4D ??").unwrap(),
+                Pattern::from_str(
+                    "55 8B EC 8B 89 ?? ?? ?? ?? 56 85 C9 74 ?? 80 79 \
+?? ?? 74 ?? 8B 45 ?? 8B 75 ?? 83 F8 ?? 75 ?? 68 ?? ?? ?? ?? 8B CE E8 ?? ?? ?? ?? 8B C6 5E 5D C2 ?? ?? 8B 55 ?? 52",
+                )
+                .unwrap(),
+                Pattern::from_str("55 8B EC 83 EC ?? 53 56 8B F1 57 33 DB").unwrap(),
+                Pattern::from_str("55 8B EC 8B 45 ?? 53 56 57 8B F1 85 C0 0F 84 ?? ?? ?? ??").unwrap(),
+            ],
+        ),
+        (
+            Hook::RMCMessages,
+            vec![
+                Pattern::from_str("55 8B EC 8B 45 ?? 8B 4D ?? 8B 55 ?? 50 51 52 E8 ?? ?? ?? ?? 83 C4 ?? 5D C3 CC CC CC CC CC CC CC C3").unwrap(),
+                Pattern::from_str("55 8B EC 8B 4D ?? 6A ?? 6A ?? 8D 45 ?? 50 E8 ?? ?? ?? ?? 5D C3 CC CC CC CC CC CC CC CC CC CC CC 55 8B EC 51 8B 4D ??").unwrap(),
+                Pattern::from_str("55 8B EC 83 EC ?? 53 8B 5D ?? 56 57 8B F9 85 DB 0F 84 ?? ?? ?? ?? 80 7F ?? ??").unwrap(),
+            ],
+        ),
         #[cfg(feature = "modding")]
-        (Hook::OverridePackaged, vec![Pattern::from_str("55 8B EC 6A ?? 68 ?? ?? ?? ?? 64 A1 ?? ?? ?? ?? 50 83 EC ?? 53 56 57 A1 ?? ?? ?? ?? 33 C5 50 8D 45 ?? 64 A3 ?? ?? ?? ?? 8B F1 8B 45 ?? 50 8D 4D ?? 51").unwrap()]),
-        ]
+        (
+            Hook::OverridePackaged,
+            vec![Pattern::from_str(
+                "55 8B EC 6A ?? 68 ?? ?? ?? ?? 64 A1 ?? ?? ?? ?? 50 83 EC ?? 53 56 57 A1 ?? ?? ?? ?? 33 C5 50 8D 45 ?? 64 A3 ?? ?? ?? ?? 8B F1 8B 45 ?? 50 8D \
+4D ?? 51",
+            )
+            .unwrap()],
+        ),
+    ]
 });
 
 pub fn search_patterns(filepath: &Path) -> Result<Addresses, Error> {
@@ -737,26 +781,14 @@ pub fn search_patterns(filepath: &Path) -> Result<Addresses, Error> {
 
     let pe = goblin::pe::PE::parse(&content).map_err(|_| std::io::Error::other("parsing failed"))?;
 
-    let rdata_section = pe
-        .sections
-        .iter()
-        .find(|s| &s.name == b".rdata\0\0")
-        .ok_or(std::io::Error::other("rdata not found"))?;
+    let rdata_section = pe.sections.iter().find(|s| &s.name == b".rdata\0\0").ok_or(std::io::Error::other("rdata not found"))?;
 
     let rdata_content = rdata_section
         .data(&content)
         .map_err(|_| std::io::Error::other("parsing failed"))?
         .ok_or(std::io::Error::other("parsing failed"))?;
-    let _data_section = pe
-        .sections
-        .iter()
-        .find(|s| &s.name == b".data\0\0\0")
-        .ok_or(std::io::Error::other("data not found"))?;
-    let text_section = pe
-        .sections
-        .iter()
-        .find(|s| &s.name == b".text\0\0\0")
-        .ok_or(std::io::Error::other("text not found"))?;
+    let _data_section = pe.sections.iter().find(|s| &s.name == b".data\0\0\0").ok_or(std::io::Error::other("data not found"))?;
+    let text_section = pe.sections.iter().find(|s| &s.name == b".text\0\0\0").ok_or(std::io::Error::other("text not found"))?;
 
     let text_content = text_section
         .data(&content)

@@ -116,10 +116,7 @@ impl Context {
     #[must_use]
     pub fn key(&self, stype: StreamType) -> u32 {
         let sum = || {
-            let key_sum = self
-                .access_key
-                .iter()
-                .fold(Wrapping(0u32), |acc, x| acc + Wrapping(u32::from(*x)));
+            let key_sum = self.access_key.iter().fold(Wrapping(0u32), |acc, x| acc + Wrapping(u32::from(*x)));
             key_sum.0
         };
 
@@ -172,12 +169,30 @@ impl Default for OnlineConfig {
                         name: "SandboxUrlWS".into(),
                         values: vec!["127.0.0.1:21126".into()],
                     },
-                    // OnlineConfigItem { name: "punch_DetectUrls".into(), values: vec!["b-prod-mm-detect01.ubisoft.com:11020".into(),"lb-prod-mm-detect02.ubisoft.com:11020".into()]},
-                    // OnlineConfigItem { name: "SandboxUrl".into(), values: vec!["prudp:/address=mdc-mm-rdv66.ubisoft.com;port=21170".into()]},
-                    // OnlineConfigItem { name: "SandboxUrlWS".into(), values: vec!["mdc-mm-rdv66.ubisoft.com:21170".into()]},
-                    // OnlineConfigItem { name: "uplay_DownloadServiceUrl".into(), values: vec!["https://secure.ubi.com/UplayServices/UplayFacade/DownloadServicesRESTXML.svc/REST/XML/?url=".into()]},
-                    // OnlineConfigItem { name: "uplay_DynContentBaseUrl".into(), values: vec!["http://static8.cdn.ubi.com/u/Uplay/".into()]},
-                    // OnlineConfigItem { name: "uplay_DynContentSecureBaseUrl".into(), values: vec!["http://static8.cdn.ubi.com/".into()]},
+                    // OnlineConfigItem {
+                    //     name: "punch_DetectUrls".into(),
+                    //     values: vec!["b-prod-mm-detect01.ubisoft.com:11020".into(), "lb-prod-mm-detect02.ubisoft.com:11020".into()],
+                    // },
+                    // OnlineConfigItem {
+                    //     name: "SandboxUrl".into(),
+                    //     values: vec!["prudp:/address=mdc-mm-rdv66.ubisoft.com;port=21170".into()],
+                    // },
+                    // OnlineConfigItem {
+                    //     name: "SandboxUrlWS".into(),
+                    //     values: vec!["mdc-mm-rdv66.ubisoft.com:21170".into()],
+                    // },
+                    // OnlineConfigItem {
+                    //     name: "uplay_DownloadServiceUrl".into(),
+                    //     values: vec!["https://secure.ubi.com/UplayServices/UplayFacade/DownloadServicesRESTXML.svc/REST/XML/?url=".into()],
+                    // },
+                    // OnlineConfigItem {
+                    //     name: "uplay_DynContentBaseUrl".into(),
+                    //     values: vec!["http://static8.cdn.ubi.com/u/Uplay/".into()],
+                    // },
+                    // OnlineConfigItem {
+                    //     name: "uplay_DynContentSecureBaseUrl".into(),
+                    //     values: vec!["http://static8.cdn.ubi.com/".into()],
+                    // },
                 ]),
             }
         }
@@ -302,11 +317,7 @@ impl<'de> Deserialize<'de> for Service {
 
         let v = Value::deserialize(deserializer)?;
         let t = v.get("type");
-        match t
-            .map(|v| Tag::deserialize(v.to_owned()))
-            .transpose()
-            .map_err(de::Error::custom)?
-        {
+        match t.map(|v| Tag::deserialize(v.to_owned())).transpose().map_err(de::Error::custom)? {
             Some(Tag::Authentication) => {
                 let inner = Context::deserialize(v).map_err(de::Error::custom)?;
                 Ok(Service::Authentication(inner))
@@ -352,20 +363,12 @@ impl Config {
         let Config { mut services, service } = self;
         let service_contexts = service
             .into_iter()
-            .filter_map(|(ref name, ctx)| {
-                if services.remove(name) {
-                    Some((name.to_string(), ctx))
-                } else {
-                    None
-                }
-            })
+            .filter_map(|(ref name, ctx)| if services.remove(name) { Some((name.to_string(), ctx)) } else { None })
             .collect();
         if services.is_empty() {
             Ok(service_contexts)
         } else {
-            Err(Error::ServiceNotFound(
-                services.into_iter().collect::<Vec<_>>().join("/"),
-            ))
+            Err(Error::ServiceNotFound(services.into_iter().collect::<Vec<_>>().join("/")))
         }
     }
 

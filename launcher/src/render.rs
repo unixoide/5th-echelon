@@ -30,11 +30,7 @@ static OLD_LOGO_PIXELS: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/old_lo
 pub const OLD_LOGO_WIDTH: i32 = 440;
 pub const OLD_LOGO_HEIGTH: i32 = 419;
 
-pub fn render(
-    initial_size: winit::dpi::LogicalSize<u32>,
-    mut imgui_context: imgui::Context,
-    mut do_render: impl FnMut(&mut imgui::Ui, f32, f32, imgui::TextureId),
-) {
+pub fn render(initial_size: winit::dpi::LogicalSize<u32>, mut imgui_context: imgui::Context, mut do_render: impl FnMut(&mut imgui::Ui, f32, f32, imgui::TextureId)) {
     let (event_loop, window, surface, context) = create_window(initial_size);
     let mut winit_platform = imgui_init(&window, &mut imgui_context);
 
@@ -84,8 +80,7 @@ pub fn render(
     };
 
     // OpenGL renderer from this crate
-    let mut ig_renderer =
-        imgui_glow_renderer::AutoRenderer::new(gl, &mut imgui_context).expect("failed to create renderer");
+    let mut ig_renderer = imgui_glow_renderer::AutoRenderer::new(gl, &mut imgui_context).expect("failed to create renderer");
     let _logo_texture = ig_renderer.texture_map_mut().register(logo_texture).unwrap();
     let old_logo_texture = ig_renderer.texture_map_mut().register(old_logo_texture).unwrap();
 
@@ -139,11 +134,7 @@ pub fn render(
                     ..
                 } => {
                     if new_size.width > 0 && new_size.height > 0 {
-                        surface.resize(
-                            &context,
-                            NonZeroU32::new(new_size.width).unwrap(),
-                            NonZeroU32::new(new_size.height).unwrap(),
-                        );
+                        surface.resize(&context, NonZeroU32::new(new_size.width).unwrap(), NonZeroU32::new(new_size.height).unwrap());
                     }
                     winit_platform.handle_event(imgui_context.io_mut(), &window, &event);
                 }
@@ -155,22 +146,16 @@ pub fn render(
         .expect("main event loop");
 }
 
-fn create_window(
-    initial_size: winit::dpi::LogicalSize<u32>,
-) -> (EventLoop<()>, Window, Surface<WindowSurface>, PossiblyCurrentContext) {
+fn create_window(initial_size: winit::dpi::LogicalSize<u32>) -> (EventLoop<()>, Window, Surface<WindowSurface>, PossiblyCurrentContext) {
     let event_loop = EventLoop::new().expect("event loop");
 
     let attr = Window::default_attributes()
         .with_title("5th Echelon - Launcher")
         .with_inner_size(initial_size)
-        .with_window_icon(
-            winit::window::Icon::from_rgba(LOGO_PIXELS.to_vec(), LOGO_WIDTH as u32, LOGO_HEIGTH as u32).ok(),
-        );
+        .with_window_icon(winit::window::Icon::from_rgba(LOGO_PIXELS.to_vec(), LOGO_WIDTH as u32, LOGO_HEIGTH as u32).ok());
     let (window, cfg) = glutin_winit::DisplayBuilder::new()
         .with_window_attributes(Some(attr))
-        .build(&event_loop, ConfigTemplateBuilder::new(), |mut configs| {
-            configs.next().unwrap()
-        })
+        .build(&event_loop, ConfigTemplateBuilder::new(), |mut configs| configs.next().unwrap())
         .expect("Failed to create OpenGL window");
 
     let window = window.unwrap();
@@ -178,28 +163,16 @@ fn create_window(
     #[allow(deprecated)]
     let raw_handle = window.raw_window_handle().expect("raw window handle");
     let context_attribs = ContextAttributesBuilder::new().build(Some(raw_handle));
-    let context = unsafe {
-        cfg.display()
-            .create_context(&cfg, &context_attribs)
-            .expect("Failed to create OpenGL context")
-    };
+    let context = unsafe { cfg.display().create_context(&cfg, &context_attribs).expect("Failed to create OpenGL context") };
 
-    let surface_attribs = SurfaceAttributesBuilder::<WindowSurface>::new()
-        .with_srgb(Some(true))
-        .build(
-            raw_handle,
-            NonZeroU32::new(initial_size.width).unwrap(),
-            NonZeroU32::new(initial_size.height).unwrap(),
-        );
-    let surface = unsafe {
-        cfg.display()
-            .create_window_surface(&cfg, &surface_attribs)
-            .expect("Failed to create OpenGL surface")
-    };
+    let surface_attribs = SurfaceAttributesBuilder::<WindowSurface>::new().with_srgb(Some(true)).build(
+        raw_handle,
+        NonZeroU32::new(initial_size.width).unwrap(),
+        NonZeroU32::new(initial_size.height).unwrap(),
+    );
+    let surface = unsafe { cfg.display().create_window_surface(&cfg, &surface_attribs).expect("Failed to create OpenGL surface") };
 
-    let context = context
-        .make_current(&surface)
-        .expect("Failed to make OpenGL context current");
+    let context = context.make_current(&surface).expect("Failed to make OpenGL context current");
 
     (event_loop, window, surface, context)
 }

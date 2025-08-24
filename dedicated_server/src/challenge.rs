@@ -25,9 +25,7 @@ impl<CI> ChallengeHelperProtocolServerTrait<CI> for ChallengeHelperProtocolServe
         _socket: &std::net::UdpSocket,
     ) -> Result<GenerateFriendChallengesResponse, Error> {
         login_required(&*ci)?;
-        Ok(GenerateFriendChallengesResponse {
-            result: QList::default(),
-        })
+        Ok(GenerateFriendChallengesResponse { result: QList::default() })
     }
 }
 

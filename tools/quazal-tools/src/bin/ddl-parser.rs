@@ -50,8 +50,7 @@ fn main() {
         .transpose()
         .expect("Couldn't parse id mapping");
 
-    let file_data =
-        fs::read(binary_path).unwrap_or_else(|e| panic!("Couldn\'t read {}: {}", binary_path.to_string_lossy(), e));
+    let file_data = fs::read(binary_path).unwrap_or_else(|e| panic!("Couldn\'t read {}: {}", binary_path.to_string_lossy(), e));
 
     println!("[*] Extracting and parsing DDL from {binary_path:?}");
     let magic_bytes = &MAGIC.to_be_bytes()[..];
@@ -73,10 +72,9 @@ fn main() {
             if id_mapping.is_some() {
                 for el in &mut namespace.elements {
                     if let Element::ProtocolDeclaration(p) = el {
-                        let id = id_mapping.as_ref().and_then(|m| {
-                            m.get(&format!("{}::{}", p.namespace, p.name1))
-                                .or_else(|| m.get(&p.name1))
-                        });
+                        let id = id_mapping
+                            .as_ref()
+                            .and_then(|m| m.get(&format!("{}::{}", p.namespace, p.name1)).or_else(|| m.get(&p.name1)));
                         p.id = id.copied();
                     }
                 }
@@ -92,11 +90,7 @@ fn main() {
 
     if let Some(output) = matches.value_of("output") {
         println!("[*] Writing parsed DDL to {output}");
-        serde_json::to_writer_pretty(
-            fs::File::create(output).expect("could not open output file"),
-            &namespaces,
-        )
-        .expect("error writing output");
+        serde_json::to_writer_pretty(fs::File::create(output).expect("could not open output file"), &namespaces).expect("error writing output");
     }
 
     if let Some(generate) = generate_dir {

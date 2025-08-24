@@ -161,18 +161,12 @@ impl Reader for UmdHeader {
 }
 
 impl UmdHeader {
-    fn read_pages<R: std::io::Read + std::io::Seek>(
-        &self,
-        reader: &mut R,
-        mut offset: u64,
-    ) -> std::io::Result<Vec<Page>> {
+    fn read_pages<R: std::io::Read + std::io::Seek>(&self, reader: &mut R, mut offset: u64) -> std::io::Result<Vec<Page>> {
         let mut page_reader = if self.table_size_compr.unwrap() > 0 {
             let mut table_compressed_data = vec![0u8; self.table_size_compr.unwrap() as usize];
             reader.read_exact(&mut table_compressed_data)?;
 
-            Box::new(flate2::read::ZlibDecoder::new(std::io::Cursor::new(
-                table_compressed_data,
-            ))) as Box<dyn std::io::Read>
+            Box::new(flate2::read::ZlibDecoder::new(std::io::Cursor::new(table_compressed_data))) as Box<dyn std::io::Read>
         } else {
             let mut table_data = vec![0u8; self.table_size_uncompr.unwrap() as usize];
             reader.read_exact(&mut table_data)?;
@@ -276,34 +270,17 @@ impl DirEntry {
             let a = &chunks[0];
             let b = &chunks[1];
             if a.original_offset > b.original_offset {
-                error!(
-                    "Chunks {} and {} are not sorted for {}: {:#x?} {:#x?}",
-                    i,
-                    i + 1,
-                    self.long_file_name,
-                    a,
-                    b
-                );
+                error!("Chunks {} and {} are not sorted for {}: {:#x?} {:#x?}", i, i + 1, self.long_file_name, a, b);
                 return false;
             }
             if a.original_offset + a.chunk_size > b.original_offset {
-                error!(
-                    "Chunks {} and {} overlap for {}: {:#x?} {:#x?}",
-                    i,
-                    i + 1,
-                    self.long_file_name,
-                    a,
-                    b
-                );
+                error!("Chunks {} and {} overlap for {}: {:#x?} {:#x?}", i, i + 1, self.long_file_name, a, b);
                 return false;
             }
         }
         if let Some(size) = self.chunks.last().map(|c| c.original_offset + c.chunk_size) {
             if size != self.file_size {
-                error!(
-                    "File size does not match chunk sizes for {}: {} != {}",
-                    self.long_file_name, self.file_size, size
-                );
+                error!("File size does not match chunk sizes for {}: {} != {}", self.long_file_name, self.file_size, size);
                 return false;
             }
         }
@@ -504,8 +481,7 @@ impl<R: std::io::Read + std::io::Seek> std::io::Read for UmdReader<R> {
 
         if self.loaded_pages < self.pages.len() {
             while pos >= self.buffer.len() || buf.len() > self.buffer.len() - pos {
-                self.buffer
-                    .extend(self.pages[self.loaded_pages].decompress(&mut self.reader)?);
+                self.buffer.extend(self.pages[self.loaded_pages].decompress(&mut self.reader)?);
                 self.loaded_pages += 1;
                 if self.loaded_pages >= self.pages.len() {
                     break;
@@ -514,15 +490,8 @@ impl<R: std::io::Read + std::io::Seek> std::io::Read for UmdReader<R> {
         }
         // looks like we're out of pages
         if pos > self.buffer.len() {
-            error!(
-                "All pages loaded, but current position is beyond the end of the buffer ({} > {})",
-                pos,
-                self.buffer.len()
-            );
-            return Err(std::io::Error::new(
-                std::io::ErrorKind::UnexpectedEof,
-                "Unexpected EOF. Missing pages",
-            ));
+            error!("All pages loaded, but current position is beyond the end of the buffer ({} > {})", pos, self.buffer.len());
+            return Err(std::io::Error::new(std::io::ErrorKind::UnexpectedEof, "Unexpected EOF. Missing pages"));
         }
 
         let len = std::cmp::min(buf.len(), self.buffer.len() - pos);
@@ -546,9 +515,7 @@ enum FileSystemEntryBuilder {
 impl From<FileSystemEntryBuilder> for FileSystemEntry {
     fn from(value: FileSystemEntryBuilder) -> Self {
         match value {
-            FileSystemEntryBuilder::Dir(name, entries) => {
-                Self::Dir(name, entries.into_values().map(|entry| entry.into()).collect())
-            }
+            FileSystemEntryBuilder::Dir(name, entries) => Self::Dir(name, entries.into_values().map(|entry| entry.into()).collect()),
             FileSystemEntryBuilder::File(name, entry) => Self::File(name, entry),
         }
     }
@@ -573,19 +540,13 @@ impl FileSystemEntry {
                     std::path::Component::ParentDir => fs_entry = &mut root,
                     std::path::Component::Normal(os_str) => {
                         let name = os_str.to_string_lossy().into_owned();
-                        let FileSystemEntryBuilder::Dir(_, entries) = fs_entry else {
-                            todo!()
-                        };
-                        let entry = entries
-                            .entry(name.clone())
-                            .or_insert_with(|| FileSystemEntryBuilder::Dir(name, HashMap::default()));
+                        let FileSystemEntryBuilder::Dir(_, entries) = fs_entry else { todo!() };
+                        let entry = entries.entry(name.clone()).or_insert_with(|| FileSystemEntryBuilder::Dir(name, HashMap::default()));
                         fs_entry = entry;
                     }
                 }
             }
-            let FileSystemEntryBuilder::Dir(_, entries) = fs_entry else {
-                todo!()
-            };
+            let FileSystemEntryBuilder::Dir(_, entries) = fs_entry else { todo!() };
             entries.insert(
                 last_component.as_os_str().to_string_lossy().into_owned(),
                 FileSystemEntryBuilder::File(last_component.as_os_str().to_string_lossy().into_owned(), entry),
@@ -614,19 +575,13 @@ impl FileSystemEntry {
                 clicked
             }
             FileSystemEntry::File(name, dir_entry) => {
-                let clicked = ui
-                    .tree_node_config(name)
-                    .leaf(true)
-                    .build(|| if ui.is_item_clicked() { Some(dir_entry) } else { None });
+                let clicked = ui.tree_node_config(name).leaf(true).build(|| if ui.is_item_clicked() { Some(dir_entry) } else { None });
                 ui.table_next_column();
                 ui.text(format!("{}", dir_entry.chunks.len()));
                 ui.table_next_column();
                 let sz_txt = human_size(dir_entry.file_size);
                 let pos = ui.cursor_pos();
-                let x = pos[0] + ui.column_width(1)
-                    - ui.calc_text_size(&sz_txt)[0]
-                    - ui.scroll_x()
-                    - 2.0 * unsafe { ui.style() }.item_spacing[0];
+                let x = pos[0] + ui.column_width(1) - ui.calc_text_size(&sz_txt)[0] - ui.scroll_x() - 2.0 * unsafe { ui.style() }.item_spacing[0];
                 if x > pos[0] {
                     ui.set_cursor_pos([x, pos[1]]);
                 }
@@ -644,8 +599,7 @@ impl FileSystemEntry {
         entries.sort_by(|a, b| match (a, b) {
             (FileSystemEntry::Dir(_, _), FileSystemEntry::File(_, _)) => std::cmp::Ordering::Less,
             (FileSystemEntry::File(_, _), FileSystemEntry::Dir(_, _)) => std::cmp::Ordering::Greater,
-            (FileSystemEntry::Dir(name, _), FileSystemEntry::Dir(name2, _))
-            | (FileSystemEntry::File(name, _), FileSystemEntry::File(name2, _)) => name.cmp(name2),
+            (FileSystemEntry::Dir(name, _), FileSystemEntry::Dir(name2, _)) | (FileSystemEntry::File(name, _), FileSystemEntry::File(name2, _)) => name.cmp(name2),
         });
         for entry in entries {
             entry.sort();
@@ -667,10 +621,7 @@ impl FileSystemEntry {
 }
 
 #[instrument]
-fn load(
-    umd_filepath: PathBuf,
-    dump_pages_out_path: Option<PathBuf>,
-) -> (String, UmdReader<std::fs::File>, FileSystemEntry) {
+fn load(umd_filepath: PathBuf, dump_pages_out_path: Option<PathBuf>) -> (String, UmdReader<std::fs::File>, FileSystemEntry) {
     info!("Loading {}", umd_filepath.display());
     let file_name = umd_filepath.file_name().unwrap().to_string_lossy().into_owned();
 
@@ -689,11 +640,7 @@ fn load(
     debug!(
         "Found {} files in archive: {}",
         files.len(),
-        files
-            .iter()
-            .map(|d| d.long_file_name.clone())
-            .collect::<Vec<_>>()
-            .join("\n")
+        files.iter().map(|d| d.long_file_name.clone()).collect::<Vec<_>>().join("\n")
     );
     let fs = FileSystemEntry::new(files);
     if !fs.check() {
@@ -783,11 +730,7 @@ fn main() {
                 let [w, h] = ui.window_content_region_max();
                 ui.text(format!("Loaded: {}", file_name));
                 ui.same_line();
-                ui.text(format!(
-                    "Uncompressed Size: {} ({})",
-                    reader.header.file_size,
-                    human_size(reader.header.file_size as u64)
-                ));
+                ui.text(format!("Uncompressed Size: {} ({})", reader.header.file_size, human_size(reader.header.file_size as u64)));
                 ui.same_line();
                 if ui.button("Export") {
                     export_archive(&fs, &mut reader);
@@ -850,20 +793,9 @@ fn main() {
                             dir_entry.chunks[0].uncompressed_offset,
                             reader.data_start + dir_entry.chunks[0].uncompressed_offset
                         ));
-                        ui.text(format!(
-                            "  Size: {} ({})",
-                            dir_entry.file_size,
-                            human_size(dir_entry.file_size)
-                        ));
+                        ui.text(format!("  Size: {} ({})", dir_entry.file_size, human_size(dir_entry.file_size)));
                         if content.len() != dir_entry.file_size as usize {
-                            ui.text_colored(
-                                [1.0, 0.0, 0.0, 1.0],
-                                format!(
-                                    "  Content Size: {} ({})",
-                                    content.len(),
-                                    human_size(content.len() as u64)
-                                ),
-                            );
+                            ui.text_colored([1.0, 0.0, 0.0, 1.0], format!("  Content Size: {} ({})", content.len(), human_size(content.len() as u64)));
                         }
                         content.convert();
                         let mut buf = content.to_string();
@@ -889,18 +821,10 @@ fn try_decode_utf16(content: &[u8]) -> Option<String> {
     }
     let bom = &content[0..2];
     if bom == [0xFE, 0xFF] {
-        let content = content
-            .chunks_exact(2)
-            .skip(1)
-            .map(|b| u16::from_ne_bytes([b[1], b[0]]))
-            .collect::<Vec<_>>();
+        let content = content.chunks_exact(2).skip(1).map(|b| u16::from_ne_bytes([b[1], b[0]])).collect::<Vec<_>>();
         String::from_utf16(content.as_slice()).ok()
     } else if bom == [0xFF, 0xFE] {
-        let content = content
-            .chunks_exact(2)
-            .skip(1)
-            .map(|b| u16::from_ne_bytes([b[0], b[1]]))
-            .collect::<Vec<_>>();
+        let content = content.chunks_exact(2).skip(1).map(|b| u16::from_ne_bytes([b[0], b[1]])).collect::<Vec<_>>();
         String::from_utf16(content.as_slice()).ok()
     } else {
         None

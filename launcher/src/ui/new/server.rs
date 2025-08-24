@@ -64,11 +64,7 @@ pub struct ServerMenu {
 
 impl ServerMenu {
     pub fn new(adapters: &[(String, IpAddr)]) -> Self {
-        let dedicated_server_path = std::env::current_exe()
-            .unwrap()
-            .parent()
-            .unwrap()
-            .join("dedicated_server.exe");
+        let dedicated_server_path = std::env::current_exe().unwrap().parent().unwrap().join("dedicated_server.exe");
         let dedicated_server_cfg_path = dedicated_server_path.parent().unwrap().join("service.toml");
         let dedicated_server_log_path = dedicated_server_path.parent().unwrap().join("server.log.json");
 
@@ -104,9 +100,7 @@ impl ServerMenu {
             .service
             .values()
             .find_map(|svc| match svc {
-                quazal::Service::Secure(context) | quazal::Service::Authentication(context) => {
-                    context.secure_server_addr
-                }
+                quazal::Service::Secure(context) | quazal::Service::Authentication(context) => context.secure_server_addr,
                 quazal::Service::Config(_) => None,
                 quazal::Service::Content(_) => None,
             })
@@ -124,10 +118,7 @@ impl ServerMenu {
             users: None,
             selected_log_level: LogLevel::Info as _,
             games: None,
-            download_text: AnimatedText::new(
-                &["Downloading...", "Downloading..", "Downloading"],
-                Duration::from_millis(200),
-            ),
+            download_text: AnimatedText::new(&["Downloading...", "Downloading..", "Downloading"], Duration::from_millis(200)),
             public_ip,
             download_progress: Arc::new(AtomicUsize::new(0)),
             downloader: None,
@@ -156,22 +147,16 @@ impl ServerMenu {
                         error!("Dedicated server release not found");
                         return;
                     };
-                    <crate::updater::Updater>::download_with_progress(asset, &dedicated_server_path, progress.as_ref())
-                        .await;
+                    <crate::updater::Updater>::download_with_progress(asset, &dedicated_server_path, progress.as_ref()).await;
                 }));
                 ui.open_popup("Download Server");
             }
             return true;
-        } else if let Some((Some(latest_version), ref server_version)) =
-            self.latest_version.try_get().zip(self.server_version)
-        {
+        } else if let Some((Some(latest_version), ref server_version)) = self.latest_version.try_get().zip(self.server_version) {
             if latest_version > server_version {
                 ui.text_colored(
                     YELLOW.to_rgba_f32s(),
-                    format!(
-                        "Dedicated server outdated (current: {}, latest: {})",
-                        server_version, latest_version
-                    ),
+                    format!("Dedicated server outdated (current: {}, latest: {})", server_version, latest_version),
                 );
                 if ui.button("Download") {
                     let progress = self.download_progress.clone();
@@ -182,12 +167,7 @@ impl ServerMenu {
                             error!("Dedicated server release not found");
                             return;
                         };
-                        <crate::updater::Updater>::download_with_progress(
-                            asset,
-                            &dedicated_server_path,
-                            progress.as_ref(),
-                        )
-                        .await;
+                        <crate::updater::Updater>::download_with_progress(asset, &dedicated_server_path, progress.as_ref()).await;
                     }));
                     ui.open_popup("Download Server");
                 }
@@ -200,11 +180,7 @@ impl ServerMenu {
             }
         }
 
-        let mut ips = self
-            .adapters
-            .iter()
-            .map(|(name, ip)| format!("{ip} ({name})"))
-            .collect::<Vec<_>>();
+        let mut ips = self.adapters.iter().map(|(name, ip)| format!("{ip} ({name})")).collect::<Vec<_>>();
         ips.insert(0, String::from("All IPs"));
         ui.combo_simple_string("IP to listen on", &mut self.selected_ip, &ips);
 
@@ -298,9 +274,7 @@ impl ServerMenu {
                 quazal::Service::Content(content_server) => content_server.listen.set_ip(ip),
             }
         }
-        self.server_config
-            .save_to_file(&self.dedicated_server_cfg_path)
-            .unwrap();
+        self.server_config.save_to_file(&self.dedicated_server_cfg_path).unwrap();
     }
 
     fn start_server(&mut self) {
@@ -327,17 +301,8 @@ impl ServerMenu {
     }
 
     fn log_table(&mut self, ui: &imgui::Ui) {
-        let log_levels = [
-            LogLevel::Trace,
-            LogLevel::Debug,
-            LogLevel::Info,
-            LogLevel::Warn,
-            LogLevel::Error,
-            LogLevel::Critical,
-        ];
-        ui.combo("Min Log Level", &mut self.selected_log_level, &log_levels, |lvl| {
-            Cow::Owned(lvl.to_string())
-        });
+        let log_levels = [LogLevel::Trace, LogLevel::Debug, LogLevel::Info, LogLevel::Warn, LogLevel::Error, LogLevel::Critical];
+        ui.combo("Min Log Level", &mut self.selected_log_level, &log_levels, |lvl| Cow::Owned(lvl.to_string()));
         if ui.button(format!("{ICON_REPEAT}")) || self.logs.is_none() {
             self.logs = load_logs(&self.dedicated_server_log_path, log_levels[self.selected_log_level])
                 .inspect_err(|e| {
@@ -566,23 +531,20 @@ impl ServerMenu {
     }
 
     fn download_server_modal(&mut self, ui: &imgui::Ui) {
-        ui.modal_popup_config("Download Server")
-            .resizable(false)
-            .movable(false)
-            .build(|| {
-                if let Some(()) = self.downloader.as_mut().and_then(BackgroundValue::try_take) {
-                    ui.close_current_popup();
-                    self.downloader.take();
-                    self.server_version = if self.dedicated_server_path.exists() {
-                        crate::dll_utils::get_dll_version(&self.dedicated_server_path).ok()
-                    } else {
-                        None
-                    };
-                }
-                self.download_text.update();
-                ui.text(self.download_text.text());
-                ProgressBar::new(self.download_progress.load(Ordering::Relaxed) as f32 / 100.0).build(ui);
-            });
+        ui.modal_popup_config("Download Server").resizable(false).movable(false).build(|| {
+            if let Some(()) = self.downloader.as_mut().and_then(BackgroundValue::try_take) {
+                ui.close_current_popup();
+                self.downloader.take();
+                self.server_version = if self.dedicated_server_path.exists() {
+                    crate::dll_utils::get_dll_version(&self.dedicated_server_path).ok()
+                } else {
+                    None
+                };
+            }
+            self.download_text.update();
+            ui.text(self.download_text.text());
+            ProgressBar::new(self.download_progress.load(Ordering::Relaxed) as f32 / 100.0).build(ui);
+        });
     }
 
     pub fn server_version(&self) -> Option<Version> {
@@ -652,44 +614,24 @@ fn load_logs(path: &PathBuf, min_level: LogLevel) -> anyhow::Result<Vec<LogItem>
 
 async fn users_admin_client(
     api_server_url: String,
-) -> anyhow::Result<
-    users::users_admin_client::UsersAdminClient<
-        tonic::service::interceptor::InterceptedService<Channel, impl tonic::service::Interceptor>,
-    >,
-> {
-    let channel = tonic::transport::Channel::from_shared(api_server_url)?
-        .connect()
-        .await?;
+) -> anyhow::Result<users::users_admin_client::UsersAdminClient<tonic::service::interceptor::InterceptedService<Channel, impl tonic::service::Interceptor>>> {
+    let channel = tonic::transport::Channel::from_shared(api_server_url)?.connect().await?;
 
-    Ok(users::users_admin_client::UsersAdminClient::with_interceptor(
-        channel,
-        |mut req: Request<()>| {
-            req.metadata_mut()
-                .insert("authorization", unsafe { ADMIN_TOKEN.parse().unwrap() });
-            Ok(req)
-        },
-    ))
+    Ok(users::users_admin_client::UsersAdminClient::with_interceptor(channel, |mut req: Request<()>| {
+        req.metadata_mut().insert("authorization", unsafe { ADMIN_TOKEN.parse().unwrap() });
+        Ok(req)
+    }))
 }
 
 async fn games_admin_client(
     api_server_url: String,
-) -> anyhow::Result<
-    games::games_admin_client::GamesAdminClient<
-        tonic::service::interceptor::InterceptedService<Channel, impl tonic::service::Interceptor>,
-    >,
-> {
-    let channel = tonic::transport::Channel::from_shared(api_server_url)?
-        .connect()
-        .await?;
+) -> anyhow::Result<games::games_admin_client::GamesAdminClient<tonic::service::interceptor::InterceptedService<Channel, impl tonic::service::Interceptor>>> {
+    let channel = tonic::transport::Channel::from_shared(api_server_url)?.connect().await?;
 
-    Ok(games::games_admin_client::GamesAdminClient::with_interceptor(
-        channel,
-        |mut req: Request<()>| {
-            req.metadata_mut()
-                .insert("authorization", unsafe { ADMIN_TOKEN.parse().unwrap() });
-            Ok(req)
-        },
-    ))
+    Ok(games::games_admin_client::GamesAdminClient::with_interceptor(channel, |mut req: Request<()>| {
+        req.metadata_mut().insert("authorization", unsafe { ADMIN_TOKEN.parse().unwrap() });
+        Ok(req)
+    }))
 }
 
 async fn load_users(api_server_url: String) -> anyhow::Result<Vec<User>> {

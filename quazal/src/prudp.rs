@@ -42,9 +42,7 @@ pub struct ClientRegistry<T> {
 impl<T> ClientRegistry<T> {
     #[must_use]
     pub fn client_by_connection_id(&self, conn_id: ConnectionID) -> Option<&RefCell<ClientInfo<T>>> {
-        self.connection_id_session_ids
-            .get(&conn_id)
-            .and_then(|sig| self.clients.get(&sig.0))
+        self.connection_id_session_ids.get(&conn_id).and_then(|sig| self.clients.get(&sig.0))
     }
 }
 
@@ -97,24 +95,13 @@ where
 
     pub fn bind<A: net::ToSocketAddrs>(&mut self, addrs: A) -> io::Result<()> {
         self.socket = Some(net::UdpSocket::bind(addrs)?);
-        info!(
-            self.logger,
-            "Listening on {}",
-            self.socket.as_ref().unwrap().local_addr().unwrap()
-        );
+        info!(self.logger, "Listening on {}", self.socket.as_ref().unwrap().local_addr().unwrap());
         Ok(())
     }
 
     pub fn serve(mut self) {
-        let socket = self
-            .socket
-            .as_ref()
-            .expect("UDP socket required")
-            .try_clone()
-            .expect("Couldn't clone socket");
-        socket
-            .set_read_timeout(Some(Duration::from_secs(1)))
-            .expect("error setting read timeout");
+        let socket = self.socket.as_ref().expect("UDP socket required").try_clone().expect("Couldn't clone socket");
+        socket.set_read_timeout(Some(Duration::from_secs(1))).expect("error setting read timeout");
         let mut buf = vec![0u8; 1024];
         'outer: loop {
             let (nread, client) = match socket.recv_from(&mut buf) {
@@ -149,11 +136,7 @@ where
                     continue;
                 };
 
-                self.handle_packet(
-                    &logger.new(o!("seq" => packet.sequence, "session" => packet.session_id)),
-                    packet,
-                    client,
-                );
+                self.handle_packet(&logger.new(o!("seq" => packet.sequence, "session" => packet.session_id)), packet, client);
             }
         }
     }
@@ -246,15 +229,9 @@ where
         } else {
             packet.payload
         };
-        let resp = self.registry.handle_packet(
-            &logger,
-            self.ctx,
-            ci,
-            &packet.destination,
-            &payload,
-            &self.client_registry,
-            self.socket.as_ref().unwrap(),
-        );
+        let resp = self
+            .registry
+            .handle_packet(&logger, self.ctx, ci, &packet.destination, &payload, &self.client_registry, self.socket.as_ref().unwrap());
         match resp {
             Some(Ok(payload)) => {
                 let chunks = payload.chunks(MAX_PAYLOAD_SIZE);
@@ -311,7 +288,8 @@ where
         ci.server_session = rand::random();
         ci.client_session = packet.session_id;
 
-        let ci = /* if false {
+        /*
+        let ci = if false {
             // this doesn't work with the borrow checker
             let ci = match self.clients.entry(packet.signature) {
                 Entry::Occupied(mut e) => {
@@ -321,7 +299,13 @@ where
                 Entry::Vacant(e) => e.insert(ci),
             };
             &*ci
-        } else */ {
+        } else {
+            self.client_registry.clients.insert(packet.signature, RefCell::new(ci));
+            let ci = self.client_registry.clients.get(&packet.signature).unwrap();
+            ci
+        };
+        */
+        let ci = {
             self.client_registry.clients.insert(packet.signature, RefCell::new(ci));
             let ci = self.client_registry.clients.get(&packet.signature).unwrap();
             ci
@@ -351,7 +335,8 @@ where
                 let id = next_conn_id.fetch_add(1, std::sync::atomic::Ordering::AcqRel);
                 ci.borrow_mut().user_id.replace(ti.principle_id);
                 ci.borrow_mut().connection_id.replace(ConnectionID(id));
-                // .replace(ConnectionID(rand::random::<u16>() as u32 & 0x7FFF_FFFFu32)); // clear highest bit as the game sometimes uses signed ints instead of unsigned
+                // clear highest bit as the game sometimes uses signed ints instead of unsigned
+                // .replace(ConnectionID(rand::random::<u16>() as u32 & 0x7FFF_FFFFu32));
                 cids.insert(ci.borrow().connection_id.unwrap(), Signature(packet.signature));
                 let data = crypt_key(ti.session_key.as_ref(), &request_data);
 
@@ -385,33 +370,15 @@ where
         info!(logger, "New client connected"; "signature" => packet.signature, "session" => packet.session_id);
     }
 
-    fn send_response(
-        &self,
-        logger: &Logger,
-        src: &SocketAddr,
-        resp: QPacket,
-        ci: &mut ClientInfo<T>,
-    ) -> Result<usize, Box<dyn std::error::Error>> {
+    fn send_response(&self, logger: &Logger, src: &SocketAddr, resp: QPacket, ci: &mut ClientInfo<T>) -> Result<usize, Box<dyn std::error::Error>> {
         send_response(logger, self.ctx, src, self.socket.as_ref().unwrap(), resp, ci)
     }
 
-    fn send_packet(
-        &self,
-        logger: &Logger,
-        src: &SocketAddr,
-        resp: QPacket,
-    ) -> Result<usize, Box<dyn std::error::Error>> {
+    fn send_packet(&self, logger: &Logger, src: &SocketAddr, resp: QPacket) -> Result<usize, Box<dyn std::error::Error>> {
         send_packet(logger, self.ctx, src, self.socket.as_ref().unwrap(), resp)
     }
 
-    fn send_ack(
-        &self,
-        logger: &Logger,
-        src: &SocketAddr,
-        packet: &QPacket,
-        ci: &ClientInfo<T>,
-        keep_payload: bool,
-    ) -> Result<usize, Box<dyn std::error::Error>> {
+    fn send_ack(&self, logger: &Logger, src: &SocketAddr, packet: &QPacket, ci: &ClientInfo<T>, keep_payload: bool) -> Result<usize, Box<dyn std::error::Error>> {
         let mut resp = packet.clone();
         resp.source = packet.destination;
         resp.destination = packet.source;
@@ -427,11 +394,11 @@ where
 
     fn clear_clients(&mut self) {
         let now = Instant::now();
-        for (_, ci) in self.client_registry.clients.extract_if(|_k, v| {
-            v.try_borrow()
-                .map(|ci| (now - ci.last_seen) > SESSION_TIMEOUT)
-                .unwrap_or(false)
-        }) {
+        for (_, ci) in self
+            .client_registry
+            .clients
+            .extract_if(|_k, v| v.try_borrow().map(|ci| (now - ci.last_seen) > SESSION_TIMEOUT).unwrap_or(false))
+        {
             if let Some(handler) = self.expired_client_handler.as_mut() {
                 let ci = ci.into_inner();
                 if let Some(conn_id) = ci.connection_id {
@@ -479,13 +446,7 @@ pub fn send_request<T>(
     send_packet(logger, ctx, src, socket, req)
 }
 
-pub(crate) fn send_packet(
-    logger: &Logger,
-    ctx: &Context,
-    src: &SocketAddr,
-    socket: &UdpSocket,
-    mut resp: QPacket,
-) -> Result<usize, Box<dyn std::error::Error>> {
+pub(crate) fn send_packet(logger: &Logger, ctx: &Context, src: &SocketAddr, socket: &UdpSocket, mut resp: QPacket) -> Result<usize, Box<dyn std::error::Error>> {
     if matches!(resp.packet_type, PacketType::Data) {
         resp.use_compression = true;
         if resp.fragment_id.is_none() {

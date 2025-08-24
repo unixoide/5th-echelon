@@ -36,17 +36,9 @@ impl Profile {
     pub fn api_server_url(&self) -> Cow<url::Url> {
         self.api_server_url.as_ref().map(Cow::Borrowed).unwrap_or_else(|| {
             Cow::Owned(
-                format!(
-                    "http://{}:{}",
-                    if self.server.is_empty() {
-                        "localhost"
-                    } else {
-                        &self.server
-                    },
-                    RPC_DEFAULT_PORT
-                )
-                .parse()
-                .unwrap(),
+                format!("http://{}:{}", if self.server.is_empty() { "localhost" } else { &self.server }, RPC_DEFAULT_PORT)
+                    .parse()
+                    .unwrap(),
             )
         })
     }

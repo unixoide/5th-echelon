@@ -45,10 +45,8 @@ fn embed_dll() {
         .arg("json");
 
     if is_release {
-        cmd.arg("--release").env(
-            "RUSTFLAGS",
-            "-Zremap-cwd-prefix=. --remap-path-prefix=$(PWD)=/ -Clink-arg=/PDBALTPATH:%_PDB%",
-        );
+        cmd.arg("--release")
+            .env("RUSTFLAGS", "-Zremap-cwd-prefix=. --remap-path-prefix=$(PWD)=/ -Clink-arg=/PDBALTPATH:%_PDB%");
     }
 
     let results = String::from_utf8(cmd.output().unwrap().stdout).unwrap();
@@ -108,10 +106,7 @@ fn embed_dll() {
 
     let mut in_file = fs::File::open(dll_path).unwrap();
     let mut out_file = fs::File::create(payload_path).unwrap();
-    let params = BrotliEncoderParams {
-        quality: 5,
-        ..Default::default()
-    };
+    let params = BrotliEncoderParams { quality: 5, ..Default::default() };
     brotli::BrotliCompress(&mut in_file, &mut out_file, &params).unwrap();
 }
 

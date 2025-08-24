@@ -20,12 +20,7 @@ fn show_msgbox(msg: &str, caption: &str) {
     let msg = CString::new(msg).unwrap();
     let caption = CString::new(caption).unwrap();
     unsafe {
-        MessageBoxA(
-            None,
-            PCSTR(msg.as_ptr().cast::<u8>()),
-            PCSTR(caption.as_ptr().cast::<u8>()),
-            MB_OK,
-        );
+        MessageBoxA(None, PCSTR(msg.as_ptr().cast::<u8>()), PCSTR(caption.as_ptr().cast::<u8>()), MB_OK);
     }
 }
 
@@ -34,10 +29,7 @@ fn catch_panics() {
     std::panic::set_hook(Box::new(|panic_info| {
         let mut expl = String::new();
 
-        let message = match (
-            panic_info.payload().downcast_ref::<&str>(),
-            panic_info.payload().downcast_ref::<String>(),
-        ) {
+        let message = match (panic_info.payload().downcast_ref::<&str>(), panic_info.payload().downcast_ref::<String>()) {
             (Some(s), _) => Some((*s).to_string()),
             (_, Some(s)) => Some(s.to_string()),
             (None, None) => None,
@@ -49,11 +41,7 @@ fn catch_panics() {
         };
 
         match panic_info.location() {
-            Some(location) => expl.push_str(&format!(
-                "Panic occurred in file '{}' at line {}",
-                location.file(),
-                location.line()
-            )),
+            Some(location) => expl.push_str(&format!("Panic occurred in file '{}' at line {}", location.file(), location.line())),
             None => expl.push_str("Panic location unknown."),
         }
         let msg = format!("{}\n{}", expl, cause);

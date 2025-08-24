@@ -57,9 +57,7 @@ fn derive_struct(data: DataStruct, ident: &Ident, _attrs: &[Attribute]) -> proc_
         }
     };
 
-    let (skipped_fields, fields): (Vec<_>, Vec<_>) = fields
-        .into_iter()
-        .partition(|f| f.attrs.iter().any(|a| a.path().is_ident("skip")));
+    let (skipped_fields, fields): (Vec<_>, Vec<_>) = fields.into_iter().partition(|f| f.attrs.iter().any(|a| a.path().is_ident("skip")));
 
     let (field_names, tokens): (Vec<Ident>, Vec<TokenStream>) = fields
         .into_iter()
@@ -82,10 +80,7 @@ fn derive_struct(data: DataStruct, ident: &Ident, _attrs: &[Attribute]) -> proc_
                 let Some(GenericArgument::Type(Type::Path(ty))) = ty.first() else {
                     return Some((name, error(span, "not supported")));
                 };
-                let ty_name = Ident::new(
-                    &ty.path.segments.first().unwrap().ident.to_string().to_lowercase(),
-                    ty.span(),
-                );
+                let ty_name = Ident::new(&ty.path.segments.first().unwrap().ident.to_string().to_lowercase(), ty.span());
                 let ty_name = translate_type(ty_name);
                 let count_type = f.attrs.into_iter().find_map(|attr| {
                     if attr.path().is_ident("count") {
@@ -115,10 +110,7 @@ fn derive_struct(data: DataStruct, ident: &Ident, _attrs: &[Attribute]) -> proc_
                 let Some(GenericArgument::Type(Type::Path(ty))) = ty.first() else {
                     return Some((name, error(span, "not supported")));
                 };
-                let ty_name = Ident::new(
-                    &ty.path.segments.first().unwrap().ident.to_string().to_lowercase(),
-                    ty.span(),
-                );
+                let ty_name = Ident::new(&ty.path.segments.first().unwrap().ident.to_string().to_lowercase(), ty.span());
                 let ty_name = translate_type(ty_name);
                 quote! {
                     boxed(#ty_name)
@@ -198,19 +190,9 @@ fn derive_enum(data: &DataEnum, ident: &Ident, attrs: &[Attribute]) -> proc_macr
         let value: u64 = match d {
             Expr::Lit(ref l) => match l.lit {
                 Lit::Int(ref i) => i.base10_parse().expect("number"),
-                _ => {
-                    return (
-                        func_name,
-                        Error::new(l.span(), "not supported").to_compile_error(),
-                    )
-                }
+                _ => return (func_name, Error::new(l.span(), "not supported").to_compile_error()),
             },
-            _ => {
-                return (
-                    func_name,
-                    Error::new(d.span(), "not supported").to_compile_error(),
-                )
-            }
+            _ => return (func_name, Error::new(d.span(), "not supported").to_compile_error()),
         };
 
         #[allow(clippy::cast_possible_truncation)]
@@ -225,10 +207,7 @@ fn derive_enum(data: &DataEnum, ident: &Ident, attrs: &[Attribute]) -> proc_macr
             Fields::Named(_) => panic!("not supported"),
             Fields::Unnamed(f) => {
                 if f.unnamed.len() != 1 {
-                    return (
-                        func_name,
-                        Error::new(v.span(), "not supported").to_compile_error(),
-                    );
+                    return (func_name, Error::new(v.span(), "not supported").to_compile_error());
                 }
                 f.unnamed.first().unwrap()
             }
@@ -247,23 +226,13 @@ fn derive_enum(data: &DataEnum, ident: &Ident, attrs: &[Attribute]) -> proc_macr
                             )
                         }
                     },
-                )
-            },
+                );
+            }
         };
         let Type::Path(inner_type) = &inner.ty else {
-            return (func_name,Error::new(inner.span(), "not supported").to_compile_error());
+            return (func_name, Error::new(inner.span(), "not supported").to_compile_error());
         };
-        let func_inner = Ident::new(
-            &inner_type
-                .path
-                .segments
-                .last()
-                .unwrap()
-                .ident
-                .to_string()
-                .to_lowercase(),
-            inner.span(),
-        );
+        let func_inner = Ident::new(&inner_type.path.segments.last().unwrap().ident.to_string().to_lowercase(), inner.span());
         (
             func_name.clone(),
             quote! {

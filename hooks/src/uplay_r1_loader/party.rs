@@ -36,10 +36,7 @@ unsafe extern "cdecl" fn UPLAY_PARTY_InvitePartyToGame(overlapped: *mut UplayOve
 }
 
 #[forwardable_export]
-unsafe extern "cdecl" fn UPLAY_PARTY_InviteToParty(
-    account_id: *const c_char,
-    overlapped: *mut UplayOverlapped,
-) -> bool {
+unsafe extern "cdecl" fn UPLAY_PARTY_InviteToParty(account_id: *const c_char, overlapped: *mut UplayOverlapped) -> bool {
     false
 }
 
@@ -54,10 +51,7 @@ unsafe extern "cdecl" fn UPLAY_PARTY_IsPartyLeader(account_id: *const c_char) ->
 }
 
 #[forwardable_export]
-unsafe extern "cdecl" fn UPLAY_PARTY_PromoteToLeader(
-    account_id: *const c_char,
-    overlapped: *mut UplayOverlapped,
-) -> bool {
+unsafe extern "cdecl" fn UPLAY_PARTY_PromoteToLeader(account_id: *const c_char, overlapped: *mut UplayOverlapped) -> bool {
     false
 }
 

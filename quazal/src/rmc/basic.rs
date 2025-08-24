@@ -133,9 +133,7 @@ pub struct WriteStream<W: WriteBytesExt> {
 macro_rules! write_stream_num {
     ($i: ident, $f: ident) => {
         pub fn $i(&mut self, value: $i) -> io::Result<usize> {
-            self.wtr
-                .$f::<LittleEndian>(value)
-                .map(|()| ::std::mem::size_of::<$i>())
+            self.wtr.$f::<LittleEndian>(value).map(|()| ::std::mem::size_of::<$i>())
         }
     };
 }

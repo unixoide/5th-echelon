@@ -50,9 +50,7 @@ impl<CI> ClanHelperProtocolServerTrait<CI> for ClanHelperProtocolServerImpl {
         _socket: &std::net::UdpSocket,
     ) -> Result<GenerateClanChallengesResponse, Error> {
         login_required(&*ci)?;
-        Ok(GenerateClanChallengesResponse {
-            result: QList::default(),
-        })
+        Ok(GenerateClanChallengesResponse { result: QList::default() })
     }
 
     fn get_member_list_by_clid(
@@ -65,9 +63,7 @@ impl<CI> ClanHelperProtocolServerTrait<CI> for ClanHelperProtocolServerImpl {
         _socket: &std::net::UdpSocket,
     ) -> Result<GetMemberListByClidResponse, Error> {
         login_required(&*ci)?;
-        Ok(GetMemberListByClidResponse {
-            members: vec![1002].into(),
-        })
+        Ok(GetMemberListByClidResponse { members: vec![1002].into() })
     }
 }
 

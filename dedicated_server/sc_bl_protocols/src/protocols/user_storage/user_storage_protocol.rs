@@ -296,9 +296,7 @@ impl<T: UserStorageProtocolServerTrait<CI>, CI> Protocol<CI> for UserStorageProt
             Some(UserStorageProtocolMethod::SearchContentsWithTotal) => {
                 let req = SearchContentsWithTotalRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .search_contents_with_total(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.search_contents_with_total(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
@@ -326,9 +324,7 @@ impl<T: UserStorageProtocolServerTrait<CI>, CI> Protocol<CI> for UserStorageProt
             Some(UserStorageProtocolMethod::SaveContentAndGetUploadInfo) => {
                 let req = SaveContentAndGetUploadInfoRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .save_content_and_get_upload_info(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.save_content_and_get_upload_info(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
@@ -405,27 +401,21 @@ impl<T: UserStorageProtocolServerTrait<CI>, CI> Protocol<CI> for UserStorageProt
             Some(UserStorageProtocolMethod::RemoveFromFavourites) => {
                 let req = RemoveFromFavouritesRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .remove_from_favourites(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.remove_from_favourites(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageProtocolMethod::ReportInappropriate) => {
                 let req = ReportInappropriateRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .report_inappropriate(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.report_inappropriate(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageProtocolMethod::IncrementPlayCount) => {
                 let req = IncrementPlayCountRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .increment_play_count(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.increment_play_count(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
@@ -446,9 +436,7 @@ impl<T: UserStorageProtocolServerTrait<CI>, CI> Protocol<CI> for UserStorageProt
             Some(UserStorageProtocolMethod::GetMostPopularTags) => {
                 let req = GetMostPopularTagsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_most_popular_tags(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_most_popular_tags(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
@@ -469,27 +457,21 @@ impl<T: UserStorageProtocolServerTrait<CI>, CI> Protocol<CI> for UserStorageProt
             Some(UserStorageProtocolMethod::SearchContentsByPlayers) => {
                 let req = SearchContentsByPlayersRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .search_contents_by_players(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.search_contents_by_players(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageProtocolMethod::SearchContentsByPlayersWithTotal) => {
                 let req = SearchContentsByPlayersWithTotalRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .search_contents_by_players_with_total(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.search_contents_by_players_with_total(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
         }
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        UserStorageProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        UserStorageProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
@@ -503,12 +485,7 @@ pub trait UserStorageProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<SearchContentsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(search_contents)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(search_contents));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn search_contents_with_total(
@@ -520,12 +497,7 @@ pub trait UserStorageProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<SearchContentsWithTotalResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(search_contents_with_total)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(search_contents_with_total));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn delete_content(
@@ -537,12 +509,7 @@ pub trait UserStorageProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<DeleteContentResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(delete_content)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(delete_content));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn save_meta_data(
@@ -554,12 +521,7 @@ pub trait UserStorageProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<SaveMetaDataResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(save_meta_data)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(save_meta_data));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn save_content_db(
@@ -571,12 +533,7 @@ pub trait UserStorageProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<SaveContentDbResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(save_content_db)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(save_content_db));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn save_content_and_get_upload_info(
@@ -588,12 +545,7 @@ pub trait UserStorageProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<SaveContentAndGetUploadInfoResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(save_content_and_get_upload_info)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(save_content_and_get_upload_info));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn upload_end(
@@ -605,12 +557,7 @@ pub trait UserStorageProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<UploadEndResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(upload_end)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(upload_end));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_content_db(
@@ -622,12 +569,7 @@ pub trait UserStorageProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetContentDbResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(get_content_db)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(get_content_db));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_content_url(
@@ -639,12 +581,7 @@ pub trait UserStorageProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetContentUrlResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(get_content_url)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(get_content_url));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_slot_count(
@@ -656,12 +593,7 @@ pub trait UserStorageProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetSlotCountResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(get_slot_count)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(get_slot_count));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_meta_data(
@@ -673,12 +605,7 @@ pub trait UserStorageProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetMetaDataResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(get_meta_data)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(get_meta_data));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn like(
@@ -690,12 +617,7 @@ pub trait UserStorageProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<LikeResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(like)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(like));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn unlike(
@@ -707,12 +629,7 @@ pub trait UserStorageProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<UnlikeResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(unlike)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(unlike));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn is_liked(
@@ -724,12 +641,7 @@ pub trait UserStorageProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<IsLikedResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(is_liked)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(is_liked));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_favourites(
@@ -741,12 +653,7 @@ pub trait UserStorageProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetFavouritesResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(get_favourites)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(get_favourites));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn make_favourite(
@@ -758,12 +665,7 @@ pub trait UserStorageProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<MakeFavouriteResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(make_favourite)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(make_favourite));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn remove_from_favourites(
@@ -775,12 +677,7 @@ pub trait UserStorageProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<RemoveFromFavouritesResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(remove_from_favourites)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(remove_from_favourites));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn report_inappropriate(
@@ -792,12 +689,7 @@ pub trait UserStorageProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<ReportInappropriateResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(report_inappropriate)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(report_inappropriate));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn increment_play_count(
@@ -809,12 +701,7 @@ pub trait UserStorageProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<IncrementPlayCountResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(increment_play_count)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(increment_play_count));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn update_custom_stat(
@@ -826,12 +713,7 @@ pub trait UserStorageProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<UpdateCustomStatResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(update_custom_stat)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(update_custom_stat));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_own_contents(
@@ -843,12 +725,7 @@ pub trait UserStorageProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetOwnContentsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(get_own_contents)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(get_own_contents));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_most_popular_tags(
@@ -860,12 +737,7 @@ pub trait UserStorageProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetMostPopularTagsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(get_most_popular_tags)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(get_most_popular_tags));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_tags(
@@ -877,12 +749,7 @@ pub trait UserStorageProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetTagsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(get_tags)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(get_tags));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn tag_content(
@@ -894,12 +761,7 @@ pub trait UserStorageProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<TagContentResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(tag_content)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(tag_content));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn search_contents_by_players(
@@ -911,12 +773,7 @@ pub trait UserStorageProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<SearchContentsByPlayersResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(search_contents_by_players)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(search_contents_by_players));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn search_contents_by_players_with_total(
@@ -959,33 +816,14 @@ impl<CI> ClientProtocol<CI> for UserStorageProtocolClient<CI> {
         26u32
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        UserStorageProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        UserStorageProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
 impl<CI> UserStorageProtocolClient<CI> {
-    pub fn search_contents(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: SearchContentsRequest,
-    ) -> Result<SearchContentsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(search_contents)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserStorageProtocolMethod::SearchContents as u32,
-            request.to_bytes(),
-        );
+    pub fn search_contents(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: SearchContentsRequest) -> Result<SearchContentsResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(search_contents));
+        self.send(logger, ctx, ci, UserStorageProtocolMethod::SearchContents as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn search_contents_with_total(
@@ -995,85 +833,23 @@ impl<CI> UserStorageProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: SearchContentsWithTotalRequest,
     ) -> Result<SearchContentsWithTotalResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(search_contents_with_total)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserStorageProtocolMethod::SearchContentsWithTotal as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(search_contents_with_total));
+        self.send(logger, ctx, ci, UserStorageProtocolMethod::SearchContentsWithTotal as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn delete_content(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: DeleteContentRequest,
-    ) -> Result<DeleteContentResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(delete_content)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserStorageProtocolMethod::DeleteContent as u32,
-            request.to_bytes(),
-        );
+    pub fn delete_content(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: DeleteContentRequest) -> Result<DeleteContentResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(delete_content));
+        self.send(logger, ctx, ci, UserStorageProtocolMethod::DeleteContent as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn save_meta_data(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: SaveMetaDataRequest,
-    ) -> Result<SaveMetaDataResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(save_meta_data)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserStorageProtocolMethod::SaveMetaData as u32,
-            request.to_bytes(),
-        );
+    pub fn save_meta_data(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: SaveMetaDataRequest) -> Result<SaveMetaDataResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(save_meta_data));
+        self.send(logger, ctx, ci, UserStorageProtocolMethod::SaveMetaData as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn save_content_db(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: SaveContentDbRequest,
-    ) -> Result<SaveContentDbResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(save_content_db)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserStorageProtocolMethod::SaveContentDb as u32,
-            request.to_bytes(),
-        );
+    pub fn save_content_db(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: SaveContentDbRequest) -> Result<SaveContentDbResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(save_content_db));
+        self.send(logger, ctx, ci, UserStorageProtocolMethod::SaveContentDb as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn save_content_and_get_upload_info(
@@ -1083,239 +859,58 @@ impl<CI> UserStorageProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: SaveContentAndGetUploadInfoRequest,
     ) -> Result<SaveContentAndGetUploadInfoResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(save_content_and_get_upload_info)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserStorageProtocolMethod::SaveContentAndGetUploadInfo as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(save_content_and_get_upload_info));
+        self.send(logger, ctx, ci, UserStorageProtocolMethod::SaveContentAndGetUploadInfo as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn upload_end(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: UploadEndRequest,
-    ) -> Result<UploadEndResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(upload_end)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserStorageProtocolMethod::UploadEnd as u32,
-            request.to_bytes(),
-        );
+    pub fn upload_end(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: UploadEndRequest) -> Result<UploadEndResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(upload_end));
+        self.send(logger, ctx, ci, UserStorageProtocolMethod::UploadEnd as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn get_content_db(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetContentDbRequest,
-    ) -> Result<GetContentDbResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(get_content_db)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserStorageProtocolMethod::GetContentDb as u32,
-            request.to_bytes(),
-        );
+    pub fn get_content_db(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetContentDbRequest) -> Result<GetContentDbResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(get_content_db));
+        self.send(logger, ctx, ci, UserStorageProtocolMethod::GetContentDb as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn get_content_url(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetContentUrlRequest,
-    ) -> Result<GetContentUrlResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(get_content_url)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserStorageProtocolMethod::GetContentUrl as u32,
-            request.to_bytes(),
-        );
+    pub fn get_content_url(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetContentUrlRequest) -> Result<GetContentUrlResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(get_content_url));
+        self.send(logger, ctx, ci, UserStorageProtocolMethod::GetContentUrl as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn get_slot_count(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetSlotCountRequest,
-    ) -> Result<GetSlotCountResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(get_slot_count)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserStorageProtocolMethod::GetSlotCount as u32,
-            request.to_bytes(),
-        );
+    pub fn get_slot_count(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetSlotCountRequest) -> Result<GetSlotCountResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(get_slot_count));
+        self.send(logger, ctx, ci, UserStorageProtocolMethod::GetSlotCount as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn get_meta_data(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetMetaDataRequest,
-    ) -> Result<GetMetaDataResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(get_meta_data)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserStorageProtocolMethod::GetMetaData as u32,
-            request.to_bytes(),
-        );
+    pub fn get_meta_data(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetMetaDataRequest) -> Result<GetMetaDataResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(get_meta_data));
+        self.send(logger, ctx, ci, UserStorageProtocolMethod::GetMetaData as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn like(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: LikeRequest,
-    ) -> Result<LikeResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(like)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserStorageProtocolMethod::Like as u32,
-            request.to_bytes(),
-        );
+    pub fn like(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: LikeRequest) -> Result<LikeResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(like));
+        self.send(logger, ctx, ci, UserStorageProtocolMethod::Like as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn unlike(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: UnlikeRequest,
-    ) -> Result<UnlikeResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(unlike)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserStorageProtocolMethod::Unlike as u32,
-            request.to_bytes(),
-        );
+    pub fn unlike(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: UnlikeRequest) -> Result<UnlikeResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(unlike));
+        self.send(logger, ctx, ci, UserStorageProtocolMethod::Unlike as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn is_liked(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: IsLikedRequest,
-    ) -> Result<IsLikedResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(is_liked)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserStorageProtocolMethod::IsLiked as u32,
-            request.to_bytes(),
-        );
+    pub fn is_liked(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: IsLikedRequest) -> Result<IsLikedResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(is_liked));
+        self.send(logger, ctx, ci, UserStorageProtocolMethod::IsLiked as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn get_favourites(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetFavouritesRequest,
-    ) -> Result<GetFavouritesResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(get_favourites)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserStorageProtocolMethod::GetFavourites as u32,
-            request.to_bytes(),
-        );
+    pub fn get_favourites(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetFavouritesRequest) -> Result<GetFavouritesResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(get_favourites));
+        self.send(logger, ctx, ci, UserStorageProtocolMethod::GetFavourites as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn make_favourite(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: MakeFavouriteRequest,
-    ) -> Result<MakeFavouriteResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(make_favourite)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserStorageProtocolMethod::MakeFavourite as u32,
-            request.to_bytes(),
-        );
+    pub fn make_favourite(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: MakeFavouriteRequest) -> Result<MakeFavouriteResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(make_favourite));
+        self.send(logger, ctx, ci, UserStorageProtocolMethod::MakeFavourite as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn remove_from_favourites(
@@ -1325,173 +920,43 @@ impl<CI> UserStorageProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: RemoveFromFavouritesRequest,
     ) -> Result<RemoveFromFavouritesResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(remove_from_favourites)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserStorageProtocolMethod::RemoveFromFavourites as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(remove_from_favourites));
+        self.send(logger, ctx, ci, UserStorageProtocolMethod::RemoveFromFavourites as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn report_inappropriate(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: ReportInappropriateRequest,
-    ) -> Result<ReportInappropriateResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(report_inappropriate)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserStorageProtocolMethod::ReportInappropriate as u32,
-            request.to_bytes(),
-        );
+    pub fn report_inappropriate(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: ReportInappropriateRequest) -> Result<ReportInappropriateResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(report_inappropriate));
+        self.send(logger, ctx, ci, UserStorageProtocolMethod::ReportInappropriate as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn increment_play_count(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: IncrementPlayCountRequest,
-    ) -> Result<IncrementPlayCountResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(increment_play_count)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserStorageProtocolMethod::IncrementPlayCount as u32,
-            request.to_bytes(),
-        );
+    pub fn increment_play_count(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: IncrementPlayCountRequest) -> Result<IncrementPlayCountResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(increment_play_count));
+        self.send(logger, ctx, ci, UserStorageProtocolMethod::IncrementPlayCount as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn update_custom_stat(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: UpdateCustomStatRequest,
-    ) -> Result<UpdateCustomStatResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(update_custom_stat)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserStorageProtocolMethod::UpdateCustomStat as u32,
-            request.to_bytes(),
-        );
+    pub fn update_custom_stat(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: UpdateCustomStatRequest) -> Result<UpdateCustomStatResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(update_custom_stat));
+        self.send(logger, ctx, ci, UserStorageProtocolMethod::UpdateCustomStat as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn get_own_contents(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetOwnContentsRequest,
-    ) -> Result<GetOwnContentsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(get_own_contents)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserStorageProtocolMethod::GetOwnContents as u32,
-            request.to_bytes(),
-        );
+    pub fn get_own_contents(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetOwnContentsRequest) -> Result<GetOwnContentsResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(get_own_contents));
+        self.send(logger, ctx, ci, UserStorageProtocolMethod::GetOwnContents as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn get_most_popular_tags(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetMostPopularTagsRequest,
-    ) -> Result<GetMostPopularTagsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(get_most_popular_tags)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserStorageProtocolMethod::GetMostPopularTags as u32,
-            request.to_bytes(),
-        );
+    pub fn get_most_popular_tags(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetMostPopularTagsRequest) -> Result<GetMostPopularTagsResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(get_most_popular_tags));
+        self.send(logger, ctx, ci, UserStorageProtocolMethod::GetMostPopularTags as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn get_tags(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetTagsRequest,
-    ) -> Result<GetTagsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(get_tags)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserStorageProtocolMethod::GetTags as u32,
-            request.to_bytes(),
-        );
+    pub fn get_tags(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetTagsRequest) -> Result<GetTagsResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(get_tags));
+        self.send(logger, ctx, ci, UserStorageProtocolMethod::GetTags as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn tag_content(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: TagContentRequest,
-    ) -> Result<TagContentResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(tag_content)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserStorageProtocolMethod::TagContent as u32,
-            request.to_bytes(),
-        );
+    pub fn tag_content(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: TagContentRequest) -> Result<TagContentResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(tag_content));
+        self.send(logger, ctx, ci, UserStorageProtocolMethod::TagContent as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn search_contents_by_players(
@@ -1501,19 +966,8 @@ impl<CI> UserStorageProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: SearchContentsByPlayersRequest,
     ) -> Result<SearchContentsByPlayersResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageProtocol",
-            stringify!(search_contents_by_players)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserStorageProtocolMethod::SearchContentsByPlayers as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageProtocol", stringify!(search_contents_by_players));
+        self.send(logger, ctx, ci, UserStorageProtocolMethod::SearchContentsByPlayers as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn search_contents_by_players_with_total(
@@ -1529,13 +983,7 @@ impl<CI> UserStorageProtocolClient<CI> {
             "UserStorageProtocol",
             stringify!(search_contents_by_players_with_total)
         );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserStorageProtocolMethod::SearchContentsByPlayersWithTotal as u32,
-            request.to_bytes(),
-        );
+        self.send(logger, ctx, ci, UserStorageProtocolMethod::SearchContentsByPlayersWithTotal as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }

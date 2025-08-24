@@ -11,7 +11,12 @@ fn get_or_spawn() -> OwnedProcess {
     //     "-gamelauncher_wait_handle", "1376",
     //     "-upc_uplay_id","449",
     //     "-upc_game_version", "1",
-    //     "-upc_exe_path", "QzpcUHJvZ3JhbSBGaWxlcyAoeDg2KVxTdGVhbVxzdGVhbWFwcHNcY29tbW9uXFRvbSBDbGFuY3kncyBTcGxpbnRlciBDZWxsIEJsYWNrbGlzdFxzcmNcU1lTVEVNXEJsYWNrbGlzdF9nYW1lLmV4ZQ== -upc_working_directory QzpcUHJvZ3JhbSBGaWxlcyAoeDg2KVxTdGVhbVxzdGVhbWFwcHNcY29tbW9uXFRvbSBDbGFuY3kncyBTcGxpbnRlciBDZWxsIEJsYWNrbGlzdFxzcmNcU1lTVEVN",
+    //     "-upc_exe_path",
+    //     "QzpcUHJvZ3JhbSBGaWxlcyAoeDg2KVxTdGVhbVxzdGVhbWFwcHNcY29tbW9uXFRvbSBDbGFuY3kncyBTcGxpbnR\
+    //lciBDZWxsIEJsYWNrbGlzdFxzcmNcU1lTVEVNXEJsYWNrbGlzdF9nYW1lLmV4ZQ==",
+    //     "-upc_working_directory",
+    //     "QzpcUHJvZ3JhbSBGaWxlcyAoeDg2KVxTdGVhbVxzdGVhbWFwcHNcY29tbW9uXFRvbSBDbGFuY3kncyBTcGxpbnR\
+    //lciBDZWxsIEJsYWNrbGlzdFxzcmNcU1lTVEVN",
     //     "-upc_arguments"
     //     ])
     // .spawn().unwrap();

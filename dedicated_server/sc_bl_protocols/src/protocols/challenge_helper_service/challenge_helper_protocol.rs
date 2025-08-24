@@ -53,10 +53,7 @@ pub struct GetOnlineChallengesRequest;
 pub struct GetOnlineChallengesResponse {
     pub online_challenges: quazal::rmc::types::QList<OnlineChallenge>,
 }
-pub struct ChallengeHelperProtocolServer<T: ChallengeHelperProtocolServerTrait<CI>, CI>(
-    T,
-    ::std::marker::PhantomData<CI>,
-);
+pub struct ChallengeHelperProtocolServer<T: ChallengeHelperProtocolServerTrait<CI>, CI>(T, ::std::marker::PhantomData<CI>);
 impl<T: ChallengeHelperProtocolServerTrait<CI>, CI> ChallengeHelperProtocolServer<T, CI> {
     pub fn new(implementation: T) -> Self {
         Self(implementation, ::std::marker::PhantomData)
@@ -87,36 +84,28 @@ impl<T: ChallengeHelperProtocolServerTrait<CI>, CI> Protocol<CI> for ChallengeHe
             Some(ChallengeHelperProtocolMethod::GenerateMyFriendChallenges) => {
                 let req = GenerateMyFriendChallengesRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .generate_my_friend_challenges(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.generate_my_friend_challenges(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(ChallengeHelperProtocolMethod::GenerateFriendChallenges) => {
                 let req = GenerateFriendChallengesRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .generate_friend_challenges(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.generate_friend_challenges(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(ChallengeHelperProtocolMethod::GetOnlineChallenges) => {
                 let req = GetOnlineChallengesRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_online_challenges(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_online_challenges(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
         }
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        ChallengeHelperProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        ChallengeHelperProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
@@ -130,12 +119,7 @@ pub trait ChallengeHelperProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GenerateMyFriendChallengesResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "ChallengeHelperProtocol",
-            stringify!(generate_my_friend_challenges)
-        );
+        warn!(logger, "Method {}.{} not implemented", "ChallengeHelperProtocol", stringify!(generate_my_friend_challenges));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn generate_friend_challenges(
@@ -147,12 +131,7 @@ pub trait ChallengeHelperProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GenerateFriendChallengesResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "ChallengeHelperProtocol",
-            stringify!(generate_friend_challenges)
-        );
+        warn!(logger, "Method {}.{} not implemented", "ChallengeHelperProtocol", stringify!(generate_friend_challenges));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_online_challenges(
@@ -164,12 +143,7 @@ pub trait ChallengeHelperProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetOnlineChallengesResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "ChallengeHelperProtocol",
-            stringify!(get_online_challenges)
-        );
+        warn!(logger, "Method {}.{} not implemented", "ChallengeHelperProtocol", stringify!(get_online_challenges));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }
@@ -195,9 +169,7 @@ impl<CI> ClientProtocol<CI> for ChallengeHelperProtocolClient<CI> {
         3u32
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        ChallengeHelperProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        ChallengeHelperProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
@@ -209,19 +181,8 @@ impl<CI> ChallengeHelperProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: GenerateMyFriendChallengesRequest,
     ) -> Result<GenerateMyFriendChallengesResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "ChallengeHelperProtocol",
-            stringify!(generate_my_friend_challenges)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            ChallengeHelperProtocolMethod::GenerateMyFriendChallenges as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "ChallengeHelperProtocol", stringify!(generate_my_friend_challenges));
+        self.send(logger, ctx, ci, ChallengeHelperProtocolMethod::GenerateMyFriendChallenges as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn generate_friend_challenges(
@@ -231,19 +192,8 @@ impl<CI> ChallengeHelperProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: GenerateFriendChallengesRequest,
     ) -> Result<GenerateFriendChallengesResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "ChallengeHelperProtocol",
-            stringify!(generate_friend_challenges)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            ChallengeHelperProtocolMethod::GenerateFriendChallenges as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "ChallengeHelperProtocol", stringify!(generate_friend_challenges));
+        self.send(logger, ctx, ci, ChallengeHelperProtocolMethod::GenerateFriendChallenges as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn get_online_challenges(
@@ -253,19 +203,8 @@ impl<CI> ChallengeHelperProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: GetOnlineChallengesRequest,
     ) -> Result<GetOnlineChallengesResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "ChallengeHelperProtocol",
-            stringify!(get_online_challenges)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            ChallengeHelperProtocolMethod::GetOnlineChallenges as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "ChallengeHelperProtocol", stringify!(get_online_challenges));
+        self.send(logger, ctx, ci, ChallengeHelperProtocolMethod::GetOnlineChallenges as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }

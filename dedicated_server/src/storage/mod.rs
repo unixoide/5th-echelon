@@ -17,10 +17,7 @@ fn run<F>(future: F) -> Result<F::Output>
 where
     F: std::future::Future,
 {
-    Ok(tokio::runtime::Builder::new_current_thread()
-        .enable_time()
-        .build()?
-        .block_on(future))
+    Ok(tokio::runtime::Builder::new_current_thread().enable_time().build()?.block_on(future))
 }
 
 pub struct Storage {
@@ -45,17 +42,11 @@ impl Storage {
         Ok(Self { logger, pool })
     }
 
-    pub async fn login_user_async(
-        &self,
-        username: &str,
-        password: &str,
-    ) -> Result<std::result::Result<u32, LoginError>> {
-        let Some((id, db_password, password_hash)) = sqlx::query_as::<_, (u32, Option<String>, Option<String>)>(
-            "SELECT id, password, password_hash FROM users WHERE username = ?",
-        )
-        .bind(username)
-        .fetch_optional(&self.pool)
-        .await?
+    pub async fn login_user_async(&self, username: &str, password: &str) -> Result<std::result::Result<u32, LoginError>> {
+        let Some((id, db_password, password_hash)) = sqlx::query_as::<_, (u32, Option<String>, Option<String>)>("SELECT id, password, password_hash FROM users WHERE username = ?")
+            .bind(username)
+            .fetch_optional(&self.pool)
+            .await?
         else {
             warn!(self.logger, "User {} not found", username);
             return Ok(Err(LoginError::NotFound));
@@ -74,8 +65,7 @@ impl Storage {
             }
             (None, Some(password_hash)) => {
                 info!(self.logger, "Verify password hash of {}", username);
-                let parsed_hash =
-                    PasswordHash::new(&password_hash).map_err(|_| eyre!("password hash parsing failed"))?;
+                let parsed_hash = PasswordHash::new(&password_hash).map_err(|_| eyre!("password hash parsing failed"))?;
                 Ok(Argon2::default()
                     .verify_password(password.as_bytes(), &parsed_hash)
                     .map_err(|_| LoginError::InvalidPassword)
@@ -107,17 +97,10 @@ impl Storage {
             .hash_password(password.as_bytes(), salt.as_salt())
             .map_err(|_| eyre!("password hashing failed"))?
             .to_string();
-        Ok(self
-            .register_user_unsafe_async(username, &password_hash, ubi_id)
-            .await?)
+        Ok(self.register_user_unsafe_async(username, &password_hash, ubi_id).await?)
     }
 
-    async fn register_user_unsafe_async(
-        &self,
-        username: &str,
-        password: &str,
-        ubi_id: Option<&str>,
-    ) -> sqlx::Result<()> {
+    async fn register_user_unsafe_async(&self, username: &str, password: &str, ubi_id: Option<&str>) -> sqlx::Result<()> {
         sqlx::query("INSERT INTO users (username, password_hash, ubi_id) VALUES (?, ?, ?)")
             .bind(username)
             .bind(password)
@@ -128,11 +111,9 @@ impl Storage {
     }
 
     pub fn find_password_for_user(&self, user_id: u32) -> Result<Option<String>> {
-        let password = run(
-            sqlx::query_as::<_, (Option<String>,)>("SELECT password FROM users WHERE id = ?")
-                .bind(user_id)
-                .fetch_optional(&self.pool),
-        )??
+        let password = run(sqlx::query_as::<_, (Option<String>,)>("SELECT password FROM users WHERE id = ?")
+            .bind(user_id)
+            .fetch_optional(&self.pool))??
         .and_then(|row| row.0);
         Ok(password)
     }
@@ -142,12 +123,10 @@ impl Storage {
     }
 
     pub async fn find_user_by_ubi_id_async(&self, ubi_id: &str) -> Result<Option<User>> {
-        Ok(
-            sqlx::query_as("SELECT id, username, ubi_id, is_online FROM users WHERE ubi_id = ?")
-                .bind(ubi_id)
-                .fetch_optional(&self.pool)
-                .await?,
-        )
+        Ok(sqlx::query_as("SELECT id, username, ubi_id, is_online FROM users WHERE ubi_id = ?")
+            .bind(ubi_id)
+            .fetch_optional(&self.pool)
+            .await?)
     }
 
     pub fn find_user_by_id(&self, id: u32) -> Result<Option<User>> {
@@ -155,12 +134,10 @@ impl Storage {
     }
 
     pub async fn find_user_by_id_async(&self, id: u32) -> Result<Option<User>> {
-        Ok(
-            sqlx::query_as("SELECT id, username, ubi_id, is_online FROM users WHERE id = ?")
-                .bind(id)
-                .fetch_optional(&self.pool)
-                .await?,
-        )
+        Ok(sqlx::query_as("SELECT id, username, ubi_id, is_online FROM users WHERE id = ?")
+            .bind(id)
+            .fetch_optional(&self.pool)
+            .await?)
     }
 
     pub fn find_user_id_by_name(&self, username: &str) -> Result<Option<u32>> {
@@ -223,10 +200,7 @@ impl Storage {
                 .execute(&self.pool)
                 .await?;
 
-            sqlx::query("UPDATE users SET is_online=1 WHERE id=?")
-                .bind(user_id)
-                .execute(&self.pool)
-                .await
+            sqlx::query("UPDATE users SET is_online=1 WHERE id=?").bind(user_id).execute(&self.pool).await
         })??;
 
         Ok(())
@@ -234,10 +208,7 @@ impl Storage {
 
     pub fn delete_user_session(&self, user_id: u32) -> Result<()> {
         run(async {
-            sqlx::query("DELETE FROM station_urls WHERE user_id = ?")
-                .bind(user_id)
-                .execute(&self.pool)
-                .await?;
+            sqlx::query("DELETE FROM station_urls WHERE user_id = ?").bind(user_id).execute(&self.pool).await?;
             sqlx::query("UPDATE game_sessions SET destroyed_at=CURRENT_TIMESTAMP WHERE creator_id = ?")
                 .bind(user_id)
                 .execute(&self.pool)
@@ -270,13 +241,11 @@ impl Storage {
     }
 
     pub fn create_game_session(&self, user_id: u32, type_id: u32, attributes: String) -> Result<u32> {
-        let id = run(
-            sqlx::query("INSERT INTO game_sessions (type_id, creator_id, attributes) VALUES (?, ?, ?)")
-                .bind(type_id)
-                .bind(user_id)
-                .bind(attributes)
-                .execute(&self.pool),
-        )??
+        let id = run(sqlx::query("INSERT INTO game_sessions (type_id, creator_id, attributes) VALUES (?, ?, ?)")
+            .bind(type_id)
+            .bind(user_id)
+            .bind(attributes)
+            .execute(&self.pool))??
         .last_insert_rowid();
 
         #[allow(clippy::cast_possible_truncation)]
@@ -285,13 +254,11 @@ impl Storage {
     }
 
     pub fn update_game_session(&self, type_id: u32, game_id: u32, attributes: String) -> Result<()> {
-        let _id = run(
-            sqlx::query("UPDATE game_sessions SET attributes = ? WHERE id = ? AND type_id = ?")
-                .bind(attributes)
-                .bind(game_id)
-                .bind(type_id)
-                .execute(&self.pool),
-        )??;
+        let _id = run(sqlx::query("UPDATE game_sessions SET attributes = ? WHERE id = ? AND type_id = ?")
+            .bind(attributes)
+            .bind(game_id)
+            .bind(type_id)
+            .execute(&self.pool))??;
 
         Ok(())
     }
@@ -305,19 +272,19 @@ impl Storage {
             .bind(uid)
             .fetch_all(&self.pool))??
         } else {
-            run(sqlx::query_as(
-            "SELECT type_id as session_type, id as session_id FROM game_sessions WHERE type_id = ? AND destroyed_at IS NULL",
-        )
-        .bind(type_id)
-        .fetch_all(&self.pool))??
+            run(
+                sqlx::query_as("SELECT type_id as session_type, id as session_id FROM game_sessions WHERE type_id = ? AND destroyed_at IS NULL")
+                    .bind(type_id)
+                    .fetch_all(&self.pool),
+            )??
         };
 
         for session in &mut sessions {
-            session.participants = run(sqlx::query_as(
-                "SELECT user_id, username as name FROM participants p, users u WHERE u.id = user_id AND game_id = ?",
-            )
-            .bind(session.session_id)
-            .fetch_all(&self.pool))??;
+            session.participants = run(
+                sqlx::query_as("SELECT user_id, username as name FROM participants p, users u WHERE u.id = user_id AND game_id = ?")
+                    .bind(session.session_id)
+                    .fetch_all(&self.pool),
+            )??;
 
             for participant in &mut session.participants {
                 // Is this needed? Games seems to try to connect to itself
@@ -336,13 +303,7 @@ impl Storage {
         Ok(sessions)
     }
 
-    pub fn add_participants(
-        &self,
-        _type_id: u32,
-        session_id: u32,
-        private_participants: Vec<u32>,
-        public_participants: Vec<u32>,
-    ) -> Result<()> {
+    pub fn add_participants(&self, _type_id: u32, session_id: u32, private_participants: Vec<u32>, public_participants: Vec<u32>) -> Result<()> {
         if private_participants.is_empty() && public_participants.is_empty() {
             warn!(self.logger, "Empty participant list");
             return Ok(());
@@ -350,10 +311,7 @@ impl Storage {
         let mut builder = sqlx::QueryBuilder::new("INSERT OR REPLACE INTO participants (game_id, user_id) ");
 
         builder.push_values(
-            private_participants
-                .into_iter()
-                .chain(public_participants)
-                .map(|user_id| (session_id, user_id)),
+            private_participants.into_iter().chain(public_participants).map(|user_id| (session_id, user_id)),
             |mut b, (session_id, user_id)| {
                 b.push_bind(session_id).push_bind(user_id);
             },
@@ -364,16 +322,8 @@ impl Storage {
         Ok(())
     }
 
-    pub async fn remove_participants_async(
-        &self,
-        _type_id: u32,
-        session_id: u32,
-        participants: Vec<u32>,
-    ) -> Result<()> {
-        let stmt = self
-            .pool
-            .prepare("DELETE FROM participants WHERE game_id = ? AND user_id = ?")
-            .await?;
+    pub async fn remove_participants_async(&self, _type_id: u32, session_id: u32, participants: Vec<u32>) -> Result<()> {
+        let stmt = self.pool.prepare("DELETE FROM participants WHERE game_id = ? AND user_id = ?").await?;
 
         for p in participants {
             stmt.query().bind(session_id).bind(p).execute(&self.pool).await?;
@@ -386,13 +336,13 @@ impl Storage {
     }
 
     pub fn delete_game_session(&self, creator_id: u32, type_id: u32, session_id: u32) -> Result<u64> {
-        Ok(run(sqlx::query(
-            "UPDATE game_sessions SET destroyed_at=CURRENT_TIMESTAMP WHERE creator_id = ? AND type_id = ? AND id = ?",
-        )
-        .bind(creator_id)
-        .bind(type_id)
-        .bind(session_id)
-        .execute(&self.pool))??
+        Ok(run(
+            sqlx::query("UPDATE game_sessions SET destroyed_at=CURRENT_TIMESTAMP WHERE creator_id = ? AND type_id = ? AND id = ?")
+                .bind(creator_id)
+                .bind(type_id)
+                .bind(session_id)
+                .execute(&self.pool),
+        )??
         .rows_affected())
     }
 
@@ -414,11 +364,9 @@ impl Storage {
     }
 
     pub async fn list_users_async(&self) -> Result<Vec<User>> {
-        Ok(
-            sqlx::query_as("SELECT id, username, ubi_id, is_online FROM users WHERE ubi_id IS NOT NULL")
-                .fetch_all(&self.pool)
-                .await?,
-        )
+        Ok(sqlx::query_as("SELECT id, username, ubi_id, is_online FROM users WHERE ubi_id IS NOT NULL")
+            .fetch_all(&self.pool)
+            .await?)
     }
 
     pub async fn add_invite_async(&self, sender_id: u32, receiver_id: u32) -> Result<i64> {
@@ -432,16 +380,12 @@ impl Storage {
     }
 
     pub async fn take_invite_async(&self, user_id: u32) -> Result<Option<Invite>> {
-        let row: Option<Invite> =
-            sqlx::query_as("SELECT rowid as id, sender, receiver FROM invites WHERE receiver = ?")
-                .bind(user_id)
-                .fetch_optional(&self.pool)
-                .await?;
+        let row: Option<Invite> = sqlx::query_as("SELECT rowid as id, sender, receiver FROM invites WHERE receiver = ?")
+            .bind(user_id)
+            .fetch_optional(&self.pool)
+            .await?;
         if let Some(invite) = row {
-            sqlx::query("DELETE FROM invites WHERE rowid = ?")
-                .bind(invite.id)
-                .execute(&self.pool)
-                .await?;
+            sqlx::query("DELETE FROM invites WHERE rowid = ?").bind(invite.id).execute(&self.pool).await?;
             Ok(Some(invite))
         } else {
             Ok(None)
@@ -452,18 +396,11 @@ impl Storage {
         run(self.search_sessions_with_participants_async(type_id, participant_ids))?
     }
 
-    pub async fn search_sessions_with_participants_async(
-        &self,
-        type_id: u32,
-        participant_ids: &[u32],
-    ) -> Result<Vec<GameSession>> {
-        let placeholders = std::iter::repeat('?')
-            .take(participant_ids.len())
-            .intersperse(',')
-            .collect::<String>();
+    pub async fn search_sessions_with_participants_async(&self, type_id: u32, participant_ids: &[u32]) -> Result<Vec<GameSession>> {
+        let placeholders = std::iter::repeat('?').take(participant_ids.len()).intersperse(',').collect::<String>();
         let sql = format!(
-            r"SELECT 
-                    g.type_id as session_type, 
+            r"SELECT
+                    g.type_id as session_type,
                     g.id as session_id,
                     g.creator_id,
                     g.attributes
@@ -518,10 +455,7 @@ impl Storage {
     }
 
     pub async fn delete_user_async(&self, user_id: u32) -> Result<()> {
-        sqlx::query("DELETE FROM users WHERE id = ?")
-            .bind(user_id)
-            .execute(&self.pool)
-            .await?;
+        sqlx::query("DELETE FROM users WHERE id = ?").bind(user_id).execute(&self.pool).await?;
         Ok(())
     }
 
@@ -538,8 +472,8 @@ impl Storage {
     pub async fn list_game_sessions_async(&self) -> Result<Vec<GameSession>> {
         let mut sessions: Vec<GameSession> = sqlx::query_as(
             r"
-        SELECT 
-            g.type_id as session_type, 
+        SELECT
+            g.type_id as session_type,
             g.id as session_id,
             g.creator_id,
             g.attributes

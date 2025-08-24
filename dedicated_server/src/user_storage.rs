@@ -63,9 +63,7 @@ impl<CI> UserStorageProtocolServerTrait<CI> for UserStorageProtocolServerImpl {
             }]);
             Ok(SearchContentsResponse { search_results })
         } else {
-            Ok(SearchContentsResponse {
-                search_results: QList::default(),
-            })
+            Ok(SearchContentsResponse { search_results: QList::default() })
         }
     }
 
@@ -79,21 +77,9 @@ impl<CI> UserStorageProtocolServerTrait<CI> for UserStorageProtocolServerImpl {
         _socket: &std::net::UdpSocket,
     ) -> Result<GetContentUrlResponse, Error> {
         login_required(&*ci)?;
-        let protocol = ctx
-            .settings
-            .get("content_protocol")
-            .map_or("http://", String::as_str)
-            .to_owned();
-        let host = ctx
-            .settings
-            .get("storage_host")
-            .expect("missing storage_host setting")
-            .to_owned();
-        let path = ctx
-            .settings
-            .get("storage_path")
-            .expect("missing storage_path setting")
-            .to_owned();
+        let protocol = ctx.settings.get("content_protocol").map_or("http://", String::as_str).to_owned();
+        let host = ctx.settings.get("storage_host").expect("missing storage_host setting").to_owned();
+        let path = ctx.settings.get("storage_path").expect("missing storage_path setting").to_owned();
 
         Ok(GetContentUrlResponse {
             download_info: UserContentURL { protocol, host, path },

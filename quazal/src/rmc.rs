@@ -41,8 +41,8 @@ pub enum Error {
 impl Error {
     #[must_use]
     pub fn to_error_code(&self) -> u32 {
+        // https://github.com/kinnay/NintendoClients/blob/13a5bdc3723bcc6cd5d0c8bb106250efbce7c165/nintendo/nex/errors.py
         let code = match self {
-            // https://github.com/kinnay/NintendoClients/blob/13a5bdc3723bcc6cd5d0c8bb106250efbce7c165/nintendo/nex/errors.py
             Error::UnknownProtocol | Error::UnknownMethod => 0x0001_0001,
             Error::UnimplementedMethod => 0x0001_0002,
             Error::AccessDenied => 0x0001_0006,
@@ -145,11 +145,7 @@ impl ResponseData {
         let mut data = Vec::new();
         rdr.read_to_end(&mut data)?;
 
-        Ok(Self {
-            call_id,
-            method_id,
-            data,
-        })
+        Ok(Self { call_id, method_id, data })
     }
 
     #[must_use]
@@ -198,11 +194,7 @@ impl Response {
         // assert_eq!(size as usize, data.len() - 4);
 
         let protocol_id = rdr.read_u8()?;
-        let protocol_id = if protocol_id == 0x7f {
-            rdr.read_u16::<LittleEndian>()?
-        } else {
-            u16::from(protocol_id)
-        };
+        let protocol_id = if protocol_id == 0x7f { rdr.read_u16::<LittleEndian>()? } else { u16::from(protocol_id) };
         let status = rdr.read_u8()?;
         let result = match status {
             0 => Err(ResponseError::from_reader(&mut rdr)?),
@@ -321,12 +313,7 @@ impl<T> RVSecHandler<T> {
     }
 
     pub fn register_protocol(&mut self, protocol: Box<dyn Protocol<T>>) {
-        debug!(
-            self.logger,
-            "Registering handler for protocol {} ({})",
-            protocol.id(),
-            protocol.name(),
-        );
+        debug!(self.logger, "Registering handler for protocol {} ({})", protocol.id(), protocol.name(),);
         self.rmc_registry.insert(protocol.id(), protocol);
     }
 }
@@ -359,23 +346,18 @@ impl<T> StreamHandler<T> for RVSecHandler<T> {
             }
         };
 
-        info!(
-            logger,
-            "Looking for protocol {}, method {}", rmc_packet.protocol_id, rmc_packet.method_id
-        );
+        info!(logger, "Looking for protocol {}, method {}", rmc_packet.protocol_id, rmc_packet.method_id);
 
-        let logger = logger
-            .new(o!("protocol_id" => rmc_packet.protocol_id, "method_id" => rmc_packet.method_id, "call" => rmc_packet.call_id));
+        let logger = logger.new(o!(
+            "protocol_id" => rmc_packet.protocol_id,
+            "method_id" => rmc_packet.method_id,
+            "call" => rmc_packet.call_id
+        ));
 
         let protocol = self.rmc_registry.get(&rmc_packet.protocol_id);
 
         let maybe_protocol = if let Some(protocol) = protocol {
-            info!(
-                logger,
-                "Calling {}.{}",
-                protocol.name(),
-                protocol.method_name(rmc_packet.method_id).unwrap_or_default(),
-            );
+            info!(logger, "Calling {}.{}", protocol.name(), protocol.method_name(rmc_packet.method_id).unwrap_or_default(),);
 
             protocol.handle(&logger, ctx, ci, &rmc_packet, client_registry, socket)
         } else {
@@ -429,10 +411,7 @@ mod tests {
         assert_eq!(
             Response {
                 protocol_id: 1,
-                result: Err(ResponseError {
-                    call_id: 2,
-                    error_code: 3,
-                }),
+                result: Err(ResponseError { call_id: 2, error_code: 3 }),
             }
             .to_bytes(),
             b"\x0a\x00\x00\x00\x01\x00\x03\x00\x00\x00\x02\x00\x00\x00".to_vec()
@@ -442,11 +421,9 @@ mod tests {
     #[test]
     fn test_request() {
         let data = [
-            0x48, 0x00, 0x00, 0x00, 0x8a, 0x08, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x03, 0x00, 0x77, 0x76, 0x00,
-            0x21, 0x00, 0x55, 0x62, 0x69, 0x41, 0x75, 0x74, 0x68, 0x65, 0x6e, 0x74, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f,
-            0x6e, 0x4c, 0x6f, 0x67, 0x69, 0x6e, 0x43, 0x75, 0x73, 0x74, 0x6f, 0x6d, 0x44, 0x61, 0x74, 0x61, 0x00, 0x13,
-            0x00, 0x00, 0x00, 0x0f, 0x00, 0x00, 0x00, 0x03, 0x00, 0x77, 0x76, 0x00, 0x01, 0x00, 0x00, 0x05, 0x00, 0x74,
-            0x65, 0x73, 0x74, 0x00,
+            0x48, 0x00, 0x00, 0x00, 0x8a, 0x08, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x03, 0x00, 0x77, 0x76, 0x00, 0x21, 0x00, 0x55, 0x62, 0x69, 0x41, 0x75, 0x74, 0x68, 0x65,
+            0x6e, 0x74, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x4c, 0x6f, 0x67, 0x69, 0x6e, 0x43, 0x75, 0x73, 0x74, 0x6f, 0x6d, 0x44, 0x61, 0x74, 0x61, 0x00, 0x13, 0x00, 0x00,
+            0x00, 0x0f, 0x00, 0x00, 0x00, 0x03, 0x00, 0x77, 0x76, 0x00, 0x01, 0x00, 0x00, 0x05, 0x00, 0x74, 0x65, 0x73, 0x74, 0x00,
         ];
 
         let _req = dbg!(Request::from_bytes(&data)).unwrap();

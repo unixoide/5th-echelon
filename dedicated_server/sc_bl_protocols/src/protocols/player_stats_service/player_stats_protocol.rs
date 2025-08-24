@@ -191,117 +191,91 @@ impl<T: PlayerStatsProtocolServerTrait<CI>, CI> Protocol<CI> for PlayerStatsProt
             Some(PlayerStatsProtocolMethod::ReadStatsByPlayers) => {
                 let req = ReadStatsByPlayersRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .read_stats_by_players(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.read_stats_by_players(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(PlayerStatsProtocolMethod::ReadLeaderboardsNearPlayer) => {
                 let req = ReadLeaderboardsNearPlayerRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .read_leaderboards_near_player(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.read_leaderboards_near_player(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(PlayerStatsProtocolMethod::ReadLeaderboardsByRank) => {
                 let req = ReadLeaderboardsByRankRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .read_leaderboards_by_rank(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.read_leaderboards_by_rank(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(PlayerStatsProtocolMethod::ReadLeaderboardsByPlayers) => {
                 let req = ReadLeaderboardsByPlayersRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .read_leaderboards_by_players(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.read_leaderboards_by_players(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(PlayerStatsProtocolMethod::ReadStatboardHistory) => {
                 let req = ReadStatboardHistoryRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .read_statboard_history(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.read_statboard_history(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(PlayerStatsProtocolMethod::ReadLeaderboardHistory) => {
                 let req = ReadLeaderboardHistoryRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .read_leaderboard_history(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.read_leaderboard_history(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(PlayerStatsProtocolMethod::ReadStatboardHistoryAggregated) => {
                 let req = ReadStatboardHistoryAggregatedRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .read_statboard_history_aggregated(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.read_statboard_history_aggregated(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(PlayerStatsProtocolMethod::GetStatboardNextPurgeDate) => {
                 let req = GetStatboardNextPurgeDateRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_statboard_next_purge_date(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_statboard_next_purge_date(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(PlayerStatsProtocolMethod::ReadLeaderboardsNearPlayer2) => {
                 let req = ReadLeaderboardsNearPlayer2Request::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .read_leaderboards_near_player_2(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.read_leaderboards_near_player_2(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(PlayerStatsProtocolMethod::ReadLeaderboardsByRank2) => {
                 let req = ReadLeaderboardsByRank2Request::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .read_leaderboards_by_rank_2(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.read_leaderboards_by_rank_2(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(PlayerStatsProtocolMethod::ReadLeaderboardsByPlayers2) => {
                 let req = ReadLeaderboardsByPlayers2Request::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .read_leaderboards_by_players_2(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.read_leaderboards_by_players_2(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(PlayerStatsProtocolMethod::ReadPopulationStats) => {
                 let req = ReadPopulationStatsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .read_population_stats(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.read_population_stats(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
         }
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        PlayerStatsProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        PlayerStatsProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
@@ -315,12 +289,7 @@ pub trait PlayerStatsProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<WriteStatsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "PlayerStatsProtocol",
-            stringify!(write_stats)
-        );
+        warn!(logger, "Method {}.{} not implemented", "PlayerStatsProtocol", stringify!(write_stats));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn read_stats_by_players(
@@ -332,12 +301,7 @@ pub trait PlayerStatsProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<ReadStatsByPlayersResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "PlayerStatsProtocol",
-            stringify!(read_stats_by_players)
-        );
+        warn!(logger, "Method {}.{} not implemented", "PlayerStatsProtocol", stringify!(read_stats_by_players));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn read_leaderboards_near_player(
@@ -349,12 +313,7 @@ pub trait PlayerStatsProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<ReadLeaderboardsNearPlayerResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "PlayerStatsProtocol",
-            stringify!(read_leaderboards_near_player)
-        );
+        warn!(logger, "Method {}.{} not implemented", "PlayerStatsProtocol", stringify!(read_leaderboards_near_player));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn read_leaderboards_by_rank(
@@ -366,12 +325,7 @@ pub trait PlayerStatsProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<ReadLeaderboardsByRankResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "PlayerStatsProtocol",
-            stringify!(read_leaderboards_by_rank)
-        );
+        warn!(logger, "Method {}.{} not implemented", "PlayerStatsProtocol", stringify!(read_leaderboards_by_rank));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn read_leaderboards_by_players(
@@ -383,12 +337,7 @@ pub trait PlayerStatsProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<ReadLeaderboardsByPlayersResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "PlayerStatsProtocol",
-            stringify!(read_leaderboards_by_players)
-        );
+        warn!(logger, "Method {}.{} not implemented", "PlayerStatsProtocol", stringify!(read_leaderboards_by_players));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn read_statboard_history(
@@ -400,12 +349,7 @@ pub trait PlayerStatsProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<ReadStatboardHistoryResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "PlayerStatsProtocol",
-            stringify!(read_statboard_history)
-        );
+        warn!(logger, "Method {}.{} not implemented", "PlayerStatsProtocol", stringify!(read_statboard_history));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn read_leaderboard_history(
@@ -417,12 +361,7 @@ pub trait PlayerStatsProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<ReadLeaderboardHistoryResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "PlayerStatsProtocol",
-            stringify!(read_leaderboard_history)
-        );
+        warn!(logger, "Method {}.{} not implemented", "PlayerStatsProtocol", stringify!(read_leaderboard_history));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn read_statboard_history_aggregated(
@@ -434,12 +373,7 @@ pub trait PlayerStatsProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<ReadStatboardHistoryAggregatedResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "PlayerStatsProtocol",
-            stringify!(read_statboard_history_aggregated)
-        );
+        warn!(logger, "Method {}.{} not implemented", "PlayerStatsProtocol", stringify!(read_statboard_history_aggregated));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_statboard_next_purge_date(
@@ -451,12 +385,7 @@ pub trait PlayerStatsProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetStatboardNextPurgeDateResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "PlayerStatsProtocol",
-            stringify!(get_statboard_next_purge_date)
-        );
+        warn!(logger, "Method {}.{} not implemented", "PlayerStatsProtocol", stringify!(get_statboard_next_purge_date));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn read_leaderboards_near_player_2(
@@ -468,12 +397,7 @@ pub trait PlayerStatsProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<ReadLeaderboardsNearPlayer2Response, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "PlayerStatsProtocol",
-            stringify!(read_leaderboards_near_player_2)
-        );
+        warn!(logger, "Method {}.{} not implemented", "PlayerStatsProtocol", stringify!(read_leaderboards_near_player_2));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn read_leaderboards_by_rank_2(
@@ -485,12 +409,7 @@ pub trait PlayerStatsProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<ReadLeaderboardsByRank2Response, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "PlayerStatsProtocol",
-            stringify!(read_leaderboards_by_rank_2)
-        );
+        warn!(logger, "Method {}.{} not implemented", "PlayerStatsProtocol", stringify!(read_leaderboards_by_rank_2));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn read_leaderboards_by_players_2(
@@ -502,12 +421,7 @@ pub trait PlayerStatsProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<ReadLeaderboardsByPlayers2Response, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "PlayerStatsProtocol",
-            stringify!(read_leaderboards_by_players_2)
-        );
+        warn!(logger, "Method {}.{} not implemented", "PlayerStatsProtocol", stringify!(read_leaderboards_by_players_2));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn read_population_stats(
@@ -519,12 +433,7 @@ pub trait PlayerStatsProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<ReadPopulationStatsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "PlayerStatsProtocol",
-            stringify!(read_population_stats)
-        );
+        warn!(logger, "Method {}.{} not implemented", "PlayerStatsProtocol", stringify!(read_population_stats));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }
@@ -550,55 +459,19 @@ impl<CI> ClientProtocol<CI> for PlayerStatsProtocolClient<CI> {
         13u32
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        PlayerStatsProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        PlayerStatsProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
 impl<CI> PlayerStatsProtocolClient<CI> {
-    pub fn write_stats(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: WriteStatsRequest,
-    ) -> Result<WriteStatsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "PlayerStatsProtocol",
-            stringify!(write_stats)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            PlayerStatsProtocolMethod::WriteStats as u32,
-            request.to_bytes(),
-        );
+    pub fn write_stats(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: WriteStatsRequest) -> Result<WriteStatsResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "PlayerStatsProtocol", stringify!(write_stats));
+        self.send(logger, ctx, ci, PlayerStatsProtocolMethod::WriteStats as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn read_stats_by_players(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: ReadStatsByPlayersRequest,
-    ) -> Result<ReadStatsByPlayersResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "PlayerStatsProtocol",
-            stringify!(read_stats_by_players)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            PlayerStatsProtocolMethod::ReadStatsByPlayers as u32,
-            request.to_bytes(),
-        );
+    pub fn read_stats_by_players(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: ReadStatsByPlayersRequest) -> Result<ReadStatsByPlayersResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "PlayerStatsProtocol", stringify!(read_stats_by_players));
+        self.send(logger, ctx, ci, PlayerStatsProtocolMethod::ReadStatsByPlayers as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn read_leaderboards_near_player(
@@ -608,19 +481,8 @@ impl<CI> PlayerStatsProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: ReadLeaderboardsNearPlayerRequest,
     ) -> Result<ReadLeaderboardsNearPlayerResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "PlayerStatsProtocol",
-            stringify!(read_leaderboards_near_player)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            PlayerStatsProtocolMethod::ReadLeaderboardsNearPlayer as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "PlayerStatsProtocol", stringify!(read_leaderboards_near_player));
+        self.send(logger, ctx, ci, PlayerStatsProtocolMethod::ReadLeaderboardsNearPlayer as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn read_leaderboards_by_rank(
@@ -630,19 +492,8 @@ impl<CI> PlayerStatsProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: ReadLeaderboardsByRankRequest,
     ) -> Result<ReadLeaderboardsByRankResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "PlayerStatsProtocol",
-            stringify!(read_leaderboards_by_rank)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            PlayerStatsProtocolMethod::ReadLeaderboardsByRank as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "PlayerStatsProtocol", stringify!(read_leaderboards_by_rank));
+        self.send(logger, ctx, ci, PlayerStatsProtocolMethod::ReadLeaderboardsByRank as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn read_leaderboards_by_players(
@@ -652,19 +503,8 @@ impl<CI> PlayerStatsProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: ReadLeaderboardsByPlayersRequest,
     ) -> Result<ReadLeaderboardsByPlayersResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "PlayerStatsProtocol",
-            stringify!(read_leaderboards_by_players)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            PlayerStatsProtocolMethod::ReadLeaderboardsByPlayers as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "PlayerStatsProtocol", stringify!(read_leaderboards_by_players));
+        self.send(logger, ctx, ci, PlayerStatsProtocolMethod::ReadLeaderboardsByPlayers as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn read_statboard_history(
@@ -674,19 +514,8 @@ impl<CI> PlayerStatsProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: ReadStatboardHistoryRequest,
     ) -> Result<ReadStatboardHistoryResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "PlayerStatsProtocol",
-            stringify!(read_statboard_history)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            PlayerStatsProtocolMethod::ReadStatboardHistory as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "PlayerStatsProtocol", stringify!(read_statboard_history));
+        self.send(logger, ctx, ci, PlayerStatsProtocolMethod::ReadStatboardHistory as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn read_leaderboard_history(
@@ -696,19 +525,8 @@ impl<CI> PlayerStatsProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: ReadLeaderboardHistoryRequest,
     ) -> Result<ReadLeaderboardHistoryResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "PlayerStatsProtocol",
-            stringify!(read_leaderboard_history)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            PlayerStatsProtocolMethod::ReadLeaderboardHistory as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "PlayerStatsProtocol", stringify!(read_leaderboard_history));
+        self.send(logger, ctx, ci, PlayerStatsProtocolMethod::ReadLeaderboardHistory as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn read_statboard_history_aggregated(
@@ -718,19 +536,8 @@ impl<CI> PlayerStatsProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: ReadStatboardHistoryAggregatedRequest,
     ) -> Result<ReadStatboardHistoryAggregatedResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "PlayerStatsProtocol",
-            stringify!(read_statboard_history_aggregated)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            PlayerStatsProtocolMethod::ReadStatboardHistoryAggregated as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "PlayerStatsProtocol", stringify!(read_statboard_history_aggregated));
+        self.send(logger, ctx, ci, PlayerStatsProtocolMethod::ReadStatboardHistoryAggregated as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn get_statboard_next_purge_date(
@@ -740,19 +547,8 @@ impl<CI> PlayerStatsProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: GetStatboardNextPurgeDateRequest,
     ) -> Result<GetStatboardNextPurgeDateResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "PlayerStatsProtocol",
-            stringify!(get_statboard_next_purge_date)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            PlayerStatsProtocolMethod::GetStatboardNextPurgeDate as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "PlayerStatsProtocol", stringify!(get_statboard_next_purge_date));
+        self.send(logger, ctx, ci, PlayerStatsProtocolMethod::GetStatboardNextPurgeDate as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn read_leaderboards_near_player_2(
@@ -762,19 +558,8 @@ impl<CI> PlayerStatsProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: ReadLeaderboardsNearPlayer2Request,
     ) -> Result<ReadLeaderboardsNearPlayer2Response, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "PlayerStatsProtocol",
-            stringify!(read_leaderboards_near_player_2)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            PlayerStatsProtocolMethod::ReadLeaderboardsNearPlayer2 as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "PlayerStatsProtocol", stringify!(read_leaderboards_near_player_2));
+        self.send(logger, ctx, ci, PlayerStatsProtocolMethod::ReadLeaderboardsNearPlayer2 as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn read_leaderboards_by_rank_2(
@@ -784,19 +569,8 @@ impl<CI> PlayerStatsProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: ReadLeaderboardsByRank2Request,
     ) -> Result<ReadLeaderboardsByRank2Response, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "PlayerStatsProtocol",
-            stringify!(read_leaderboards_by_rank_2)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            PlayerStatsProtocolMethod::ReadLeaderboardsByRank2 as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "PlayerStatsProtocol", stringify!(read_leaderboards_by_rank_2));
+        self.send(logger, ctx, ci, PlayerStatsProtocolMethod::ReadLeaderboardsByRank2 as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn read_leaderboards_by_players_2(
@@ -806,19 +580,8 @@ impl<CI> PlayerStatsProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: ReadLeaderboardsByPlayers2Request,
     ) -> Result<ReadLeaderboardsByPlayers2Response, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "PlayerStatsProtocol",
-            stringify!(read_leaderboards_by_players_2)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            PlayerStatsProtocolMethod::ReadLeaderboardsByPlayers2 as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "PlayerStatsProtocol", stringify!(read_leaderboards_by_players_2));
+        self.send(logger, ctx, ci, PlayerStatsProtocolMethod::ReadLeaderboardsByPlayers2 as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn read_population_stats(
@@ -828,19 +591,8 @@ impl<CI> PlayerStatsProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: ReadPopulationStatsRequest,
     ) -> Result<ReadPopulationStatsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "PlayerStatsProtocol",
-            stringify!(read_population_stats)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            PlayerStatsProtocolMethod::ReadPopulationStats as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "PlayerStatsProtocol", stringify!(read_population_stats));
+        self.send(logger, ctx, ci, PlayerStatsProtocolMethod::ReadPopulationStats as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }

@@ -45,8 +45,7 @@ impl KerberosTicketInternal {
         }
         let n = secretbox::Nonce::from_slice(&data[..secretbox::NONCEBYTES]).unwrap();
         let data = &data[secretbox::NONCEBYTES..];
-        let data = secretbox::open(data, &n, key)
-            .map_err(|()| std::io::Error::new(std::io::ErrorKind::InvalidData, "open failed"))?;
+        let data = secretbox::open(data, &n, key).map_err(|()| std::io::Error::new(std::io::ErrorKind::InvalidData, "open failed"))?;
         let mut stream = ReadStream::from_bytes(data);
         stream.read()
     }
@@ -73,12 +72,7 @@ impl KerberosTicket {
         key
     }
 
-    pub fn from_bytes(
-        buf: &[u8],
-        peer_pid: u32,
-        password: Option<&str>,
-        key: &secretbox::Key,
-    ) -> Result<Self, FromStreamError> {
+    pub fn from_bytes(buf: &[u8], peer_pid: u32, password: Option<&str>, key: &secretbox::Key) -> Result<Self, FromStreamError> {
         let off = buf.len() - Md5::output_size();
         let (buf, _mac) = buf.split_at(off);
 
@@ -91,11 +85,7 @@ impl KerberosTicket {
         let internal: Vec<u8> = rdr.read_all()?;
         let internal = KerberosTicketInternal::open(&internal, key)?;
 
-        Ok(Self {
-            session_key,
-            pid,
-            internal,
-        })
+        Ok(Self { session_key, pid, internal })
     }
 
     #[must_use]

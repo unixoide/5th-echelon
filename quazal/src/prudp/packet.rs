@@ -117,9 +117,7 @@ impl<T> StreamHandlerRegistry<T> {
         client_registry: &ClientRegistry<T>,
         socket: &std::net::UdpSocket,
     ) -> Option<Result<Vec<u8>, Error>> {
-        self.handlers
-            .get(dest)
-            .map(|h| h.handle(logger, ctx, ci, data, client_registry, socket))
+        self.handlers.get(dest).map(|h| h.handle(logger, ctx, ci, data, client_registry, socket))
     }
 }
 
@@ -218,37 +216,31 @@ impl QPacket {
             None
         };
 
-        let fragment_id = if matches!(packet_type, PacketType::Data) {
-            Some(rdr.read_u8()?)
-        } else {
-            None
-        };
+        let fragment_id = if matches!(packet_type, PacketType::Data) { Some(rdr.read_u8()?) } else { None };
 
         let payload_size = if flags.contains(PacketFlag::HasSize) {
             rdr.read_u16::<LittleEndian>()? as usize
         } else {
             let l = rdr.stream_len();
             let p = rdr.stream_position();
-            l.and_then(|l| p.map(|p| l - p - 1))
-                .expect("getting length and position from buffer should never fail") as usize
+            l.and_then(|l| p.map(|p| l - p - 1)).expect("getting length and position from buffer should never fail") as usize
         };
 
         let mut payload = vec![0u8; payload_size];
         rdr.read_exact(&mut payload)?;
 
-        let use_compression =
-            if !matches!(packet_type, PacketType::Syn) && matches!(source.stream_type, StreamType::RVSec) {
-                payload = crypt(ctx, &payload);
-                let use_compression = !payload.is_empty() && payload[0] != 0;
-                if use_compression {
-                    payload = decompress_to_vec_zlib(&payload.as_slice()[1..]).map_err(Error::DecompressFailed)?;
-                } else if !payload.is_empty() {
-                    payload.remove(0);
-                }
-                use_compression
-            } else {
-                false
-            };
+        let use_compression = if !matches!(packet_type, PacketType::Syn) && matches!(source.stream_type, StreamType::RVSec) {
+            payload = crypt(ctx, &payload);
+            let use_compression = !payload.is_empty() && payload[0] != 0;
+            if use_compression {
+                payload = decompress_to_vec_zlib(&payload.as_slice()[1..]).map_err(Error::DecompressFailed)?;
+            } else if !payload.is_empty() {
+                payload.remove(0);
+            }
+            use_compression
+        } else {
+            false
+        };
         let checksum = rdr.read_u8()?;
 
         Ok(Self {
@@ -310,12 +302,7 @@ impl QPacket {
 
         match self.packet_type {
             PacketType::Syn | PacketType::Connect => {
-                data.extend_from_slice(
-                    &self
-                        .conn_signature
-                        .expect("connection signature required")
-                        .to_le_bytes(),
-                );
+                data.extend_from_slice(&self.conn_signature.expect("connection signature required").to_le_bytes());
             }
             PacketType::Data => {
                 data.push(self.fragment_id.expect("fragment id required"));
@@ -336,12 +323,11 @@ impl QPacket {
             tmp
         };
 
-        let mut payload =
-            if !matches!(self.packet_type, PacketType::Syn) && matches!(self.source.stream_type, StreamType::RVSec) {
-                crypt(ctx, &payload)
-            } else {
-                payload
-            };
+        let mut payload = if !matches!(self.packet_type, PacketType::Syn) && matches!(self.source.stream_type, StreamType::RVSec) {
+            crypt(ctx, &payload)
+        } else {
+            payload
+        };
 
         if self.flags.contains(PacketFlag::HasSize) {
             #[allow(clippy::cast_possible_truncation)]
@@ -372,14 +358,9 @@ fn calc_checksum_from_data(key: u32, data: &[u8]) -> u8 {
     let l = data.len();
     let l = l - (l % 4);
     let mut rdr = Cursor::new(&data[..l]);
-    let tmp: u32 = iter::from_fn(|| rdr.read_u32::<LittleEndian>().ok())
-        .fold(Wrapping(0u32), |acc, x| acc + Wrapping(x))
-        .0;
+    let tmp: u32 = iter::from_fn(|| rdr.read_u32::<LittleEndian>().ok()).fold(Wrapping(0u32), |acc, x| acc + Wrapping(x)).0;
 
-    let data_sum = tmp
-        .to_le_bytes()
-        .iter()
-        .fold(Wrapping(0u8), |acc, x| acc + Wrapping(*x));
+    let data_sum = tmp.to_le_bytes().iter().fold(Wrapping(0u8), |acc, x| acc + Wrapping(*x));
 
     let trailer_sum = &data[l..].iter().fold(Wrapping(0u8), |acc, x| acc + Wrapping(*x));
 
@@ -411,11 +392,7 @@ impl Rc4 {
         #![allow(clippy::cast_possible_truncation)]
 
         assert!(!key.is_empty() && key.len() <= 256);
-        let mut rc4 = Rc4 {
-            i: 0,
-            j: 0,
-            state: [0; 256],
-        };
+        let mut rc4 = Rc4 { i: 0, j: 0, state: [0; 256] };
         for (i, x) in rc4.state.iter_mut().enumerate() {
             *x = i as u8;
         }
@@ -506,17 +483,14 @@ mod tests {
     #[test]
     fn test_syn() {
         let ctx = &Context::splinter_cell_blacklist();
-        let data = [
-            0x3f, 0x31, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40,
-        ];
+        let data = [0x3f, 0x31, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40];
 
         let pkt = dbg!(QPacket::from_bytes(ctx, &data).unwrap()).0;
         assert_eq!(pkt.to_bytes(ctx), Vec::from(data));
         assert_eq!(pkt.checksum, pkt.calc_checksum(ctx));
 
         let data = [
-            0x31, 0x3f, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x78, 0x56, 0x34, 0x12,
-            0x3c, // not verified
+            0x31, 0x3f, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x78, 0x56, 0x34, 0x12, 0x3c, // not verified
         ];
 
         let pkt = dbg!(QPacket::from_bytes(ctx, &data).unwrap()).0;
@@ -529,7 +503,8 @@ mod tests {
         assert_eq!(pkt.to_bytes(ctx), Vec::from(data));
         assert_eq!(pkt.checksum, pkt.calc_checksum(ctx));
 
-        let data = *b"\x3f\x31\x32\x7c\x60\x30\x0d\xd5\x02\x00\x00\x0f\x93\x44\xdb\x13\x75\xe2\x50\x05\xa2\x60\xfd\x2a\x16\xfb\xb1\xab\x24\x87\x96\xfc\x3f\xcc\x7b\x5a\x7f";
+        let data = *b"\x3f\x31\x32\x7c\x60\x30\x0d\xd5\x02\x00\x00\x0f\x93\x44\xdb\x13\x75\xe2\x50\x05\xa2\
+\x60\xfd\x2a\x16\xfb\xb1\xab\x24\x87\x96\xfc\x3f\xcc\x7b\x5a\x7f";
 
         let pkt = dbg!(QPacket::from_bytes(ctx, &data).unwrap()).0;
         assert_eq!(pkt.to_bytes(ctx), Vec::from(data));

@@ -147,9 +147,7 @@ impl MyRenderLoop {
     fn render_hide(&mut self, ui: &mut imgui::Ui) {}
 
     fn join_session(&self, sender: &User) {
-        self.tx
-            .send(Event::FriendsGameInviteAccepted(sender.id.clone()))
-            .unwrap();
+        self.tx.send(Event::FriendsGameInviteAccepted(sender.id.clone())).unwrap();
     }
 
     fn show_invites(&mut self, ui: &imgui::Ui) {
@@ -206,10 +204,7 @@ impl MyRenderLoop {
                     draw_list
                         .add_line(
                             [0., ws[1]],
-                            [
-                                ws[0] * (dur.as_secs_f32() / INITIAL_POPUP_DURATION.as_secs_f32()),
-                                ws[1],
-                            ],
+                            [ws[0] * (dur.as_secs_f32() / INITIAL_POPUP_DURATION.as_secs_f32()), ws[1]],
                             [1.0, 0.0, 0.0, 1.0],
                         )
                         .build();
@@ -253,24 +248,21 @@ impl MyRenderLoop {
 
     #[allow(clippy::unused_self)]
     fn show_advanced(&mut self, ui: &imgui::Ui) {
-        ui.window("Advanced")
-            .always_auto_resize(true)
-            .resizable(false)
-            .build(|| {
-                let mut has_fields = false;
-                if let Some(mpv) = unsafe { get_min_players_var().as_mut() } {
-                    ui.input_int("Min Number of Players", mpv).build();
-                    has_fields = true;
-                }
-                if let Some(mpv) = unsafe { get_max_players_var().as_mut() } {
-                    ui.input_int("Max Number of Players", mpv).build();
-                    has_fields = true;
-                }
+        ui.window("Advanced").always_auto_resize(true).resizable(false).build(|| {
+            let mut has_fields = false;
+            if let Some(mpv) = unsafe { get_min_players_var().as_mut() } {
+                ui.input_int("Min Number of Players", mpv).build();
+                has_fields = true;
+            }
+            if let Some(mpv) = unsafe { get_max_players_var().as_mut() } {
+                ui.input_int("Max Number of Players", mpv).build();
+                has_fields = true;
+            }
 
-                if !has_fields {
-                    ui.text_colored([1.0, 1.0, 0.0, 0.0], "No advanced settings available!");
-                }
-            });
+            if !has_fields {
+                ui.text_colored([1.0, 1.0, 0.0, 0.0], "No advanced settings available!");
+            }
+        });
     }
 
     fn show_debug(&mut self, ui: &imgui::Ui) {
@@ -283,16 +275,12 @@ impl MyRenderLoop {
                 ui.input_text("username", &mut self.username).build();
                 if ui.button("Friend Accepted Invite") {
                     info!("Send friend invite accept for {}", self.username);
-                    self.tx
-                        .send(Event::FriendsGameInviteAccepted(self.username.clone()))
-                        .unwrap();
+                    self.tx.send(Event::FriendsGameInviteAccepted(self.username.clone())).unwrap();
                 }
                 ui.same_line();
                 if ui.button("Party Accepted Invite") {
                     info!("Send party invite accept for {}", self.username);
-                    self.tx
-                        .send(Event::PartyGameInviteAccepted(self.username.clone()))
-                        .unwrap();
+                    self.tx.send(Event::PartyGameInviteAccepted(self.username.clone())).unwrap();
                 }
             });
 
@@ -303,9 +291,7 @@ impl MyRenderLoop {
                         ui.text(sender.username.as_str());
                         ui.disabled(invite.clicked, || {
                             if ui.button("Accept") {
-                                self.tx
-                                    .send(Event::FriendsGameInviteAccepted(sender.id.clone()))
-                                    .unwrap();
+                                self.tx.send(Event::FriendsGameInviteAccepted(sender.id.clone())).unwrap();
                                 self.ui_state = UiState::Hide;
                                 invite.clicked = true;
                             }
@@ -316,10 +302,7 @@ impl MyRenderLoop {
         }
 
         let color = [0.0, 0.0, 0.0, 0.5];
-        ui.get_background_draw_list()
-            .add_rect([0.0, 0.0], win_size, color)
-            .filled(true)
-            .build();
+        ui.get_background_draw_list().add_rect([0.0, 0.0], win_size, color).filled(true).build();
     }
 }
 
@@ -397,17 +380,13 @@ impl ImguiRenderLoop for MyRenderLoop {
                     self.connection_error = None;
                     if let Some(evt) = evt {
                         if let Some(ref sender) = evt.sender {
-                            self.invite_notification
-                                .replace((Instant::now(), sender.username.clone()));
+                            self.invite_notification.replace((Instant::now(), sender.username.clone()));
                         }
                         let force_join = evt.force_join;
                         if evt.sender.is_some() && (force_join || hooks_config::get().unwrap().auto_join_invite) {
                             self.join_session(&evt.sender.unwrap());
                         } else {
-                            self.active_invites.push(Invite {
-                                event: evt,
-                                clicked: force_join,
-                            });
+                            self.active_invites.push(Invite { event: evt, clicked: force_join });
                         }
                     }
                 }
@@ -427,13 +406,7 @@ impl ImguiRenderLoop for MyRenderLoop {
         }
     }
 
-    fn on_wnd_proc(
-        &self,
-        hwnd: windows::Win32::Foundation::HWND,
-        umsg: u32,
-        wparam: windows::Win32::Foundation::WPARAM,
-        lparam: windows::Win32::Foundation::LPARAM,
-    ) {
+    fn on_wnd_proc(&self, hwnd: windows::Win32::Foundation::HWND, umsg: u32, wparam: windows::Win32::Foundation::WPARAM, lparam: windows::Win32::Foundation::LPARAM) {
         if matches!(self.ui_state, UiState::Show) {
             // Forward to default handler so that the window doesn't break
             unsafe {
@@ -443,9 +416,7 @@ impl ImguiRenderLoop for MyRenderLoop {
     }
 }
 
-fn init_hudhook<T: hudhook::Hooks + 'static>(
-    invites: crossbeam_channel::Receiver<Result<Option<InviteEvent>, crate::api::Error>>,
-) -> anyhow::Result<()> {
+fn init_hudhook<T: hudhook::Hooks + 'static>(invites: crossbeam_channel::Receiver<Result<Option<InviteEvent>, crate::api::Error>>) -> anyhow::Result<()> {
     let (tx, rx) = mpsc::channel();
     EVENTS.get_or_init(|| Mutex::new(rx));
     hudhook::Hudhook::builder()
@@ -466,22 +437,15 @@ fn init_hudhook<T: hudhook::Hooks + 'static>(
         .map_err(|e| anyhow::anyhow!("Error adding gui hook: {e:?}"))
 }
 
-fn init_dx9(
-    invites: crossbeam_channel::Receiver<Result<Option<InviteEvent>, crate::api::Error>>,
-) -> anyhow::Result<()> {
+fn init_dx9(invites: crossbeam_channel::Receiver<Result<Option<InviteEvent>, crate::api::Error>>) -> anyhow::Result<()> {
     init_hudhook::<hudhook::hooks::dx9::ImguiDx9Hooks>(invites)
 }
 
-fn init_dx11(
-    invites: crossbeam_channel::Receiver<Result<Option<InviteEvent>, crate::api::Error>>,
-) -> anyhow::Result<()> {
+fn init_dx11(invites: crossbeam_channel::Receiver<Result<Option<InviteEvent>, crate::api::Error>>) -> anyhow::Result<()> {
     init_hudhook::<hudhook::hooks::dx11::ImguiDx11Hooks>(invites)
 }
 
-pub fn init(
-    engine: Engine,
-    invites: crossbeam_channel::Receiver<Result<Option<InviteEvent>, crate::api::Error>>,
-) -> anyhow::Result<()> {
+pub fn init(engine: Engine, invites: crossbeam_channel::Receiver<Result<Option<InviteEvent>, crate::api::Error>>) -> anyhow::Result<()> {
     match engine {
         Engine::DX9 => init_dx9(invites),
         Engine::DX11 => init_dx11(invites),

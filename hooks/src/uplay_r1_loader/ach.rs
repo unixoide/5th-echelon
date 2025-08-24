@@ -6,19 +6,12 @@ use hooks_proc::forwardable_export;
 use super::UplayOverlapped;
 
 #[forwardable_export]
-unsafe extern "cdecl" fn UPLAY_ACH_EarnAchievement(
-    achievement_id: *const c_void,
-    overlapped: *mut UplayOverlapped,
-) -> bool {
+unsafe extern "cdecl" fn UPLAY_ACH_EarnAchievement(achievement_id: *const c_void, overlapped: *mut UplayOverlapped) -> bool {
     false
 }
 
 #[forwardable_export]
-unsafe extern "cdecl" fn UPLAY_ACH_GetAchievementImage(
-    id: *const c_void,
-    out_image: *mut *mut c_void,
-    overlapped: *mut UplayOverlapped,
-) -> bool {
+unsafe extern "cdecl" fn UPLAY_ACH_GetAchievementImage(id: *const c_void, out_image: *mut *mut c_void, overlapped: *mut UplayOverlapped) -> bool {
     false
 }
 

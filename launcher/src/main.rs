@@ -78,10 +78,7 @@ fn main() {
         );
     }
 
-    let runtime = tokio::runtime::Builder::new_multi_thread()
-        .enable_all()
-        .build()
-        .unwrap();
+    let runtime = tokio::runtime::Builder::new_multi_thread().enable_all().build().unwrap();
 
     let assets = runtime.block_on(<updater::Updater>::check_for_updates());
     let launcher_asset = assets.into_iter().find(|a| a.name == "launcher.exe");
@@ -89,17 +86,14 @@ fn main() {
     info!("Launcher asset: {:?}", launcher_asset);
 
     if let Some("update") = std::env::args().nth(1).as_deref() {
-        runtime.block_on(<updater::Updater>::update_self(
-            launcher_asset.expect("Launcher asset not found"),
-        ));
+        runtime.block_on(<updater::Updater>::update_self(launcher_asset.expect("Launcher asset not found")));
         return;
     } else {
         updater::remove_updater_if_needed();
     }
     let mut update_available = launcher_asset.filter(|a| a.version > *VERSION).map(|a| a.version);
 
-    if matches!(update_available.zip(option_env!("GITHUB_REF_NAME")), Some((latest, gh_ref)) if format!("v{latest}") == gh_ref)
-    {
+    if matches!(update_available.zip(option_env!("GITHUB_REF_NAME")), Some((latest, gh_ref)) if format!("v{latest}") == gh_ref) {
         warn!("Identified update for launcher while it was built with the same tag name");
         update_available = None;
     }
@@ -121,12 +115,6 @@ fn main() {
 
     match ui_version {
         config::UIVersion::New => ui::new::run(target_dir, cfg, &adapters, update_available),
-        config::UIVersion::Old => ui::old::run(
-            target_dir,
-            cfg.into_inner(),
-            &adapter_names,
-            &adapter_ips,
-            update_available.is_some(),
-        ),
+        config::UIVersion::Old => ui::old::run(target_dir, cfg.into_inner(), &adapter_names, &adapter_ips, update_available.is_some()),
     }
 }

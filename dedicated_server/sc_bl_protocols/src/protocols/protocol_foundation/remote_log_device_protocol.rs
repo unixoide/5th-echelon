@@ -34,10 +34,7 @@ pub struct LogRequest {
 }
 #[derive(Debug, ToStream, FromStream)]
 pub struct LogResponse;
-pub struct RemoteLogDeviceProtocolServer<T: RemoteLogDeviceProtocolServerTrait<CI>, CI>(
-    T,
-    ::std::marker::PhantomData<CI>,
-);
+pub struct RemoteLogDeviceProtocolServer<T: RemoteLogDeviceProtocolServerTrait<CI>, CI>(T, ::std::marker::PhantomData<CI>);
 impl<T: RemoteLogDeviceProtocolServerTrait<CI>, CI> RemoteLogDeviceProtocolServer<T, CI> {
     pub fn new(implementation: T) -> Self {
         Self(implementation, ::std::marker::PhantomData)
@@ -75,9 +72,7 @@ impl<T: RemoteLogDeviceProtocolServerTrait<CI>, CI> Protocol<CI> for RemoteLogDe
         }
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        RemoteLogDeviceProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        RemoteLogDeviceProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
@@ -91,12 +86,7 @@ pub trait RemoteLogDeviceProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<LogResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "RemoteLogDeviceProtocol",
-            stringify!(log)
-        );
+        warn!(logger, "Method {}.{} not implemented", "RemoteLogDeviceProtocol", stringify!(log));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }
@@ -122,33 +112,14 @@ impl<CI> ClientProtocol<CI> for RemoteLogDeviceProtocolClient<CI> {
         1u32
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        RemoteLogDeviceProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        RemoteLogDeviceProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
 impl<CI> RemoteLogDeviceProtocolClient<CI> {
-    pub fn log(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: LogRequest,
-    ) -> Result<LogResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "RemoteLogDeviceProtocol",
-            stringify!(log)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            RemoteLogDeviceProtocolMethod::Log as u32,
-            request.to_bytes(),
-        );
+    pub fn log(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: LogRequest) -> Result<LogResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "RemoteLogDeviceProtocol", stringify!(log));
+        self.send(logger, ctx, ci, RemoteLogDeviceProtocolMethod::Log as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }

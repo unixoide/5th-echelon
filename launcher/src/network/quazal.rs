@@ -97,8 +97,7 @@ impl Quazal {
         let mut buf = vec![0u8; 4096];
 
         let n = self.socket.recv(&mut buf).await?;
-        let (syn_ack_pkt, _size) =
-            QPacket::from_bytes(&self.ctx, &buf[..n]).map_err(|e| std::io::Error::other(e.to_string()))?;
+        let (syn_ack_pkt, _size) = QPacket::from_bytes(&self.ctx, &buf[..n]).map_err(|e| std::io::Error::other(e.to_string()))?;
 
         if syn_ack_pkt.packet_type != PacketType::Syn || !syn_ack_pkt.flags.contains(PacketFlag::Ack) {
             return Err(Error::IO(std::io::Error::other("invalid syn ack")));
@@ -259,8 +258,7 @@ impl Quazal {
 
         let resp = Packet::from_bytes(&login_resp.payload)?;
         if let Packet::Response(resp) = resp {
-            resp.result
-                .map_err(|e| Error::Rmc(quazal::rmc::Error::from_error_code(e.error_code).unwrap()))?;
+            resp.result.map_err(|e| Error::Rmc(quazal::rmc::Error::from_error_code(e.error_code).unwrap()))?;
         } else {
             return Err(Error::IO(std::io::Error::other("invalid rmc response")));
         }
@@ -318,11 +316,7 @@ pub async fn test_p2p(api_url: String, username: &str, password: &str) -> Result
 
     let rpc_client_handle = tokio::spawn(async move {
         let challenge: [u8; 32] = rand::random();
-        let resp = client
-            .test_p2p(TestP2pRequest {
-                challenge: challenge.to_vec(),
-            })
-            .await?;
+        let resp = client.test_p2p(TestP2pRequest { challenge: challenge.to_vec() }).await?;
         Ok::<_, Error>(resp.into_inner().challenge)
     });
 

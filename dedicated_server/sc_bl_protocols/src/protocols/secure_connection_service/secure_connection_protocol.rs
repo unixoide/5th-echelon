@@ -72,10 +72,7 @@ pub struct RegisterExResponse {
     pub pid_connection_id: u32,
     pub url_public: quazal::rmc::types::StationURL,
 }
-pub struct SecureConnectionProtocolServer<T: SecureConnectionProtocolServerTrait<CI>, CI>(
-    T,
-    ::std::marker::PhantomData<CI>,
-);
+pub struct SecureConnectionProtocolServer<T: SecureConnectionProtocolServerTrait<CI>, CI>(T, ::std::marker::PhantomData<CI>);
 impl<T: SecureConnectionProtocolServerTrait<CI>, CI> SecureConnectionProtocolServer<T, CI> {
     pub fn new(implementation: T) -> Self {
         Self(implementation, ::std::marker::PhantomData)
@@ -113,9 +110,7 @@ impl<T: SecureConnectionProtocolServerTrait<CI>, CI> Protocol<CI> for SecureConn
             Some(SecureConnectionProtocolMethod::RequestConnectionData) => {
                 let req = RequestConnectionDataRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .request_connection_data(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.request_connection_data(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
@@ -136,9 +131,7 @@ impl<T: SecureConnectionProtocolServerTrait<CI>, CI> Protocol<CI> for SecureConn
         }
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        SecureConnectionProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        SecureConnectionProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
@@ -152,12 +145,7 @@ pub trait SecureConnectionProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<RegisterResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "SecureConnectionProtocol",
-            stringify!(register)
-        );
+        warn!(logger, "Method {}.{} not implemented", "SecureConnectionProtocol", stringify!(register));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn request_connection_data(
@@ -169,12 +157,7 @@ pub trait SecureConnectionProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<RequestConnectionDataResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "SecureConnectionProtocol",
-            stringify!(request_connection_data)
-        );
+        warn!(logger, "Method {}.{} not implemented", "SecureConnectionProtocol", stringify!(request_connection_data));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn request_urls(
@@ -186,12 +169,7 @@ pub trait SecureConnectionProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<RequestUrLsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "SecureConnectionProtocol",
-            stringify!(request_urls)
-        );
+        warn!(logger, "Method {}.{} not implemented", "SecureConnectionProtocol", stringify!(request_urls));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn register_ex(
@@ -203,12 +181,7 @@ pub trait SecureConnectionProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<RegisterExResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "SecureConnectionProtocol",
-            stringify!(register_ex)
-        );
+        warn!(logger, "Method {}.{} not implemented", "SecureConnectionProtocol", stringify!(register_ex));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }
@@ -234,33 +207,14 @@ impl<CI> ClientProtocol<CI> for SecureConnectionProtocolClient<CI> {
         4u32
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        SecureConnectionProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        SecureConnectionProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
 impl<CI> SecureConnectionProtocolClient<CI> {
-    pub fn register(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: RegisterRequest,
-    ) -> Result<RegisterResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "SecureConnectionProtocol",
-            stringify!(register)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            SecureConnectionProtocolMethod::Register as u32,
-            request.to_bytes(),
-        );
+    pub fn register(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: RegisterRequest) -> Result<RegisterResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "SecureConnectionProtocol", stringify!(register));
+        self.send(logger, ctx, ci, SecureConnectionProtocolMethod::Register as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn request_connection_data(
@@ -270,63 +224,18 @@ impl<CI> SecureConnectionProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: RequestConnectionDataRequest,
     ) -> Result<RequestConnectionDataResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "SecureConnectionProtocol",
-            stringify!(request_connection_data)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            SecureConnectionProtocolMethod::RequestConnectionData as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "SecureConnectionProtocol", stringify!(request_connection_data));
+        self.send(logger, ctx, ci, SecureConnectionProtocolMethod::RequestConnectionData as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn request_urls(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: RequestUrLsRequest,
-    ) -> Result<RequestUrLsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "SecureConnectionProtocol",
-            stringify!(request_urls)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            SecureConnectionProtocolMethod::RequestUrLs as u32,
-            request.to_bytes(),
-        );
+    pub fn request_urls(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: RequestUrLsRequest) -> Result<RequestUrLsResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "SecureConnectionProtocol", stringify!(request_urls));
+        self.send(logger, ctx, ci, SecureConnectionProtocolMethod::RequestUrLs as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn register_ex(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: RegisterExRequest,
-    ) -> Result<RegisterExResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "SecureConnectionProtocol",
-            stringify!(register_ex)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            SecureConnectionProtocolMethod::RegisterEx as u32,
-            request.to_bytes(),
-        );
+    pub fn register_ex(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: RegisterExRequest) -> Result<RegisterExResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "SecureConnectionProtocol", stringify!(register_ex));
+        self.send(logger, ctx, ci, SecureConnectionProtocolMethod::RegisterEx as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }

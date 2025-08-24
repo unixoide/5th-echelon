@@ -18,9 +18,7 @@ impl SaveGameExt for Save {
         const SAVE_GAME_FOLDER: &str = "5th-Echelon\\Saves";
         match self.save_dir {
             SaveDir::InstallLocation => todo!(),
-            SaveDir::Roaming => known_folder_roaming_app_data()
-                .expect("Couldn't find roaming directory")
-                .join(SAVE_GAME_FOLDER),
+            SaveDir::Roaming => known_folder_roaming_app_data().expect("Couldn't find roaming directory").join(SAVE_GAME_FOLDER),
             SaveDir::Custom(ref p) => PathBuf::from(p),
         }
     }

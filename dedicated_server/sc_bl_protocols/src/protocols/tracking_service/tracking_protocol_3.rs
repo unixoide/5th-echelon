@@ -110,9 +110,7 @@ impl<T: TrackingProtocol3ServerTrait<CI>, CI> Protocol<CI> for TrackingProtocol3
             Some(TrackingProtocol3Method::SendTagAndUpdateUserInfo) => {
                 let req = SendTagAndUpdateUserInfoRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .send_tag_and_update_user_info(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.send_tag_and_update_user_info(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
@@ -140,9 +138,7 @@ impl<T: TrackingProtocol3ServerTrait<CI>, CI> Protocol<CI> for TrackingProtocol3
         }
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        TrackingProtocol3Method::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        TrackingProtocol3Method::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
@@ -156,12 +152,7 @@ pub trait TrackingProtocol3ServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<SendTagResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "TrackingProtocol3",
-            stringify!(send_tag)
-        );
+        warn!(logger, "Method {}.{} not implemented", "TrackingProtocol3", stringify!(send_tag));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn send_tag_and_update_user_info(
@@ -173,12 +164,7 @@ pub trait TrackingProtocol3ServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<SendTagAndUpdateUserInfoResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "TrackingProtocol3",
-            stringify!(send_tag_and_update_user_info)
-        );
+        warn!(logger, "Method {}.{} not implemented", "TrackingProtocol3", stringify!(send_tag_and_update_user_info));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn send_user_info(
@@ -190,12 +176,7 @@ pub trait TrackingProtocol3ServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<SendUserInfoResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "TrackingProtocol3",
-            stringify!(send_user_info)
-        );
+        warn!(logger, "Method {}.{} not implemented", "TrackingProtocol3", stringify!(send_user_info));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_configuration(
@@ -207,12 +188,7 @@ pub trait TrackingProtocol3ServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetConfigurationResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "TrackingProtocol3",
-            stringify!(get_configuration)
-        );
+        warn!(logger, "Method {}.{} not implemented", "TrackingProtocol3", stringify!(get_configuration));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn send_tags(
@@ -224,12 +200,7 @@ pub trait TrackingProtocol3ServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<SendTagsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "TrackingProtocol3",
-            stringify!(send_tags)
-        );
+        warn!(logger, "Method {}.{} not implemented", "TrackingProtocol3", stringify!(send_tags));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }
@@ -255,33 +226,14 @@ impl<CI> ClientProtocol<CI> for TrackingProtocol3Client<CI> {
         5u32
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        TrackingProtocol3Method::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        TrackingProtocol3Method::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
 impl<CI> TrackingProtocol3Client<CI> {
-    pub fn send_tag(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: SendTagRequest,
-    ) -> Result<SendTagResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "TrackingProtocol3",
-            stringify!(send_tag)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            TrackingProtocol3Method::SendTag as u32,
-            request.to_bytes(),
-        );
+    pub fn send_tag(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: SendTagRequest) -> Result<SendTagResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "TrackingProtocol3", stringify!(send_tag));
+        self.send(logger, ctx, ci, TrackingProtocol3Method::SendTag as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn send_tag_and_update_user_info(
@@ -291,85 +243,23 @@ impl<CI> TrackingProtocol3Client<CI> {
         ci: &mut ClientInfo<CI>,
         request: SendTagAndUpdateUserInfoRequest,
     ) -> Result<SendTagAndUpdateUserInfoResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "TrackingProtocol3",
-            stringify!(send_tag_and_update_user_info)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            TrackingProtocol3Method::SendTagAndUpdateUserInfo as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "TrackingProtocol3", stringify!(send_tag_and_update_user_info));
+        self.send(logger, ctx, ci, TrackingProtocol3Method::SendTagAndUpdateUserInfo as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn send_user_info(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: SendUserInfoRequest,
-    ) -> Result<SendUserInfoResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "TrackingProtocol3",
-            stringify!(send_user_info)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            TrackingProtocol3Method::SendUserInfo as u32,
-            request.to_bytes(),
-        );
+    pub fn send_user_info(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: SendUserInfoRequest) -> Result<SendUserInfoResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "TrackingProtocol3", stringify!(send_user_info));
+        self.send(logger, ctx, ci, TrackingProtocol3Method::SendUserInfo as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn get_configuration(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetConfigurationRequest,
-    ) -> Result<GetConfigurationResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "TrackingProtocol3",
-            stringify!(get_configuration)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            TrackingProtocol3Method::GetConfiguration as u32,
-            request.to_bytes(),
-        );
+    pub fn get_configuration(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetConfigurationRequest) -> Result<GetConfigurationResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "TrackingProtocol3", stringify!(get_configuration));
+        self.send(logger, ctx, ci, TrackingProtocol3Method::GetConfiguration as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn send_tags(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: SendTagsRequest,
-    ) -> Result<SendTagsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "TrackingProtocol3",
-            stringify!(send_tags)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            TrackingProtocol3Method::SendTags as u32,
-            request.to_bytes(),
-        );
+    pub fn send_tags(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: SendTagsRequest) -> Result<SendTagsResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "TrackingProtocol3", stringify!(send_tags));
+        self.send(logger, ctx, ci, TrackingProtocol3Method::SendTags as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }

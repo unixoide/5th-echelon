@@ -46,9 +46,7 @@ pub fn read_string(key: Key, subkey: &str, value: &str) -> Option<OsString> {
                 buf.resize(bufsz as usize / 2 - 1, 0);
                 break Some(buf);
             }
-            ERROR_FILE_NOT_FOUND
-                if subkey.starts_with("SOFTWARE\\") && !subkey.starts_with("SOFTWARE\\WOW6432Node") =>
-            {
+            ERROR_FILE_NOT_FOUND if subkey.starts_with("SOFTWARE\\") && !subkey.starts_with("SOFTWARE\\WOW6432Node") => {
                 subkey = subkey.replace("SOFTWARE", "SOFTWARE\\WOW6432Node");
                 subkey_utf16 = subkey.encode_utf16().collect::<Vec<u16>>();
                 subkey_utf16.push(0);

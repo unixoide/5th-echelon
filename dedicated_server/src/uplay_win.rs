@@ -29,9 +29,7 @@ impl<CI> UplayWinProtocolServerTrait<CI> for UplayWinProtocolServerImpl {
         _socket: &std::net::UdpSocket,
     ) -> Result<UplayWelcomeResponse, Error> {
         login_required(&*ci)?;
-        Ok(UplayWelcomeResponse {
-            action_list: QList::default(),
-        })
+        Ok(UplayWelcomeResponse { action_list: QList::default() })
     }
     fn get_actions_completed(
         &self,
@@ -43,9 +41,7 @@ impl<CI> UplayWinProtocolServerTrait<CI> for UplayWinProtocolServerImpl {
         _socket: &std::net::UdpSocket,
     ) -> Result<GetActionsCompletedResponse, Error> {
         login_required(&*ci)?;
-        Ok(GetActionsCompletedResponse {
-            action_list: QList::default(),
-        })
+        Ok(GetActionsCompletedResponse { action_list: QList::default() })
     }
 
     fn get_rewards_purchased(
@@ -58,9 +54,7 @@ impl<CI> UplayWinProtocolServerTrait<CI> for UplayWinProtocolServerImpl {
         _socket: &std::net::UdpSocket,
     ) -> Result<GetRewardsPurchasedResponse, Error> {
         login_required(&*ci)?;
-        Ok(GetRewardsPurchasedResponse {
-            reward_list: QList::default(),
-        })
+        Ok(GetRewardsPurchasedResponse { reward_list: QList::default() })
     }
 }
 

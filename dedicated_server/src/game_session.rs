@@ -68,8 +68,7 @@ impl<CI> GameSessionProtocolServerTrait<CI> for GameSessionProtocolServerImpl {
             .collect::<Vec<_>>()
             .join(";");
         let session_id = rmc_err!(
-            self.storage
-                .create_game_session(user_id, request.game_session.type_id, attributes),
+            self.storage.create_game_session(user_id, request.game_session.type_id, attributes),
             logger,
             "error creating game session"
         )?;
@@ -128,11 +127,8 @@ impl<CI> GameSessionProtocolServerTrait<CI> for GameSessionProtocolServerImpl {
     ) -> Result<DeleteSessionResponse, Error> {
         let user_id = login_required(&*ci)?;
         if rmc_err!(
-            self.storage.delete_game_session(
-                user_id,
-                request.game_session_key.type_id,
-                request.game_session_key.session_id
-            ),
+            self.storage
+                .delete_game_session(user_id, request.game_session_key.type_id, request.game_session_key.session_id),
             logger,
             "error deleting session"
         )? != 1
@@ -191,11 +187,8 @@ impl<CI> GameSessionProtocolServerTrait<CI> for GameSessionProtocolServerImpl {
         login_required(&*ci)?;
         info!(logger, "Client removes participants: {:?}", request);
         rmc_err!(
-            self.storage.remove_participants(
-                request.game_session_key.type_id,
-                request.game_session_key.session_id,
-                request.participant_ids.0.clone(),
-            ),
+            self.storage
+                .remove_participants(request.game_session_key.type_id, request.game_session_key.session_id, request.participant_ids.0.clone(),),
             logger,
             "error removing participants"
         )?;
@@ -227,10 +220,7 @@ impl<CI> GameSessionProtocolServerTrait<CI> for GameSessionProtocolServerImpl {
         let user_id = login_required(&*ci)?;
         info!(logger, "Client registers urls: {:?}", request);
         rmc_err!(
-            self.storage.register_urls(
-                user_id,
-                request.station_urls.0.into_iter().map(|su| su.to_string()).collect()
-            ),
+            self.storage.register_urls(user_id, request.station_urls.0.into_iter().map(|su| su.to_string()).collect()),
             logger,
             "error adding participants"
         )?;
@@ -263,11 +253,7 @@ impl<CI> GameSessionProtocolServerTrait<CI> for GameSessionProtocolServerImpl {
             search_results: sessions
                 .into_iter()
                 .map(|session| {
-                    let host = session
-                        .participants
-                        .iter()
-                        .find(|p| p.user_id == session.creator_id)
-                        .unwrap();
+                    let host = session.participants.iter().find(|p| p.user_id == session.creator_id).unwrap();
                     GameSessionSearchWithParticipantsResult {
                         game_session_search_result: GameSessionSearchResult {
                             session_key: GameSessionKey {
@@ -314,7 +300,5 @@ impl<CI> GameSessionProtocolServerTrait<CI> for GameSessionProtocolServerImpl {
 }
 
 pub fn new_protocol<T: 'static>(storage: Arc<Storage>) -> Box<dyn Protocol<T>> {
-    Box::new(GameSessionProtocolServer::new(GameSessionProtocolServerImpl {
-        storage,
-    }))
+    Box::new(GameSessionProtocolServer::new(GameSessionProtocolServerImpl { storage }))
 }

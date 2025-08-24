@@ -41,14 +41,10 @@ impl GameVersion {
 }
 
 fn get_install_dir() -> Option<PathBuf> {
-    registry::read_string(
-        registry::Key::LocaLMachine,
-        r"SOFTWARE\Ubisoft\Splinter Cell Blacklist",
-        "installdir",
-    )
-    .as_deref()
-    .and_then(OsStr::to_str)
-    .map(PathBuf::from)
+    registry::read_string(registry::Key::LocaLMachine, r"SOFTWARE\Ubisoft\Splinter Cell Blacklist", "installdir")
+        .as_deref()
+        .and_then(OsStr::to_str)
+        .map(PathBuf::from)
 }
 
 pub fn find_target_dir() -> Option<PathBuf> {
@@ -58,14 +54,10 @@ pub fn find_target_dir() -> Option<PathBuf> {
         target_dir = install_dir;
     }
 
-    let candidates: Vec<_> = [
-        "Blacklist_game.exe",
-        "SYSTEM\\Blacklist_game.exe",
-        "src\\SYSTEM\\Blacklist_game.exe",
-    ]
-    .into_iter()
-    .map(|p| target_dir.join(p))
-    .collect();
+    let candidates: Vec<_> = ["Blacklist_game.exe", "SYSTEM\\Blacklist_game.exe", "src\\SYSTEM\\Blacklist_game.exe"]
+        .into_iter()
+        .map(|p| target_dir.join(p))
+        .collect();
 
     for path in candidates {
         if path.exists() {

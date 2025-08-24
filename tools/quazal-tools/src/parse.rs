@@ -325,10 +325,7 @@ pub struct DupSpaceDeclaration {
 
 fn string(input: &[u8]) -> IResult<&[u8], String> {
     let (input, data) = length_data(be_u32).parse(input)?;
-    Ok((
-        input,
-        dump_value(String::from_utf8(data.to_vec()).expect("utf8 string")),
-    ))
+    Ok((input, dump_value(String::from_utf8(data.to_vec()).expect("utf8 string"))))
 }
 
 #[allow(dead_code)]

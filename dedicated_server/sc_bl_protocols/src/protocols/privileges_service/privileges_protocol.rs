@@ -127,27 +127,21 @@ impl<T: PrivilegesProtocolServerTrait<CI>, CI> Protocol<CI> for PrivilegesProtoc
             Some(PrivilegesProtocolMethod::ActivateKeyWithExpectedPrivileges) => {
                 let req = ActivateKeyWithExpectedPrivilegesRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .activate_key_with_expected_privileges(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.activate_key_with_expected_privileges(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(PrivilegesProtocolMethod::GetPrivilegeRemainDuration) => {
                 let req = GetPrivilegeRemainDurationRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_privilege_remain_duration(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_privilege_remain_duration(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(PrivilegesProtocolMethod::GetExpiredPrivileges) => {
                 let req = GetExpiredPrivilegesRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_expired_privileges(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_expired_privileges(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
@@ -161,9 +155,7 @@ impl<T: PrivilegesProtocolServerTrait<CI>, CI> Protocol<CI> for PrivilegesProtoc
         }
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        PrivilegesProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        PrivilegesProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
@@ -177,12 +169,7 @@ pub trait PrivilegesProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetPrivilegesResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "PrivilegesProtocol",
-            stringify!(get_privileges)
-        );
+        warn!(logger, "Method {}.{} not implemented", "PrivilegesProtocol", stringify!(get_privileges));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn activate_key(
@@ -194,12 +181,7 @@ pub trait PrivilegesProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<ActivateKeyResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "PrivilegesProtocol",
-            stringify!(activate_key)
-        );
+        warn!(logger, "Method {}.{} not implemented", "PrivilegesProtocol", stringify!(activate_key));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn activate_key_with_expected_privileges(
@@ -228,12 +210,7 @@ pub trait PrivilegesProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetPrivilegeRemainDurationResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "PrivilegesProtocol",
-            stringify!(get_privilege_remain_duration)
-        );
+        warn!(logger, "Method {}.{} not implemented", "PrivilegesProtocol", stringify!(get_privilege_remain_duration));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_expired_privileges(
@@ -245,12 +222,7 @@ pub trait PrivilegesProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetExpiredPrivilegesResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "PrivilegesProtocol",
-            stringify!(get_expired_privileges)
-        );
+        warn!(logger, "Method {}.{} not implemented", "PrivilegesProtocol", stringify!(get_expired_privileges));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_privileges_ex(
@@ -262,12 +234,7 @@ pub trait PrivilegesProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetPrivilegesExResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "PrivilegesProtocol",
-            stringify!(get_privileges_ex)
-        );
+        warn!(logger, "Method {}.{} not implemented", "PrivilegesProtocol", stringify!(get_privileges_ex));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }
@@ -293,55 +260,19 @@ impl<CI> ClientProtocol<CI> for PrivilegesProtocolClient<CI> {
         6u32
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        PrivilegesProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        PrivilegesProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
 impl<CI> PrivilegesProtocolClient<CI> {
-    pub fn get_privileges(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetPrivilegesRequest,
-    ) -> Result<GetPrivilegesResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "PrivilegesProtocol",
-            stringify!(get_privileges)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            PrivilegesProtocolMethod::GetPrivileges as u32,
-            request.to_bytes(),
-        );
+    pub fn get_privileges(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetPrivilegesRequest) -> Result<GetPrivilegesResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "PrivilegesProtocol", stringify!(get_privileges));
+        self.send(logger, ctx, ci, PrivilegesProtocolMethod::GetPrivileges as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn activate_key(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: ActivateKeyRequest,
-    ) -> Result<ActivateKeyResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "PrivilegesProtocol",
-            stringify!(activate_key)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            PrivilegesProtocolMethod::ActivateKey as u32,
-            request.to_bytes(),
-        );
+    pub fn activate_key(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: ActivateKeyRequest) -> Result<ActivateKeyResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "PrivilegesProtocol", stringify!(activate_key));
+        self.send(logger, ctx, ci, PrivilegesProtocolMethod::ActivateKey as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn activate_key_with_expected_privileges(
@@ -357,13 +288,7 @@ impl<CI> PrivilegesProtocolClient<CI> {
             "PrivilegesProtocol",
             stringify!(activate_key_with_expected_privileges)
         );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            PrivilegesProtocolMethod::ActivateKeyWithExpectedPrivileges as u32,
-            request.to_bytes(),
-        );
+        self.send(logger, ctx, ci, PrivilegesProtocolMethod::ActivateKeyWithExpectedPrivileges as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn get_privilege_remain_duration(
@@ -373,19 +298,8 @@ impl<CI> PrivilegesProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: GetPrivilegeRemainDurationRequest,
     ) -> Result<GetPrivilegeRemainDurationResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "PrivilegesProtocol",
-            stringify!(get_privilege_remain_duration)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            PrivilegesProtocolMethod::GetPrivilegeRemainDuration as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "PrivilegesProtocol", stringify!(get_privilege_remain_duration));
+        self.send(logger, ctx, ci, PrivilegesProtocolMethod::GetPrivilegeRemainDuration as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn get_expired_privileges(
@@ -395,41 +309,13 @@ impl<CI> PrivilegesProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: GetExpiredPrivilegesRequest,
     ) -> Result<GetExpiredPrivilegesResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "PrivilegesProtocol",
-            stringify!(get_expired_privileges)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            PrivilegesProtocolMethod::GetExpiredPrivileges as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "PrivilegesProtocol", stringify!(get_expired_privileges));
+        self.send(logger, ctx, ci, PrivilegesProtocolMethod::GetExpiredPrivileges as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn get_privileges_ex(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetPrivilegesExRequest,
-    ) -> Result<GetPrivilegesExResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "PrivilegesProtocol",
-            stringify!(get_privileges_ex)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            PrivilegesProtocolMethod::GetPrivilegesEx as u32,
-            request.to_bytes(),
-        );
+    pub fn get_privileges_ex(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetPrivilegesExRequest) -> Result<GetPrivilegesExResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "PrivilegesProtocol", stringify!(get_privileges_ex));
+        self.send(logger, ctx, ci, PrivilegesProtocolMethod::GetPrivilegesEx as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }

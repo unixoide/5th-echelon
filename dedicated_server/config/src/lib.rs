@@ -72,9 +72,7 @@ impl Config {
 impl Default for Config {
     fn default() -> Self {
         let mut online_cfg = OnlineConfig::default();
-        online_cfg
-            .listen
-            .set_ip(std::net::IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)));
+        online_cfg.listen.set_ip(std::net::IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)));
 
         let server_ip = std::net::IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1));
 
@@ -88,9 +86,7 @@ impl Default for Config {
 
         let mut content_server_addr = content_srv.listen;
         content_server_addr.set_ip(server_ip);
-        secure_ctx
-            .settings
-            .insert(String::from("storage_host"), content_server_addr.to_string());
+        secure_ctx.settings.insert(String::from("storage_host"), content_server_addr.to_string());
         if let Some(path) = content_srv.files.keys().next() {
             secure_ctx.settings.insert(String::from("storage_path"), path.clone());
         }
@@ -101,10 +97,7 @@ impl Default for Config {
         ctx.secure_server_addr = Some(secure_server_addr);
 
         let quazal_config = quazal::Config {
-            services: ["onlineconfig", "content", "sc_bl_secure", "sc_bl_auth"]
-                .into_iter()
-                .map(String::from)
-                .collect(),
+            services: ["onlineconfig", "content", "sc_bl_secure", "sc_bl_auth"].into_iter().map(String::from).collect(),
             service: HashMap::from([
                 ("sc_bl_auth".to_string(), Service::Authentication(ctx)),
                 ("sc_bl_secure".to_string(), Service::Secure(secure_ctx)),

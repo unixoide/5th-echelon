@@ -27,14 +27,9 @@ impl<T> SecureConnectionProtocolServerTrait<T> for SecureConnectionProtocolServe
         Ok(RegisterResponse {
             return_value: QResult::Ok,
             pid_connection_id: ci.connection_id.unwrap().into(), // should be set at this point
-            url_public: format!(
-                "prudp:/address={};port={};sid={};type=2",
-                ci.address().ip(),
-                ci.address().port(),
-                14
-            )
-            .parse()
-            .map_err(|_| quazal::rmc::Error::InternalError)?,
+            url_public: format!("prudp:/address={};port={};sid={};type=2", ci.address().ip(), ci.address().port(), 14)
+                .parse()
+                .map_err(|_| quazal::rmc::Error::InternalError)?,
         })
     }
 
@@ -52,14 +47,9 @@ impl<T> SecureConnectionProtocolServerTrait<T> for SecureConnectionProtocolServe
         Ok(RegisterExResponse {
             return_value: QResult::Ok,
             pid_connection_id: ci.connection_id.unwrap().into(), // should be set at this point
-            url_public: format!(
-                "prudp:/address={};port={};sid={};type=3",
-                ci.address().ip(),
-                ci.address().port(),
-                15
-            )
-            .parse()
-            .map_err(|_| quazal::rmc::Error::InternalError)?,
+            url_public: format!("prudp:/address={};port={};sid={};type=3", ci.address().ip(), ci.address().port(), 15)
+                .parse()
+                .map_err(|_| quazal::rmc::Error::InternalError)?,
         })
     }
 }

@@ -65,64 +65,42 @@ fn draw_login(ui: &imgui::Ui, cfg: &mut hooks_config::Config) -> Option<Option<S
             false
         }
     };
-    ui.disabled(
-        cfg.user.username.is_empty() || cfg.user.password.is_empty() || logging_in,
-        || {
-            if ui.button("Test Login") {
-                let api_url = cfg.api_server.to_string();
-                let username = cfg.user.username.clone();
-                let password = cfg.user.password.clone();
-                LOGIN_TEST
-                    .lock()
+    ui.disabled(cfg.user.username.is_empty() || cfg.user.password.is_empty() || logging_in, || {
+        if ui.button("Test Login") {
+            let api_url = cfg.api_server.to_string();
+            let username = cfg.user.username.clone();
+            let password = cfg.user.password.clone();
+            LOGIN_TEST.lock().unwrap().replace(BackgroundValue::Handle(std::thread::spawn(|| {
+                tokio::runtime::Builder::new_current_thread()
+                    .enable_all()
+                    .build()
                     .unwrap()
-                    .replace(BackgroundValue::Handle(std::thread::spawn(|| {
-                        tokio::runtime::Builder::new_current_thread()
-                            .enable_all()
-                            .build()
-                            .unwrap()
-                            .block_on(async move {
-                                test_login(api_url, &username, &password)
-                                    .await
-                                    .as_ref()
-                                    .map_err(ToString::to_string)
-                                    .err()
-                            })
-                    })));
-            }
-        },
-    );
+                    .block_on(async move { test_login(api_url, &username, &password).await.as_ref().map_err(ToString::to_string).err() })
+            })));
+        }
+    });
 
     if logging_in {
         ui.open_popup("logging_in")
     }
-    ui.modal_popup_config("logging_in")
-        .title_bar(false)
-        .movable(false)
-        .resizable(false)
-        .build(|| {
-            static mut TOTAL_TIME_MS: u64 = 0;
-            // safety: data races are not our concern here
-            unsafe { TOTAL_TIME_MS += (ui.io().delta_time * 1000.) as u64 };
-            match unsafe { TOTAL_TIME_MS } / 500 % 3 {
-                0 => ui.text(format!("Attempting to login as {}...", cfg.user.username)),
-                1 => ui.text(format!("Attempting to login as {}.  ", cfg.user.username)),
-                2 => ui.text(format!("Attempting to login as {}.. ", cfg.user.username)),
-                _ => unreachable!(),
-            }
-            if !logging_in {
-                ui.close_current_popup();
-            }
-        });
+    ui.modal_popup_config("logging_in").title_bar(false).movable(false).resizable(false).build(|| {
+        static mut TOTAL_TIME_MS: u64 = 0;
+        // safety: data races are not our concern here
+        unsafe { TOTAL_TIME_MS += (ui.io().delta_time * 1000.) as u64 };
+        match unsafe { TOTAL_TIME_MS } / 500 % 3 {
+            0 => ui.text(format!("Attempting to login as {}...", cfg.user.username)),
+            1 => ui.text(format!("Attempting to login as {}.  ", cfg.user.username)),
+            2 => ui.text(format!("Attempting to login as {}.. ", cfg.user.username)),
+            _ => unreachable!(),
+        }
+        if !logging_in {
+            ui.close_current_popup();
+        }
+    });
 
     if !logging_in {
         #[allow(clippy::map_clone)]
-        let login_error: Option<Option<String>> = {
-            LOGIN_TEST
-                .lock()
-                .unwrap()
-                .as_mut()
-                .map(|r| r.try_get().and_then(Option::from).map(String::clone))
-        };
+        let login_error: Option<Option<String>> = { LOGIN_TEST.lock().unwrap().as_mut().map(|r| r.try_get().and_then(Option::from).map(String::clone)) };
         login_error
     } else {
         None
@@ -140,77 +118,61 @@ fn draw_register(ui: &imgui::Ui, cfg: &mut hooks_config::Config) {
         }
     });
 
-    ui.modal_popup_config(ID_MODAL_REGISTER)
-        .movable(false)
-        .always_auto_resize(true)
-        .resizable(false)
-        .build(|| {
-            static mut UBI_ID: String = String::new();
+    ui.modal_popup_config(ID_MODAL_REGISTER).movable(false).always_auto_resize(true).resizable(false).build(|| {
+        static mut UBI_ID: String = String::new();
 
-            ui.input_text("Username", &mut cfg.user.username).build();
-            ui.input_text("Password", &mut cfg.user.password).password(true).build();
-            #[allow(static_mut_refs)]
-            ui.input_text("Ubisoft ID", unsafe { &mut UBI_ID }).build();
+        ui.input_text("Username", &mut cfg.user.username).build();
+        ui.input_text("Password", &mut cfg.user.password).password(true).build();
+        #[allow(static_mut_refs)]
+        ui.input_text("Ubisoft ID", unsafe { &mut UBI_ID }).build();
 
-            let is_finished = {
-                if let Some(h) = &*REGISTER.lock().unwrap() {
-                    h.is_finished()
-                } else {
-                    false
-                }
-            };
-
-            let register_error: Option<String> = {
-                #[allow(clippy::map_clone)]
-                REGISTER
-                    .lock()
-                    .unwrap()
-                    .as_mut()
-                    .and_then(|r| r.try_get().and_then(Option::from))
-                    .map(String::clone)
-            };
-
-            if let Some(err) = register_error {
-                ui.text_colored([1.0f32, 0f32, 0f32, 1f32], err);
-            } else if is_finished {
-                ui.text_colored([0f32, 1f32, 0f32, 1f32], "Registration successful!");
-                if ui.button("Close") {
-                    ui.close_current_popup();
-                }
-                return;
+        let is_finished = {
+            if let Some(h) = &*REGISTER.lock().unwrap() {
+                h.is_finished()
             } else {
-                ui.new_line();
+                false
             }
+        };
 
-            if ui.button("Register") {
-                let api_url = cfg.api_server.to_string();
-                let username = cfg.user.username.clone();
-                let password = cfg.user.password.clone();
-                REGISTER
-                    .lock()
-                    .unwrap()
-                    .replace(BackgroundValue::Handle(std::thread::spawn(|| {
-                        tokio::runtime::Builder::new_current_thread()
-                            .enable_all()
-                            .build()
-                            .unwrap()
-                            .block_on(async move {
-                                #[allow(static_mut_refs)]
-                                register(api_url, &username, &password, unsafe { &UBI_ID })
-                                    .await
-                                    .as_ref()
-                                    .map_err(ToString::to_string)
-                                    .err()
-                            })
-                    })));
-            }
-            ui.same_line();
-            if ui.button("Cancel") {
-                cfg.user.username = String::new();
-                cfg.user.password = String::new();
+        let register_error: Option<String> = {
+            #[allow(clippy::map_clone)]
+            REGISTER.lock().unwrap().as_mut().and_then(|r| r.try_get().and_then(Option::from)).map(String::clone)
+        };
+
+        if let Some(err) = register_error {
+            ui.text_colored([1.0f32, 0f32, 0f32, 1f32], err);
+        } else if is_finished {
+            ui.text_colored([0f32, 1f32, 0f32, 1f32], "Registration successful!");
+            if ui.button("Close") {
                 ui.close_current_popup();
             }
-        });
+            return;
+        } else {
+            ui.new_line();
+        }
+
+        if ui.button("Register") {
+            let api_url = cfg.api_server.to_string();
+            let username = cfg.user.username.clone();
+            let password = cfg.user.password.clone();
+            REGISTER.lock().unwrap().replace(BackgroundValue::Handle(std::thread::spawn(|| {
+                tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap().block_on(async move {
+                    #[allow(static_mut_refs)]
+                    register(api_url, &username, &password, unsafe { &UBI_ID })
+                        .await
+                        .as_ref()
+                        .map_err(ToString::to_string)
+                        .err()
+                })
+            })));
+        }
+        ui.same_line();
+        if ui.button("Cancel") {
+            cfg.user.username = String::new();
+            cfg.user.password = String::new();
+            ui.close_current_popup();
+        }
+    });
 }
 
 fn draw_main_settings(ui: &imgui::Ui, cfg: &mut Config) {
@@ -230,33 +192,19 @@ fn draw_main_settings(ui: &imgui::Ui, cfg: &mut Config) {
     let ui_versions = [None, Some(UIVersion::Old), Some(UIVersion::New)];
     let mut selected_ui_version = ui_versions.iter().position(|v| v == &cfg.ui_version).unwrap_or(0);
 
-    if ui.combo(
-        "UI Version to use\n(requires launcher restart)",
-        &mut selected_ui_version,
-        &ui_versions,
-        |uv| {
-            std::borrow::Cow::Borrowed(match uv {
-                Some(UIVersion::Old) => "Old",
-                Some(UIVersion::New) => "New",
-                None => "Choose on next start",
-            })
-        },
-    ) {
+    if ui.combo("UI Version to use\n(requires launcher restart)", &mut selected_ui_version, &ui_versions, |uv| {
+        std::borrow::Cow::Borrowed(match uv {
+            Some(UIVersion::Old) => "Old",
+            Some(UIVersion::New) => "New",
+            None => "Choose on next start",
+        })
+    }) {
         cfg.ui_version = ui_versions[selected_ui_version];
     }
 }
 
-fn draw_networking_settings(
-    ui: &imgui::Ui,
-    cfg: &mut hooks_config::Config,
-    api_server: &mut String,
-    adapters: &[String],
-    adapter_ips: &[IpAddr],
-) {
-    if ui.collapsing_header(
-        "Networking",
-        imgui::TreeNodeFlags::FRAME_PADDING | imgui::TreeNodeFlags::DEFAULT_OPEN,
-    ) {
+fn draw_networking_settings(ui: &imgui::Ui, cfg: &mut hooks_config::Config, api_server: &mut String, adapters: &[String], adapter_ips: &[IpAddr]) {
+    if ui.collapsing_header("Networking", imgui::TreeNodeFlags::FRAME_PADDING | imgui::TreeNodeFlags::DEFAULT_OPEN) {
         ui.indent();
         let mut custom_server = cfg.config_server.is_some();
         ui.checkbox("Use custom config server", &mut custom_server);
@@ -334,15 +282,11 @@ fn draw_debug_settings(ui: &imgui::Ui, cfg: &mut hooks_config::Config, addr: &Ad
         cfg.logging.level = LOG_LEVELS[current_item];
         ui.checkbox("Enable Overlay", &mut cfg.enable_overlay);
         ui.checkbox("Forward all calls to UPlay", &mut cfg.forward_all_calls);
-        ui.input_text("Unreal Engine command line", &mut cfg.internal_command_line)
-            .build();
+        ui.input_text("Unreal Engine command line", &mut cfg.internal_command_line).build();
         ui.checkbox("Enable All Hooks", &mut cfg.enable_all_hooks);
         if !cfg.enable_all_hooks && ui.collapsing_header("Individual Hooks", imgui::TreeNodeFlags::FRAME_PADDING) {
             ui.indent();
-            for (variant, label) in hooks_config::Hook::VARIANTS
-                .iter()
-                .zip(hooks_config::Hook::LABELS.iter())
-            {
+            for (variant, label) in hooks_config::Hook::VARIANTS.iter().zip(hooks_config::Hook::LABELS.iter()) {
                 if addr.hook_addr(*variant).is_none() {
                     continue;
                 }
@@ -387,11 +331,7 @@ fn draw_title(ui: &imgui::Ui, header_font: imgui::FontId, logo_texture: imgui::T
     }
 }
 
-fn get_selected_executable(
-    ui: &imgui::Ui,
-    games: &GameHooks,
-    selected_gv: Option<GameVersion>,
-) -> Option<(GameVersion, GameState)> {
+fn get_selected_executable(ui: &imgui::Ui, games: &GameHooks, selected_gv: Option<GameVersion>) -> Option<(GameVersion, GameState)> {
     let mut versions = games
         .iter()
         .map(|g| match g.version {
@@ -452,213 +392,173 @@ pub fn run(target_dir: PathBuf, cfg: Config, adapters: &[String], adapter_ips: &
     let mut exe_loader = load_game_binaries(&target_dir);
 
     let dll_version = get_dll_version(target_dir.join("uplay_r1_loader.dll")).unwrap_or_default();
-    let expected_dll_version: Version = option_env!("HOOKS_VERSION")
-        .and_then(|hv| hv.parse::<Version>().ok())
-        .unwrap_or_default();
+    let expected_dll_version: Version = option_env!("HOOKS_VERSION").and_then(|hv| hv.parse::<Version>().ok()).unwrap_or_default();
 
     let mut show_outdated_dll_warning = dll_version < expected_dll_version;
     let mut show_outdated_launcher_warning = update_available;
-    render::render(
-        LogicalSize::new(1024, 768),
-        imgui,
-        |ui: &mut imgui::Ui, w: f32, h: f32, logo_texture: imgui::TextureId| {
-            /* create imgui UI here */
-            ui.window("Settings")
-                .size([w, h], imgui::Condition::Always)
-                .position([0f32, 0f32], imgui::Condition::Always)
-                .movable(false)
-                .resizable(false)
-                .title_bar(false)
-                .build(|| {
-                    if addresses.is_none() {
-                        addresses = draw_loading_screen(ui, &mut exe_loader);
-                        return;
-                    }
+    render::render(LogicalSize::new(1024, 768), imgui, |ui: &mut imgui::Ui, w: f32, h: f32, logo_texture: imgui::TextureId| {
+        /* create imgui UI here */
+        ui.window("Settings")
+            .size([w, h], imgui::Condition::Always)
+            .position([0f32, 0f32], imgui::Condition::Always)
+            .movable(false)
+            .resizable(false)
+            .title_bar(false)
+            .build(|| {
+                if addresses.is_none() {
+                    addresses = draw_loading_screen(ui, &mut exe_loader);
+                    return;
+                }
 
-                    let addresses = addresses.as_mut().unwrap();
-                    draw_title(ui, header_font, logo_texture);
-                    ui.separator();
-                    ui.set_window_font_scale(0.75);
-                    ui.text_disabled(format!("Install dir: {}", target_dir.as_os_str().to_string_lossy()));
-                    ui.text_disabled(format!("Launcher Version: {}", *crate::VERSION));
-                    ui.same_line();
-                    #[cfg(feature = "embed-dll")]
-                    {
-                        ui.text_disabled(format!("Bundled DLL version: {}", env!("HOOKS_VERSION")));
-                    }
-                    ui.same_line();
-                    ui.text_disabled(format!("Installed DLL version: {}", dll_version));
-                    ui.set_window_font_scale(1.0);
+                let addresses = addresses.as_mut().unwrap();
+                draw_title(ui, header_font, logo_texture);
+                ui.separator();
+                ui.set_window_font_scale(0.75);
+                ui.text_disabled(format!("Install dir: {}", target_dir.as_os_str().to_string_lossy()));
+                ui.text_disabled(format!("Launcher Version: {}", *crate::VERSION));
+                ui.same_line();
+                #[cfg(feature = "embed-dll")]
+                {
+                    ui.text_disabled(format!("Bundled DLL version: {}", env!("HOOKS_VERSION")));
+                }
+                ui.same_line();
+                ui.text_disabled(format!("Installed DLL version: {}", dll_version));
+                ui.set_window_font_scale(1.0);
 
-                    ui.modal_popup("Outdated DLL", || {
-                        ui.text("Installed DLL is outdated.");
-                        if ui.button("Ok") {
-                            ui.close_current_popup();
-                        }
-                    });
-                    if show_outdated_dll_warning {
-                        show_outdated_dll_warning = false;
-                        ui.open_popup("Outdated DLL");
-                    }
-
-                    ui.modal_popup("Outdated Launcher", || {
-                        ui.text("Launcher is outdated.");
-                        if ui.button("Update Now") {
-                            let mut child = std::process::Command::new(std::env::current_exe().unwrap())
-                                .arg("update")
-                                .spawn()
-                                .unwrap();
-                            child.try_wait().unwrap();
-                            std::process::exit(0);
-                        }
-                        if ui.button("Discard") {
-                            ui.close_current_popup();
-                        }
-                    });
-                    if show_outdated_launcher_warning {
-                        show_outdated_launcher_warning = false;
-                        ui.open_popup("Outdated Launcher");
-                    }
-
-                    draw_main_settings(ui, &mut cfg);
-                    draw_networking_settings(ui, &mut cfg.hook_config, &mut api_server, adapters, adapter_ips);
-                    if let Some(GameHook {
-                        state: GameHookState::Resolved(ref addr),
-                        ..
-                    }) = selected_game.and_then(|sg| addresses.get(sg.0))
-                    {
-                        draw_debug_settings(ui, &mut cfg.hook_config, addr);
-                    }
-                    ui.separator();
-                    ui.disabled(saved_cfg == cfg, || {
-                        if ui.button("Save") {
-                            if cfg.hook_config.networking.adapter.is_some() {
-                                cfg.hook_config.networking.ip_address.take();
-                            }
-                            fs::write(
-                                hooks_config::get_config_path("."),
-                                toml::to_string_pretty(&cfg).unwrap(),
-                            )
-                            .unwrap();
-                            saved_cfg = cfg.clone();
-                        }
-                    });
-                    ui.same_line();
-                    ui.disabled(saved_cfg == cfg, || {
-                        if ui.button("Reset") {
-                            cfg = saved_cfg.clone();
-                        }
-                    });
-                    ui.same_line();
-
-                    selected_game = get_selected_executable(ui, addresses, selected_game.map(|(gv, _)| gv));
-                    ui.same_line();
-
-                    ui.enabled(
-                        saved_cfg == cfg && matches!(selected_game, Some((_, GameState::Ready))),
-                        || {
-                            if ui.button("Launch") {
-                                let executable = selected_game.unwrap().0.full_path(&target_dir);
-                                match std::process::Command::new(&executable).spawn() {
-                                    Err(e) => launch_error = Some(format!("{executable:?}: {e}")),
-                                    Ok(_) => std::process::exit(0),
-                                }
-                            }
-                            if let Some(error) = &launch_error {
-                                ui.text_colored([1.0, 0.0, 0.0, 1.0], error)
-                            }
-                        },
-                    );
-                    ui.same_line();
-                    ui.enabled(
-                        saved_cfg == cfg && matches!(selected_game, Some((_, GameState::NotReady))),
-                        || {
-                            if ui.button("Identify") {
-                                ui.open_popup(ID_MODAL_SEARCHING);
-                                addresses.start_searching();
-                            }
-                        },
-                    );
-
-                    let should_open_search_modal = ui
-                        .modal_popup_config(ID_MODAL_ASK_SEARCH)
-                        .resizable(false)
-                        .movable(false)
-                        .build(|| {
-                            ui.text(
-                                "None of the executabels seem to be known by this launcher.\n\nAttempt to identify?",
-                            );
-                            if ui.button("Yes") {
-                                addresses.start_searching();
-                                ui.close_current_popup();
-                                return true;
-                            }
-                            ui.same_line();
-                            if ui.button("No") {
-                                addresses.ignore_unknown_binaries();
-                                ui.close_current_popup();
-                            }
-                            false
-                        });
-
-                    let search_modal_opened = ui
-                        .modal_popup_config(ID_MODAL_SEARCHING)
-                        .resizable(false)
-                        .movable(false)
-                        .always_auto_resize(true)
-                        .build(|| {
-                            ui.text("Identifying...");
-                            for hook in addresses.iter() {
-                                ui.text(format!("{}: ", hook.version.label()));
-                                ui.same_line();
-                                match &hook.state {
-                                    GameHookState::Resolved(_) => ui.text_colored([0f32, 1f32, 0f32, 1f32], "OK"),
-                                    GameHookState::FileNotFound => {
-                                        ui.text_colored([0f32, 0f32, 0f32, 1f32], "Not found")
-                                    }
-                                    GameHookState::Searching => ui.text_colored([1f32, 1f32, 0f32, 1f32], "Testing..."),
-                                    GameHookState::Ignored => {
-                                        ui.text_colored([0.4f32, 0.4f32, 0.4f32, 1f32], "IGNORED")
-                                    }
-                                    GameHookState::UnsupportedBinary => {
-                                        ui.text_colored([1f32, 0f32, 0f32, 1f32], "UNSUPPORTED")
-                                    }
-                                    GameHookState::Failed(f) => {
-                                        ui.text_colored([1f32, 0f32, 0f32, 1f32], format!("FAILURE: {f}"))
-                                    }
-                                }
-                            }
-                            if addresses.search_status() && ui.button("Save Results") {
-                                let gen_hash = |g: &GameHook| {
-                                    let GameHookState::Resolved(a) = &g.state else {
-                                        return None;
-                                    };
-                                    let Ok(hash) = hooks_addresses::hash_file(g.version.full_path(&g.target_dir))
-                                    else {
-                                        return None;
-                                    };
-                                    Some(HashMap::from([(hash, *a.clone())]))
-                                };
-                                let dx9 = addresses
-                                    .get(GameVersion::SplinterCellBlacklistDx9)
-                                    .and_then(gen_hash)
-                                    .unwrap_or_default();
-                                let dx11 = addresses
-                                    .get(GameVersion::SplinterCellBlacklistDx11)
-                                    .and_then(gen_hash)
-                                    .unwrap_or_default();
-                                hooks_addresses::save_addresses(&target_dir, dx9, dx11);
-                                ui.close_current_popup();
-                            }
-                        })
-                        .is_some();
-
-                    if should_open_search_modal.is_none() && !search_modal_opened && addresses.has_only_unknown() {
-                        ui.open_popup(ID_MODAL_ASK_SEARCH);
-                    } else if let Some(true) = should_open_search_modal {
-                        ui.open_popup(ID_MODAL_SEARCHING);
+                ui.modal_popup("Outdated DLL", || {
+                    ui.text("Installed DLL is outdated.");
+                    if ui.button("Ok") {
+                        ui.close_current_popup();
                     }
                 });
-        },
-    );
+                if show_outdated_dll_warning {
+                    show_outdated_dll_warning = false;
+                    ui.open_popup("Outdated DLL");
+                }
+
+                ui.modal_popup("Outdated Launcher", || {
+                    ui.text("Launcher is outdated.");
+                    if ui.button("Update Now") {
+                        let mut child = std::process::Command::new(std::env::current_exe().unwrap()).arg("update").spawn().unwrap();
+                        child.try_wait().unwrap();
+                        std::process::exit(0);
+                    }
+                    if ui.button("Discard") {
+                        ui.close_current_popup();
+                    }
+                });
+                if show_outdated_launcher_warning {
+                    show_outdated_launcher_warning = false;
+                    ui.open_popup("Outdated Launcher");
+                }
+
+                draw_main_settings(ui, &mut cfg);
+                draw_networking_settings(ui, &mut cfg.hook_config, &mut api_server, adapters, adapter_ips);
+                if let Some(GameHook {
+                    state: GameHookState::Resolved(ref addr),
+                    ..
+                }) = selected_game.and_then(|sg| addresses.get(sg.0))
+                {
+                    draw_debug_settings(ui, &mut cfg.hook_config, addr);
+                }
+                ui.separator();
+                ui.disabled(saved_cfg == cfg, || {
+                    if ui.button("Save") {
+                        if cfg.hook_config.networking.adapter.is_some() {
+                            cfg.hook_config.networking.ip_address.take();
+                        }
+                        fs::write(hooks_config::get_config_path("."), toml::to_string_pretty(&cfg).unwrap()).unwrap();
+                        saved_cfg = cfg.clone();
+                    }
+                });
+                ui.same_line();
+                ui.disabled(saved_cfg == cfg, || {
+                    if ui.button("Reset") {
+                        cfg = saved_cfg.clone();
+                    }
+                });
+                ui.same_line();
+
+                selected_game = get_selected_executable(ui, addresses, selected_game.map(|(gv, _)| gv));
+                ui.same_line();
+
+                ui.enabled(saved_cfg == cfg && matches!(selected_game, Some((_, GameState::Ready))), || {
+                    if ui.button("Launch") {
+                        let executable = selected_game.unwrap().0.full_path(&target_dir);
+                        match std::process::Command::new(&executable).spawn() {
+                            Err(e) => launch_error = Some(format!("{executable:?}: {e}")),
+                            Ok(_) => std::process::exit(0),
+                        }
+                    }
+                    if let Some(error) = &launch_error {
+                        ui.text_colored([1.0, 0.0, 0.0, 1.0], error)
+                    }
+                });
+                ui.same_line();
+                ui.enabled(saved_cfg == cfg && matches!(selected_game, Some((_, GameState::NotReady))), || {
+                    if ui.button("Identify") {
+                        ui.open_popup(ID_MODAL_SEARCHING);
+                        addresses.start_searching();
+                    }
+                });
+
+                let should_open_search_modal = ui.modal_popup_config(ID_MODAL_ASK_SEARCH).resizable(false).movable(false).build(|| {
+                    ui.text("None of the executabels seem to be known by this launcher.\n\nAttempt to identify?");
+                    if ui.button("Yes") {
+                        addresses.start_searching();
+                        ui.close_current_popup();
+                        return true;
+                    }
+                    ui.same_line();
+                    if ui.button("No") {
+                        addresses.ignore_unknown_binaries();
+                        ui.close_current_popup();
+                    }
+                    false
+                });
+
+                let search_modal_opened = ui
+                    .modal_popup_config(ID_MODAL_SEARCHING)
+                    .resizable(false)
+                    .movable(false)
+                    .always_auto_resize(true)
+                    .build(|| {
+                        ui.text("Identifying...");
+                        for hook in addresses.iter() {
+                            ui.text(format!("{}: ", hook.version.label()));
+                            ui.same_line();
+                            match &hook.state {
+                                GameHookState::Resolved(_) => ui.text_colored([0f32, 1f32, 0f32, 1f32], "OK"),
+                                GameHookState::FileNotFound => ui.text_colored([0f32, 0f32, 0f32, 1f32], "Not found"),
+                                GameHookState::Searching => ui.text_colored([1f32, 1f32, 0f32, 1f32], "Testing..."),
+                                GameHookState::Ignored => ui.text_colored([0.4f32, 0.4f32, 0.4f32, 1f32], "IGNORED"),
+                                GameHookState::UnsupportedBinary => ui.text_colored([1f32, 0f32, 0f32, 1f32], "UNSUPPORTED"),
+                                GameHookState::Failed(f) => ui.text_colored([1f32, 0f32, 0f32, 1f32], format!("FAILURE: {f}")),
+                            }
+                        }
+                        if addresses.search_status() && ui.button("Save Results") {
+                            let gen_hash = |g: &GameHook| {
+                                let GameHookState::Resolved(a) = &g.state else {
+                                    return None;
+                                };
+                                let Ok(hash) = hooks_addresses::hash_file(g.version.full_path(&g.target_dir)) else {
+                                    return None;
+                                };
+                                Some(HashMap::from([(hash, *a.clone())]))
+                            };
+                            let dx9 = addresses.get(GameVersion::SplinterCellBlacklistDx9).and_then(gen_hash).unwrap_or_default();
+                            let dx11 = addresses.get(GameVersion::SplinterCellBlacklistDx11).and_then(gen_hash).unwrap_or_default();
+                            hooks_addresses::save_addresses(&target_dir, dx9, dx11);
+                            ui.close_current_popup();
+                        }
+                    })
+                    .is_some();
+
+                if should_open_search_modal.is_none() && !search_modal_opened && addresses.has_only_unknown() {
+                    ui.open_popup(ID_MODAL_ASK_SEARCH);
+                } else if let Some(true) = should_open_search_modal {
+                    ui.open_popup(ID_MODAL_SEARCHING);
+                }
+            });
+    });
 }

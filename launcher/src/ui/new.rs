@@ -31,13 +31,9 @@ pub fn run(target_dir: PathBuf, cfg: ConfigMut, adapters: &[(String, IpAddr)], u
 
     let mut main = Main::new(cfg, adapters, exe_loader, update_available, &target_dir, fonts);
 
-    crate::render::render(
-        LogicalSize::new(1024, 768),
-        imgui,
-        |ui: &mut imgui::Ui, w: f32, h: f32, _logo_texture: imgui::TextureId| {
-            main.render(ui, Size { w, h });
-        },
-    );
+    crate::render::render(LogicalSize::new(1024, 768), imgui, |ui: &mut imgui::Ui, w: f32, h: f32, _logo_texture: imgui::TextureId| {
+        main.render(ui, Size { w, h });
+    });
 
     #[allow(static_mut_refs)]
     // stop server process if needed
