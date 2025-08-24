@@ -60,6 +60,8 @@ pub struct ServerMenu {
     downloader: Option<BackgroundValue<()>>,
     server_version: Option<Version>,
     latest_version: BackgroundValue<Option<Version>>,
+    show_delete_user_confirmation: Option<String>,
+    show_delete_game_confirmation: Option<u32>,
 }
 
 impl ServerMenu {
@@ -124,6 +126,8 @@ impl ServerMenu {
             downloader: None,
             server_version,
             latest_version,
+            show_delete_user_confirmation: None,
+            show_delete_game_confirmation: None,
         }
     }
 
@@ -133,6 +137,7 @@ impl ServerMenu {
         }
 
         self.download_server_modal(ui);
+        self.render_delete_confirmation_modals(ui);
 
         if !self.dedicated_server_path.exists() {
             ui.text_colored(RED.to_rgba_f32s(), "Dedicated server binary not found");
@@ -410,7 +415,6 @@ impl ServerMenu {
             ],
         ) {
             if let Some(users) = self.users.as_ref() {
-                let mut deleted = false;
                 for user in users {
                     ui.table_next_row();
                     ui.table_next_column();
@@ -421,24 +425,11 @@ impl ServerMenu {
                     ui.text(user.ips.join(", "));
                     ui.table_next_column();
                     if ui.button(format!("{}##{}", ICON_TRASH, user.id)) {
-                        let api_url = format!("http://{}", self.api_server());
-                        let user_id = user.id.clone();
-                        info!("Deleting user {user_id}");
-                        deleted = tokio::runtime::Runtime::new().unwrap().block_on(async {
-                            delete_user(api_url.clone(), user_id.clone())
-                                .await
-                                .inspect_err(|e| {
-                                    error!("Error deleting user {}: {}", user_id, e);
-                                })
-                                .is_ok()
-                        });
+                        self.show_delete_user_confirmation = Some(user.id.clone());
                     }
                     if ui.is_item_hovered() {
                         ui.tooltip_text("Delete user");
                     }
-                }
-                if deleted {
-                    self.users = None;
                 }
             }
             table.end();
@@ -494,7 +485,6 @@ impl ServerMenu {
             ],
         ) {
             if let Some(games) = self.games.as_ref() {
-                let mut deleted = false;
                 for game in games {
                     ui.table_next_row();
                     ui.table_next_column();
@@ -507,26 +497,77 @@ impl ServerMenu {
                     ui.text(game.participants.join(", "));
                     ui.table_next_column();
                     if ui.button(format!("{}##{}", ICON_TRASH, game.id)) {
-                        let api_url = format!("http://{}", self.api_server());
-                        let game_id = game.id;
-                        deleted = tokio::runtime::Runtime::new().unwrap().block_on(async {
-                            delete_game(api_url.clone(), game_id)
-                                .await
-                                .inspect_err(|e| {
-                                    error!("Error deleting game {}: {}", game_id, e);
-                                })
-                                .is_ok()
-                        });
+                        self.show_delete_game_confirmation = Some(game.id);
                     }
                     if ui.is_item_hovered() {
                         ui.tooltip_text("Delete game");
                     }
                 }
-                if deleted {
-                    self.games = None;
-                }
             }
             table.end();
+        }
+    }
+
+    fn render_delete_confirmation_modals(&mut self, ui: &imgui::Ui) {
+        if let Some(user_id) = self.show_delete_user_confirmation.clone() {
+            let popup_name = "Delete User?";
+            ui.open_popup(popup_name);
+            ui.modal_popup_config(popup_name).always_auto_resize(true).build(|| {
+                ui.text(format!("Are you sure you want to delete user {}?", user_id));
+                ui.separator();
+                if ui.button("Yes") {
+                    let api_url = format!("http://{}", self.api_server());
+                    info!("Deleting user {user_id}");
+                    let deleted = tokio::runtime::Runtime::new().unwrap().block_on(async {
+                        delete_user(api_url.clone(), user_id.clone())
+                            .await
+                            .inspect_err(|e| {
+                                error!("Error deleting user {}: {}", user_id, e);
+                            })
+                            .is_ok()
+                    });
+                    if deleted {
+                        self.users = None;
+                    }
+                    self.show_delete_user_confirmation = None;
+                    ui.close_current_popup();
+                }
+                ui.same_line();
+                if ui.button("No") {
+                    self.show_delete_user_confirmation = None;
+                    ui.close_current_popup();
+                }
+            });
+        }
+
+        if let Some(game_id) = self.show_delete_game_confirmation {
+            let popup_name = "Delete Game?";
+            ui.open_popup(popup_name);
+            ui.modal_popup_config(popup_name).always_auto_resize(true).build(|| {
+                ui.text(format!("Are you sure you want to delete game {}?", game_id));
+                ui.separator();
+                if ui.button("Yes") {
+                    let api_url = format!("http://{}", self.api_server());
+                    let deleted = tokio::runtime::Runtime::new().unwrap().block_on(async {
+                        delete_game(api_url.clone(), game_id)
+                            .await
+                            .inspect_err(|e| {
+                                error!("Error deleting game {}: {}", game_id, e);
+                            })
+                            .is_ok()
+                    });
+                    if deleted {
+                        self.games = None;
+                    }
+                    self.show_delete_game_confirmation = None;
+                    ui.close_current_popup();
+                }
+                ui.same_line();
+                if ui.button("No") {
+                    self.show_delete_game_confirmation = None;
+                    ui.close_current_popup();
+                }
+            });
         }
     }
 
