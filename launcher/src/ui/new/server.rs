@@ -5,6 +5,7 @@ use std::io::BufRead as _;
 use std::io::BufReader;
 use std::net::IpAddr;
 use std::net::Ipv4Addr;
+use std::net::Ipv6Addr;
 use std::net::SocketAddr;
 use std::path::PathBuf;
 use std::process::Command;
@@ -27,6 +28,7 @@ use server_api::users::User;
 use tonic::transport::Channel;
 use tonic::Request;
 use tracing::error;
+use tracing::info;
 
 use super::super::icons::ICON_REPEAT;
 use super::super::icons::ICON_TRASH;
@@ -403,10 +405,10 @@ impl ServerMenu {
     fn users_table(&mut self, ui: &imgui::Ui) {
         if ui.button(format!("{ICON_REPEAT}")) || self.users.is_none() {
             tokio::runtime::Runtime::new().unwrap().block_on(async {
-                self.users = load_users(format!("http://{}", self.server_config.api_server))
+                self.users = load_users(format!("http://{}", self.api_server()))
                     .await
                     .inspect_err(|e| {
-                        error!("Error loading users: {e}");
+                        error!("Error loading users from {}: {}", self.api_server(), e);
                     })
                     .ok();
             });
@@ -453,9 +455,10 @@ impl ServerMenu {
                     ui.table_next_column();
                     ui.text(user.ips.join(", "));
                     ui.table_next_column();
-                    if ui.button(format!("{ICON_TRASH}")) {
-                        let api_url = format!("http://{}", self.server_config.api_server);
+                    if ui.button(format!("{}##{}", ICON_TRASH, user.id)) {
+                        let api_url = format!("http://{}", self.api_server());
                         let user_id = user.id.clone();
+                        info!("Deleting user {user_id}");
                         deleted = tokio::runtime::Runtime::new().unwrap().block_on(async {
                             delete_user(api_url.clone(), user_id.clone())
                                 .await
@@ -480,7 +483,7 @@ impl ServerMenu {
     fn games_table(&mut self, ui: &imgui::Ui) {
         if ui.button(format!("{ICON_REPEAT}")) || self.games.is_none() {
             tokio::runtime::Runtime::new().unwrap().block_on(async {
-                self.games = load_games(format!("http://{}", self.server_config.api_server))
+                self.games = load_games(format!("http://{}", self.api_server()))
                     .await
                     .inspect_err(|e| {
                         error!("Error loading games: {e}");
@@ -538,8 +541,8 @@ impl ServerMenu {
                     ui.table_next_column();
                     ui.text(game.participants.join(", "));
                     ui.table_next_column();
-                    if ui.button(format!("{ICON_TRASH}")) {
-                        let api_url = format!("http://{}", self.server_config.api_server);
+                    if ui.button(format!("{}##{}", ICON_TRASH, game.id)) {
+                        let api_url = format!("http://{}", self.api_server());
                         let game_id = game.id;
                         deleted = tokio::runtime::Runtime::new().unwrap().block_on(async {
                             delete_game(api_url.clone(), game_id)
@@ -584,6 +587,17 @@ impl ServerMenu {
 
     pub fn server_version(&self) -> Option<Version> {
         self.server_version
+    }
+
+    fn api_server(&self) -> SocketAddr {
+        let mut api_server = self.server_config.api_server;
+        if api_server.ip().is_unspecified() {
+            api_server.set_ip(match api_server.ip() {
+                IpAddr::V4(_) => IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)),
+                IpAddr::V6(_) => IpAddr::V6(Ipv6Addr::new(0, 0, 0, 0, 0, 0, 0, 1)),
+            });
+        };
+        api_server
     }
 }
 

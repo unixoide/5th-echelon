@@ -8,6 +8,17 @@ pub use quazal::test_quazal_login;
 pub use rpc::register;
 pub use rpc::test_login;
 
+pub async fn test_cfg_server(hostname: &str) -> Result<(), Error> {
+    let url = format!("http://{hostname}/OnlineConfigService.svc/GetOnlineConfig");
+    let resp = reqwest::Client::new()
+        .get(url)
+        .send()
+        .await
+        .map_err(Error::ConfigServer)?;
+    resp.error_for_status().map_err(Error::ConfigServer)?;
+    Ok(())
+}
+
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
     #[error("Invalid password")]
@@ -38,4 +49,6 @@ pub enum Error {
     ChallengeMismatch,
     #[error("P2P error: {0}")]
     P2P(#[from] Box<Error>),
+    #[error("Config server: {0}")]
+    ConfigServer(#[from] reqwest::Error),
 }

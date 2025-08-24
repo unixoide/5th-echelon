@@ -81,6 +81,7 @@ pub struct ClientMenu<'a> {
     cfg: Rc<RefCell<ConfigMut>>,
     selected_profile: usize,
     launch_login_test: Option<BackgroundNetwork<String>>,
+    test_config_server: Option<BackgroundNetworkTest>,
     test_rpc_login: Option<BackgroundNetworkTest>,
     test_quazal_login: Option<BackgroundNetworkTest>,
     test_p2p: Option<BackgroundNetworkTest>,
@@ -115,6 +116,7 @@ impl<'a> ClientMenu<'a> {
             selected_profile,
             launch_login_test: Default::default(),
             hovered_row: Default::default(),
+            test_config_server: Default::default(),
             test_rpc_login: Default::default(),
             test_quazal_login: Default::default(),
             test_p2p: Default::default(),
@@ -265,14 +267,11 @@ impl<'a> ClientMenu<'a> {
                 ui.same_line();
                 if ui.button(format!("{} Diagnose", ICON_MAGNIFYING_GLASS)) {
                     let profile = &self.cfg.borrow().profiles[self.selected_profile];
-                    let api_server_url = profile.api_server_url().into_owned();
-                    let username = profile.user.username.clone();
-                    let password = profile.user.password.clone();
-                    self.test_rpc_login = Some(BackgroundValue::new_async(async move {
-                        crate::network::test_login(api_server_url.to_string(), &username, &password)
-                            .await
-                            .err()
+                    let server = profile.server.clone();
+                    self.test_config_server = Some(BackgroundValue::new_async(async move {
+                        network::test_cfg_server(&server).await.err()
                     }));
+                    
                     ui.open_popup("###Diagnose");
                 }
             });
@@ -515,33 +514,60 @@ impl ClientMenu<'_> {
                     init_width_or_weight: ui.calc_text_size("Quazal Connection")[0],
                     ..Default::default()
                 });
-                ui.table_next_row();
-                ui.table_next_column();
-                ui.text("RPC Connection");
-                ui.table_next_column();
+
                 let profile = &self.cfg.borrow().profiles[self.selected_profile];
+                let api_server_url = profile.api_server_url().into_owned();
                 let api_url = profile.api_server_url().into_owned();
                 let api_port = api_url.port().unwrap_or(RPC_DEFAULT_PORT);
                 let quazal_port= QUAZAL_DEFAULT_PORT;
                 let server = profile.server.clone();
                 let username = profile.user.username.clone();
+                let password = profile.user.password.clone();
+
+                ui.table_next_row();
+                ui.table_next_column();
+                ui.text("Config Server");
+                ui.table_next_column();
+
+                if show_result(
+                    self.test_config_server.as_mut(),
+                    &[
+                        &format!("Make sure that TCP port `80` for the server at `{server}` is reachable"),
+                        // "In the server config, `listen` in `service.onlineconfig` should end in `:80`",
+                    ],) && self.test_rpc_login.is_none()
+                {
+                    let username = username.clone();
+                    let password = password.clone();
+                    self.test_rpc_login = Some(BackgroundValue::new_async(async move {
+                        crate::network::test_login(api_server_url.to_string(), &username, &password)
+                            .await
+                            .err()
+                    }));
+                }
+            
+                ui.table_next_row();
+                ui.table_next_column();
+                ui.text("RPC Connection");
+                ui.table_next_column();
                 if show_result(
                     self.test_rpc_login.as_mut(),
                     &[
                         &format!("Make sure that the TCP port `{api_port}` for the server at `{server}` is reachable"),
+                        // &format!("In the server config, `api_server` should end in `:{api_port}`"),
                         &format!("Verify that the password for the user `{username}` is correct"),
                     ],
                 ) && self.test_quazal_login.is_none()
                 {
-                    let username = profile.user.username.clone();
-                    let password = profile.user.password.clone();
-                    let server = profile.server.clone();
+                    let username = username.clone();
+                    let password = password.clone();
+                    let server = server.clone();
                     self.test_quazal_login = Some(BackgroundValue::new_async(async move {
                         network::test_quazal_login(&server, &username, &password)
                             .await
                             .err()
                     }));
                 }
+                
                 ui.table_next_row();
                 ui.table_next_column();
                 ui.text("Quazal Connection");
@@ -549,10 +575,11 @@ impl ClientMenu<'_> {
                 if show_result(self.test_quazal_login.as_mut(), &[
                     &format!("Make sure that the UDP port `{quazal_port}` for the server at `{server}` is reachable"),
                     &format!("Make sure that you allow connections to UDP port `{QUAZAL_DEFAULT_LOCAL_PORT}` in your firewall"),
+                    // &format!("In the server config, `listen` in `service.sc_bl_auth` should end in `:{QUAZAL_DEFAULT_LOCAL_PORT}`"),
                     &format!("Verify that the password for the user `{username}` is correct"),
                 ]) && self.test_p2p.is_none()
                 {
-                    let password = profile.user.password.clone();
+                    let password = password.clone();
                     self.test_p2p = Some(BackgroundValue::new_async(async move {
                         network::test_p2p(api_url.to_string(), &username, &password).await.err()
                     }));
@@ -569,6 +596,7 @@ impl ClientMenu<'_> {
             }
 
             if ui.button("Close") {
+                self.test_config_server.take();
                 self.test_rpc_login.take();
                 self.test_quazal_login.take();
                 self.test_p2p.take();
@@ -625,6 +653,7 @@ fn launch_game_test_first(
     let password = profile.user.password.clone();
     let profile_name = profile.name.clone();
     *launch_login_test = Some(BackgroundValue::new_async(async move {
+        crate::network::test_cfg_server(&server).await?;
         crate::network::test_login(api_server_url.to_string(), &username, &password).await?;
         crate::network::test_quazal_login(&server, &username, &password).await?;
 

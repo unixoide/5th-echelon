@@ -261,6 +261,9 @@ fn main() -> color_eyre::Result<()> {
                 }
             }),
             quazal::Service::Config(cfg) => std::thread::Builder::new().name(name).spawn(move || {
+                if cfg.listen.port() != 80 {
+                    warn!(logger, "Unexpected port {} used for the config server. Clients are expecting port 80. Adjust in the service config or make sure to redirect traffic accordingly", cfg.listen.port());
+                }
                 if let Err(e) = simple_http::serve(&logger, cfg.listen, &cfg.content()) {
                     crit!(logger, "Error running config server: {e:?}");
                 }
