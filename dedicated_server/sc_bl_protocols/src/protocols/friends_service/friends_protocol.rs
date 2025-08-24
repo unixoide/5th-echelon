@@ -158,10 +158,7 @@ pub struct GetRelationshipsResponse {
     pub ui_total_count: u32,
     pub lst_relationships_list: Vec<RelationshipData>,
 }
-pub struct FriendsProtocolServer<T: FriendsProtocolServerTrait<CI>, CI>(
-    T,
-    ::std::marker::PhantomData<CI>,
-);
+pub struct FriendsProtocolServer<T: FriendsProtocolServerTrait<CI>, CI>(T, ::std::marker::PhantomData<CI>);
 impl<T: FriendsProtocolServerTrait<CI>, CI> FriendsProtocolServer<T, CI> {
     pub fn new(implementation: T) -> Self {
         Self(implementation, ::std::marker::PhantomData)
@@ -192,122 +189,95 @@ impl<T: FriendsProtocolServerTrait<CI>, CI> Protocol<CI> for FriendsProtocolServ
             Some(FriendsProtocolMethod::AddFriend) => {
                 let req = AddFriendRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .add_friend(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.add_friend(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(FriendsProtocolMethod::AddFriendByName) => {
                 let req = AddFriendByNameRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .add_friend_by_name(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.add_friend_by_name(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(FriendsProtocolMethod::AddFriendWithDetails) => {
                 let req = AddFriendWithDetailsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .add_friend_with_details(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .add_friend_with_details(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(FriendsProtocolMethod::AddFriendByNameWithDetails) => {
                 let req = AddFriendByNameWithDetailsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.add_friend_by_name_with_details(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self
+                    .0
+                    .add_friend_by_name_with_details(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(FriendsProtocolMethod::AcceptFriendship) => {
                 let req = AcceptFriendshipRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .accept_friendship(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.accept_friendship(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(FriendsProtocolMethod::DeclineFriendship) => {
                 let req = DeclineFriendshipRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .decline_friendship(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.decline_friendship(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(FriendsProtocolMethod::BlackList) => {
                 let req = BlackListRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .black_list(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.black_list(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(FriendsProtocolMethod::BlackListByName) => {
                 let req = BlackListByNameRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .black_list_by_name(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.black_list_by_name(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(FriendsProtocolMethod::ClearRelationship) => {
                 let req = ClearRelationshipRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .clear_relationship(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.clear_relationship(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(FriendsProtocolMethod::UpdateDetails) => {
                 let req = UpdateDetailsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .update_details(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.update_details(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(FriendsProtocolMethod::GetList) => {
                 let req = GetListRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_list(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_list(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(FriendsProtocolMethod::GetDetailedList) => {
                 let req = GetDetailedListRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_detailed_list(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_detailed_list(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(FriendsProtocolMethod::GetRelationships) => {
                 let req = GetRelationshipsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_relationships(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_relationships(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }

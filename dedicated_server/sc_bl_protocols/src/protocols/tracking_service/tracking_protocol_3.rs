@@ -72,10 +72,7 @@ pub struct SendTagsRequest {
 }
 #[derive(Debug, ToStream, FromStream)]
 pub struct SendTagsResponse;
-pub struct TrackingProtocol3Server<T: TrackingProtocol3ServerTrait<CI>, CI>(
-    T,
-    ::std::marker::PhantomData<CI>,
-);
+pub struct TrackingProtocol3Server<T: TrackingProtocol3ServerTrait<CI>, CI>(T, ::std::marker::PhantomData<CI>);
 impl<T: TrackingProtocol3ServerTrait<CI>, CI> TrackingProtocol3Server<T, CI> {
     pub fn new(implementation: T) -> Self {
         Self(implementation, ::std::marker::PhantomData)
@@ -106,50 +103,37 @@ impl<T: TrackingProtocol3ServerTrait<CI>, CI> Protocol<CI> for TrackingProtocol3
             Some(TrackingProtocol3Method::SendTag) => {
                 let req = SendTagRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .send_tag(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.send_tag(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(TrackingProtocol3Method::SendTagAndUpdateUserInfo) => {
                 let req = SendTagAndUpdateUserInfoRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.send_tag_and_update_user_info(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self
+                    .0
+                    .send_tag_and_update_user_info(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(TrackingProtocol3Method::SendUserInfo) => {
                 let req = SendUserInfoRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .send_user_info(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.send_user_info(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(TrackingProtocol3Method::GetConfiguration) => {
                 let req = GetConfigurationRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_configuration(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_configuration(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(TrackingProtocol3Method::SendTags) => {
                 let req = SendTagsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .send_tags(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.send_tags(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }

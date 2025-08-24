@@ -62,9 +62,7 @@ impl<T: ChallengeHelperProtocolServerTrait<CI>, CI> ChallengeHelperProtocolServe
         Self(implementation, ::std::marker::PhantomData)
     }
 }
-impl<T: ChallengeHelperProtocolServerTrait<CI>, CI> Protocol<CI>
-    for ChallengeHelperProtocolServer<T, CI>
-{
+impl<T: ChallengeHelperProtocolServerTrait<CI>, CI> Protocol<CI> for ChallengeHelperProtocolServer<T, CI> {
     fn id(&self) -> u16 {
         CHALLENGE_HELPER_PROTOCOL_ID
     }
@@ -89,37 +87,27 @@ impl<T: ChallengeHelperProtocolServerTrait<CI>, CI> Protocol<CI>
             Some(ChallengeHelperProtocolMethod::GenerateMyFriendChallenges) => {
                 let req = GenerateMyFriendChallengesRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.generate_my_friend_challenges(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self
+                    .0
+                    .generate_my_friend_challenges(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(ChallengeHelperProtocolMethod::GenerateFriendChallenges) => {
                 let req = GenerateFriendChallengesRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.generate_friend_challenges(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self
+                    .0
+                    .generate_friend_challenges(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(ChallengeHelperProtocolMethod::GetOnlineChallenges) => {
                 let req = GetOnlineChallengesRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .get_online_challenges(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .get_online_challenges(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }

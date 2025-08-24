@@ -54,9 +54,7 @@ impl<T: TrackingExtensionProtocolServerTrait<CI>, CI> TrackingExtensionProtocolS
         Self(implementation, ::std::marker::PhantomData)
     }
 }
-impl<T: TrackingExtensionProtocolServerTrait<CI>, CI> Protocol<CI>
-    for TrackingExtensionProtocolServer<T, CI>
-{
+impl<T: TrackingExtensionProtocolServerTrait<CI>, CI> Protocol<CI> for TrackingExtensionProtocolServer<T, CI> {
     fn id(&self) -> u16 {
         TRACKING_EXTENSION_PROTOCOL_ID
     }
@@ -81,23 +79,18 @@ impl<T: TrackingExtensionProtocolServerTrait<CI>, CI> Protocol<CI>
             Some(TrackingExtensionProtocolMethod::GetTrackingUserGroup) => {
                 let req = GetTrackingUserGroupRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .get_tracking_user_group(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .get_tracking_user_group(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(TrackingExtensionProtocolMethod::GetTrackingUserGroupTags) => {
                 let req = GetTrackingUserGroupTagsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.get_tracking_user_group_tags(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self
+                    .0
+                    .get_tracking_user_group_tags(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }

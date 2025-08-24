@@ -34,18 +34,13 @@ pub struct ProcessNotificationEventRequest {
 }
 #[derive(Debug, ToStream, FromStream)]
 pub struct ProcessNotificationEventResponse;
-pub struct NotificationProtocolServer<T: NotificationProtocolServerTrait<CI>, CI>(
-    T,
-    ::std::marker::PhantomData<CI>,
-);
+pub struct NotificationProtocolServer<T: NotificationProtocolServerTrait<CI>, CI>(T, ::std::marker::PhantomData<CI>);
 impl<T: NotificationProtocolServerTrait<CI>, CI> NotificationProtocolServer<T, CI> {
     pub fn new(implementation: T) -> Self {
         Self(implementation, ::std::marker::PhantomData)
     }
 }
-impl<T: NotificationProtocolServerTrait<CI>, CI> Protocol<CI>
-    for NotificationProtocolServer<T, CI>
-{
+impl<T: NotificationProtocolServerTrait<CI>, CI> Protocol<CI> for NotificationProtocolServer<T, CI> {
     fn id(&self) -> u16 {
         NOTIFICATION_PROTOCOL_ID
     }
@@ -70,14 +65,9 @@ impl<T: NotificationProtocolServerTrait<CI>, CI> Protocol<CI>
             Some(NotificationProtocolMethod::ProcessNotificationEvent) => {
                 let req = ProcessNotificationEventRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.process_notification_event(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self
+                    .0
+                    .process_notification_event(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }

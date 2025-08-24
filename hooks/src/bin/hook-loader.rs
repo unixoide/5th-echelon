@@ -32,9 +32,7 @@ fn main() {
     println!("Found process");
     let syringe = Syringe::for_process(target_process);
 
-    let _injected_payload = syringe
-        .inject("target/i686-pc-windows-msvc/release/hooks.dll")
-        .unwrap();
+    let _injected_payload = syringe.inject("target/i686-pc-windows-msvc/release/hooks.dll").unwrap();
 
     println!("Injectect dll into process");
 
@@ -50,12 +48,7 @@ mod tests {
         HASHES
             .split('\n')
             .flat_map(|line| line.split_once('\t'))
-            .flat_map(|(txt, id)| {
-                Some((
-                    dbg!(usize::from_str_radix(dbg!(id.trim_end()), 16)).ok()?,
-                    txt,
-                ))
-            })
+            .flat_map(|(txt, id)| Some((dbg!(usize::from_str_radix(dbg!(id.trim_end()), 16)).ok()?, txt)))
             .collect()
     }
     #[test]

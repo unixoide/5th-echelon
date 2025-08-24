@@ -41,18 +41,13 @@ pub struct SetLocaleCodeRequest {
 }
 #[derive(Debug, ToStream, FromStream)]
 pub struct SetLocaleCodeResponse;
-pub struct LocalizationProtocolServer<T: LocalizationProtocolServerTrait<CI>, CI>(
-    T,
-    ::std::marker::PhantomData<CI>,
-);
+pub struct LocalizationProtocolServer<T: LocalizationProtocolServerTrait<CI>, CI>(T, ::std::marker::PhantomData<CI>);
 impl<T: LocalizationProtocolServerTrait<CI>, CI> LocalizationProtocolServer<T, CI> {
     pub fn new(implementation: T) -> Self {
         Self(implementation, ::std::marker::PhantomData)
     }
 }
-impl<T: LocalizationProtocolServerTrait<CI>, CI> Protocol<CI>
-    for LocalizationProtocolServer<T, CI>
-{
+impl<T: LocalizationProtocolServerTrait<CI>, CI> Protocol<CI> for LocalizationProtocolServer<T, CI> {
     fn id(&self) -> u16 {
         LOCALIZATION_PROTOCOL_ID
     }
@@ -77,18 +72,14 @@ impl<T: LocalizationProtocolServerTrait<CI>, CI> Protocol<CI>
             Some(LocalizationProtocolMethod::GetLocaleCode) => {
                 let req = GetLocaleCodeRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_locale_code(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_locale_code(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(LocalizationProtocolMethod::SetLocaleCode) => {
                 let req = SetLocaleCodeRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .set_locale_code(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.set_locale_code(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }

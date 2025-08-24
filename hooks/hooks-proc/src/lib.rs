@@ -24,24 +24,13 @@ fn parse_meta_bool_value(value: &Expr) -> Option<bool> {
     }
 }
 
-fn parse_attributes(
-    meta: &Meta,
-    with_logging: &mut bool,
-    always_call: &mut bool,
-) -> Result<(), syn::Error> {
+fn parse_attributes(meta: &Meta, with_logging: &mut bool, always_call: &mut bool) -> Result<(), syn::Error> {
     match &meta {
-        Meta::Path(path) => match path
-            .get_ident()
-            .map(std::string::ToString::to_string)
-            .as_deref()
-        {
+        Meta::Path(path) => match path.get_ident().map(std::string::ToString::to_string).as_deref() {
             Some("log") => *with_logging = true,
             Some("always_call") => *always_call = true,
             Some(id) => {
-                return Err(syn::Error::new(
-                    meta.span(),
-                    format!("unexpected attribute {id}"),
-                ));
+                return Err(syn::Error::new(meta.span(), format!("unexpected attribute {id}")));
             }
             None => {}
         },
@@ -50,33 +39,28 @@ fn parse_attributes(
                 .parse(tokens.clone().into())
                 .and_then(|meta| parse_attributes(&meta, with_logging, always_call));
         }
-        Meta::NameValue(MetaNameValue { path, value, .. }) => match path
-            .get_ident()
-            .map(std::string::ToString::to_string)
-            .as_deref()
-        {
-            Some("log") => {
-                if let Some(v) = parse_meta_bool_value(value) {
-                    *with_logging = v;
-                } else {
-                    return Err(syn::Error::new(meta.span(), "unexpected value"));
+        Meta::NameValue(MetaNameValue { path, value, .. }) => {
+            match path.get_ident().map(std::string::ToString::to_string).as_deref() {
+                Some("log") => {
+                    if let Some(v) = parse_meta_bool_value(value) {
+                        *with_logging = v;
+                    } else {
+                        return Err(syn::Error::new(meta.span(), "unexpected value"));
+                    }
                 }
-            }
-            Some("always_call") => {
-                if let Some(v) = parse_meta_bool_value(value) {
-                    *always_call = v;
-                } else {
-                    return Err(syn::Error::new(meta.span(), "unexpected value"));
+                Some("always_call") => {
+                    if let Some(v) = parse_meta_bool_value(value) {
+                        *always_call = v;
+                    } else {
+                        return Err(syn::Error::new(meta.span(), "unexpected value"));
+                    }
                 }
+                Some(id) => {
+                    return Err(syn::Error::new(meta.span(), format!("unexpected attribute {id}")));
+                }
+                None => {}
             }
-            Some(id) => {
-                return Err(syn::Error::new(
-                    meta.span(),
-                    format!("unexpected attribute {id}"),
-                ));
-            }
-            None => {}
-        },
+        }
     }
     Ok(())
 }

@@ -12,10 +12,10 @@ use windows::Win32::System::DataExchange::CloseClipboard;
 use windows::Win32::System::DataExchange::GetClipboardData;
 use windows::Win32::System::DataExchange::OpenClipboard;
 use windows::Win32::System::DataExchange::SetClipboardData;
-use windows::Win32::System::Memory::GMEM_MOVEABLE;
 use windows::Win32::System::Memory::GlobalAlloc;
 use windows::Win32::System::Memory::GlobalLock;
 use windows::Win32::System::Memory::GlobalUnlock;
+use windows::Win32::System::Memory::GMEM_MOVEABLE;
 
 const CF_TEXT: u32 = 1;
 const CF_UNICODETEXT: u32 = 13;

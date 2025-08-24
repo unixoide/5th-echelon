@@ -9,9 +9,7 @@ pub fn to_stream_derive_impl(input: DeriveInput) -> proc_macro2::TokenStream {
     let crt = what_crate();
     let name = input.ident;
     let (impl_generics, type_generics, where_generics) = input.generics.split_for_impl();
-    let Data::Struct(input) = input.data else {
-        panic!()
-    };
+    let Data::Struct(input) = input.data else { panic!() };
     let fields = input.fields.into_iter().map(|f| f.ident);
     quote! {
         impl #impl_generics #crt::rmc::basic::ToStream for #name #type_generics
@@ -35,9 +33,7 @@ pub fn from_stream_derive_impl(input: DeriveInput) -> proc_macro2::TokenStream {
     let crt = what_crate();
     let name = input.ident;
     let (impl_generics, type_generics, where_generics) = input.generics.split_for_impl();
-    let Data::Struct(input) = input.data else {
-        panic!()
-    };
+    let Data::Struct(input) = input.data else { panic!() };
     let fields = input.fields.into_iter().map(|f| f.ident);
     quote! {
         impl #impl_generics #crt::rmc::basic::FromStream for #name #type_generics

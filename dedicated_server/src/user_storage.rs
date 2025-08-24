@@ -96,17 +96,11 @@ impl<CI> UserStorageProtocolServerTrait<CI> for UserStorageProtocolServerImpl {
             .to_owned();
 
         Ok(GetContentUrlResponse {
-            download_info: UserContentURL {
-                protocol,
-                host,
-                path,
-            },
+            download_info: UserContentURL { protocol, host, path },
         })
     }
 }
 
 pub fn new_protocol<T: 'static>() -> Box<dyn Protocol<T>> {
-    Box::new(UserStorageProtocolServer::new(
-        UserStorageProtocolServerImpl,
-    ))
+    Box::new(UserStorageProtocolServer::new(UserStorageProtocolServerImpl))
 }

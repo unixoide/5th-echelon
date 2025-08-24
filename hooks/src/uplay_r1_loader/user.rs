@@ -28,10 +28,7 @@ unsafe extern "cdecl" fn UPLAY_USER_GetAccountId(buffer: *mut u8) -> bool {
 }
 
 #[forwardable_export]
-unsafe extern "cdecl" fn UPLAY_USER_GetCdKeys(
-    cd_keys_list: *mut *mut List,
-    overlapped: *mut UplayOverlapped,
-) -> bool {
+unsafe extern "cdecl" fn UPLAY_USER_GetCdKeys(cd_keys_list: *mut *mut List, overlapped: *mut UplayOverlapped) -> bool {
     let list = UplayList::CdKeys(cfg.user.cd_keys.clone());
     *cd_keys_list = Box::into_raw(Box::new(list.into()));
 
@@ -99,14 +96,8 @@ impl std::fmt::Debug for SessionData {
         f.debug_struct("SessionData")
             .field("unknown1", &self.unknown1)
             .field("checksum", &self.checksum)
-            .field(
-                "account_id",
-                &std::ffi::CStr::from_bytes_until_nul(&self.account_id),
-            )
-            .field(
-                "some_data",
-                &&self.some_data[..self.some_data_size as usize],
-            )
+            .field("account_id", &std::ffi::CStr::from_bytes_until_nul(&self.account_id))
+            .field("some_data", &&self.some_data[..self.some_data_size as usize])
             .field("some_data_size", &self.some_data_size)
             .finish()
     }

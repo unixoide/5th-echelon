@@ -39,11 +39,7 @@ impl KerberosTicketInternal {
         if data.len() < secretbox::NONCEBYTES {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::UnexpectedEof,
-                format!(
-                    "got {} bytes, required at least {}",
-                    data.len(),
-                    secretbox::NONCEBYTES
-                ),
+                format!("got {} bytes, required at least {}", data.len(), secretbox::NONCEBYTES),
             )
             .into());
         }

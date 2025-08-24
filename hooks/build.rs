@@ -15,9 +15,5 @@ pub fn main() {
         preload.len(),
         quote(&preload.join("\",\n    \"")),
     );
-    std::fs::write(
-        format!("{}/preload.rs", std::env::var("OUT_DIR").unwrap()),
-        preload,
-    )
-    .unwrap();
+    std::fs::write(format!("{}/preload.rs", std::env::var("OUT_DIR").unwrap()), preload).unwrap();
 }

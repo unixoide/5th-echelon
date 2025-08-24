@@ -41,10 +41,7 @@ pub struct ClientRegistry<T> {
 
 impl<T> ClientRegistry<T> {
     #[must_use]
-    pub fn client_by_connection_id(
-        &self,
-        conn_id: ConnectionID,
-    ) -> Option<&RefCell<ClientInfo<T>>> {
+    pub fn client_by_connection_id(&self, conn_id: ConnectionID) -> Option<&RefCell<ClientInfo<T>>> {
         self.connection_id_session_ids
             .get(&conn_id)
             .and_then(|sig| self.clients.get(&sig.0))
@@ -62,8 +59,7 @@ where
     ctx: &'a Context,
     new_clients: HashMap<u32, ClientInfo<T>>,
     client_registry: ClientRegistry<T>,
-    pub user_handler:
-        Option<fn(logger: &Logger, packet: QPacket, client: SocketAddr, sock: &net::UdpSocket)>,
+    pub user_handler: Option<fn(logger: &Logger, packet: QPacket, client: SocketAddr, sock: &net::UdpSocket)>,
     pub expired_client_handler: Option<ECH>,
     pub disconnect_handler: Option<DH>,
     next_conn_id: AtomicU32,
@@ -76,11 +72,7 @@ where
     DH: FnMut(ClientInfo<T>),
 {
     #[must_use]
-    pub fn new(
-        logger: slog::Logger,
-        ctx: &Context,
-        registry: StreamHandlerRegistry<T>,
-    ) -> Server<ECH, DH, T> {
+    pub fn new(logger: slog::Logger, ctx: &Context, registry: StreamHandlerRegistry<T>) -> Server<ECH, DH, T> {
         let client_registry = ClientRegistry {
             clients: HashMap::default(),
             connection_id_session_ids: HashMap::default(),
@@ -128,9 +120,7 @@ where
             let (nread, client) = match socket.recv_from(&mut buf) {
                 Ok(x) => x,
                 Err(e) => {
-                    if e.kind() == std::io::ErrorKind::TimedOut
-                        || e.kind() == std::io::ErrorKind::WouldBlock
-                    {
+                    if e.kind() == std::io::ErrorKind::TimedOut || e.kind() == std::io::ErrorKind::WouldBlock {
                         self.clear_clients();
                     } else {
                         error!(self.logger, "recv_from failed: {}", e);
@@ -183,10 +173,7 @@ where
                     return;
                 };
                 info!(logger, "Client disconnected"; "signature" => packet.signature, "session" => packet.session_id);
-                if self
-                    .send_ack(logger, &client, &packet, &ci.borrow(), false)
-                    .is_err()
-                {
+                if self.send_ack(logger, &client, &packet, &ci.borrow(), false).is_err() {
                     // ignore
                 }
                 if let Some(handler) = self.disconnect_handler.as_mut() {
@@ -198,10 +185,7 @@ where
                     return;
                 };
                 ci.borrow_mut().seen();
-                if self
-                    .send_ack(logger, &client, &packet, &ci.borrow(), false)
-                    .is_err()
-                {
+                if self.send_ack(logger, &client, &packet, &ci.borrow(), false).is_err() {
                     // ignore
                 }
             }
@@ -209,12 +193,7 @@ where
                 if self.user_handler.is_none() {
                     error!(logger, "unsupported user packet");
                 } else {
-                    (self.user_handler.as_ref().unwrap())(
-                        logger,
-                        packet,
-                        client,
-                        self.socket.as_ref().unwrap(),
-                    );
+                    (self.user_handler.as_ref().unwrap())(logger, packet, client, self.socket.as_ref().unwrap());
                 }
             }
             PacketType::Route => todo!(),
@@ -258,11 +237,7 @@ where
                     payload.extend(f.iter());
                     // debug!(logger, "Reassembled: {:?}", payload; "fid" => fid);
                 }
-                info!(
-                    logger,
-                    "Reassembled {} fragments",
-                    ci.packet_fragments.len() + 1
-                );
+                info!(logger, "Reassembled {} fragments", ci.packet_fragments.len() + 1);
                 ci.packet_fragments.clear();
             }
             payload.extend(packet.payload);
@@ -377,10 +352,7 @@ where
                 ci.borrow_mut().user_id.replace(ti.principle_id);
                 ci.borrow_mut().connection_id.replace(ConnectionID(id));
                 // .replace(ConnectionID(rand::random::<u16>() as u32 & 0x7FFF_FFFFu32)); // clear highest bit as the game sometimes uses signed ints instead of unsigned
-                cids.insert(
-                    ci.borrow().connection_id.unwrap(),
-                    Signature(packet.signature),
-                );
+                cids.insert(ci.borrow().connection_id.unwrap(), Signature(packet.signature));
                 let data = crypt_key(ti.session_key.as_ref(), &request_data);
 
                 #[allow(clippy::items_after_statements)]
@@ -407,13 +379,7 @@ where
 
         packet.conn_signature = Some(0);
 
-        if let Err(e) = self.send_ack(
-            logger,
-            &client,
-            &packet,
-            &ci.borrow(),
-            !packet.payload.is_empty(),
-        ) {
+        if let Err(e) = self.send_ack(logger, &client, &packet, &ci.borrow(), !packet.payload.is_empty()) {
             error!(logger, "Error sending syn ack packet"; "error" => %e);
         }
         info!(logger, "New client connected"; "signature" => packet.signature, "session" => packet.session_id);
@@ -426,14 +392,7 @@ where
         resp: QPacket,
         ci: &mut ClientInfo<T>,
     ) -> Result<usize, Box<dyn std::error::Error>> {
-        send_response(
-            logger,
-            self.ctx,
-            src,
-            self.socket.as_ref().unwrap(),
-            resp,
-            ci,
-        )
+        send_response(logger, self.ctx, src, self.socket.as_ref().unwrap(), resp, ci)
     }
 
     fn send_packet(
@@ -476,9 +435,7 @@ where
             if let Some(handler) = self.expired_client_handler.as_mut() {
                 let ci = ci.into_inner();
                 if let Some(conn_id) = ci.connection_id {
-                    self.client_registry
-                        .connection_id_session_ids
-                        .remove(&conn_id);
+                    self.client_registry.connection_id_session_ids.remove(&conn_id);
                 }
                 (handler)(ci);
             }

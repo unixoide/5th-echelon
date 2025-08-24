@@ -135,7 +135,5 @@ impl<T> PlayerStatsProtocolServerTrait<T> for PlayerStatsProtocolServerImpl {
 }
 
 pub fn new_protocol<T: 'static>() -> Box<dyn Protocol<T>> {
-    Box::new(PlayerStatsProtocolServer::new(
-        PlayerStatsProtocolServerImpl,
-    ))
+    Box::new(PlayerStatsProtocolServer::new(PlayerStatsProtocolServerImpl))
 }

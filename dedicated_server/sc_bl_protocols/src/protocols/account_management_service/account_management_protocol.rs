@@ -327,9 +327,7 @@ impl<T: AccountManagementProtocolServerTrait<CI>, CI> AccountManagementProtocolS
         Self(implementation, ::std::marker::PhantomData)
     }
 }
-impl<T: AccountManagementProtocolServerTrait<CI>, CI> Protocol<CI>
-    for AccountManagementProtocolServer<T, CI>
-{
+impl<T: AccountManagementProtocolServerTrait<CI>, CI> Protocol<CI> for AccountManagementProtocolServer<T, CI> {
     fn id(&self) -> u16 {
         ACCOUNT_MANAGEMENT_PROTOCOL_ID
     }
@@ -354,285 +352,234 @@ impl<T: AccountManagementProtocolServerTrait<CI>, CI> Protocol<CI>
             Some(AccountManagementProtocolMethod::CreateAccount) => {
                 let req = CreateAccountRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .create_account(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.create_account(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::DeleteAccount) => {
                 let req = DeleteAccountRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .delete_account(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.delete_account(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::DisableAccount) => {
                 let req = DisableAccountRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .disable_account(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.disable_account(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::ChangePassword) => {
                 let req = ChangePasswordRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .change_password(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.change_password(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::TestCapability) => {
                 let req = TestCapabilityRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .test_capability(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.test_capability(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::GetName) => {
                 let req = GetNameRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_name(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_name(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::GetAccountData) => {
                 let req = GetAccountDataRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_account_data(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_account_data(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::GetPrivateData) => {
                 let req = GetPrivateDataRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_private_data(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_private_data(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::GetPublicData) => {
                 let req = GetPublicDataRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_public_data(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_public_data(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::GetMultiplePublicData) => {
                 let req = GetMultiplePublicDataRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .get_multiple_public_data(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .get_multiple_public_data(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::UpdateAccountName) => {
                 let req = UpdateAccountNameRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .update_account_name(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .update_account_name(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::UpdateAccountEmail) => {
                 let req = UpdateAccountEmailRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .update_account_email(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .update_account_email(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::UpdateCustomData) => {
                 let req = UpdateCustomDataRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .update_custom_data(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.update_custom_data(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::FindByNameRegex) => {
                 let req = FindByNameRegexRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .find_by_name_regex(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.find_by_name_regex(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::UpdateAccountExpiryDate) => {
                 let req = UpdateAccountExpiryDateRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.update_account_expiry_date(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self
+                    .0
+                    .update_account_expiry_date(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::UpdateAccountEffectiveDate) => {
                 let req = UpdateAccountEffectiveDateRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.update_account_effective_date(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self
+                    .0
+                    .update_account_effective_date(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::UpdateStatus) => {
                 let req = UpdateStatusRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .update_status(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.update_status(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::GetStatus) => {
                 let req = GetStatusRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_status(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_status(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::GetLastConnectionStats) => {
                 let req = GetLastConnectionStatsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .get_last_connection_stats(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .get_last_connection_stats(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::ResetPassword) => {
                 let req = ResetPasswordRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .reset_password(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.reset_password(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::CreateAccountWithCustomData) => {
                 let req = CreateAccountWithCustomDataRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.create_account_with_custom_data(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self
+                    .0
+                    .create_account_with_custom_data(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::RetrieveAccount) => {
                 let req = RetrieveAccountRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .retrieve_account(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.retrieve_account(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::UpdateAccount) => {
                 let req = UpdateAccountRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .update_account(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.update_account(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::ChangePasswordByGuest) => {
                 let req = ChangePasswordByGuestRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .change_password_by_guest(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .change_password_by_guest(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::FindByNameLike) => {
                 let req = FindByNameLikeRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .find_by_name_like(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.find_by_name_like(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::CustomCreateAccount) => {
                 let req = CustomCreateAccountRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .custom_create_account(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .custom_create_account(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::LookupOrCreateAccount) => {
                 let req = LookupOrCreateAccountRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .lookup_or_create_account(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .lookup_or_create_account(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::CreateAccountEx) => {
                 let req = CreateAccountExRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .create_account_ex(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.create_account_ex(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::DisconnectPrincipal) => {
                 let req = DisconnectPrincipalRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .disconnect_principal(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .disconnect_principal(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::DisconnectAllPrincipals) => {
                 let req = DisconnectAllPrincipalsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .disconnect_all_principals(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .disconnect_all_principals(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }

@@ -45,13 +45,11 @@ pub struct PollNotificationsResponse {
 pub struct UnregisterUserRequest;
 #[derive(Debug, ToStream, FromStream)]
 pub struct UnregisterUserResponse;
-pub struct WebNotificationsStorageProtocolServer<
-    T: WebNotificationsStorageProtocolServerTrait<CI>,
-    CI,
->(T, ::std::marker::PhantomData<CI>);
-impl<T: WebNotificationsStorageProtocolServerTrait<CI>, CI>
-    WebNotificationsStorageProtocolServer<T, CI>
-{
+pub struct WebNotificationsStorageProtocolServer<T: WebNotificationsStorageProtocolServerTrait<CI>, CI>(
+    T,
+    ::std::marker::PhantomData<CI>,
+);
+impl<T: WebNotificationsStorageProtocolServerTrait<CI>, CI> WebNotificationsStorageProtocolServer<T, CI> {
     pub fn new(implementation: T) -> Self {
         Self(implementation, ::std::marker::PhantomData)
     }
@@ -83,27 +81,21 @@ impl<T: WebNotificationsStorageProtocolServerTrait<CI>, CI> Protocol<CI>
             Some(WebNotificationsStorageProtocolMethod::RegisterUser) => {
                 let req = RegisterUserRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .register_user(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.register_user(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(WebNotificationsStorageProtocolMethod::PollNotifications) => {
                 let req = PollNotificationsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .poll_notifications(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.poll_notifications(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(WebNotificationsStorageProtocolMethod::UnregisterUser) => {
                 let req = UnregisterUserRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .unregister_user(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.unregister_user(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }

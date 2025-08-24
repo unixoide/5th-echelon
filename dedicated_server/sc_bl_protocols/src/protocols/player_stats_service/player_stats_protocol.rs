@@ -153,10 +153,7 @@ pub struct ReadPopulationStatsRequest {
 pub struct ReadPopulationStatsResponse {
     pub results: quazal::rmc::types::QList<PopulationStatResult>,
 }
-pub struct PlayerStatsProtocolServer<T: PlayerStatsProtocolServerTrait<CI>, CI>(
-    T,
-    ::std::marker::PhantomData<CI>,
-);
+pub struct PlayerStatsProtocolServer<T: PlayerStatsProtocolServerTrait<CI>, CI>(T, ::std::marker::PhantomData<CI>);
 impl<T: PlayerStatsProtocolServerTrait<CI>, CI> PlayerStatsProtocolServer<T, CI> {
     pub fn new(implementation: T) -> Self {
         Self(implementation, ::std::marker::PhantomData)
@@ -187,152 +184,115 @@ impl<T: PlayerStatsProtocolServerTrait<CI>, CI> Protocol<CI> for PlayerStatsProt
             Some(PlayerStatsProtocolMethod::WriteStats) => {
                 let req = WriteStatsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .write_stats(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.write_stats(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(PlayerStatsProtocolMethod::ReadStatsByPlayers) => {
                 let req = ReadStatsByPlayersRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .read_stats_by_players(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .read_stats_by_players(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(PlayerStatsProtocolMethod::ReadLeaderboardsNearPlayer) => {
                 let req = ReadLeaderboardsNearPlayerRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.read_leaderboards_near_player(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self
+                    .0
+                    .read_leaderboards_near_player(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(PlayerStatsProtocolMethod::ReadLeaderboardsByRank) => {
                 let req = ReadLeaderboardsByRankRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .read_leaderboards_by_rank(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .read_leaderboards_by_rank(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(PlayerStatsProtocolMethod::ReadLeaderboardsByPlayers) => {
                 let req = ReadLeaderboardsByPlayersRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.read_leaderboards_by_players(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self
+                    .0
+                    .read_leaderboards_by_players(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(PlayerStatsProtocolMethod::ReadStatboardHistory) => {
                 let req = ReadStatboardHistoryRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .read_statboard_history(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .read_statboard_history(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(PlayerStatsProtocolMethod::ReadLeaderboardHistory) => {
                 let req = ReadLeaderboardHistoryRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .read_leaderboard_history(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .read_leaderboard_history(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(PlayerStatsProtocolMethod::ReadStatboardHistoryAggregated) => {
                 let req = ReadStatboardHistoryAggregatedRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.read_statboard_history_aggregated(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self
+                    .0
+                    .read_statboard_history_aggregated(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(PlayerStatsProtocolMethod::GetStatboardNextPurgeDate) => {
                 let req = GetStatboardNextPurgeDateRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.get_statboard_next_purge_date(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self
+                    .0
+                    .get_statboard_next_purge_date(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(PlayerStatsProtocolMethod::ReadLeaderboardsNearPlayer2) => {
                 let req = ReadLeaderboardsNearPlayer2Request::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.read_leaderboards_near_player_2(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self
+                    .0
+                    .read_leaderboards_near_player_2(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(PlayerStatsProtocolMethod::ReadLeaderboardsByRank2) => {
                 let req = ReadLeaderboardsByRank2Request::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.read_leaderboards_by_rank_2(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self
+                    .0
+                    .read_leaderboards_by_rank_2(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(PlayerStatsProtocolMethod::ReadLeaderboardsByPlayers2) => {
                 let req = ReadLeaderboardsByPlayers2Request::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.read_leaderboards_by_players_2(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self
+                    .0
+                    .read_leaderboards_by_players_2(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(PlayerStatsProtocolMethod::ReadPopulationStats) => {
                 let req = ReadPopulationStatsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .read_population_stats(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .read_population_stats(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }

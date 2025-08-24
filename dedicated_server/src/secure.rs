@@ -65,7 +65,5 @@ impl<T> SecureConnectionProtocolServerTrait<T> for SecureConnectionProtocolServe
 }
 
 pub fn new_protocol<T: 'static>() -> Box<dyn Protocol<T>> {
-    Box::new(SecureConnectionProtocolServer::new(
-        SecureConnectionProtocolServerImpl,
-    ))
+    Box::new(SecureConnectionProtocolServer::new(SecureConnectionProtocolServerImpl))
 }

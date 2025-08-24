@@ -98,16 +98,12 @@ pub struct UserAccountManagementProtocolServer<T: UserAccountManagementProtocolS
     T,
     ::std::marker::PhantomData<CI>,
 );
-impl<T: UserAccountManagementProtocolServerTrait<CI>, CI>
-    UserAccountManagementProtocolServer<T, CI>
-{
+impl<T: UserAccountManagementProtocolServerTrait<CI>, CI> UserAccountManagementProtocolServer<T, CI> {
     pub fn new(implementation: T) -> Self {
         Self(implementation, ::std::marker::PhantomData)
     }
 }
-impl<T: UserAccountManagementProtocolServerTrait<CI>, CI> Protocol<CI>
-    for UserAccountManagementProtocolServer<T, CI>
-{
+impl<T: UserAccountManagementProtocolServerTrait<CI>, CI> Protocol<CI> for UserAccountManagementProtocolServer<T, CI> {
     fn id(&self) -> u16 {
         USER_ACCOUNT_MANAGEMENT_PROTOCOL_ID
     }
@@ -132,63 +128,55 @@ impl<T: UserAccountManagementProtocolServerTrait<CI>, CI> Protocol<CI>
             Some(UserAccountManagementProtocolMethod::LookupSceNpIds) => {
                 let req = LookupSceNpIdsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .lookup_sce_np_ids(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.lookup_sce_np_ids(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserAccountManagementProtocolMethod::LookupPrincipalIDs) => {
                 let req = LookupPrincipalIDsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .lookup_principal_ids(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .lookup_principal_ids(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserAccountManagementProtocolMethod::LookupFirstPartyIds) => {
                 let req = LookupFirstPartyIdsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .lookup_first_party_ids(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .lookup_first_party_ids(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserAccountManagementProtocolMethod::UserHasPlayed) => {
                 let req = UserHasPlayedRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .user_has_played(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.user_has_played(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserAccountManagementProtocolMethod::IsUserPlaying) => {
                 let req = IsUserPlayingRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .is_user_playing(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.is_user_playing(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserAccountManagementProtocolMethod::UpdateSonyAccountInfo) => {
                 let req = UpdateSonyAccountInfoRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .update_sony_account_info(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .update_sony_account_info(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserAccountManagementProtocolMethod::LookupUsernames) => {
                 let req = LookupUsernamesRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .lookup_usernames(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.lookup_usernames(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }

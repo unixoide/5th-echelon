@@ -65,49 +65,27 @@ impl TryFrom<u32> for Error {
         match code {
             v if v >> 16 == 1 => Ok(Self::Core(CoreError::try_from(v as u16).or(Err(value))?)),
             v if v >> 16 == 2 => Ok(Self::DDL(DDLError::try_from(v as u16).or(Err(value))?)),
-            v if v >> 16 == 3 => Ok(Self::RendezVous(
-                RendezVousError::try_from(v as u16).or(Err(value))?,
-            )),
-            v if v >> 16 == 4 => Ok(Self::PythonCore(
-                PythonCoreError::try_from(v as u16).or(Err(value))?,
-            )),
-            v if v >> 16 == 5 => Ok(Self::Transport(
-                TransportError::try_from(v as u16).or(Err(value))?,
-            )),
-            v if v >> 16 == 6 => Ok(Self::DOCore(
-                DOCoreError::try_from(v as u16).or(Err(value))?,
-            )),
+            v if v >> 16 == 3 => Ok(Self::RendezVous(RendezVousError::try_from(v as u16).or(Err(value))?)),
+            v if v >> 16 == 4 => Ok(Self::PythonCore(PythonCoreError::try_from(v as u16).or(Err(value))?)),
+            v if v >> 16 == 5 => Ok(Self::Transport(TransportError::try_from(v as u16).or(Err(value))?)),
+            v if v >> 16 == 6 => Ok(Self::DOCore(DOCoreError::try_from(v as u16).or(Err(value))?)),
             v if v >> 16 == 0x65 => Ok(Self::FPD(FPDError::try_from(v as u16).or(Err(value))?)),
-            v if v >> 16 == 0x67 => Ok(Self::Ranking(
-                RankingError::try_from(v as u16).or(Err(value))?,
-            )),
+            v if v >> 16 == 0x67 => Ok(Self::Ranking(RankingError::try_from(v as u16).or(Err(value))?)),
             v if v >> 16 == 0x68 => Ok(Self::Authentication(
                 AuthenticationError::try_from(v as u16).or(Err(value))?,
             )),
-            v if v >> 16 == 0x69 => Ok(Self::DataStore(
-                DataStoreError::try_from(v as u16).or(Err(value))?,
-            )),
-            v if v >> 16 == 0x6c => Ok(Self::ServiceItem(
-                ServiceItemError::try_from(v as u16).or(Err(value))?,
-            )),
+            v if v >> 16 == 0x69 => Ok(Self::DataStore(DataStoreError::try_from(v as u16).or(Err(value))?)),
+            v if v >> 16 == 0x6c => Ok(Self::ServiceItem(ServiceItemError::try_from(v as u16).or(Err(value))?)),
             v if v >> 16 == 0x6f => Ok(Self::MatchmakeReferee(
                 MatchmakeRefereeError::try_from(v as u16).or(Err(value))?,
             )),
-            v if v >> 16 == 0x70 => Ok(Self::Subscriber(
-                SubscriberError::try_from(v as u16).or(Err(value))?,
-            )),
-            v if v >> 16 == 0x71 => Ok(Self::Ranking2(
-                Ranking2Error::try_from(v as u16).or(Err(value))?,
-            )),
+            v if v >> 16 == 0x70 => Ok(Self::Subscriber(SubscriberError::try_from(v as u16).or(Err(value))?)),
+            v if v >> 16 == 0x71 => Ok(Self::Ranking2(Ranking2Error::try_from(v as u16).or(Err(value))?)),
             v if v >> 16 == 0x72 => Ok(Self::SmartDeviceVoiceChat(
                 SmartDeviceVoiceChatError::try_from(v as u16).or(Err(value))?,
             )),
-            v if v >> 16 == 0x73 => Ok(Self::Screening(
-                ScreeningError::try_from(v as u16).or(Err(value))?,
-            )),
-            v if v >> 16 == 0x74 => Ok(Self::Custom(
-                CustomError::try_from(v as u16).or(Err(value))?,
-            )),
+            v if v >> 16 == 0x73 => Ok(Self::Screening(ScreeningError::try_from(v as u16).or(Err(value))?)),
+            v if v >> 16 == 0x74 => Ok(Self::Custom(CustomError::try_from(v as u16).or(Err(value))?)),
             v if v >> 16 == 0x75 => Ok(Self::Ess(EssError::try_from(v as u16).or(Err(value))?)),
             _ => Err(value),
         }

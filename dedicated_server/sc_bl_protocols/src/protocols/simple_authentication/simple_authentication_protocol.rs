@@ -146,9 +146,7 @@ impl<T: SimpleAuthenticationProtocolServerTrait<CI>, CI> SimpleAuthenticationPro
         Self(implementation, ::std::marker::PhantomData)
     }
 }
-impl<T: SimpleAuthenticationProtocolServerTrait<CI>, CI> Protocol<CI>
-    for SimpleAuthenticationProtocolServer<T, CI>
-{
+impl<T: SimpleAuthenticationProtocolServerTrait<CI>, CI> Protocol<CI> for SimpleAuthenticationProtocolServer<T, CI> {
     fn id(&self) -> u16 {
         SIMPLE_AUTHENTICATION_PROTOCOL_ID
     }
@@ -173,27 +171,23 @@ impl<T: SimpleAuthenticationProtocolServerTrait<CI>, CI> Protocol<CI>
             Some(SimpleAuthenticationProtocolMethod::Authenticate) => {
                 let req = AuthenticateRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .authenticate(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.authenticate(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(SimpleAuthenticationProtocolMethod::LoginWithToken) => {
                 let req = LoginWithTokenRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .login_with_token(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.login_with_token(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(SimpleAuthenticationProtocolMethod::LoginWithTokenEx) => {
                 let req = LoginWithTokenExRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .login_with_token_ex(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .login_with_token_ex(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
@@ -207,45 +201,41 @@ impl<T: SimpleAuthenticationProtocolServerTrait<CI>, CI> Protocol<CI>
             Some(SimpleAuthenticationProtocolMethod::LoginWithSubAccount) => {
                 let req = LoginWithSubAccountRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .login_with_sub_account(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .login_with_sub_account(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(SimpleAuthenticationProtocolMethod::Register) => {
                 let req = RegisterRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .register(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.register(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(SimpleAuthenticationProtocolMethod::RegisterEx) => {
                 let req = RegisterExRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .register_ex(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.register_ex(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(SimpleAuthenticationProtocolMethod::LoginWithTokenCafe) => {
                 let req = LoginWithTokenCafeRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .login_with_token_cafe(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .login_with_token_cafe(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(SimpleAuthenticationProtocolMethod::LoginWithTokenCafeEx) => {
                 let req = LoginWithTokenCafeExRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .login_with_token_cafe_ex(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .login_with_token_cafe_ex(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }

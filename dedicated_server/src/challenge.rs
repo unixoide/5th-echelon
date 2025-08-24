@@ -32,7 +32,5 @@ impl<CI> ChallengeHelperProtocolServerTrait<CI> for ChallengeHelperProtocolServe
 }
 
 pub fn new_protocol<T: 'static>() -> Box<dyn Protocol<T>> {
-    Box::new(ChallengeHelperProtocolServer::new(
-        ChallengeHelperProtocolServerImpl,
-    ))
+    Box::new(ChallengeHelperProtocolServer::new(ChallengeHelperProtocolServerImpl))
 }

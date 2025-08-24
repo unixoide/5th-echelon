@@ -143,7 +143,7 @@ impl<CI> GameSessionExProtocolServerTrait<CI> for GameSessionExProtocolServerImp
 }
 
 pub fn new_protocol<T: 'static>(storage: Arc<Storage>) -> Box<dyn Protocol<T>> {
-    Box::new(GameSessionExProtocolServer::new(
-        GameSessionExProtocolServerImpl { storage },
-    ))
+    Box::new(GameSessionExProtocolServer::new(GameSessionExProtocolServerImpl {
+        storage,
+    }))
 }

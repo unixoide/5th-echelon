@@ -144,10 +144,7 @@ pub struct GetNewsMessagesByTypeRequest {
 pub struct GetNewsMessagesByTypeResponse {
     pub news_messages: quazal::rmc::types::QList<NewsMessage>,
 }
-pub struct NewsProtocolServer<T: NewsProtocolServerTrait<CI>, CI>(
-    T,
-    ::std::marker::PhantomData<CI>,
-);
+pub struct NewsProtocolServer<T: NewsProtocolServerTrait<CI>, CI>(T, ::std::marker::PhantomData<CI>);
 impl<T: NewsProtocolServerTrait<CI>, CI> NewsProtocolServer<T, CI> {
     pub fn new(implementation: T) -> Self {
         Self(implementation, ::std::marker::PhantomData)
@@ -178,126 +175,114 @@ impl<T: NewsProtocolServerTrait<CI>, CI> Protocol<CI> for NewsProtocolServer<T, 
             Some(NewsProtocolMethod::GetChannels) => {
                 let req = GetChannelsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_channels(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_channels(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(NewsProtocolMethod::GetChannelsByTypes) => {
                 let req = GetChannelsByTypesRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .get_channels_by_types(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .get_channels_by_types(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(NewsProtocolMethod::GetSubscribableChannels) => {
                 let req = GetSubscribableChannelsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .get_subscribable_channels(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .get_subscribable_channels(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(NewsProtocolMethod::GetChannelsByIDs) => {
                 let req = GetChannelsByIDsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .get_channels_by_ids(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .get_channels_by_ids(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(NewsProtocolMethod::GetSubscribedChannels) => {
                 let req = GetSubscribedChannelsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .get_subscribed_channels(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .get_subscribed_channels(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(NewsProtocolMethod::SubscribeChannel) => {
                 let req = SubscribeChannelRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .subscribe_channel(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.subscribe_channel(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(NewsProtocolMethod::UnsubscribeChannel) => {
                 let req = UnsubscribeChannelRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .unsubscribe_channel(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .unsubscribe_channel(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(NewsProtocolMethod::GetNewsHeaders) => {
                 let req = GetNewsHeadersRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_news_headers(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_news_headers(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(NewsProtocolMethod::GetNewsMessages) => {
                 let req = GetNewsMessagesRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_news_messages(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_news_messages(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(NewsProtocolMethod::GetNumberOfNews) => {
                 let req = GetNumberOfNewsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_number_of_news(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_number_of_news(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(NewsProtocolMethod::GetChannelByType) => {
                 let req = GetChannelByTypeRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .get_channel_by_type(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .get_channel_by_type(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(NewsProtocolMethod::GetNewsHeadersByType) => {
                 let req = GetNewsHeadersByTypeRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .get_news_headers_by_type(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .get_news_headers_by_type(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(NewsProtocolMethod::GetNewsMessagesByType) => {
                 let req = GetNewsMessagesByTypeRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .get_news_messages_by_type(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .get_news_messages_by_type(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
         }
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        NewsProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        NewsProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
@@ -546,9 +531,7 @@ impl<CI> ClientProtocol<CI> for NewsProtocolClient<CI> {
         13u32
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        NewsProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        NewsProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]

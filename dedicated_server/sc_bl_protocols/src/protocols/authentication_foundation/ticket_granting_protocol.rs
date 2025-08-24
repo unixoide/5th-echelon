@@ -104,9 +104,7 @@ impl<T: TicketGrantingProtocolServerTrait<CI>, CI> TicketGrantingProtocolServer<
         Self(implementation, ::std::marker::PhantomData)
     }
 }
-impl<T: TicketGrantingProtocolServerTrait<CI>, CI> Protocol<CI>
-    for TicketGrantingProtocolServer<T, CI>
-{
+impl<T: TicketGrantingProtocolServerTrait<CI>, CI> Protocol<CI> for TicketGrantingProtocolServer<T, CI> {
     fn id(&self) -> u16 {
         TICKET_GRANTING_PROTOCOL_ID
     }
@@ -138,45 +136,35 @@ impl<T: TicketGrantingProtocolServerTrait<CI>, CI> Protocol<CI>
             Some(TicketGrantingProtocolMethod::LoginEx) => {
                 let req = LoginExRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .login_ex(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.login_ex(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(TicketGrantingProtocolMethod::RequestTicket) => {
                 let req = RequestTicketRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .request_ticket(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.request_ticket(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(TicketGrantingProtocolMethod::GetPid) => {
                 let req = GetPidRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_pid(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_pid(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(TicketGrantingProtocolMethod::GetName) => {
                 let req = GetNameRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_name(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_name(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(TicketGrantingProtocolMethod::LoginWithContext) => {
                 let req = LoginWithContextRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .login_with_context(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.login_with_context(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }

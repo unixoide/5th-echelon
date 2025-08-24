@@ -54,37 +54,25 @@ fn extract_pattern(
         let const_off = decoder.get_constant_offsets(&instruction);
 
         let displ_range = if const_off.has_displacement() {
-            Some(
-                const_off.displacement_offset()
-                    ..const_off.displacement_offset() + const_off.displacement_size(),
-            )
+            Some(const_off.displacement_offset()..const_off.displacement_offset() + const_off.displacement_size())
         } else {
             None
         };
 
         let imm_range = if const_off.has_immediate() {
-            Some(
-                const_off.immediate_offset()
-                    ..const_off.immediate_offset() + const_off.immediate_size(),
-            )
+            Some(const_off.immediate_offset()..const_off.immediate_offset() + const_off.immediate_size())
         } else {
             None
         };
 
         let imm2_range = if const_off.has_immediate2() {
-            Some(
-                const_off.immediate_offset2()
-                    ..const_off.immediate_offset2() + const_off.immediate_size2(),
-            )
+            Some(const_off.immediate_offset2()..const_off.immediate_offset2() + const_off.immediate_size2())
         } else {
             None
         };
 
         pattern.extend(instruction_bytes.iter().enumerate().map(|(i, b)| {
-            if displ_range
-                .as_ref()
-                .map(|r| r.contains(&i))
-                .unwrap_or(false)
+            if displ_range.as_ref().map(|r| r.contains(&i)).unwrap_or(false)
                 || imm_range.as_ref().map(|r| r.contains(&i)).unwrap_or(false)
                 || imm2_range.as_ref().map(|r| r.contains(&i)).unwrap_or(false)
             {
@@ -109,8 +97,7 @@ fn main() {
     let args: Args = argh::from_env();
     println!("Trying to generate patterns for {:?}", args.binary);
 
-    let addresses =
-        hooks_addresses::get_from_path(&args.binary).expect("no known addresses for given binary");
+    let addresses = hooks_addresses::get_from_path(&args.binary).expect("no known addresses for given binary");
 
     let binary_content = fs::read(args.binary).unwrap(); // we already hashed the binary before
 
@@ -151,11 +138,7 @@ fn main() {
             println!("No known addresses for hook {hook:?}");
             continue;
         }
-        println!(
-            "Generating patterns for {} addresses for hook {:?}",
-            addrs.len(),
-            hook
-        );
+        println!("Generating patterns for {} addresses for hook {:?}", addrs.len(), hook);
 
         let patterns: Vec<Pattern> = addrs
             .into_iter()
@@ -176,9 +159,7 @@ fn main() {
         hook_patterns.push((hook, patterns));
     }
 
-    println!(
-        "static HOOK_PATTERNS: LazyLock<Vec<(Hook, Vec<Pattern>)>> = LazyLock::new(|| {{\nvec!["
-    );
+    println!("static HOOK_PATTERNS: LazyLock<Vec<(Hook, Vec<Pattern>)>> = LazyLock::new(|| {{\nvec![");
 
     for (hook, patterns) in hook_patterns.into_iter() {
         println!(

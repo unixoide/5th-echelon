@@ -30,7 +30,5 @@ impl<T> LocalizationProtocolServerTrait<T> for LocalizationProtocolServerImpl {
 }
 
 pub fn new_protocol<T: 'static>() -> Box<dyn Protocol<T>> {
-    Box::new(LocalizationProtocolServer::new(
-        LocalizationProtocolServerImpl,
-    ))
+    Box::new(LocalizationProtocolServer::new(LocalizationProtocolServerImpl))
 }

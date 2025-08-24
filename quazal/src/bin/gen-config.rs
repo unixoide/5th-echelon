@@ -10,10 +10,7 @@ fn main() {
     {
         let mut ctx = Context::splinter_cell_blacklist();
         ctx.secure_server_addr = Some(ctx.listen);
-        ctx.secure_server_addr
-            .as_mut()
-            .unwrap()
-            .set_port(ctx.listen.port() + 1);
+        ctx.secure_server_addr.as_mut().unwrap().set_port(ctx.listen.port() + 1);
         config
             .service
             .insert(String::from("sc_bl_auth"), Service::Authentication(ctx));

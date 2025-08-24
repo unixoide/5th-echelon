@@ -55,10 +55,7 @@ pub struct FixSanityErrorsRequest;
 pub struct FixSanityErrorsResponse {
     pub return_value: bool,
 }
-pub struct HealthProtocolServer<T: HealthProtocolServerTrait<CI>, CI>(
-    T,
-    ::std::marker::PhantomData<CI>,
-);
+pub struct HealthProtocolServer<T: HealthProtocolServerTrait<CI>, CI>(T, ::std::marker::PhantomData<CI>);
 impl<T: HealthProtocolServerTrait<CI>, CI> HealthProtocolServer<T, CI> {
     pub fn new(implementation: T) -> Self {
         Self(implementation, ::std::marker::PhantomData)
@@ -89,36 +86,28 @@ impl<T: HealthProtocolServerTrait<CI>, CI> Protocol<CI> for HealthProtocolServer
             Some(HealthProtocolMethod::PingDaemon) => {
                 let req = PingDaemonRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .ping_daemon(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.ping_daemon(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(HealthProtocolMethod::PingDatabase) => {
                 let req = PingDatabaseRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .ping_database(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.ping_database(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(HealthProtocolMethod::RunSanityCheck) => {
                 let req = RunSanityCheckRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .run_sanity_check(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.run_sanity_check(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(HealthProtocolMethod::FixSanityErrors) => {
                 let req = FixSanityErrorsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .fix_sanity_errors(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.fix_sanity_errors(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }

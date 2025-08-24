@@ -43,9 +43,7 @@ impl<T: RemoteLogDeviceProtocolServerTrait<CI>, CI> RemoteLogDeviceProtocolServe
         Self(implementation, ::std::marker::PhantomData)
     }
 }
-impl<T: RemoteLogDeviceProtocolServerTrait<CI>, CI> Protocol<CI>
-    for RemoteLogDeviceProtocolServer<T, CI>
-{
+impl<T: RemoteLogDeviceProtocolServerTrait<CI>, CI> Protocol<CI> for RemoteLogDeviceProtocolServer<T, CI> {
     fn id(&self) -> u16 {
         REMOTE_LOG_DEVICE_PROTOCOL_ID
     }

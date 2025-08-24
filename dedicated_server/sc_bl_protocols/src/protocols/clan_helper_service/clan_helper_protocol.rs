@@ -102,10 +102,7 @@ pub struct GenerateClanChallengesRequest {
 pub struct GenerateClanChallengesResponse {
     pub result: quazal::rmc::types::QList<FriendChallenge>,
 }
-pub struct ClanHelperProtocolServer<T: ClanHelperProtocolServerTrait<CI>, CI>(
-    T,
-    ::std::marker::PhantomData<CI>,
-);
+pub struct ClanHelperProtocolServer<T: ClanHelperProtocolServerTrait<CI>, CI>(T, ::std::marker::PhantomData<CI>);
 impl<T: ClanHelperProtocolServerTrait<CI>, CI> ClanHelperProtocolServer<T, CI> {
     pub fn new(implementation: T) -> Self {
         Self(implementation, ::std::marker::PhantomData)
@@ -136,81 +133,77 @@ impl<T: ClanHelperProtocolServerTrait<CI>, CI> Protocol<CI> for ClanHelperProtoc
             Some(ClanHelperProtocolMethod::SetClanInfo) => {
                 let req = SetClanInfoRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .set_clan_info(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.set_clan_info(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(ClanHelperProtocolMethod::AddPidToClid) => {
                 let req = AddPidToClidRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .add_pid_to_clid(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.add_pid_to_clid(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(ClanHelperProtocolMethod::RemoveMemberByPid) => {
                 let req = RemoveMemberByPidRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .remove_member_by_pid(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .remove_member_by_pid(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(ClanHelperProtocolMethod::DisbandEntireClid) => {
                 let req = DisbandEntireClidRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .disband_entire_clid(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .disband_entire_clid(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(ClanHelperProtocolMethod::GetClanInfoByPid) => {
                 let req = GetClanInfoByPidRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .get_clan_info_by_pid(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .get_clan_info_by_pid(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(ClanHelperProtocolMethod::GetClanInfoByClid) => {
                 let req = GetClanInfoByClidRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .get_clan_info_by_clid(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .get_clan_info_by_clid(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(ClanHelperProtocolMethod::GetMemberListByPid) => {
                 let req = GetMemberListByPidRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .get_member_list_by_pid(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .get_member_list_by_pid(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(ClanHelperProtocolMethod::GetMemberListByClid) => {
                 let req = GetMemberListByClidRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .get_member_list_by_clid(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .get_member_list_by_clid(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(ClanHelperProtocolMethod::GenerateClanChallenges) => {
                 let req = GenerateClanChallengesRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .generate_clan_challenges(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .generate_clan_challenges(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }

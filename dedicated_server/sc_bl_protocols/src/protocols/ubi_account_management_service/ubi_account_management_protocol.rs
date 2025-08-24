@@ -239,9 +239,7 @@ impl<T: UbiAccountManagementProtocolServerTrait<CI>, CI> UbiAccountManagementPro
         Self(implementation, ::std::marker::PhantomData)
     }
 }
-impl<T: UbiAccountManagementProtocolServerTrait<CI>, CI> Protocol<CI>
-    for UbiAccountManagementProtocolServer<T, CI>
-{
+impl<T: UbiAccountManagementProtocolServerTrait<CI>, CI> Protocol<CI> for UbiAccountManagementProtocolServer<T, CI> {
     fn id(&self) -> u16 {
         UBI_ACCOUNT_MANAGEMENT_PROTOCOL_ID
     }
@@ -266,246 +264,179 @@ impl<T: UbiAccountManagementProtocolServerTrait<CI>, CI> Protocol<CI>
             Some(UbiAccountManagementProtocolMethod::CreateAccount) => {
                 let req = CreateAccountRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .create_account(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.create_account(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UbiAccountManagementProtocolMethod::UpdateAccount) => {
                 let req = UpdateAccountRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .update_account(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.update_account(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UbiAccountManagementProtocolMethod::GetAccount) => {
                 let req = GetAccountRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_account(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_account(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UbiAccountManagementProtocolMethod::LinkAccount) => {
                 let req = LinkAccountRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .link_account(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.link_account(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UbiAccountManagementProtocolMethod::GetTos) => {
                 let req = GetTosRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_tos(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_tos(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UbiAccountManagementProtocolMethod::ValidateUsername) => {
                 let req = ValidateUsernameRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .validate_username(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.validate_username(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UbiAccountManagementProtocolMethod::ValidatePassword) => {
                 let req = ValidatePasswordRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .validate_password(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.validate_password(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UbiAccountManagementProtocolMethod::ValidateEmail) => {
                 let req = ValidateEmailRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .validate_email(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.validate_email(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UbiAccountManagementProtocolMethod::GetCountryList) => {
                 let req = GetCountryListRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_country_list(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_country_list(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UbiAccountManagementProtocolMethod::ForgetPassword) => {
                 let req = ForgetPasswordRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .forget_password(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.forget_password(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UbiAccountManagementProtocolMethod::LookupPrincipalIds) => {
                 let req = LookupPrincipalIdsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .lookup_principal_ids(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .lookup_principal_ids(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UbiAccountManagementProtocolMethod::LookupUbiAccountIDsByPids) => {
                 let req = LookupUbiAccountIDsByPidsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.lookup_ubi_account_ids_by_pids(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self
+                    .0
+                    .lookup_ubi_account_ids_by_pids(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UbiAccountManagementProtocolMethod::LookupUbiAccountIDsByUsernames) => {
                 let req = LookupUbiAccountIDsByUsernamesRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.lookup_ubi_account_ids_by_usernames(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self
+                    .0
+                    .lookup_ubi_account_ids_by_usernames(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UbiAccountManagementProtocolMethod::LookupUsernamesByUbiAccountIDs) => {
                 let req = LookupUsernamesByUbiAccountIDsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.lookup_usernames_by_ubi_account_ids(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self
+                    .0
+                    .lookup_usernames_by_ubi_account_ids(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UbiAccountManagementProtocolMethod::LookupUbiAccountIDsByUsernameSubString) => {
-                let req =
-                    LookupUbiAccountIDsByUsernameSubStringRequest::from_bytes(&request.parameters)?;
+                let req = LookupUbiAccountIDsByUsernameSubStringRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.lookup_ubi_account_ids_by_username_sub_string(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp =
+                    self.0
+                        .lookup_ubi_account_ids_by_username_sub_string(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UbiAccountManagementProtocolMethod::UserHasPlayed) => {
                 let req = UserHasPlayedRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .user_has_played(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.user_has_played(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UbiAccountManagementProtocolMethod::IsUserPlaying) => {
                 let req = IsUserPlayingRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .is_user_playing(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.is_user_playing(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UbiAccountManagementProtocolMethod::LookupUbiAccountIDsByUsernamesGlobal) => {
-                let req =
-                    LookupUbiAccountIDsByUsernamesGlobalRequest::from_bytes(&request.parameters)?;
+                let req = LookupUbiAccountIDsByUsernamesGlobalRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.lookup_ubi_account_ids_by_usernames_global(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp =
+                    self.0
+                        .lookup_ubi_account_ids_by_usernames_global(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UbiAccountManagementProtocolMethod::LookupUbiAccountIDsByEmailsGlobal) => {
-                let req =
-                    LookupUbiAccountIDsByEmailsGlobalRequest::from_bytes(&request.parameters)?;
+                let req = LookupUbiAccountIDsByEmailsGlobalRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.lookup_ubi_account_ids_by_emails_global(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp =
+                    self.0
+                        .lookup_ubi_account_ids_by_emails_global(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UbiAccountManagementProtocolMethod::LookupUsernamesByUbiAccountIDsGlobal) => {
-                let req =
-                    LookupUsernamesByUbiAccountIDsGlobalRequest::from_bytes(&request.parameters)?;
+                let req = LookupUsernamesByUbiAccountIDsGlobalRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.lookup_usernames_by_ubi_account_ids_global(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp =
+                    self.0
+                        .lookup_usernames_by_ubi_account_ids_global(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UbiAccountManagementProtocolMethod::GetTosEx) => {
                 let req = GetTosExRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_tos_ex(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_tos_ex(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UbiAccountManagementProtocolMethod::HasAcceptedLatestTos) => {
                 let req = HasAcceptedLatestTosRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .has_accepted_latest_tos(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .has_accepted_latest_tos(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UbiAccountManagementProtocolMethod::AcceptLatestTos) => {
                 let req = AcceptLatestTosRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .accept_latest_tos(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.accept_latest_tos(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }

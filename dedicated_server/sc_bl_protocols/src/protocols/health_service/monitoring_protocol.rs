@@ -41,10 +41,7 @@ pub struct GetClusterMembersRequest;
 pub struct GetClusterMembersResponse {
     pub str_values: Vec<String>,
 }
-pub struct MonitoringProtocolServer<T: MonitoringProtocolServerTrait<CI>, CI>(
-    T,
-    ::std::marker::PhantomData<CI>,
-);
+pub struct MonitoringProtocolServer<T: MonitoringProtocolServerTrait<CI>, CI>(T, ::std::marker::PhantomData<CI>);
 impl<T: MonitoringProtocolServerTrait<CI>, CI> MonitoringProtocolServer<T, CI> {
     pub fn new(implementation: T) -> Self {
         Self(implementation, ::std::marker::PhantomData)
@@ -75,18 +72,16 @@ impl<T: MonitoringProtocolServerTrait<CI>, CI> Protocol<CI> for MonitoringProtoc
             Some(MonitoringProtocolMethod::PingDaemon) => {
                 let req = PingDaemonRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .ping_daemon(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.ping_daemon(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(MonitoringProtocolMethod::GetClusterMembers) => {
                 let req = GetClusterMembersRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .get_cluster_members(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .get_cluster_members(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }

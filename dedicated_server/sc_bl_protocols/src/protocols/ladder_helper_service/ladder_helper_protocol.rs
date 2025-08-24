@@ -60,18 +60,13 @@ pub struct ClearLadderLeaderboardRequest {
 pub struct ClearLadderLeaderboardResponse {
     pub success: bool,
 }
-pub struct LadderHelperProtocolServer<T: LadderHelperProtocolServerTrait<CI>, CI>(
-    T,
-    ::std::marker::PhantomData<CI>,
-);
+pub struct LadderHelperProtocolServer<T: LadderHelperProtocolServerTrait<CI>, CI>(T, ::std::marker::PhantomData<CI>);
 impl<T: LadderHelperProtocolServerTrait<CI>, CI> LadderHelperProtocolServer<T, CI> {
     pub fn new(implementation: T) -> Self {
         Self(implementation, ::std::marker::PhantomData)
     }
 }
-impl<T: LadderHelperProtocolServerTrait<CI>, CI> Protocol<CI>
-    for LadderHelperProtocolServer<T, CI>
-{
+impl<T: LadderHelperProtocolServerTrait<CI>, CI> Protocol<CI> for LadderHelperProtocolServer<T, CI> {
     fn id(&self) -> u16 {
         LADDER_HELPER_PROTOCOL_ID
     }
@@ -96,41 +91,34 @@ impl<T: LadderHelperProtocolServerTrait<CI>, CI> Protocol<CI>
             Some(LadderHelperProtocolMethod::GetUnixUtc) => {
                 let req = GetUnixUtcRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_unix_utc(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_unix_utc(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(LadderHelperProtocolMethod::AreLaddersAvailableInCountry) => {
                 let req = AreLaddersAvailableInCountryRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.are_ladders_available_in_country(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self
+                    .0
+                    .are_ladders_available_in_country(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(LadderHelperProtocolMethod::CheckLadderIsRunning) => {
                 let req = CheckLadderIsRunningRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .check_ladder_is_running(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .check_ladder_is_running(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(LadderHelperProtocolMethod::ClearLadderLeaderboard) => {
                 let req = ClearLadderLeaderboardRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .clear_ladder_leaderboard(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .clear_ladder_leaderboard(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }

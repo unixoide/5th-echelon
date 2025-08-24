@@ -258,10 +258,7 @@ pub struct SearchContentsByPlayersWithTotalResponse {
     pub search_results: quazal::rmc::types::QList<UserContent>,
     pub total_results: u32,
 }
-pub struct UserStorageProtocolServer<T: UserStorageProtocolServerTrait<CI>, CI>(
-    T,
-    ::std::marker::PhantomData<CI>,
-);
+pub struct UserStorageProtocolServer<T: UserStorageProtocolServerTrait<CI>, CI>(T, ::std::marker::PhantomData<CI>);
 impl<T: UserStorageProtocolServerTrait<CI>, CI> UserStorageProtocolServer<T, CI> {
     pub fn new(implementation: T) -> Self {
         Self(implementation, ::std::marker::PhantomData)
@@ -292,109 +289,81 @@ impl<T: UserStorageProtocolServerTrait<CI>, CI> Protocol<CI> for UserStorageProt
             Some(UserStorageProtocolMethod::SearchContents) => {
                 let req = SearchContentsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .search_contents(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.search_contents(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageProtocolMethod::SearchContentsWithTotal) => {
                 let req = SearchContentsWithTotalRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.search_contents_with_total(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self
+                    .0
+                    .search_contents_with_total(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageProtocolMethod::DeleteContent) => {
                 let req = DeleteContentRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .delete_content(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.delete_content(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageProtocolMethod::SaveMetaData) => {
                 let req = SaveMetaDataRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .save_meta_data(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.save_meta_data(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageProtocolMethod::SaveContentDb) => {
                 let req = SaveContentDbRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .save_content_db(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.save_content_db(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageProtocolMethod::SaveContentAndGetUploadInfo) => {
                 let req = SaveContentAndGetUploadInfoRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.save_content_and_get_upload_info(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self
+                    .0
+                    .save_content_and_get_upload_info(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageProtocolMethod::UploadEnd) => {
                 let req = UploadEndRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .upload_end(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.upload_end(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageProtocolMethod::GetContentDb) => {
                 let req = GetContentDbRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_content_db(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_content_db(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageProtocolMethod::GetContentUrl) => {
                 let req = GetContentUrlRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_content_url(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_content_url(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageProtocolMethod::GetSlotCount) => {
                 let req = GetSlotCountRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_slot_count(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_slot_count(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageProtocolMethod::GetMetaData) => {
                 let req = GetMetaDataRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_meta_data(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_meta_data(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
@@ -415,127 +384,103 @@ impl<T: UserStorageProtocolServerTrait<CI>, CI> Protocol<CI> for UserStorageProt
             Some(UserStorageProtocolMethod::IsLiked) => {
                 let req = IsLikedRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .is_liked(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.is_liked(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageProtocolMethod::GetFavourites) => {
                 let req = GetFavouritesRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_favourites(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_favourites(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageProtocolMethod::MakeFavourite) => {
                 let req = MakeFavouriteRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .make_favourite(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.make_favourite(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageProtocolMethod::RemoveFromFavourites) => {
                 let req = RemoveFromFavouritesRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .remove_from_favourites(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .remove_from_favourites(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageProtocolMethod::ReportInappropriate) => {
                 let req = ReportInappropriateRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .report_inappropriate(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .report_inappropriate(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageProtocolMethod::IncrementPlayCount) => {
                 let req = IncrementPlayCountRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .increment_play_count(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .increment_play_count(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageProtocolMethod::UpdateCustomStat) => {
                 let req = UpdateCustomStatRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .update_custom_stat(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.update_custom_stat(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageProtocolMethod::GetOwnContents) => {
                 let req = GetOwnContentsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_own_contents(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_own_contents(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageProtocolMethod::GetMostPopularTags) => {
                 let req = GetMostPopularTagsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .get_most_popular_tags(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .get_most_popular_tags(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageProtocolMethod::GetTags) => {
                 let req = GetTagsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_tags(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_tags(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageProtocolMethod::TagContent) => {
                 let req = TagContentRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .tag_content(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.tag_content(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageProtocolMethod::SearchContentsByPlayers) => {
                 let req = SearchContentsByPlayersRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.search_contents_by_players(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self
+                    .0
+                    .search_contents_by_players(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageProtocolMethod::SearchContentsByPlayersWithTotal) => {
                 let req = SearchContentsByPlayersWithTotalRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.search_contents_by_players_with_total(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self
+                    .0
+                    .search_contents_by_players_with_total(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }

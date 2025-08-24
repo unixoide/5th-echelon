@@ -37,18 +37,13 @@ pub struct SearchSessionsRequest {
 pub struct SearchSessionsResponse {
     pub search_results: quazal::rmc::types::QList<GameSessionSearchResultEx>,
 }
-pub struct GameSessionExProtocolServer<T: GameSessionExProtocolServerTrait<CI>, CI>(
-    T,
-    ::std::marker::PhantomData<CI>,
-);
+pub struct GameSessionExProtocolServer<T: GameSessionExProtocolServerTrait<CI>, CI>(T, ::std::marker::PhantomData<CI>);
 impl<T: GameSessionExProtocolServerTrait<CI>, CI> GameSessionExProtocolServer<T, CI> {
     pub fn new(implementation: T) -> Self {
         Self(implementation, ::std::marker::PhantomData)
     }
 }
-impl<T: GameSessionExProtocolServerTrait<CI>, CI> Protocol<CI>
-    for GameSessionExProtocolServer<T, CI>
-{
+impl<T: GameSessionExProtocolServerTrait<CI>, CI> Protocol<CI> for GameSessionExProtocolServer<T, CI> {
     fn id(&self) -> u16 {
         GAME_SESSION_EX_PROTOCOL_ID
     }
@@ -73,9 +68,7 @@ impl<T: GameSessionExProtocolServerTrait<CI>, CI> Protocol<CI>
             Some(GameSessionExProtocolMethod::SearchSessions) => {
                 let req = SearchSessionsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .search_sessions(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.search_sessions(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }

@@ -31,11 +31,7 @@ pub fn serve(logger: &slog::Logger, addr: SocketAddr, content: &str) -> std::io:
     }
 }
 
-pub fn serve_many(
-    logger: &slog::Logger,
-    addr: SocketAddr,
-    files: &HashMap<String, PathBuf>,
-) -> std::io::Result<()> {
+pub fn serve_many(logger: &slog::Logger, addr: SocketAddr, files: &HashMap<String, PathBuf>) -> std::io::Result<()> {
     let listener = TcpListener::bind(addr)?;
     loop {
         let (mut stream, _addr) = listener.accept()?;

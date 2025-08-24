@@ -53,11 +53,7 @@ where
 }
 
 #[allow(clippy::module_name_repetitions)]
-pub fn generate_source(
-    directory: &Path,
-    namespace: &Namespace,
-    import_map: &ImportMap,
-) -> io::Result<HashSet<String>> {
+pub fn generate_source(directory: &Path, namespace: &Namespace, import_map: &ImportMap) -> io::Result<HashSet<String>> {
     let modules: io::Result<_> = namespace
         .elements
         .iter()
@@ -68,46 +64,28 @@ pub fn generate_source(
             Element::Method(_) => todo!(),
             Element::Action(_) => todo!(),
             Element::PropertyDeclaration(p) => {
-                println!(
-                    "[-] Missing code generator for PropertyDeclaration {}",
-                    p.name1
-                );
+                println!("[-] Missing code generator for PropertyDeclaration {}", p.name1);
                 None
             }
-            Element::ProtocolDeclaration(p) => {
-                generate_protocol_code(directory, p, import_map).transpose()
-            }
+            Element::ProtocolDeclaration(p) => generate_protocol_code(directory, p, import_map).transpose(),
             Element::Parameter(_) => todo!(),
             Element::ReturnValue(_) => todo!(),
-            Element::ClassDeclaration(c) => {
-                generate_class_code(directory, c, import_map).transpose()
-            }
+            Element::ClassDeclaration(c) => generate_class_code(directory, c, import_map).transpose(),
             Element::TemplateDeclaration(t) => {
-                println!(
-                    "[-] Missing code generator for TemplateDeclaration {}",
-                    t.name1
-                );
+                println!("[-] Missing code generator for TemplateDeclaration {}", t.name1);
                 None
             }
             Element::SimpleDeclaration(s) => {
-                println!(
-                    "[-] Missing code generator for SimpleDeclaration {}",
-                    s.name1
-                );
+                println!("[-] Missing code generator for SimpleDeclaration {}", s.name1);
                 None
             }
             Element::TemplateInstance(t) => {
-                println!(
-                    "[-] Missing code generator for TemplateInstance {}",
-                    t.name1
-                );
+                println!("[-] Missing code generator for TemplateInstance {}", t.name1);
                 None
             }
             Element::DDLUnitDeclaration(d) => {
                 println!("[*] New namespace {}", d.name1);
-                let ty = directory
-                    .join(d.name1.to_case(Case::Snake))
-                    .join("types.rs");
+                let ty = directory.join(d.name1.to_case(Case::Snake)).join("types.rs");
                 if ty.exists() {
                     if let Err(e) = fs::remove_file(ty) {
                         return Some(Err(e));
@@ -164,9 +142,7 @@ fn generate_class_code(
             _ => unreachable!("unexpected element type"),
         })
         .map(|v| {
-            let name = escape_name(fix_name(
-                v.name1.trim_start_matches("m_").to_case(Case::Snake),
-            ));
+            let name = escape_name(fix_name(v.name1.trim_start_matches("m_").to_case(Case::Snake)));
             let name = to_ident(name);
             let ty = to_rust_type(&v.ty.ty);
 
@@ -209,10 +185,7 @@ fn generate_class_code(
 
     let is_new = !file_name.exists();
 
-    let mut f = fs::OpenOptions::new()
-        .create(true)
-        .append(true)
-        .open(file_name)?;
+    let mut f = fs::OpenOptions::new().create(true).append(true).open(file_name)?;
 
     if is_new {
         writeln!(
@@ -226,10 +199,7 @@ fn generate_class_code(
             .iter()
             .map(|element_path| element_path.namespace.to_case(Case::Snake))
             .map(to_ident);
-        let ty = imports
-            .iter()
-            .map(|element_path| &element_path.name)
-            .map(to_ident);
+        let ty = imports.iter().map(|element_path| &element_path.name).map(to_ident);
         writeln!(
             f,
             "{}",
@@ -459,10 +429,7 @@ fn generate_protocol_code(
             .iter()
             .map(|element_path| element_path.namespace.to_case(Case::Snake))
             .map(to_ident);
-        let ty = imports
-            .iter()
-            .map(|element_path| &element_path.name)
-            .map(to_ident);
+        let ty = imports.iter().map(|element_path| &element_path.name).map(to_ident);
         quote! {
             #(
                 use super::super::#namespace::types::#ty;
@@ -651,9 +618,7 @@ fn to_rust_type(ty: &SubType) -> syn::Path {
             let i = to_ident(c);
             parse_quote!(#i)
         }),
-        SubType::Simple(s) => {
-            to_rust_type_impl(s.as_str()).unwrap_or_else(|| todo!("unsupported datatype {}", s))
-        }
+        SubType::Simple(s) => to_rust_type_impl(s.as_str()).unwrap_or_else(|| todo!("unsupported datatype {}", s)),
         SubType::Template(t) => {
             let name = to_rust_type_impl(&t.template_name).unwrap_or_else(|| {
                 let i = to_ident(&t.template_name);
@@ -679,7 +644,7 @@ fn to_rust_type_impl(s: &str) -> Option<syn::Path> {
         "int32" => Some(parse_quote!(i32)),
         "int64" => Some(parse_quote!(i64)),
         "double" => Some(parse_quote!(f64)),
-		"float" => Some(parse_quote!(f32)),
+        "float" => Some(parse_quote!(f32)),
         "string" => Some(parse_quote!(String)),
         "qlist" => Some(parse_quote!(quazal::rmc::types::QList)),
         "std_list" | "qvector" => Some(parse_quote!(Vec)),
@@ -731,14 +696,12 @@ impl ImportMap {
 
         if !actual_ty.arguments.is_empty() {
             possible_imports.extend(match actual_ty.arguments {
-                syn::PathArguments::AngleBracketed(ref args) => {
-                    args.args.iter().map(|arg| match arg {
-                        syn::GenericArgument::Type(syn::Type::Path(path)) => {
-                            path.path.segments.last().unwrap().ident.to_string()
-                        }
-                        _ => todo!(),
-                    })
-                }
+                syn::PathArguments::AngleBracketed(ref args) => args.args.iter().map(|arg| match arg {
+                    syn::GenericArgument::Type(syn::Type::Path(path)) => {
+                        path.path.segments.last().unwrap().ident.to_string()
+                    }
+                    _ => todo!(),
+                }),
                 _ => todo!(),
             });
         }
@@ -776,15 +739,17 @@ pub fn build_import_map(namespaces: &[Namespace]) -> ImportMap {
                 Element::ClassDeclaration(class) => {
                     // TODO: change code generator to prefer local data types over imports
                     if ["RVConnectionData", "LoginData"].contains(&class.name1.as_str()) {
-                        println!(
-                            "[-] Ignoring {}.{} due to name clash",
-                            class.namespace, class.name1
-                        );
+                        println!("[-] Ignoring {}.{} due to name clash", class.namespace, class.name1);
                         continue;
                     }
                     match import_map.entry(class.name1.clone()) {
                         hash_map::Entry::Occupied(entry) => {
-                            panic!("Import clash: Type {} already imported from {}, but also exists in {}", entry.key(), entry.get().namespace, class.namespace);
+                            panic!(
+                                "Import clash: Type {} already imported from {}, but also exists in {}",
+                                entry.key(),
+                                entry.get().namespace,
+                                class.namespace
+                            );
                         }
                         hash_map::Entry::Vacant(entry) => entry.insert(ElementPath {
                             namespace: class.namespace.clone(),

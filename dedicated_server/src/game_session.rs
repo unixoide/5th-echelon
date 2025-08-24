@@ -229,12 +229,7 @@ impl<CI> GameSessionProtocolServerTrait<CI> for GameSessionProtocolServerImpl {
         rmc_err!(
             self.storage.register_urls(
                 user_id,
-                request
-                    .station_urls
-                    .0
-                    .into_iter()
-                    .map(|su| su.to_string())
-                    .collect()
+                request.station_urls.0.into_iter().map(|su| su.to_string()).collect()
             ),
             logger,
             "error adding participants"
@@ -256,10 +251,7 @@ impl<CI> GameSessionProtocolServerTrait<CI> for GameSessionProtocolServerImpl {
 
         let sessions = self
             .storage
-            .search_sessions_with_participants(
-                request.game_session_type_id,
-                request.participant_ids.0.as_slice(),
-            )
+            .search_sessions_with_participants(request.game_session_type_id, request.participant_ids.0.as_slice())
             .map_err(|e| {
                 error!(logger, "Error searching game sessions: {e}");
                 Error::InternalError
@@ -286,11 +278,7 @@ impl<CI> GameSessionProtocolServerTrait<CI> for GameSessionProtocolServerImpl {
                             host_urls: host.station_urls.clone().try_into().unwrap(),
                             attributes: session.attributes.as_str().parse().unwrap(),
                         },
-                        participant_ids: session
-                            .participants
-                            .into_iter()
-                            .map(|p| p.user_id)
-                            .collect(),
+                        participant_ids: session.participants.into_iter().map(|p| p.user_id).collect(),
                     }
                 })
                 .collect(),
@@ -326,7 +314,7 @@ impl<CI> GameSessionProtocolServerTrait<CI> for GameSessionProtocolServerImpl {
 }
 
 pub fn new_protocol<T: 'static>(storage: Arc<Storage>) -> Box<dyn Protocol<T>> {
-    Box::new(GameSessionProtocolServer::new(
-        GameSessionProtocolServerImpl { storage },
-    ))
+    Box::new(GameSessionProtocolServer::new(GameSessionProtocolServerImpl {
+        storage,
+    }))
 }

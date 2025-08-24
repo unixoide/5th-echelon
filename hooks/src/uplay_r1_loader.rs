@@ -154,11 +154,7 @@ unsafe fn into_party_invite_accepted(event: *mut UplayEvent, ubi_name: String) {
     (*event).event_type = UplayEventType::PartyGameInviteAccepted;
     let mut ub = ubi_name.into_bytes();
     ub.push(0);
-    let l = if ub.len() > BAR.len() {
-        BAR.len()
-    } else {
-        ub.len()
-    };
+    let l = if ub.len() > BAR.len() { BAR.len() } else { ub.len() };
     BAR[..l].copy_from_slice(&ub[..l]);
     BAR[l] = 0;
     FOO.length = l + 1;
@@ -231,9 +227,7 @@ unsafe extern "cdecl" fn UPLAY_GetOverlappedOperationResult(
 }
 
 #[forwardable_export]
-unsafe extern "cdecl" fn UPLAY_HasOverlappedOperationCompleted(
-    overlapped: *mut UplayOverlapped,
-) -> bool {
+unsafe extern "cdecl" fn UPLAY_HasOverlappedOperationCompleted(overlapped: *mut UplayOverlapped) -> bool {
     let overlapped = unsafe { overlapped.as_ref() };
     overlapped.is_some_and(|o| o.is_completed != 0)
 }
@@ -289,10 +283,8 @@ unsafe extern "cdecl" fn UPLAY_Startup(
                         let mut failures = 0;
                         loop {
                             tokio::time::sleep(Duration::from_secs(1)).await;
-                            let event: Option<std::result::Result<_, _>> = crate::api::event()
-                                .await
-                                .map(|resp| resp.invite)
-                                .transpose();
+                            let event: Option<std::result::Result<_, _>> =
+                                crate::api::event().await.map(|resp| resp.invite).transpose();
                             if let Some(invite) = event {
                                 if invite.is_err() {
                                     failures += 1;
@@ -301,8 +293,7 @@ unsafe extern "cdecl" fn UPLAY_Startup(
                                 }
                                 let invite = invite.map(Some);
                                 tx.send(invite).unwrap();
-                                if failures > 0 && failures % 10 == 0 && crate::api::relogin().await
-                                {
+                                if failures > 0 && failures % 10 == 0 && crate::api::relogin().await {
                                     // signal successful relogin
                                     tx.send(Ok(None)).unwrap();
                                 }

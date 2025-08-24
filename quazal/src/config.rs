@@ -211,8 +211,8 @@ impl OnlineConfig {
                 let rest = s.split_off(start_idx);
                 s.push_str(&public_ip.to_string());
                 s.push_str(&rest[end_idx - start_idx..]);
-				
-				// repeat the same for SandboxUrlWS
+
+                // repeat the same for SandboxUrlWS
                 let Some(idx) = s.find(r#""Name":"SandboxUrlWS","#) else {
                     return;
                 };

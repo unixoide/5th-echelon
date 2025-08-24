@@ -70,9 +70,7 @@ fn main() {
                         }
                         Block::SimplePacket(_) => todo!(),
                         Block::NameResolution(_) => todo!(),
-                        Block::InterfaceStatistics(_)
-                        | Block::SectionHeader(_)
-                        | Block::InterfaceDescription(_) => {}
+                        Block::InterfaceStatistics(_) | Block::SectionHeader(_) | Block::InterfaceDescription(_) => {}
                         Block::SystemdJournalExport(_) => todo!(),
                         Block::DecryptionSecrets(_) => todo!(),
                         Block::Custom(_) => todo!(),
@@ -107,10 +105,7 @@ fn parse(data: &[u8], port: u16, crypto_key: &str, access_key: &str) -> bool {
                         let iph = ip.header();
                         (
                             SocketAddr::V4(SocketAddrV4::new(iph.source_addr(), udp.source_port())),
-                            SocketAddr::V4(SocketAddrV4::new(
-                                iph.destination_addr(),
-                                udp.destination_port(),
-                            )),
+                            SocketAddr::V4(SocketAddrV4::new(iph.destination_addr(), udp.destination_port())),
                         )
                     } else {
                         panic!()

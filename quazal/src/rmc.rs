@@ -47,10 +47,7 @@ impl Error {
             Error::UnimplementedMethod => 0x0001_0002,
             Error::AccessDenied => 0x0001_0006,
             Error::MissingData(_, _) => 0x0001_0009,
-            Error::ParsingError
-            | Error::InvalidPacketType
-            | Error::IO(_)
-            | Error::FromStream(_) => 0x0001_000A,
+            Error::ParsingError | Error::InvalidPacketType | Error::IO(_) | Error::FromStream(_) => 0x0001_000A,
             Error::InternalError => 0x0001_0012,
         };
         code | 0x8000_0000
@@ -175,10 +172,7 @@ impl ResponseError {
     pub fn from_reader<R: Read>(rdr: &mut R) -> Result<Self> {
         let error_code = rdr.read_u32::<LittleEndian>()?;
         let call_id = rdr.read_u32::<LittleEndian>()?;
-        Ok(Self {
-            error_code,
-            call_id,
-        })
+        Ok(Self { error_code, call_id })
     }
 
     #[must_use]
@@ -216,10 +210,7 @@ impl Response {
             _v => return Err(Error::InvalidPacketType),
         };
 
-        Ok(Self {
-            protocol_id,
-            result,
-        })
+        Ok(Self { protocol_id, result })
     }
 
     #[must_use]
@@ -300,14 +291,7 @@ pub trait ClientProtocol<T> {
     fn num_methods(&self) -> u32;
     fn method_name(&self, method_id: u32) -> Option<String>;
 
-    fn send(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<T>,
-        method_id: u32,
-        parameters: Vec<u8>,
-    ) {
+    fn send(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<T>, method_id: u32, parameters: Vec<u8>) {
         let request = Request {
             protocol_id: self.id(),
             method_id,
@@ -390,9 +374,7 @@ impl<T> StreamHandler<T> for RVSecHandler<T> {
                 logger,
                 "Calling {}.{}",
                 protocol.name(),
-                protocol
-                    .method_name(rmc_packet.method_id)
-                    .unwrap_or_default(),
+                protocol.method_name(rmc_packet.method_id).unwrap_or_default(),
             );
 
             protocol.handle(&logger, ctx, ci, &rmc_packet, client_registry, socket)
@@ -460,12 +442,11 @@ mod tests {
     #[test]
     fn test_request() {
         let data = [
-            0x48, 0x00, 0x00, 0x00, 0x8a, 0x08, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x03,
-            0x00, 0x77, 0x76, 0x00, 0x21, 0x00, 0x55, 0x62, 0x69, 0x41, 0x75, 0x74, 0x68, 0x65,
-            0x6e, 0x74, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x4c, 0x6f, 0x67, 0x69, 0x6e,
-            0x43, 0x75, 0x73, 0x74, 0x6f, 0x6d, 0x44, 0x61, 0x74, 0x61, 0x00, 0x13, 0x00, 0x00,
-            0x00, 0x0f, 0x00, 0x00, 0x00, 0x03, 0x00, 0x77, 0x76, 0x00, 0x01, 0x00, 0x00, 0x05,
-            0x00, 0x74, 0x65, 0x73, 0x74, 0x00,
+            0x48, 0x00, 0x00, 0x00, 0x8a, 0x08, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x03, 0x00, 0x77, 0x76, 0x00,
+            0x21, 0x00, 0x55, 0x62, 0x69, 0x41, 0x75, 0x74, 0x68, 0x65, 0x6e, 0x74, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f,
+            0x6e, 0x4c, 0x6f, 0x67, 0x69, 0x6e, 0x43, 0x75, 0x73, 0x74, 0x6f, 0x6d, 0x44, 0x61, 0x74, 0x61, 0x00, 0x13,
+            0x00, 0x00, 0x00, 0x0f, 0x00, 0x00, 0x00, 0x03, 0x00, 0x77, 0x76, 0x00, 0x01, 0x00, 0x00, 0x05, 0x00, 0x74,
+            0x65, 0x73, 0x74, 0x00,
         ];
 
         let _req = dbg!(Request::from_bytes(&data)).unwrap();

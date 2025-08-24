@@ -85,22 +85,12 @@ impl<T> NatTraversalProtocolServerTrait<T> for NatTraversalProtocolServerImpl {
                 payload,
                 ..Default::default()
             };
-            quazal::prudp::send_request(
-                logger,
-                ctx,
-                &addr,
-                socket,
-                qpacket,
-                &mut *target.borrow_mut(),
-            )
-            .unwrap();
+            quazal::prudp::send_request(logger, ctx, &addr, socket, qpacket, &mut *target.borrow_mut()).unwrap();
         }
         Ok(RequestProbeInitiationExtResponse)
     }
 }
 
 pub fn new_protocol<T: 'static>() -> Box<dyn Protocol<T>> {
-    Box::new(NatTraversalProtocolServer::new(
-        NatTraversalProtocolServerImpl,
-    ))
+    Box::new(NatTraversalProtocolServer::new(NatTraversalProtocolServerImpl))
 }

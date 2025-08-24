@@ -37,7 +37,5 @@ impl<T> LadderHelperProtocolServerTrait<T> for LadderHelperProtocolServerImpl {
 }
 
 pub fn new_protocol<T: 'static>() -> Box<dyn Protocol<T>> {
-    Box::new(LadderHelperProtocolServer::new(
-        LadderHelperProtocolServerImpl,
-    ))
+    Box::new(LadderHelperProtocolServer::new(LadderHelperProtocolServerImpl))
 }

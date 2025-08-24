@@ -187,9 +187,7 @@ impl<T: UserStorageAdminProtocolServerTrait<CI>, CI> UserStorageAdminProtocolSer
         Self(implementation, ::std::marker::PhantomData)
     }
 }
-impl<T: UserStorageAdminProtocolServerTrait<CI>, CI> Protocol<CI>
-    for UserStorageAdminProtocolServer<T, CI>
-{
+impl<T: UserStorageAdminProtocolServerTrait<CI>, CI> Protocol<CI> for UserStorageAdminProtocolServer<T, CI> {
     fn id(&self) -> u16 {
         USER_STORAGE_ADMIN_PROTOCOL_ID
     }
@@ -214,156 +212,117 @@ impl<T: UserStorageAdminProtocolServerTrait<CI>, CI> Protocol<CI>
             Some(UserStorageAdminProtocolMethod::GetContentsToModerate) => {
                 let req = GetContentsToModerateRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .get_contents_to_moderate(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .get_contents_to_moderate(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageAdminProtocolMethod::FlagContentAsVerified) => {
                 let req = FlagContentAsVerifiedRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .flag_content_as_verified(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .flag_content_as_verified(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageAdminProtocolMethod::BanContent) => {
                 let req = BanContentRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .ban_content(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.ban_content(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageAdminProtocolMethod::BanUser) => {
                 let req = BanUserRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .ban_user(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.ban_user(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageAdminProtocolMethod::BanUserFromContentType) => {
                 let req = BanUserFromContentTypeRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.ban_user_from_content_type(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self
+                    .0
+                    .ban_user_from_content_type(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageAdminProtocolMethod::UnbanUser) => {
                 let req = UnbanUserRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .unban_user(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.unban_user(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageAdminProtocolMethod::UnbanUserFromContentType) => {
                 let req = UnbanUserFromContentTypeRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.unban_user_from_content_type(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self
+                    .0
+                    .unban_user_from_content_type(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageAdminProtocolMethod::GetContentsToModerateWithThreshold) => {
-                let req =
-                    GetContentsToModerateWithThresholdRequest::from_bytes(&request.parameters)?;
+                let req = GetContentsToModerateWithThresholdRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.get_contents_to_moderate_with_threshold(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp =
+                    self.0
+                        .get_contents_to_moderate_with_threshold(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageAdminProtocolMethod::UpdateMetaData) => {
                 let req = UpdateMetaDataRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .update_meta_data(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.update_meta_data(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageAdminProtocolMethod::UpdateContentDb) => {
                 let req = UpdateContentDbRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .update_content_db(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.update_content_db(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageAdminProtocolMethod::UpdateContentAndGetUploadInfo) => {
                 let req = UpdateContentAndGetUploadInfoRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.update_content_and_get_upload_info(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self
+                    .0
+                    .update_content_and_get_upload_info(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageAdminProtocolMethod::DeleteContent) => {
                 let req = DeleteContentRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .delete_content(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.delete_content(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageAdminProtocolMethod::BrowseContents) => {
                 let req = BrowseContentsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .browse_contents(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.browse_contents(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageAdminProtocolMethod::IsUserbanned) => {
                 let req = IsUserbannedRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .is_userbanned(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.is_userbanned(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageAdminProtocolMethod::GetBannedUsers) => {
                 let req = GetBannedUsersRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_banned_users(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_banned_users(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }

@@ -51,17 +51,11 @@ impl FromStr for StationURL {
 
         let mut params: HashMap<String, String> = rest
             .split(';')
-            .map(|param| {
-                param
-                    .split_once('=')
-                    .map(|(k, v)| (k.to_owned(), v.to_owned()))
-            })
+            .map(|param| param.split_once('=').map(|(k, v)| (k.to_owned(), v.to_owned())))
             .collect::<Option<_>>()
             .ok_or(StationURLParseError::InvalidParameters)?;
 
-        let address = params
-            .remove("address")
-            .ok_or(StationURLParseError::MissingAddress)?;
+        let address = params.remove("address").ok_or(StationURLParseError::MissingAddress)?;
         let port = params
             .remove("port")
             .ok_or(StationURLParseError::MissingPort)?
@@ -167,10 +161,7 @@ impl ClassRegistry {
     }
 
     pub fn instantiate(&self, name: &str, data: &[u8]) -> Result<ClassPtr, Error> {
-        let f = self
-            .0
-            .get(name)
-            .ok_or(Error::UnknownClass(name.to_owned()))?;
+        let f = self.0.get(name).ok_or(Error::UnknownClass(name.to_owned()))?;
         Ok(f(data)?)
     }
 }
@@ -295,11 +286,7 @@ impl FromStream for Variant {
             4 => Ok(Variant::String(stream.read()?)),
             5 => Ok(Variant::DateTime(stream.read()?)),
             6 => Ok(Variant::U64(stream.read()?)),
-            t => Err(io::Error::new(
-                io::ErrorKind::InvalidData,
-                format!("invalid variant type {t}"),
-            )
-            .into()),
+            t => Err(io::Error::new(io::ErrorKind::InvalidData, format!("invalid variant type {t}")).into()),
         }
     }
 }
@@ -471,9 +458,7 @@ mod tests {
 
     #[test]
     fn parse_stationurl() {
-        let parsed: StationURL = "prudp:/address=127.0.0.1;port=3074;sid=15;type=3"
-            .parse()
-            .unwrap();
+        let parsed: StationURL = "prudp:/address=127.0.0.1;port=3074;sid=15;type=3".parse().unwrap();
         assert_eq!(parsed.address.as_str(), "127.0.0.1");
         assert_eq!(parsed.port, 3074);
         assert_eq!(parsed.params.get("sid").map(String::as_str), Some("15"));
@@ -488,18 +473,12 @@ mod tests {
         registry.register_class::<String>("string");
 
         let inst = registry.instantiate("u32", b"ABCD").unwrap();
-        assert_eq!(
-            *inst.as_any().downcast_ref::<u32>().unwrap(),
-            0x4443_4241u32
-        );
+        assert_eq!(*inst.as_any().downcast_ref::<u32>().unwrap(), 0x4443_4241u32);
 
         let inst = registry.instantiate("u8", b"ABCD").unwrap();
         assert_eq!(*inst.as_any().downcast_ref::<u8>().unwrap(), 0x41u8);
         let inst = registry.instantiate("string", b"\x05\x00ABCD\x00").unwrap();
-        assert_eq!(
-            inst.as_any().downcast_ref::<String>().unwrap().as_str(),
-            "ABCD"
-        );
+        assert_eq!(inst.as_any().downcast_ref::<String>().unwrap().as_str(), "ABCD");
     }
 
     #[test]

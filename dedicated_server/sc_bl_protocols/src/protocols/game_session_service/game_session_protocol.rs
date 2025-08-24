@@ -275,10 +275,7 @@ pub struct ReportUnsuccessfulJoinSessionsRequest {
 }
 #[derive(Debug, ToStream, FromStream)]
 pub struct ReportUnsuccessfulJoinSessionsResponse;
-pub struct GameSessionProtocolServer<T: GameSessionProtocolServerTrait<CI>, CI>(
-    T,
-    ::std::marker::PhantomData<CI>,
-);
+pub struct GameSessionProtocolServer<T: GameSessionProtocolServerTrait<CI>, CI>(T, ::std::marker::PhantomData<CI>);
 impl<T: GameSessionProtocolServerTrait<CI>, CI> GameSessionProtocolServer<T, CI> {
     pub fn new(implementation: T) -> Self {
         Self(implementation, ::std::marker::PhantomData)
@@ -309,285 +306,232 @@ impl<T: GameSessionProtocolServerTrait<CI>, CI> Protocol<CI> for GameSessionProt
             Some(GameSessionProtocolMethod::CreateSession) => {
                 let req = CreateSessionRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .create_session(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.create_session(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::UpdateSession) => {
                 let req = UpdateSessionRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .update_session(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.update_session(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::DeleteSession) => {
                 let req = DeleteSessionRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .delete_session(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.delete_session(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::MigrateSession) => {
                 let req = MigrateSessionRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .migrate_session(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.migrate_session(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::LeaveSession) => {
                 let req = LeaveSessionRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .leave_session(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.leave_session(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::GetSession) => {
                 let req = GetSessionRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_session(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_session(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::SearchSessions) => {
                 let req = SearchSessionsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .search_sessions(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.search_sessions(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::AddParticipants) => {
                 let req = AddParticipantsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .add_participants(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.add_participants(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::RemoveParticipants) => {
                 let req = RemoveParticipantsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .remove_participants(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .remove_participants(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::GetParticipantCount) => {
                 let req = GetParticipantCountRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .get_participant_count(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .get_participant_count(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::GetParticipants) => {
                 let req = GetParticipantsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_participants(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_participants(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::SendInvitation) => {
                 let req = SendInvitationRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .send_invitation(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.send_invitation(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::GetInvitationReceivedCount) => {
                 let req = GetInvitationReceivedCountRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.get_invitation_received_count(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self
+                    .0
+                    .get_invitation_received_count(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::GetInvitationsReceived) => {
                 let req = GetInvitationsReceivedRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .get_invitations_received(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .get_invitations_received(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::GetInvitationSentCount) => {
                 let req = GetInvitationSentCountRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .get_invitation_sent_count(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .get_invitation_sent_count(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::GetInvitationsSent) => {
                 let req = GetInvitationsSentRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .get_invitations_sent(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .get_invitations_sent(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::AcceptInvitation) => {
                 let req = AcceptInvitationRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .accept_invitation(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.accept_invitation(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::DeclineInvitation) => {
                 let req = DeclineInvitationRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .decline_invitation(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.decline_invitation(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::CancelInvitation) => {
                 let req = CancelInvitationRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .cancel_invitation(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.cancel_invitation(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::SendTextMessage) => {
                 let req = SendTextMessageRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .send_text_message(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.send_text_message(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::RegisterUrLs) => {
                 let req = RegisterUrLsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .register_urls(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.register_urls(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::JoinSession) => {
                 let req = JoinSessionRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .join_session(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.join_session(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::AbandonSession) => {
                 let req = AbandonSessionRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .abandon_session(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.abandon_session(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::SearchSessionsWithParticipants) => {
                 let req = SearchSessionsWithParticipantsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.search_sessions_with_participants(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self
+                    .0
+                    .search_sessions_with_participants(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::GetSessions) => {
                 let req = GetSessionsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_sessions(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_sessions(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::GetParticipantsUrLs) => {
                 let req = GetParticipantsUrLsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .get_participants_urls(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .get_participants_urls(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::MigrateSessionHost) => {
                 let req = MigrateSessionHostRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .migrate_session_host(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .migrate_session_host(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::SplitSession) => {
                 let req = SplitSessionRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .split_session(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.split_session(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::SearchSocialSessions) => {
                 let req = SearchSocialSessionsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .search_social_sessions(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .search_social_sessions(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::ReportUnsuccessfulJoinSessions) => {
                 let req = ReportUnsuccessfulJoinSessionsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.report_unsuccessful_join_sessions(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self
+                    .0
+                    .report_unsuccessful_join_sessions(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }

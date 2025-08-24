@@ -49,18 +49,13 @@ pub struct RequestProbeInitiationExtRequest {
 }
 #[derive(Debug, ToStream, FromStream)]
 pub struct RequestProbeInitiationExtResponse;
-pub struct NatTraversalProtocolServer<T: NatTraversalProtocolServerTrait<CI>, CI>(
-    T,
-    ::std::marker::PhantomData<CI>,
-);
+pub struct NatTraversalProtocolServer<T: NatTraversalProtocolServerTrait<CI>, CI>(T, ::std::marker::PhantomData<CI>);
 impl<T: NatTraversalProtocolServerTrait<CI>, CI> NatTraversalProtocolServer<T, CI> {
     pub fn new(implementation: T) -> Self {
         Self(implementation, ::std::marker::PhantomData)
     }
 }
-impl<T: NatTraversalProtocolServerTrait<CI>, CI> Protocol<CI>
-    for NatTraversalProtocolServer<T, CI>
-{
+impl<T: NatTraversalProtocolServerTrait<CI>, CI> Protocol<CI> for NatTraversalProtocolServer<T, CI> {
     fn id(&self) -> u16 {
         NAT_TRAVERSAL_PROTOCOL_ID
     }
@@ -85,32 +80,25 @@ impl<T: NatTraversalProtocolServerTrait<CI>, CI> Protocol<CI>
             Some(NatTraversalProtocolMethod::RequestProbeInitiation) => {
                 let req = RequestProbeInitiationRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .request_probe_initiation(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .request_probe_initiation(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(NatTraversalProtocolMethod::InitiateProbe) => {
                 let req = InitiateProbeRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .initiate_probe(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.initiate_probe(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(NatTraversalProtocolMethod::RequestProbeInitiationExt) => {
                 let req = RequestProbeInitiationExtRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.request_probe_initiation_ext(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self
+                    .0
+                    .request_probe_initiation_ext(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }

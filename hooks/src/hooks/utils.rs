@@ -29,9 +29,7 @@ pub fn hashes() -> Arc<HashMap<StringHash, &'static str>> {
             HASHES
                 .split('\n')
                 .filter_map(|line| line.split_once('\t'))
-                .filter_map(|(txt, id)| {
-                    Some((StringHash::from_str_radix(id.trim_end(), 16).ok()?, txt))
-                })
+                .filter_map(|(txt, id)| Some((StringHash::from_str_radix(id.trim_end(), 16).ok()?, txt)))
                 .collect(),
         )
     });

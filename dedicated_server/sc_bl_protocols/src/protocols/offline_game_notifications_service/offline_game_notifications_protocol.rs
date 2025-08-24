@@ -54,13 +54,11 @@ pub struct PollAnyOfflineNotificationsResponse {
     pub list_timed_notification: quazal::rmc::types::QList<TimedNotification>,
     pub nb_remaining_notifs: u32,
 }
-pub struct OfflineGameNotificationsProtocolServer<
-    T: OfflineGameNotificationsProtocolServerTrait<CI>,
-    CI,
->(T, ::std::marker::PhantomData<CI>);
-impl<T: OfflineGameNotificationsProtocolServerTrait<CI>, CI>
-    OfflineGameNotificationsProtocolServer<T, CI>
-{
+pub struct OfflineGameNotificationsProtocolServer<T: OfflineGameNotificationsProtocolServerTrait<CI>, CI>(
+    T,
+    ::std::marker::PhantomData<CI>,
+);
+impl<T: OfflineGameNotificationsProtocolServerTrait<CI>, CI> OfflineGameNotificationsProtocolServer<T, CI> {
     pub fn new(implementation: T) -> Self {
         Self(implementation, ::std::marker::PhantomData)
     }
@@ -92,37 +90,25 @@ impl<T: OfflineGameNotificationsProtocolServerTrait<CI>, CI> Protocol<CI>
             Some(OfflineGameNotificationsProtocolMethod::PollNotifications) => {
                 let req = PollNotificationsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .poll_notifications(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.poll_notifications(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(OfflineGameNotificationsProtocolMethod::PollSpecificOfflineNotifications) => {
                 let req = PollSpecificOfflineNotificationsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.poll_specific_offline_notifications(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self
+                    .0
+                    .poll_specific_offline_notifications(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(OfflineGameNotificationsProtocolMethod::PollAnyOfflineNotifications) => {
                 let req = PollAnyOfflineNotificationsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.poll_any_offline_notifications(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self
+                    .0
+                    .poll_any_offline_notifications(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }

@@ -81,9 +81,7 @@ impl<T: SecureConnectionProtocolServerTrait<CI>, CI> SecureConnectionProtocolSer
         Self(implementation, ::std::marker::PhantomData)
     }
 }
-impl<T: SecureConnectionProtocolServerTrait<CI>, CI> Protocol<CI>
-    for SecureConnectionProtocolServer<T, CI>
-{
+impl<T: SecureConnectionProtocolServerTrait<CI>, CI> Protocol<CI> for SecureConnectionProtocolServer<T, CI> {
     fn id(&self) -> u16 {
         SECURE_CONNECTION_PROTOCOL_ID
     }
@@ -108,36 +106,30 @@ impl<T: SecureConnectionProtocolServerTrait<CI>, CI> Protocol<CI>
             Some(SecureConnectionProtocolMethod::Register) => {
                 let req = RegisterRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .register(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.register(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(SecureConnectionProtocolMethod::RequestConnectionData) => {
                 let req = RequestConnectionDataRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .request_connection_data(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .request_connection_data(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(SecureConnectionProtocolMethod::RequestUrLs) => {
                 let req = RequestUrLsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .request_urls(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.request_urls(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(SecureConnectionProtocolMethod::RegisterEx) => {
                 let req = RegisterExRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .register_ex(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.register_ex(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }

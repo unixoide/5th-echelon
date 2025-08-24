@@ -12,16 +12,10 @@ use tracing::info;
 
 use super::Error;
 
-pub async fn try_locate_server(
-    adapter: Option<(&str, IpAddr)>,
-    adapters: &[(&str, IpAddr)],
-) -> Result<IpAddr, Error> {
-    tokio::time::timeout(
-        Duration::from_secs(5),
-        try_locate_server_inner(adapter, adapters),
-    )
-    .await
-    .map_err(|_| Error::TimedOut)?
+pub async fn try_locate_server(adapter: Option<(&str, IpAddr)>, adapters: &[(&str, IpAddr)]) -> Result<IpAddr, Error> {
+    tokio::time::timeout(Duration::from_secs(5), try_locate_server_inner(adapter, adapters))
+        .await
+        .map_err(|_| Error::TimedOut)?
 }
 
 async fn try_locate_server_inner(

@@ -176,10 +176,7 @@ pub struct BuyRewardRequest {
 pub struct BuyRewardResponse {
     pub virtual_currency_user_balance: i32,
 }
-pub struct UplayWinProtocolServer<T: UplayWinProtocolServerTrait<CI>, CI>(
-    T,
-    ::std::marker::PhantomData<CI>,
-);
+pub struct UplayWinProtocolServer<T: UplayWinProtocolServerTrait<CI>, CI>(T, ::std::marker::PhantomData<CI>);
 impl<T: UplayWinProtocolServerTrait<CI>, CI> UplayWinProtocolServer<T, CI> {
     pub fn new(implementation: T) -> Self {
         Self(implementation, ::std::marker::PhantomData)
@@ -210,127 +207,105 @@ impl<T: UplayWinProtocolServerTrait<CI>, CI> Protocol<CI> for UplayWinProtocolSe
             Some(UplayWinProtocolMethod::GetActions) => {
                 let req = GetActionsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_actions(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_actions(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UplayWinProtocolMethod::GetActionsCompleted) => {
                 let req = GetActionsCompletedRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .get_actions_completed(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .get_actions_completed(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UplayWinProtocolMethod::GetActionsCount) => {
                 let req = GetActionsCountRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_actions_count(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_actions_count(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UplayWinProtocolMethod::GetActionsCompletedCount) => {
                 let req = GetActionsCompletedCountRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.get_actions_completed_count(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self
+                    .0
+                    .get_actions_completed_count(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UplayWinProtocolMethod::GetRewards) => {
                 let req = GetRewardsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_rewards(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_rewards(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UplayWinProtocolMethod::GetRewardsPurchased) => {
                 let req = GetRewardsPurchasedRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .get_rewards_purchased(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .get_rewards_purchased(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UplayWinProtocolMethod::UplayWelcome) => {
                 let req = UplayWelcomeRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .uplay_welcome(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.uplay_welcome(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UplayWinProtocolMethod::SetActionCompleted) => {
                 let req = SetActionCompletedRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .set_action_completed(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .set_action_completed(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UplayWinProtocolMethod::SetActionsCompleted) => {
                 let req = SetActionsCompletedRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .set_actions_completed(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .set_actions_completed(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UplayWinProtocolMethod::GetUserToken) => {
                 let req = GetUserTokenRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_user_token(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_user_token(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UplayWinProtocolMethod::GetVirtualCurrencyUserBalance) => {
                 let req = GetVirtualCurrencyUserBalanceRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.get_virtual_currency_user_balance(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self
+                    .0
+                    .get_virtual_currency_user_balance(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UplayWinProtocolMethod::GetSectionsByKey) => {
                 let req = GetSectionsByKeyRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .get_sections_by_key(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .get_sections_by_key(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UplayWinProtocolMethod::BuyReward) => {
                 let req = BuyRewardRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .buy_reward(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.buy_reward(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }

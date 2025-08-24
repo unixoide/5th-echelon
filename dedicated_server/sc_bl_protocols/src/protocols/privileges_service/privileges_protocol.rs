@@ -82,10 +82,7 @@ pub struct GetPrivilegesExRequest {
 pub struct GetPrivilegesExResponse {
     pub privileges_ex: quazal::rmc::types::QList<PrivilegeEx>,
 }
-pub struct PrivilegesProtocolServer<T: PrivilegesProtocolServerTrait<CI>, CI>(
-    T,
-    ::std::marker::PhantomData<CI>,
-);
+pub struct PrivilegesProtocolServer<T: PrivilegesProtocolServerTrait<CI>, CI>(T, ::std::marker::PhantomData<CI>);
 impl<T: PrivilegesProtocolServerTrait<CI>, CI> PrivilegesProtocolServer<T, CI> {
     pub fn new(implementation: T) -> Self {
         Self(implementation, ::std::marker::PhantomData)
@@ -116,65 +113,48 @@ impl<T: PrivilegesProtocolServerTrait<CI>, CI> Protocol<CI> for PrivilegesProtoc
             Some(PrivilegesProtocolMethod::GetPrivileges) => {
                 let req = GetPrivilegesRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_privileges(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_privileges(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(PrivilegesProtocolMethod::ActivateKey) => {
                 let req = ActivateKeyRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .activate_key(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.activate_key(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(PrivilegesProtocolMethod::ActivateKeyWithExpectedPrivileges) => {
-                let req =
-                    ActivateKeyWithExpectedPrivilegesRequest::from_bytes(&request.parameters)?;
+                let req = ActivateKeyWithExpectedPrivilegesRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.activate_key_with_expected_privileges(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self
+                    .0
+                    .activate_key_with_expected_privileges(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(PrivilegesProtocolMethod::GetPrivilegeRemainDuration) => {
                 let req = GetPrivilegeRemainDurationRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.get_privilege_remain_duration(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self
+                    .0
+                    .get_privilege_remain_duration(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(PrivilegesProtocolMethod::GetExpiredPrivileges) => {
                 let req = GetExpiredPrivilegesRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .get_expired_privileges(logger, ctx, ci, req, client_registry, socket);
+                let resp = self
+                    .0
+                    .get_expired_privileges(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(PrivilegesProtocolMethod::GetPrivilegesEx) => {
                 let req = GetPrivilegesExRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_privileges_ex(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_privileges_ex(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }

@@ -69,9 +69,7 @@ impl<R: ReadBytesExt> ReadStream<R> {
         let mut buf = vec![0u8; l];
         match self.rdr.read_exact(&mut buf) {
             Ok(()) => Ok(buf),
-            Err(e) if e.kind() == io::ErrorKind::UnexpectedEof => {
-                Err(FromStreamError::MissingBytes(l))
-            }
+            Err(e) if e.kind() == io::ErrorKind::UnexpectedEof => Err(FromStreamError::MissingBytes(l)),
             Err(e) => Err(FromStreamError::IO(e)),
         }
     }
@@ -170,9 +168,7 @@ impl<W: WriteBytesExt> WriteStream<W> {
     }
 
     pub fn write_n_bytes<T: AsRef<[u8]>>(&mut self, data: T) -> io::Result<usize> {
-        self.wtr
-            .write_all(data.as_ref())
-            .map(|()| data.as_ref().len())
+        self.wtr.write_all(data.as_ref()).map(|()| data.as_ref().len())
     }
 
     pub fn buf_u8<T: AsRef<[u8]>>(&mut self, data: T) -> io::Result<usize> {
@@ -246,9 +242,7 @@ impl ToStream for bool {
 macro_rules! impl_num {
     ($i: ident) => {
         impl FromStream for $i {
-            fn from_stream<R>(
-                stream: &mut ReadStream<R>,
-            ) -> std::result::Result<Self, FromStreamError>
+            fn from_stream<R>(stream: &mut ReadStream<R>) -> std::result::Result<Self, FromStreamError>
             where
                 R: ReadBytesExt,
                 Self: Sized,
