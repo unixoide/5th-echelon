@@ -626,6 +626,37 @@ fn arc_open_file(this: *mut c_void, fname: *mut i8) -> usize {
     unsafe { ArcOpenFileHook.call(this, fname) }
 }
 
+#[cfg(feature = "patch-free")]
+static_detour! {
+    static GetAddrinfoHook: unsafe extern "stdcall" fn(*const c_char, *const c_char, *const c_void, *mut *mut c_void) -> i32;
+}
+
+#[cfg(feature = "patch-free")]
+fn getaddrinfo(
+    p_node_name: *const c_char,
+    p_service_name: *const c_char,
+    p_hints: *const c_void,
+    pp_result: *mut *mut c_void,
+) -> i32 {
+    let node_name = unsafe { CStr::from_ptr(p_node_name) };
+    let service_name = unsafe { CStr::from_ptr(p_service_name) };
+    info!("getaddrinfo({node_name:?}, {service_name:?}, {p_hints:?}, {pp_result:?})");
+    if let Ok("onlineconfigservice.ubi.com") = node_name.to_str() {
+        if let Ok("80") = service_name.to_str() {
+            if let Some(srv) = config::get().and_then(|cfg| cfg.config_server.as_ref()) {
+                if let Ok(srv) = CString::new(srv.clone()) {
+                    info!("redirecting onlineconfigservice.ubi.com to {srv:?}");
+                    unsafe {
+                        return GetAddrinfoHook.call(srv.as_ptr(), p_service_name, p_hints, pp_result);
+                    }
+                }
+            }
+        }
+    }
+
+    unsafe { GetAddrinfoHook.call(p_node_name, p_service_name, p_hints, pp_result) }
+}
+
 unsafe fn hook_with_name<T, F>(hook: &retour::StaticDetour<T>, target: Option<T>, f: F, name: &str)
 where
     T: retour::Function,
@@ -700,6 +731,12 @@ pub unsafe fn init(config: &Config, addr: &Addresses) {
         let lib = LoadLibraryA(s!("ws2_32.dll")).unwrap();
         let addr = GetProcAddress(lib, s!("gethostbyname"));
         hook!(GethostbynameHook, addr, gethostbyname);
+    }
+    #[cfg(feature = "patch-free")]
+    {
+        let lib = LoadLibraryA(s!("ws2_32.dll")).unwrap();
+        let addr = GetProcAddress(lib, s!("getaddrinfo"));
+        hook!(GetAddrinfoHook, addr, getaddrinfo);
     }
 
     storm::init_hooks(config, addr);

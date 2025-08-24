@@ -16,6 +16,7 @@ name = "hook-loader"
 [features]
 forward_calls = []
 modding = ["hooks-config/modding", "hooks-addresses/modding"]
+patch-free = []
 
 [dependencies]
 anyhow = { workspace = true }

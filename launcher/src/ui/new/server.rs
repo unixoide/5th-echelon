@@ -341,6 +341,15 @@ impl ServerMenu {
                 .inspect_err(|e| {
                     error!("Error loading logs: {e}");
                 })
+                .or_else(|e| {
+                    if let Some(io_err) = e.downcast_ref::<std::io::Error>() {
+                        // don't try again if the file was not found
+                        if io_err.kind() == std::io::ErrorKind::NotFound {
+                            return Ok(Vec::new());
+                        }
+                    }
+                    Err(e)
+                })
                 .ok();
         }
         if ui.is_item_hovered() {

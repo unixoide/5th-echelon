@@ -149,6 +149,7 @@ fn init(hmodule: Option<HMODULE>) {
     unsafe {
         hooks::init(config, &addr);
         if let Some(config_server) = config.config_server.as_ref() {
+            #[cfg(not(feature = "patch-free"))]
             patch_url(config_server, &addr);
         } else {
             info!("Keeping original config server");
