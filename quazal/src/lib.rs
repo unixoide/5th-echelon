@@ -23,13 +23,17 @@ pub mod rmc;
 
 pub use crate::config::*;
 
+/// Represents an error that can occur in the application.
 #[derive(Debug, Display, DeriveError)]
 pub enum Error {
+    /// The requested service was not found.
     #[display("Service {_0} not found")]
     ServiceNotFound(#[error(not(source))] String),
+    /// An invalid value was provided.
     InvalidValue,
 }
 
+/// Represents a unique connection identifier.
 #[derive(Hash, PartialEq, Eq, Clone, Copy, Debug)]
 pub struct ConnectionID(u32);
 
@@ -47,26 +51,41 @@ impl FromStr for ConnectionID {
     }
 }
 
+/// Represents a signature for a client or server.
 #[derive(Hash, PartialEq, Eq, Clone, Copy, Debug)]
 struct Signature(u32);
 
+/// Holds information about a client connection.
 #[derive(Debug)]
 pub struct ClientInfo<T = ()> {
+    /// The server's sequence ID for the connection.
     server_sequence_id: u16,
+    /// The client's sequence ID for the connection.
     client_sequence_id: u16,
+    /// The client's signature, if available.
     client_signature: Option<u32>,
+    /// The server's signature.
     server_signature: u32,
+    /// The client's session ID.
     client_session: u8,
+    /// The server's session ID.
     server_session: u8,
+    /// A map of packet fragments that have been received.
     packet_fragments: HashMap<u8, Vec<u8>>,
+    /// The client's network address.
     address: SocketAddr,
+    /// The time the client was last seen.
     last_seen: Instant,
+    /// The client's connection ID, if available.
     pub connection_id: Option<ConnectionID>,
+    /// The client's user ID, if available.
     pub user_id: Option<u32>,
+    /// Additional user-defined data.
     pub additional: T,
 }
 
 impl<T> ClientInfo<T> {
+    /// Creates a new `ClientInfo` for a given address.
     #[must_use]
     pub fn new(address: SocketAddr) -> ClientInfo<T>
     where
@@ -88,10 +107,12 @@ impl<T> ClientInfo<T> {
         }
     }
 
+    /// Returns the client's network address.
     pub fn address(&self) -> &SocketAddr {
         &self.address
     }
 
+    /// Updates the last seen time for the client.
     pub fn seen(&mut self) {
         self.last_seen = std::time::Instant::now();
     }

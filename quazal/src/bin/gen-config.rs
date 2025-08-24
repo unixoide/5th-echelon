@@ -1,3 +1,4 @@
+//! Generates a default configuration file.
 #![deny(clippy::pedantic)]
 
 use quazal::Config;
@@ -5,6 +6,7 @@ use quazal::Context;
 use quazal::OnlineConfig;
 use quazal::Service;
 
+/// The main entry point for the configuration generator.
 fn main() {
     let mut config = Config::default();
     {

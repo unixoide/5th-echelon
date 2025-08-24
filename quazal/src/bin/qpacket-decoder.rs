@@ -1,3 +1,4 @@
+//! A decoder for Quazal packets.
 #![deny(clippy::pedantic)]
 #![allow(clippy::cast_possible_truncation)]
 
@@ -11,6 +12,7 @@ use quazal::prudp::packet::QPacket;
 use quazal::Context;
 use sloggers::Build;
 
+/// The main entry point for the decoder.
 fn main() {
     let mut builder = sloggers::terminal::TerminalLoggerBuilder::new();
     builder.level(sloggers::types::Severity::Debug);

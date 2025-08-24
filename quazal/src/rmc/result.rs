@@ -1,31 +1,56 @@
+/// This module defines various error types and their conversions.
 use std::convert::TryFrom;
 
 use num_enum::IntoPrimitive;
 use num_enum::TryFromPrimitive;
 
+/// Represents a general error type, encompassing various specific error categories.
 #[derive(Debug, Clone, Copy)]
 pub enum Error {
+    /// Core error.
     Core(CoreError),
+    /// DDL error.
     DDL(DDLError),
+    /// RendezVous error.
     RendezVous(RendezVousError),
+    /// Python core error.
     PythonCore(PythonCoreError),
+    /// Transport error.
     Transport(TransportError),
+    /// DO core error.
     DOCore(DOCoreError),
+    /// FPD error.
     FPD(FPDError),
+    /// Ranking error.
     Ranking(RankingError),
+    /// Authentication error.
     Authentication(AuthenticationError),
+    /// Data store error.
     DataStore(DataStoreError),
+    /// Service item error.
     ServiceItem(ServiceItemError),
+    /// Matchmake referee error.
     MatchmakeReferee(MatchmakeRefereeError),
+    /// Subscriber error.
     Subscriber(SubscriberError),
+    /// Ranking2 error.
     Ranking2(Ranking2Error),
+    /// Smart device voice chat error.
     SmartDeviceVoiceChat(SmartDeviceVoiceChatError),
+    /// Screening error.
     Screening(ScreeningError),
+    /// Custom error.
     Custom(CustomError),
+    /// Ess error.
     Ess(EssError),
 }
 
 impl From<Error> for u32 {
+    /// Converts an `Error` enum into a `u32` representation.
+    /// The `u32` error code is structured as follows:
+    /// - The most significant bit (MSB) `0x8000_0000` is set to indicate a Quazal error.
+    /// - The next 16 bits (bits 16-30) represent the error category.
+    /// - The least significant 16 bits (bits 0-15) represent the specific error code within that category.
     fn from(err: Error) -> Self {
         let code = match err {
             Error::Core(inner) => (1 << 16) | u32::from(u16::from(inner)),
@@ -47,6 +72,7 @@ impl From<Error> for u32 {
             Error::Custom(inner) => (0x74 << 16) | u32::from(u16::from(inner)),
             Error::Ess(inner) => (0x75 << 16) | u32::from(u16::from(inner)),
         };
+        // Set the MSB to indicate a Quazal error
         code | 0x8000_0000
     }
 }
@@ -54,15 +80,21 @@ impl From<Error> for u32 {
 impl TryFrom<u32> for Error {
     type Error = u32;
 
+    /// Attempts to convert a `u32` error code back into an `Error` enum.
+    /// It checks the MSB to ensure it's a Quazal error, then extracts the category
+    /// and specific error code to reconstruct the enum.
     fn try_from(value: u32) -> Result<Self, Self::Error> {
         #![allow(clippy::cast_possible_truncation)]
 
+        // Check if the MSB is set, indicating a Quazal error
         if value & 0x8000_0000 == 0 {
             return Err(value);
         }
 
+        // Clear the MSB to get the actual error code
         let code = value ^ 0x8000_0000;
         match code {
+            // Extract the category (higher 16 bits) and specific error code (lower 16 bits)
             v if v >> 16 == 1 => Ok(Self::Core(CoreError::try_from(v as u16).or(Err(value))?)),
             v if v >> 16 == 2 => Ok(Self::DDL(DDLError::try_from(v as u16).or(Err(value))?)),
             v if v >> 16 == 3 => Ok(Self::RendezVous(RendezVousError::try_from(v as u16).or(Err(value))?)),
@@ -86,6 +118,7 @@ impl TryFrom<u32> for Error {
     }
 }
 
+/// Represents a core error code.
 #[derive(TryFromPrimitive, IntoPrimitive, Debug, Clone, Copy)]
 #[repr(u16)]
 pub enum CoreError {
@@ -110,6 +143,7 @@ pub enum CoreError {
     Cancelled = 0x0013,
 }
 
+/// Represents a DDL error code.
 #[derive(TryFromPrimitive, IntoPrimitive, Debug, Clone, Copy)]
 #[repr(u16)]
 pub enum DDLError {
@@ -117,6 +151,7 @@ pub enum DDLError {
     IncorrectVersion = 0x0002,
 }
 
+/// Represents a RendezVous error code.
 #[derive(TryFromPrimitive, IntoPrimitive, Debug, Clone, Copy)]
 #[repr(u16)]
 pub enum RendezVousError {
@@ -169,6 +204,7 @@ pub enum RendezVousError {
     ConnectionDisconnectedForConcurrentLogin = 0x00E2,
 }
 
+/// Represents a Python core error code.
 #[derive(TryFromPrimitive, IntoPrimitive, Debug, Clone, Copy)]
 #[repr(u16)]
 pub enum PythonCoreError {
@@ -184,6 +220,7 @@ pub enum PythonCoreError {
     ValidationError = 0x000A,
 }
 
+/// Represents a transport error code.
 #[derive(TryFromPrimitive, IntoPrimitive, Debug, Clone, Copy)]
 #[repr(u16)]
 pub enum TransportError {
@@ -221,6 +258,7 @@ pub enum TransportError {
     NatCheckError = 0x0021,
 }
 
+/// Represents a DO core error code.
 #[derive(TryFromPrimitive, IntoPrimitive, Debug, Clone, Copy)]
 #[repr(u16)]
 pub enum DOCoreError {
@@ -248,6 +286,7 @@ pub enum DOCoreError {
     VersionMismatch = 0x0016,
 }
 
+/// Represents an FPD error code.
 #[derive(TryFromPrimitive, IntoPrimitive, Debug, Clone, Copy)]
 #[repr(u16)]
 pub enum FPDError {
@@ -296,6 +335,7 @@ pub enum FPDError {
     FriendRequestNotAllowed = 0x002D,
 }
 
+/// Represents a ranking error code.
 #[derive(TryFromPrimitive, IntoPrimitive, Debug, Clone, Copy)]
 #[repr(u16)]
 pub enum RankingError {
@@ -310,6 +350,7 @@ pub enum RankingError {
     NotImplemented = 0x000B,
 }
 
+/// Represents an authentication error code.
 #[derive(TryFromPrimitive, IntoPrimitive, Debug, Clone, Copy)]
 #[repr(u16)]
 pub enum AuthenticationError {
@@ -339,6 +380,7 @@ pub enum AuthenticationError {
     NetworkServiceLicenseError4 = 0x0018,
 }
 
+/// Represents a data store error code.
 #[derive(TryFromPrimitive, IntoPrimitive, Debug, Clone, Copy)]
 #[repr(u16)]
 pub enum DataStoreError {
@@ -357,6 +399,7 @@ pub enum DataStoreError {
     ValueNotEqual = 0x000D,
 }
 
+/// Represents a service item error code.
 #[derive(TryFromPrimitive, IntoPrimitive, Debug, Clone, Copy)]
 #[repr(u16)]
 pub enum ServiceItemError {
@@ -369,6 +412,7 @@ pub enum ServiceItemError {
     ConsumptionRightShortage = 0x0007,
 }
 
+/// Represents a matchmake referee error code.
 #[derive(TryFromPrimitive, IntoPrimitive, Debug, Clone, Copy)]
 #[repr(u16)]
 pub enum MatchmakeRefereeError {
@@ -383,6 +427,7 @@ pub enum MatchmakeRefereeError {
     RoundNotArbitrated = 0x0009,
 }
 
+/// Represents a subscriber error code.
 #[derive(TryFromPrimitive, IntoPrimitive, Debug, Clone, Copy)]
 #[repr(u16)]
 pub enum SubscriberError {
@@ -392,6 +437,7 @@ pub enum SubscriberError {
     PermissionDenied = 0x0004,
 }
 
+/// Represents a ranking2 error code.
 #[derive(TryFromPrimitive, IntoPrimitive, Debug, Clone, Copy)]
 #[repr(u16)]
 pub enum Ranking2Error {
@@ -400,6 +446,7 @@ pub enum Ranking2Error {
     InvalidScore = 0x0003,
 }
 
+/// Represents a smart device voice chat error code.
 #[derive(TryFromPrimitive, IntoPrimitive, Debug, Clone, Copy)]
 #[repr(u16)]
 pub enum SmartDeviceVoiceChatError {
@@ -425,6 +472,7 @@ pub enum SmartDeviceVoiceChatError {
     GameModeNotFound = 0x0014,
 }
 
+/// Represents a screening error code.
 #[derive(TryFromPrimitive, IntoPrimitive, Debug, Clone, Copy)]
 #[repr(u16)]
 pub enum ScreeningError {
@@ -433,12 +481,14 @@ pub enum ScreeningError {
     NotFound = 0x0003,
 }
 
+/// Represents a custom error code.
 #[derive(TryFromPrimitive, IntoPrimitive, Debug, Clone, Copy)]
 #[repr(u16)]
 pub enum CustomError {
     Unknown = 0x0001,
 }
 
+/// Represents an Ess error code.
 #[derive(TryFromPrimitive, IntoPrimitive, Debug, Clone, Copy)]
 #[repr(u16)]
 pub enum EssError {

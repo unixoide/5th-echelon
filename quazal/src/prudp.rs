@@ -1,3 +1,4 @@
+/// This module handles the PRUDP protocol, which is a custom reliable UDP protocol.
 pub mod packet;
 
 use std::cell::RefCell;
@@ -33,6 +34,7 @@ use crate::Signature;
 const MAX_PAYLOAD_SIZE: usize = 1000;
 const SESSION_TIMEOUT: Duration = Duration::from_secs(60);
 
+/// A registry for clients.
 #[derive(Default)]
 pub struct ClientRegistry<T> {
     clients: HashMap<u32, RefCell<ClientInfo<T>>>,
@@ -40,12 +42,14 @@ pub struct ClientRegistry<T> {
 }
 
 impl<T> ClientRegistry<T> {
+    /// Returns a client by its connection ID.
     #[must_use]
     pub fn client_by_connection_id(&self, conn_id: ConnectionID) -> Option<&RefCell<ClientInfo<T>>> {
         self.connection_id_session_ids.get(&conn_id).and_then(|sig| self.clients.get(&sig.0))
     }
 }
 
+/// A PRUDP server.
 pub struct Server<'a, ECH, DH, T = ()>
 where
     ECH: FnMut(ClientInfo<T>),
@@ -57,8 +61,11 @@ where
     ctx: &'a Context,
     new_clients: HashMap<u32, ClientInfo<T>>,
     client_registry: ClientRegistry<T>,
+    /// A handler for user-defined packets.
     pub user_handler: Option<fn(logger: &Logger, packet: QPacket, client: SocketAddr, sock: &net::UdpSocket)>,
+    /// A handler for expired clients.
     pub expired_client_handler: Option<ECH>,
+    /// A handler for disconnected clients.
     pub disconnect_handler: Option<DH>,
     next_conn_id: AtomicU32,
 }
@@ -69,6 +76,7 @@ where
     ECH: FnMut(ClientInfo<T>),
     DH: FnMut(ClientInfo<T>),
 {
+    /// Creates a new PRUDP server.
     #[must_use]
     pub fn new(logger: slog::Logger, ctx: &Context, registry: StreamHandlerRegistry<T>) -> Server<ECH, DH, T> {
         let client_registry = ClientRegistry {
@@ -89,16 +97,19 @@ where
         }
     }
 
+    /// Registers a stream handler for a virtual port.
     pub fn register(&mut self, vport: VPort, protocol: Box<dyn StreamHandler<T>>) {
         self.registry.register(vport, protocol);
     }
 
+    /// Binds the server to a socket address.
     pub fn bind<A: net::ToSocketAddrs>(&mut self, addrs: A) -> io::Result<()> {
         self.socket = Some(net::UdpSocket::bind(addrs)?);
         info!(self.logger, "Listening on {}", self.socket.as_ref().unwrap().local_addr().unwrap());
         Ok(())
     }
 
+    /// Starts the server's main loop.
     pub fn serve(mut self) {
         let socket = self.socket.as_ref().expect("UDP socket required").try_clone().expect("Couldn't clone socket");
         socket.set_read_timeout(Some(Duration::from_secs(1))).expect("error setting read timeout");
@@ -141,6 +152,7 @@ where
         }
     }
 
+    /// Handles a received packet.
     fn handle_packet(&mut self, logger: &Logger, packet: QPacket, client: SocketAddr) {
         debug!(logger, "packet: {:?}", packet);
         if packet.flags.contains(PacketFlag::Ack) {
@@ -184,6 +196,7 @@ where
         }
     }
 
+    /// Handles a data packet.
     fn handle_data(&mut self, logger: &Logger, packet: QPacket, client: SocketAddr) {
         #![allow(clippy::cast_possible_truncation)]
 
@@ -218,13 +231,11 @@ where
                         Some(f) => f,
                     };
                     payload.extend(f.iter());
-                    // debug!(logger, "Reassembled: {:?}", payload; "fid" => fid);
                 }
                 info!(logger, "Reassembled {} fragments", ci.packet_fragments.len() + 1);
                 ci.packet_fragments.clear();
             }
             payload.extend(packet.payload);
-            // debug!(logger, "Reassembled: {:?}", payload; "fid" => fid);
             payload
         } else {
             packet.payload
@@ -260,6 +271,7 @@ where
         }
     }
 
+    /// Handles a SYN packet.
     fn handle_syn(&mut self, logger: &Logger, mut packet: QPacket, client: SocketAddr) {
         debug!(logger, "Handling syn packet");
         let ci: ClientInfo<T> = ClientInfo::new(client);
@@ -275,6 +287,7 @@ where
         }
     }
 
+    /// Handles a CONNECT packet.
     fn handle_connect(&mut self, logger: &Logger, mut packet: QPacket, client: SocketAddr) {
         debug!(logger, "Handling connect packet");
         let Some(signature) = packet.conn_signature else {
@@ -288,23 +301,6 @@ where
         ci.server_session = rand::random();
         ci.client_session = packet.session_id;
 
-        /*
-        let ci = if false {
-            // this doesn't work with the borrow checker
-            let ci = match self.clients.entry(packet.signature) {
-                Entry::Occupied(mut e) => {
-                    e.insert(ci);
-                    e.into_mut()
-                }
-                Entry::Vacant(e) => e.insert(ci),
-            };
-            &*ci
-        } else {
-            self.client_registry.clients.insert(packet.signature, RefCell::new(ci));
-            let ci = self.client_registry.clients.get(&packet.signature).unwrap();
-            ci
-        };
-        */
         let ci = {
             self.client_registry.clients.insert(packet.signature, RefCell::new(ci));
             let ci = self.client_registry.clients.get(&packet.signature).unwrap();
@@ -335,8 +331,6 @@ where
                 let id = next_conn_id.fetch_add(1, std::sync::atomic::Ordering::AcqRel);
                 ci.borrow_mut().user_id.replace(ti.principle_id);
                 ci.borrow_mut().connection_id.replace(ConnectionID(id));
-                // clear highest bit as the game sometimes uses signed ints instead of unsigned
-                // .replace(ConnectionID(rand::random::<u16>() as u32 & 0x7FFF_FFFFu32));
                 cids.insert(ci.borrow().connection_id.unwrap(), Signature(packet.signature));
                 let data = crypt_key(ti.session_key.as_ref(), &request_data);
 
@@ -370,14 +364,17 @@ where
         info!(logger, "New client connected"; "signature" => packet.signature, "session" => packet.session_id);
     }
 
+    /// Sends a response to a client.
     fn send_response(&self, logger: &Logger, src: &SocketAddr, resp: QPacket, ci: &mut ClientInfo<T>) -> Result<usize, Box<dyn std::error::Error>> {
         send_response(logger, self.ctx, src, self.socket.as_ref().unwrap(), resp, ci)
     }
 
+    /// Sends a packet to a client.
     fn send_packet(&self, logger: &Logger, src: &SocketAddr, resp: QPacket) -> Result<usize, Box<dyn std::error::Error>> {
         send_packet(logger, self.ctx, src, self.socket.as_ref().unwrap(), resp)
     }
 
+    /// Sends an ACK packet to a client.
     fn send_ack(&self, logger: &Logger, src: &SocketAddr, packet: &QPacket, ci: &ClientInfo<T>, keep_payload: bool) -> Result<usize, Box<dyn std::error::Error>> {
         let mut resp = packet.clone();
         resp.source = packet.destination;
@@ -392,6 +389,7 @@ where
         self.send_packet(logger, src, resp)
     }
 
+    /// Clears expired clients from the client registry.
     fn clear_clients(&mut self) {
         let now = Instant::now();
         for (_, ci) in self
@@ -410,6 +408,7 @@ where
     }
 }
 
+/// Sends a response to a client.
 pub fn send_response<T>(
     logger: &Logger,
     ctx: &Context,
@@ -422,12 +421,13 @@ pub fn send_response<T>(
     ci.server_sequence_id += 1;
     resp.flags.insert(PacketFlag::HasSize);
     resp.flags.insert(PacketFlag::NeedAck);
-    resp.flags.insert(PacketFlag::Reliable); // ??
+    resp.flags.insert(PacketFlag::Reliable);
     resp.signature = ci.client_signature.unwrap_or_default();
     resp.session_id = ci.server_session;
     send_packet(logger, ctx, src, socket, resp)
 }
 
+/// Sends a request to a client.
 pub fn send_request<T>(
     logger: &Logger,
     ctx: &Context,
@@ -440,12 +440,13 @@ pub fn send_request<T>(
     ci.client_sequence_id += 1;
     req.flags.insert(PacketFlag::HasSize);
     req.flags.insert(PacketFlag::NeedAck);
-    req.flags.insert(PacketFlag::Reliable); // ??
+    req.flags.insert(PacketFlag::Reliable);
     req.signature = ci.server_signature;
     req.session_id = ci.client_session;
     send_packet(logger, ctx, src, socket, req)
 }
 
+/// Sends a packet to a client.
 pub(crate) fn send_packet(logger: &Logger, ctx: &Context, src: &SocketAddr, socket: &UdpSocket, mut resp: QPacket) -> Result<usize, Box<dyn std::error::Error>> {
     if matches!(resp.packet_type, PacketType::Data) {
         resp.use_compression = true;

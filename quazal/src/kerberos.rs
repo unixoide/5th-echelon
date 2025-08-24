@@ -1,3 +1,4 @@
+/// Kerberos-related functionality for authentication.
 use std::io::Cursor;
 
 use hmac::digest::Update;
@@ -13,17 +14,23 @@ use crate::rmc::basic::FromStreamError;
 use crate::rmc::basic::ReadStream;
 use crate::rmc::basic::ToStream;
 
+/// The size of the session key in bytes.
 pub const SESSION_KEY_SIZE: usize = 16;
 
+/// The internal representation of a Kerberos ticket.
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug, ToStream, FromStream)]
 pub struct KerberosTicketInternal {
+    /// The principal ID.
     pub principle_id: u32,
+    /// The expiration time of the ticket.
     pub valid_until: u64,
+    /// The session key.
     pub session_key: [u8; SESSION_KEY_SIZE],
 }
 
 impl KerberosTicketInternal {
+    /// Seals the ticket using a secret key.
     fn seal(&self, key: &secretbox::Key) -> Vec<u8> {
         let n = secretbox::gen_nonce();
         let mut c = secretbox::seal(&self.to_bytes(), &n, key);
@@ -34,8 +41,8 @@ impl KerberosTicketInternal {
         res
     }
 
+    /// Opens a sealed ticket using a secret key.
     pub fn open(data: &[u8], key: &secretbox::Key) -> Result<Self, FromStreamError> {
-        // eprintln!("####\nopen {:?}\n####", key.0);
         if data.len() < secretbox::NONCEBYTES {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::UnexpectedEof,
@@ -51,15 +58,20 @@ impl KerberosTicketInternal {
     }
 }
 
+/// A Kerberos ticket.
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
 pub struct KerberosTicket {
+    /// The session key.
     pub session_key: [u8; SESSION_KEY_SIZE],
+    /// The principal ID.
     pub pid: u32,
+    /// The internal ticket.
     pub internal: KerberosTicketInternal,
 }
 
 impl KerberosTicket {
+    /// Derives a key from a peer PID and a password.
     fn derive_key(peer_pid: u32, password: Option<&str>) -> Vec<u8> {
         // derive key
         let count = 65000 + (peer_pid % 1024);
@@ -72,6 +84,7 @@ impl KerberosTicket {
         key
     }
 
+    /// Creates a `KerberosTicket` from a byte buffer.
     pub fn from_bytes(buf: &[u8], peer_pid: u32, password: Option<&str>, key: &secretbox::Key) -> Result<Self, FromStreamError> {
         let off = buf.len() - Md5::output_size();
         let (buf, _mac) = buf.split_at(off);
@@ -88,6 +101,7 @@ impl KerberosTicket {
         Ok(Self { session_key, pid, internal })
     }
 
+    /// Converts the ticket to a byte vector.
     #[must_use]
     pub fn as_bytes(&self, peer_pid: u32, password: Option<&str>, key: &secretbox::Key) -> Vec<u8> {
         let mut buf = self.session_key.to_vec();

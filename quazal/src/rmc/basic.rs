@@ -1,3 +1,4 @@
+/// This module provides basic functionalities for reading and writing data to/from streams.
 use std::collections::HashMap;
 use std::ffi::CString;
 use std::io::Cursor;
@@ -10,26 +11,40 @@ use derive_more::Display;
 use derive_more::Error;
 use derive_more::From;
 
+/// Errors that can occur when reading from a stream.
 #[derive(Error, Display, Debug, From)]
 pub enum FromStreamError {
+    /// An I/O error occurred.
     IO(#[error(source)] std::io::Error),
+    /// Not enough bytes were available in the stream.
     #[display("{_0} bytes missing")]
     MissingBytes(#[error(ignore)] usize),
+    /// An error occurred while parsing an integer.
     ParseInt(#[error(source)] std::num::ParseIntError),
+    /// An error occurred while parsing a `StationURL`.
     ParseStationURL(#[error(source)] super::types::StationURLParseError),
+    /// An error occurred while parsing a `CString`.
     ParseCString(#[error(source)] std::ffi::FromVecWithNulError),
+    /// An error occurred during UTF-8 conversion.
     Utf8(#[error(source)] std::str::Utf8Error),
 }
 
+/// Errors that can occur when writing to a stream.
 #[derive(Error, Display, Debug, From)]
 pub enum ToStreamError {
+    /// An I/O error occurred.
     IO(#[error(source)] std::io::Error),
 }
 
+/// A reader for streams, providing methods to read various data types.
+/// It wraps a `ReadBytesExt` implementor and provides convenient methods
+/// for reading primitive types, length-prefixed buffers, and custom `FromStream` types.
 pub struct ReadStream<R: ReadBytesExt> {
     rdr: R,
 }
 
+/// Macro to generate `ReadStream` methods for reading numeric types.
+/// It automatically handles little-endian byte order.
 macro_rules! read_stream_num {
     ($i: ident, $f: ident) => {
         pub fn $i(&mut self) -> std::result::Result<$i, FromStreamError> {
@@ -39,10 +54,12 @@ macro_rules! read_stream_num {
 }
 
 impl<R: ReadBytesExt> ReadStream<R> {
+    /// Creates a new `ReadStream` from a reader.
     pub fn from_reader(rdr: R) -> Self {
         Self { rdr }
     }
 
+    /// Reads a `u8` from the stream.
     pub fn u8(&mut self) -> std::result::Result<u8, FromStreamError> {
         Ok(self.rdr.read_u8()?)
     }
@@ -50,6 +67,7 @@ impl<R: ReadBytesExt> ReadStream<R> {
     read_stream_num!(u32, read_u32);
     read_stream_num!(u64, read_u64);
 
+    /// Reads an `i8` from the stream.
     pub fn i8(&mut self) -> std::result::Result<i8, FromStreamError> {
         Ok(self.rdr.read_i8()?)
     }
@@ -61,10 +79,12 @@ impl<R: ReadBytesExt> ReadStream<R> {
     read_stream_num!(f32, read_f32);
     read_stream_num!(f64, read_f64);
 
+    /// Reads a boolean from the stream.
     pub fn bool(&mut self) -> std::result::Result<bool, FromStreamError> {
         self.u8().map(|b| b != 0)
     }
 
+    /// Reads `l` bytes from the stream.
     pub fn read_n_bytes(&mut self, l: usize) -> std::result::Result<Vec<u8>, FromStreamError> {
         let mut buf = vec![0u8; l];
         match self.rdr.read_exact(&mut buf) {
@@ -74,21 +94,25 @@ impl<R: ReadBytesExt> ReadStream<R> {
         }
     }
 
+    /// Reads a `u8` length-prefixed byte buffer from the stream.
     pub fn buf_u8(&mut self) -> std::result::Result<Vec<u8>, FromStreamError> {
         let l = self.u8()?;
         self.read_n_bytes(l as usize)
     }
 
+    /// Reads a `u16` length-prefixed byte buffer from the stream.
     pub fn buf_u16(&mut self) -> std::result::Result<Vec<u8>, FromStreamError> {
         let l = self.u16()?;
         self.read_n_bytes(l as usize)
     }
 
+    /// Reads a `u32` length-prefixed byte buffer from the stream.
     pub fn buf_u32(&mut self) -> std::result::Result<Vec<u8>, FromStreamError> {
         let l = self.u32()?;
         self.read_n_bytes(l as usize)
     }
 
+    /// Reads a `FromStream` implementor from the stream.
     pub fn read<F>(&mut self) -> std::result::Result<F, FromStreamError>
     where
         F: FromStream,
@@ -96,6 +120,7 @@ impl<R: ReadBytesExt> ReadStream<R> {
         <F as FromStream>::from_stream(self)
     }
 
+    /// Reads all remaining bytes from the stream.
     pub fn read_all(&mut self) -> std::result::Result<Vec<u8>, FromStreamError> {
         let mut buf = vec![];
         self.rdr.read_to_end(&mut buf)?;
@@ -104,20 +129,21 @@ impl<R: ReadBytesExt> ReadStream<R> {
 }
 
 impl<T: AsRef<[u8]>> ReadStream<Cursor<T>> {
+    /// Creates a new `ReadStream` from a byte slice.
     pub fn from_bytes(data: T) -> Self {
         Self::from_reader(Cursor::new(data))
     }
 }
 
-/// Trait to read a type from a stream or bytes in the Quazal encoding
+/// Trait to read a type from a stream or bytes in the Quazal encoding.
 pub trait FromStream {
-    /// Read a single instance from the given stream
+    /// Reads a single instance from the given stream.
     fn from_stream<R>(_stream: &mut ReadStream<R>) -> std::result::Result<Self, FromStreamError>
     where
         R: ReadBytesExt,
         Self: Sized;
 
-    /// Read a single instance from the given bytes. Doesn't fail if there are unused trailing bytes
+    /// Reads a single instance from the given bytes. Doesn't fail if there are unused trailing bytes.
     fn from_bytes(data: &[u8]) -> std::result::Result<Self, FromStreamError>
     where
         Self: Sized,
@@ -126,10 +152,15 @@ pub trait FromStream {
     }
 }
 
+/// A writer for streams, providing methods to write various data types.
+/// It wraps a `WriteBytesExt` implementor and provides convenient methods
+/// for writing primitive types, length-prefixed buffers, and custom `ToStream` types.
 pub struct WriteStream<W: WriteBytesExt> {
     wtr: W,
 }
 
+/// Macro to generate `WriteStream` methods for writing numeric types.
+/// It automatically handles little-endian byte order.
 macro_rules! write_stream_num {
     ($i: ident, $f: ident) => {
         pub fn $i(&mut self, value: $i) -> io::Result<usize> {
@@ -139,10 +170,12 @@ macro_rules! write_stream_num {
 }
 
 impl<W: WriteBytesExt> WriteStream<W> {
+    /// Creates a new `WriteStream` from a writer.
     pub fn from_writer(wtr: W) -> Self {
         Self { wtr }
     }
 
+    /// Writes a `u8` to the stream.
     pub fn u8(&mut self, value: u8) -> io::Result<usize> {
         self.wtr.write_u8(value).map(|()| 1)
     }
@@ -150,6 +183,7 @@ impl<W: WriteBytesExt> WriteStream<W> {
     write_stream_num!(u32, write_u32);
     write_stream_num!(u64, write_u64);
 
+    /// Writes an `i8` to the stream.
     pub fn i8(&mut self, value: i8) -> io::Result<usize> {
         self.wtr.write_i8(value).map(|()| 1)
     }
@@ -161,14 +195,17 @@ impl<W: WriteBytesExt> WriteStream<W> {
     write_stream_num!(f32, write_f32);
     write_stream_num!(f64, write_f64);
 
+    /// Writes a boolean to the stream.
     pub fn bool(&mut self, value: bool) -> io::Result<usize> {
         self.u8(u8::from(value))
     }
 
+    /// Writes a byte slice to the stream.
     pub fn write_n_bytes<T: AsRef<[u8]>>(&mut self, data: T) -> io::Result<usize> {
         self.wtr.write_all(data.as_ref()).map(|()| data.as_ref().len())
     }
 
+    /// Writes a `u8` length-prefixed byte buffer to the stream.
     pub fn buf_u8<T: AsRef<[u8]>>(&mut self, data: T) -> io::Result<usize> {
         let d = data.as_ref();
         #[allow(clippy::cast_possible_truncation)]
@@ -176,6 +213,7 @@ impl<W: WriteBytesExt> WriteStream<W> {
         self.write_n_bytes(d)
     }
 
+    /// Writes a `u16` length-prefixed byte buffer to the stream.
     pub fn buf_u16<T: AsRef<[u8]>>(&mut self, data: T) -> io::Result<usize> {
         let d = data.as_ref();
         #[allow(clippy::cast_possible_truncation)]
@@ -183,6 +221,7 @@ impl<W: WriteBytesExt> WriteStream<W> {
         self.write_n_bytes(d)
     }
 
+    /// Writes a `u32` length-prefixed byte buffer to the stream.
     pub fn buf_u32<T: AsRef<[u8]>>(&mut self, data: T) -> io::Result<usize> {
         let d = data.as_ref();
         #[allow(clippy::cast_possible_truncation)]
@@ -190,6 +229,7 @@ impl<W: WriteBytesExt> WriteStream<W> {
         self.write_n_bytes(d)
     }
 
+    /// Writes a `ToStream` implementor to the stream.
     pub fn write<T>(&mut self, value: &T) -> io::Result<usize>
     where
         T: ToStream,
@@ -200,12 +240,12 @@ impl<W: WriteBytesExt> WriteStream<W> {
 
 /// Trait to write a type to a stream or bytes.
 pub trait ToStream {
-    /// Write the instance to the given stream. Returns the amount of bytes written.
+    /// Writes the instance to the given stream. Returns the amount of bytes written.
     fn to_stream<W>(&self, _stream: &mut WriteStream<W>) -> io::Result<usize>
     where
         W: WriteBytesExt;
 
-    /// Convert to a bytes vector
+    /// Converts to a bytes vector.
     fn to_bytes(&self) -> Vec<u8> {
         let mut buf = Vec::new();
         let mut s = WriteStream::from_writer(Cursor::new(&mut buf));
@@ -302,6 +342,9 @@ impl<const N: usize> ToStream for [u8; N] {
     }
 }
 
+/// Macro to implement `FromStream` and `ToStream` for tuples of various lengths.
+/// This allows automatic serialization/deserialization of tuples where each element
+/// implements `FromStream` and `ToStream` respectively.
 macro_rules! tuple_impls {
     ($($len:tt => ($($n:tt $name:ident)+))+) => {
         $(
@@ -359,6 +402,7 @@ tuple_impls! {
 }
 
 impl FromStream for CString {
+    /// Reads a `CString` from the stream. It is prefixed by a `u16` length.
     fn from_stream<R>(stream: &mut ReadStream<R>) -> std::result::Result<Self, FromStreamError>
     where
         R: ReadBytesExt,
@@ -373,6 +417,7 @@ impl FromStream for CString {
 }
 
 impl ToStream for CString {
+    /// Writes a `CString` to the stream, prefixed by its `u16` length.
     fn to_stream<W>(&self, stream: &mut WriteStream<W>) -> io::Result<usize>
     where
         W: WriteBytesExt,
@@ -387,6 +432,7 @@ impl ToStream for CString {
 }
 
 impl FromStream for String {
+    /// Reads a `String` from the stream. It is prefixed by a `u16` length and null-terminated.
     fn from_stream<R>(stream: &mut ReadStream<R>) -> std::result::Result<Self, FromStreamError>
     where
         R: ReadBytesExt,
@@ -397,6 +443,7 @@ impl FromStream for String {
 }
 
 impl ToStream for String {
+    /// Writes a `String` to the stream, prefixed by its `u16` length and null-terminated.
     fn to_stream<W>(&self, stream: &mut WriteStream<W>) -> io::Result<usize>
     where
         W: WriteBytesExt,
@@ -414,6 +461,7 @@ impl<T> FromStream for Vec<T>
 where
     T: FromStream,
 {
+    /// Reads a `Vec<T>` from the stream. It is prefixed by a `u32` length, followed by `len` elements of type `T`.
     fn from_stream<R>(stream: &mut ReadStream<R>) -> std::result::Result<Self, FromStreamError>
     where
         R: ReadBytesExt,
@@ -431,6 +479,7 @@ impl<T> ToStream for Vec<T>
 where
     T: ToStream,
 {
+    /// Writes a `Vec<T>` to the stream, prefixed by its `u32` length, followed by its elements.
     fn to_stream<W>(&self, stream: &mut WriteStream<W>) -> io::Result<usize>
     where
         W: WriteBytesExt,
@@ -449,6 +498,8 @@ where
     K: ToStream,
     V: ToStream,
 {
+    /// Writes a `HashMap<K, V>` to the stream. It is prefixed by a `u32` count,
+    /// followed by key-value pairs.
     fn to_stream<W>(&self, stream: &mut WriteStream<W>) -> io::Result<usize>
     where
         W: WriteBytesExt,
@@ -473,6 +524,8 @@ where
     K: FromStream + std::hash::Hash + std::cmp::Eq,
     V: FromStream,
 {
+    /// Reads a `HashMap<K, V>` from the stream. It is prefixed by a `u32` count,
+    /// followed by `count` key-value pairs.
     fn from_stream<R>(stream: &mut ReadStream<R>) -> std::result::Result<Self, FromStreamError>
     where
         R: ReadBytesExt,

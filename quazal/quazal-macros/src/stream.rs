@@ -1,3 +1,4 @@
+//! This module provides the implementation for the `ToStream` and `FromStream` derive macros.
 extern crate proc_macro;
 use quote::quote;
 use syn::Data;
@@ -5,6 +6,7 @@ use syn::DeriveInput;
 
 use crate::what_crate;
 
+/// The implementation of the `ToStream` derive macro.
 pub fn to_stream_derive_impl(input: DeriveInput) -> proc_macro2::TokenStream {
     let crt = what_crate();
     let name = input.ident;
@@ -29,6 +31,7 @@ pub fn to_stream_derive_impl(input: DeriveInput) -> proc_macro2::TokenStream {
     }
 }
 
+/// The implementation of the `FromStream` derive macro.
 pub fn from_stream_derive_impl(input: DeriveInput) -> proc_macro2::TokenStream {
     let crt = what_crate();
     let name = input.ident;
