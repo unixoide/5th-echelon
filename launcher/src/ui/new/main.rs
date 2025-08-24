@@ -1,3 +1,8 @@
+//! Defines the main UI component for the new launcher design.
+//!
+//! This module acts as a container for the different menus (Client, Server, Settings)
+//! and handles the main layout, including the header and status bar.
+
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::net::IpAddr;
@@ -29,6 +34,7 @@ use crate::version::Version;
 
 const ID_MODAL_SEARCHING: &str = "Identifying...";
 
+/// Represents the currently active menu in the UI.
 #[derive(Default)]
 enum MainMenuType<'a> {
     #[default]
@@ -37,6 +43,8 @@ enum MainMenuType<'a> {
     Server(Box<ServerMenu>),
     Settings(SettingsMenu),
 }
+
+/// The main UI component, which holds the state for the entire UI.
 pub struct Main<'a> {
     menu_type: MainMenuType<'a>,
     cfg: Rc<RefCell<ConfigMut>>,
@@ -53,6 +61,7 @@ pub struct Main<'a> {
 }
 
 impl<'a> Main<'a> {
+    /// Creates a new `Main` UI component.
     pub fn new(
         cfg: ConfigMut,
         adapters: &'a [(String, IpAddr)],
@@ -81,6 +90,7 @@ impl<'a> Main<'a> {
         }
     }
 
+    /// Renders the main UI.
     pub fn render(&mut self, ui: &imgui::Ui, window_size: Size) {
         ui.window("Launcher")
             .flags(WindowFlags::NO_BRING_TO_FRONT_ON_FOCUS)
@@ -90,6 +100,7 @@ impl<'a> Main<'a> {
             .resizable(false)
             .title_bar(false)
             .build(|| {
+                // Header section
                 let font = ui.push_font(self.fonts.header);
                 let header_size = ui.calc_text_size("FIFTH ECHELON");
                 font.end();
@@ -130,9 +141,11 @@ impl<'a> Main<'a> {
                         ui.text_disabled(format!("Game Dir: {}", self.target_dir.display()));
                         ui.set_window_font_scale(1.0);
                     });
+                // Content section
                 ui.child_window("##Content").size([0f32, -ui.frame_height_with_spacing()]).build(|| {
                     match self.menu_type {
                         MainMenuType::None => {
+                            // Main menu buttons
                             ui.modal_popup("Outdated Launcher", || {
                                 ui.text("Launcher is outdated.");
                                 ui.text(format!("Current: {}", self.launcher_version,));
@@ -181,7 +194,6 @@ impl<'a> Main<'a> {
                             if ui.button_with_size(format!("{} Settings", ICON_GEAR), [text_size * 2f32 + unsafe { ui.style() }.frame_padding[0] * 2f32, 0f32]) {
                                 self.menu_type = MainMenuType::Settings(SettingsMenu::new(Rc::clone(&self.cfg)));
                             }
-                            // ui.text(format!("{:#?}", self.cfg));
                         }
                         MainMenuType::Client(ref mut client_menu) => {
                             if !client_menu.render(ui) {
@@ -200,6 +212,7 @@ impl<'a> Main<'a> {
                         }
                     };
                 });
+                // Status bar section
                 ui.child_window("##StatusBar").size([0f32, ui.frame_height()]).build(|| {
                     self.search_modal(ui);
                     ui.set_window_font_scale(0.8);
@@ -230,9 +243,9 @@ impl<'a> Main<'a> {
                     }
                 })
             });
-        // ui.show_default_style_editor();
     }
 
+    /// Renders the modal for searching for game binaries.
     fn search_modal(&mut self, ui: &imgui::Ui) -> bool {
         let mut el = self.exe_loader.borrow_mut();
         let Some(games) = el.try_mut() else {
@@ -276,6 +289,7 @@ impl<'a> Main<'a> {
     }
 }
 
+/// Converts a `GameHookState` to a color.
 fn game_hook_state_to_color(state: &GameHookState) -> ImColor32 {
     match state {
         GameHookState::Resolved(_) => GREEN,
@@ -286,6 +300,7 @@ fn game_hook_state_to_color(state: &GameHookState) -> ImColor32 {
     }
 }
 
+/// Converts a `GameHookState` to a human-readable string.
 fn game_hook_state_to_text(state: &GameHookState) -> &'static str {
     match state {
         GameHookState::Resolved(_) => "Identified",

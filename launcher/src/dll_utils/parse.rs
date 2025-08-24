@@ -4,10 +4,12 @@ use std::os::windows::ffi::OsStringExt as _;
 
 use crate::version::Version;
 
+/// Represents a parsed DLL file, containing its version information.
 pub struct Dll {
     pub version: Version,
 }
 
+/// A macro for implementing methods to read primitive types from a byte stream.
 macro_rules! read_impl {
     ($ty:ident) => {
         fn $ty(&mut self) -> std::io::Result<$ty> {
@@ -18,6 +20,7 @@ macro_rules! read_impl {
     };
 }
 
+/// A trait for reading primitive types from a byte stream.
 trait BytesRead
 where
     Self: io::Read,
@@ -30,37 +33,26 @@ where
 
     read_impl!(u16);
     read_impl!(u32);
-    // read_impl!(u64);
-    // read_impl!(u128);
-
-    // fn i8(&mut self) -> std::io::Result<i8> {
-    //     let mut tmp = [0u8; 1];
-    //     self.read_exact(&mut tmp)?;
-    //     Ok(tmp[0] as i8)
-    // }
-
-    // read_impl!(i16);
-    // read_impl!(i32);
-    // read_impl!(i64);
-    // read_impl!(i128);
 }
 
 impl<T: AsRef<[u8]>> BytesRead for std::io::Cursor<T> {}
 
+/// Represents a named entry in a resource directory.
 #[derive(Debug)]
 #[allow(dead_code)]
 struct NameEntry {
     name_offset: u32,
     offset: usize,
-    // TODO
 }
 
+/// Represents an ID entry in a resource directory.
 #[derive(Debug)]
 struct IdEntry {
     offset: usize,
     id: u32,
 }
 
+/// Represents a resource directory in a PE file.
 #[derive(Debug)]
 struct Directory {
     #[allow(dead_code)]
@@ -69,6 +61,7 @@ struct Directory {
 }
 
 impl Directory {
+    /// Parses a resource directory from a byte stream.
     fn parse<R: BytesRead>(rdr: &mut R) -> io::Result<Self> {
         let _characteristics = rdr.u32()?;
         let _time_date_stamp = rdr.u32()?;
@@ -98,10 +91,13 @@ impl Directory {
     }
 }
 
+/// The resource type for version information.
 const RT_VERSION: u32 = 0x10;
 
+/// Parses a DLL file from a byte slice and returns a `Dll` struct.
 pub fn parse(data: &[u8]) -> io::Result<Dll> {
     let dll = goblin::pe::PE::parse(data).unwrap();
+    // Find the resource section.
     let rsrc = dll
         .sections
         .iter()
@@ -109,8 +105,10 @@ pub fn parse(data: &[u8]) -> io::Result<Dll> {
         .ok_or(io::Error::other("resource section not found"))?;
     let rsrc_data = rsrc.data(data).unwrap().unwrap();
 
+    // Parse the root resource directory.
     let root_dir = Directory::parse(&mut io::Cursor::new(&rsrc_data))?;
     let version = if let Some(entry) = root_dir.id_entries.iter().find(|entry| entry.id == RT_VERSION) {
+        // Navigate through the resource directory to find the version information.
         let entry_data = &rsrc_data[entry.offset..];
         let resource_dir = Directory::parse(&mut io::Cursor::new(entry_data))?;
         let resource_data = &rsrc_data[resource_dir.id_entries.first().unwrap().offset..];
@@ -123,6 +121,7 @@ pub fn parse(data: &[u8]) -> io::Result<Dll> {
         let _reserved = version_data.u32()?;
         // should do some checks here ¯\_(ツ)_/¯
 
+        // Find the file offset of the version data using the RVA.
         let offset = goblin::pe::utils::find_offset(
             rva,
             &dll.sections,
@@ -133,6 +132,7 @@ pub fn parse(data: &[u8]) -> io::Result<Dll> {
 
         let mut version_data = io::Cursor::new(&data[offset..][..size]);
 
+        // Parse the VS_VERSION_INFO struct.
         let _length = version_data.u16()?;
         let _value_length = version_data.u16()?;
         let _type = version_data.u16()?;

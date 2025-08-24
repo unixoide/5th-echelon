@@ -1,3 +1,9 @@
+//! Implements the old, single-window launcher UI.
+//!
+//! This module contains all the logic for rendering the old user interface,
+//! including settings for login, networking, and debugging, as well as game
+//! launching functionality.
+
 use std::collections::HashMap;
 use std::fs;
 use std::net::IpAddr;
@@ -25,11 +31,13 @@ use crate::render;
 use crate::ui::BackgroundValue;
 use crate::version::Version;
 
+// Constants for modal popup IDs.
 const ID_MODAL_ASK_SEARCH: &str = "Unknown Executables";
 const ID_MODAL_SEARCHING: &str = "Identifying...";
 const ID_MODAL_LOADING: &str = "Loading...";
 const ID_MODAL_REGISTER: &str = "Register";
 
+/// Draws a loading screen while the game executables are being located.
 fn draw_loading_screen(ui: &imgui::Ui, exe_loader: &mut BackgroundValue<GameHooks>) -> Option<GameHooks> {
     ui.modal_popup_config(ID_MODAL_LOADING)
         .movable(false)
@@ -39,6 +47,7 @@ fn draw_loading_screen(ui: &imgui::Ui, exe_loader: &mut BackgroundValue<GameHook
     exe_loader.try_take()
 }
 
+/// Draws the login UI and handles the login process.
 fn draw_login(ui: &imgui::Ui, cfg: &mut hooks_config::Config) -> Option<Option<String>> {
     static TEST_ACCOUNTS: [&str; 3] = ["---", "sam_the_fisher", "AAAABBBB"];
     static TEST_ACCOUNT_PWDS: [&str; 3] = ["", "password1234", "CCCCDDDD"];
@@ -80,6 +89,7 @@ fn draw_login(ui: &imgui::Ui, cfg: &mut hooks_config::Config) -> Option<Option<S
         }
     });
 
+    // Show a loading popup while logging in.
     if logging_in {
         ui.open_popup("logging_in")
     }
@@ -107,6 +117,7 @@ fn draw_login(ui: &imgui::Ui, cfg: &mut hooks_config::Config) -> Option<Option<S
     }
 }
 
+/// Draws the registration UI and handles the registration process.
 fn draw_register(ui: &imgui::Ui, cfg: &mut hooks_config::Config) {
     static REGISTER: Mutex<Option<BackgroundValue<Option<String>>>> = Mutex::new(None);
 
@@ -175,6 +186,7 @@ fn draw_register(ui: &imgui::Ui, cfg: &mut hooks_config::Config) {
     });
 }
 
+/// Draws the main settings section of the UI.
 fn draw_main_settings(ui: &imgui::Ui, cfg: &mut Config) {
     let login_result = draw_login(ui, &mut cfg.hook_config);
     draw_register(ui, &mut cfg.hook_config);
@@ -203,6 +215,7 @@ fn draw_main_settings(ui: &imgui::Ui, cfg: &mut Config) {
     }
 }
 
+/// Draws the networking settings section of the UI.
 fn draw_networking_settings(ui: &imgui::Ui, cfg: &mut hooks_config::Config, api_server: &mut String, adapters: &[String], adapter_ips: &[IpAddr]) {
     if ui.collapsing_header("Networking", imgui::TreeNodeFlags::FRAME_PADDING | imgui::TreeNodeFlags::DEFAULT_OPEN) {
         ui.indent();
@@ -267,6 +280,7 @@ fn draw_networking_settings(ui: &imgui::Ui, cfg: &mut hooks_config::Config, api_
     }
 }
 
+/// Draws the debugging settings section of the UI.
 fn draw_debug_settings(ui: &imgui::Ui, cfg: &mut hooks_config::Config, addr: &Addresses) {
     if ui.collapsing_header("Debugging", imgui::TreeNodeFlags::FRAME_PADDING) {
         ui.indent();
@@ -310,6 +324,7 @@ fn draw_debug_settings(ui: &imgui::Ui, cfg: &mut hooks_config::Config, addr: &Ad
     }
 }
 
+/// Draws the title and logo.
 fn draw_title(ui: &imgui::Ui, header_font: imgui::FontId, logo_texture: imgui::TextureId) {
     if false {
         let _font = ui.push_font(header_font);
@@ -331,6 +346,7 @@ fn draw_title(ui: &imgui::Ui, header_font: imgui::FontId, logo_texture: imgui::T
     }
 }
 
+/// Draws the game executable selection dropdown.
 fn get_selected_executable(ui: &imgui::Ui, games: &GameHooks, selected_gv: Option<GameVersion>) -> Option<(GameVersion, GameState)> {
     let mut versions = games
         .iter()
@@ -367,20 +383,21 @@ fn get_selected_executable(ui: &imgui::Ui, games: &GameHooks, selected_gv: Optio
     }
 }
 
+/// Runs the old launcher UI.
 pub fn run(target_dir: PathBuf, cfg: Config, adapters: &[String], adapter_ips: &[IpAddr], update_available: bool) {
     let mut cfg = cfg;
     let mut saved_cfg = cfg.clone();
     let mut api_server = cfg.hook_config.api_server.to_string();
 
-    /* create context */
+    // Create the imgui context.
     let mut imgui = imgui::Context::create();
     sc_style(imgui.style_mut());
 
-    /* disable creation of files on disc */
+    // Disable creation of imgui.ini and imgui_log.txt files.
     imgui.set_ini_filename(None);
     imgui.set_log_filename(None);
 
-    /* setup platform and renderer, and fonts to imgui */
+    // Set up the fonts for the UI.
     let header_font = Fonts::setup(&mut imgui).header;
 
     let mut selected_game: Option<(GameVersion, GameState)> = None;
@@ -389,6 +406,7 @@ pub fn run(target_dir: PathBuf, cfg: Config, adapters: &[String], adapter_ips: &
 
     let mut addresses = None;
 
+    // Load the game binaries in the background.
     let mut exe_loader = load_game_binaries(&target_dir);
 
     let dll_version = get_dll_version(target_dir.join("uplay_r1_loader.dll")).unwrap_or_default();
@@ -396,8 +414,9 @@ pub fn run(target_dir: PathBuf, cfg: Config, adapters: &[String], adapter_ips: &
 
     let mut show_outdated_dll_warning = dll_version < expected_dll_version;
     let mut show_outdated_launcher_warning = update_available;
+
+    // Run the main render loop.
     render::render(LogicalSize::new(1024, 768), imgui, |ui: &mut imgui::Ui, w: f32, h: f32, logo_texture: imgui::TextureId| {
-        /* create imgui UI here */
         ui.window("Settings")
             .size([w, h], imgui::Condition::Always)
             .position([0f32, 0f32], imgui::Condition::Always)
@@ -405,6 +424,7 @@ pub fn run(target_dir: PathBuf, cfg: Config, adapters: &[String], adapter_ips: &
             .resizable(false)
             .title_bar(false)
             .build(|| {
+                // Show a loading screen until the game executables are found.
                 if addresses.is_none() {
                     addresses = draw_loading_screen(ui, &mut exe_loader);
                     return;
@@ -425,6 +445,7 @@ pub fn run(target_dir: PathBuf, cfg: Config, adapters: &[String], adapter_ips: &
                 ui.text_disabled(format!("Installed DLL version: {}", dll_version));
                 ui.set_window_font_scale(1.0);
 
+                // Show modals for outdated DLL or launcher.
                 ui.modal_popup("Outdated DLL", || {
                     ui.text("Installed DLL is outdated.");
                     if ui.button("Ok") {
@@ -452,6 +473,7 @@ pub fn run(target_dir: PathBuf, cfg: Config, adapters: &[String], adapter_ips: &
                     ui.open_popup("Outdated Launcher");
                 }
 
+                // Draw the main UI sections.
                 draw_main_settings(ui, &mut cfg);
                 draw_networking_settings(ui, &mut cfg.hook_config, &mut api_server, adapters, adapter_ips);
                 if let Some(GameHook {
@@ -462,6 +484,8 @@ pub fn run(target_dir: PathBuf, cfg: Config, adapters: &[String], adapter_ips: &
                     draw_debug_settings(ui, &mut cfg.hook_config, addr);
                 }
                 ui.separator();
+
+                // Save/Reset buttons.
                 ui.disabled(saved_cfg == cfg, || {
                     if ui.button("Save") {
                         if cfg.hook_config.networking.adapter.is_some() {
@@ -479,6 +503,7 @@ pub fn run(target_dir: PathBuf, cfg: Config, adapters: &[String], adapter_ips: &
                 });
                 ui.same_line();
 
+                // Game selection and launch controls.
                 selected_game = get_selected_executable(ui, addresses, selected_game.map(|(gv, _)| gv));
                 ui.same_line();
 
@@ -502,6 +527,7 @@ pub fn run(target_dir: PathBuf, cfg: Config, adapters: &[String], adapter_ips: &
                     }
                 });
 
+                // Modals for identifying unknown executables.
                 let should_open_search_modal = ui.modal_popup_config(ID_MODAL_ASK_SEARCH).resizable(false).movable(false).build(|| {
                     ui.text("None of the executabels seem to be known by this launcher.\n\nAttempt to identify?");
                     if ui.button("Yes") {

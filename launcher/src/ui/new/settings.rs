@@ -1,23 +1,33 @@
+//! Defines the settings menu for the new UI.
+//!
+//! This module provides a UI for configuring various aspects of the launcher,
+//! such as the UI version, logging level, and other advanced settings.
+
 use std::cell::RefCell;
 use std::rc::Rc;
 
 use crate::config::ConfigMut;
 use crate::config::{self};
 
+/// Represents the settings menu.
 #[derive(Debug)]
 pub struct SettingsMenu {
     cfg: Rc<RefCell<ConfigMut>>,
 }
 
 impl SettingsMenu {
+    /// Creates a new `SettingsMenu`.
     pub fn new(cfg: Rc<RefCell<ConfigMut>>) -> Self {
         Self { cfg }
     }
+
+    /// Renders the settings menu.
     pub fn render(&mut self, ui: &imgui::Ui) -> bool {
         let go_back = ui.arrow_button("Back", imgui::Direction::Left);
 
         self.cfg.borrow_mut().update(|cfg| {
             imgui::TabBar::new("Settings").build(ui, || {
+                // Main settings tab
                 imgui::TabItem::new("Main").build(ui, || {
                     ui.checkbox("Enable Overlay", &mut cfg.hook_config.enable_overlay);
                     let ui_versions = [None, Some(config::UIVersion::Old), Some(config::UIVersion::New)];
@@ -33,6 +43,7 @@ impl SettingsMenu {
                         cfg.ui_version = ui_versions[selected_ui_version];
                     }
                 });
+                // Advanced settings tab
                 imgui::TabItem::new("Advanced").build(ui, || {
                     static LOG_LEVELS: [hooks_config::LogLevel; 5] = [
                         hooks_config::LogLevel::Trace,
@@ -51,7 +62,7 @@ impl SettingsMenu {
                     if !cfg.hook_config.enable_all_hooks && ui.collapsing_header("Individual Hooks", imgui::TreeNodeFlags::FRAME_PADDING) {
                         ui.indent();
                         for (variant, label) in hooks_config::Hook::VARIANTS.iter().zip(hooks_config::Hook::LABELS.iter()) {
-                            // TODO
+                            // TODO: Check if hook is available
                             // if addr.hook_addr(*variant).is_none() {
                             //     continue;
                             // }
@@ -74,7 +85,6 @@ impl SettingsMenu {
                 });
             });
         });
-        // if ui.button(format!("{} Save", ICON_FLOPPY_DISK)) {}
 
         !go_back
     }

@@ -1,3 +1,10 @@
+//!
+//! Implements the client-side UI for the new launcher design.
+//!
+//! This module provides the main UI for managing user profiles, launching the
+//! game, and diagnosing network issues. It also handles savegame import and
+//! generation.
+
 use std::cell::RefCell;
 use std::ffi::OsStr;
 use std::fs;
@@ -40,10 +47,13 @@ use crate::ui::GameHooks;
 type BackgroundNetworkTest = BackgroundValue<Option<network::Error>>;
 type BackgroundNetwork<T> = BackgroundValue<Result<T, network::Error>>;
 
+/// The handle to the game client process.
 static mut CLIENT_PROCESS: Option<std::process::Child> = None;
 
+/// The Ubisoft Game ID for Splinter Cell: Blacklist.
 const SC_BL_UBI_GAME_ID: &str = "449";
 
+/// Finds the installation directory of the Ubisoft Game Launcher.
 fn find_ubisoft_launcher_dir() -> Option<PathBuf> {
     registry::read_string(registry::Key::LocaLMachine, "SOFTWARE/Ubisoft/Launcher", "InstallDir")
         .as_deref()
@@ -51,6 +61,7 @@ fn find_ubisoft_launcher_dir() -> Option<PathBuf> {
         .map(PathBuf::from)
 }
 
+/// Finds a pre-existing Splinter Cell: Blacklist savegame.
 fn preexisting_savegame() -> Option<PathBuf> {
     let launcher_dir = find_ubisoft_launcher_dir()?;
 
@@ -77,6 +88,7 @@ fn preexisting_savegame() -> Option<PathBuf> {
     None
 }
 
+/// The main UI component for the client view.
 pub struct ClientMenu<'a> {
     cfg: Rc<RefCell<ConfigMut>>,
     selected_profile: usize,
@@ -96,6 +108,7 @@ pub struct ClientMenu<'a> {
 }
 
 impl<'a> ClientMenu<'a> {
+    /// Creates a new `ClientMenu`.
     pub fn new(cfg: Rc<RefCell<ConfigMut>>, adapters: &'a [(String, IpAddr)], system_dir: &'a Path, game_versions: Rc<RefCell<BackgroundValue<GameHooks>>>) -> Self {
         let selected_profile = cfg.borrow().profiles.iter().position(|p| p.name == cfg.borrow().default_profile).unwrap_or_default();
         let profile_editor = ProfileEditor::new(Rc::clone(&cfg), adapters);
@@ -120,7 +133,9 @@ impl<'a> ClientMenu<'a> {
         }
     }
 
+    /// Renders the client menu UI.
     pub fn render(&mut self, ui: &imgui::Ui) -> bool {
+        // If the pre-launch login test was successful, launch the game.
         if let Some(profile_name) = self.launch_login_successful() {
             let gv = self.cfg.borrow().default_game;
             launch_game(&profile_name, &mut self.cfg.borrow_mut(), gv, self.system_dir);
@@ -134,6 +149,7 @@ impl<'a> ClientMenu<'a> {
             self.diagnose_modal(ui);
         }
 
+        // Show the savegame import modal if no savegame exists.
         self.import_savegame_modal(ui);
         if !self.has_savegame {
             ui.open_popup("Import Savegame");
@@ -144,7 +160,7 @@ impl<'a> ClientMenu<'a> {
             return false;
         }
         let is_testing = self.launch_login_is_testing();
-        // SAFETY: static is only accessed in a single thread
+        // Check if the game process has exited.
         #[allow(static_mut_refs)]
         let is_launched = if let Some(child) = unsafe { CLIENT_PROCESS.as_mut() } {
             if child.try_wait().unwrap().is_some() {
@@ -159,6 +175,7 @@ impl<'a> ClientMenu<'a> {
             false
         };
         ui.disabled(is_testing || is_launched, || {
+            // If there are no profiles, open the profile editor.
             if no_profiles && self.profile_editor.profile.is_none() {
                 self.profile_editor.profile.get_or_insert_default();
                 self.profile_editor.open(ui, true);
@@ -166,6 +183,7 @@ impl<'a> ClientMenu<'a> {
 
             self.profiles_table(ui);
 
+            // "Add New" button and game launch controls.
             {
                 let font_height = ui.current_font_size();
                 let cursor = ui.cursor_screen_pos();
@@ -218,6 +236,7 @@ impl<'a> ClientMenu<'a> {
                     return;
                 }
 
+                // Game version selection dropdown.
                 let gv = &mut *self.game_versions.borrow_mut();
                 if let Some(hooks) = gv.try_get() {
                     let game_versions: Vec<GameVersion> = hooks.iter_ready().map(|hook| hook.version).collect();
@@ -241,6 +260,7 @@ impl<'a> ClientMenu<'a> {
                     }
                 }
                 ui.same_line();
+                // Launch and Diagnose buttons.
                 if ui.button(format!("{} Launch", ICON_ROCKET)) {
                     let profile = &self.cfg.borrow().profiles[self.selected_profile];
                     launch_game_test_first(profile, &mut self.launch_login_test, self.cfg.borrow().default_game);
@@ -264,10 +284,12 @@ impl<'a> ClientMenu<'a> {
 }
 
 impl ClientMenu<'_> {
+    /// Returns `true` if the pre-launch login test is in progress.
     fn launch_login_is_testing(&self) -> bool {
         !self.launch_login_test.as_ref().map(BackgroundValue::is_finished).unwrap_or(true)
     }
 
+    /// Returns the profile name if the pre-launch login test was successful.
     fn launch_login_successful(&mut self) -> Option<String> {
         if self.launch_login_test.as_mut().and_then(BackgroundValue::try_get).map(Result::is_ok).unwrap_or(false) {
             self.launch_login_test.take().and_then(|mut bv| bv.try_take()).and_then(Result::ok)
@@ -276,10 +298,12 @@ impl ClientMenu<'_> {
         }
     }
 
+    /// Returns a reference to the error if the pre-launch login test failed.
     fn launch_login_failed(&mut self) -> Option<&network::Error> {
         self.launch_login_test.as_mut().and_then(BackgroundValue::try_get).and_then(|r| r.as_ref().err())
     }
 
+    /// Draws the modal for deleting a profile.
     fn delete_profile_modal(&mut self, ui: &imgui::Ui) {
         ui.modal_popup_config("Delete Profile##popup").always_auto_resize(true).build(|| {
             ui.text(format!("Delete profile {}?", self.cfg.borrow().profiles[self.profile_to_delete.unwrap()].name,));
@@ -302,6 +326,7 @@ impl ClientMenu<'_> {
         });
     }
 
+    /// Draws the table of user profiles.
     fn profiles_table(&mut self, ui: &imgui::Ui) {
         if let Some(table) = ui.begin_table_header(
             "Profiles",
@@ -314,7 +339,6 @@ impl ClientMenu<'_> {
             ],
         ) {
             self.delete_profile_modal(ui);
-            // self.add_profile_modal(ui);
             self.profile_editor.render(ui);
             let mut new_default_profile = None;
             for (i, profile) in self.cfg.borrow().profiles.iter().enumerate() {
@@ -356,7 +380,7 @@ impl ClientMenu<'_> {
                 if ui.is_item_hovered() {
                     self.hovered_row = i;
                 }
-                // buttons
+                // Action buttons for each profile.
                 ui.table_next_column();
                 if ui.button(format!("{}##launch-{}", ICON_ROCKET, i)) {
                     launch_game_test_first(profile, &mut self.launch_login_test, self.cfg.borrow().default_game);
@@ -400,6 +424,7 @@ impl ClientMenu<'_> {
         }
     }
 
+    /// Draws the network diagnostics modal.
     fn diagnose_modal(&mut self, ui: &imgui::Ui) {
         let show_result = |task: Option<&mut BackgroundNetworkTest>, help_options: &[&str]| {
             if task.is_none() {
@@ -570,6 +595,7 @@ In this case you can ignore the \"client did not respond in time\" error!",
             });
     }
 
+    /// Draws the modal for importing a savegame.
     fn import_savegame_modal(&mut self, ui: &imgui::Ui) {
         ui.modal_popup_config("Import Savegame").always_auto_resize(true).build(|| {
             ui.text("Looks like you don't have a 5th Echelon savegame yet.");
@@ -602,6 +628,7 @@ In this case you can ignore the \"client did not respond in time\" error!",
     }
 }
 
+/// Launches the game after performing a login test.
 fn launch_game_test_first(profile: &Profile, launch_login_test: &mut Option<BackgroundNetwork<String>>, _game_version: GameVersion) {
     let server = profile.server.clone();
     let api_server_url = profile.api_server_url().into_owned();
@@ -617,6 +644,7 @@ fn launch_game_test_first(profile: &Profile, launch_login_test: &mut Option<Back
     }));
 }
 
+/// Launches the game with the specified profile and game version.
 fn launch_game(profile_name: &str, cfg: &mut ConfigMut, game_version: GameVersion, system_dir: &Path) {
     info!("Launching {} with {}", profile_name, game_version.label());
     let saved = cfg.update(|cfg| {
@@ -640,6 +668,7 @@ fn launch_game(profile_name: &str, cfg: &mut ConfigMut, game_version: GameVersio
     }
 }
 
+/// A struct for the profile editor UI.
 struct ProfileEditor<'a> {
     cfg: Rc<RefCell<ConfigMut>>,
     profile: Option<Profile>,
@@ -656,6 +685,7 @@ struct ProfileEditor<'a> {
 }
 
 impl<'a> ProfileEditor<'a> {
+    /// Creates a new `ProfileEditor`.
     fn new(cfg: Rc<RefCell<ConfigMut>>, adapters: &'a [(String, IpAddr)]) -> Self {
         Self {
             cfg,
@@ -673,6 +703,7 @@ impl<'a> ProfileEditor<'a> {
         }
     }
 
+    /// Updates the configuration with the profile being edited.
     fn update_config(&mut self, mut profile: Profile) {
         profile.user.account_id = profile.user.username.clone();
         self.cfg.borrow_mut().update(|cfg| {
@@ -689,6 +720,7 @@ impl<'a> ProfileEditor<'a> {
         });
     }
 
+    /// Renders the profile editor modal.
     fn render(&mut self, ui: &imgui::Ui) -> Option<bool> {
         // keep hostname cache small
         if self.hostname_cache.len() > 100 {
@@ -904,12 +936,14 @@ Improves stability when attempting to join others",
         None
     }
 
+    /// Opens the profile editor modal.
     fn open(&mut self, ui: &imgui::Ui, is_new: bool) {
         self.try_to_register_shown = false;
         self.edit_existing = !is_new;
         ui.open_popup("###Profile Editor");
     }
 
+    /// Draws the modal for asking the user if they want to register a new account.
     fn ask_register_modal(&mut self, ui: &imgui::Ui) {
         ui.modal_popup_config("Try to register?").always_auto_resize(true).build(|| {
             self.try_to_register_shown = true;
@@ -1021,6 +1055,7 @@ fn import_save_game(hooks_config: &hooks_config::Config, preexisting_save_game: 
     let _ = fs::write(sg_path.with_extension("meta"), b"sc6_save.sav");
 }
 
+/// Generates a new savegame with some default values.
 fn generate_save_game(hooks_config: &hooks_config::Config) {
     let sg_path = hooks_config.save.get_savegame_path(1);
     let sg_dir = sg_path.parent().unwrap();

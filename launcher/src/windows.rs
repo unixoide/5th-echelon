@@ -1,3 +1,8 @@
+//! Provides Windows-specific implementations for various functionalities.
+//!
+//! This module contains code that interacts directly with the Windows API
+//! to provide services such as clipboard access and network adapter enumeration.
+
 use std::collections::HashSet;
 use std::ffi::CStr;
 use std::net::IpAddr;
@@ -31,6 +36,7 @@ use windows::Win32::System::Diagnostics::Debug::FORMAT_MESSAGE_ALLOCATE_BUFFER;
 
 mod clipboard_win;
 
+/// Creates a Windows-specific clipboard backend for `imgui`.
 pub fn clipboard_backend(window: &winit::window::Window) -> clipboard_win::WindowsClipboard {
     let raw_handle = window.window_handle().expect("raw window handle").as_raw();
     let hwnd = match raw_handle {
@@ -40,7 +46,9 @@ pub fn clipboard_backend(window: &winit::window::Window) -> clipboard_win::Windo
     clipboard_win::WindowsClipboard { hwnd }
 }
 
+/// Finds the names and IP addresses of all network adapters on the system.
 pub fn find_adapter_names() -> Vec<(String, IpAddr)> {
+    // Use GetAdapterInfos if the feature is enabled, otherwise use GetAdaptersAddresses.
     let res = if cfg!(feature = "GetAdapterInfos") {
         get_adapter_infos(|adapterinfo| {
             let mut res = HashSet::new();
@@ -99,6 +107,7 @@ pub fn find_adapter_names() -> Vec<(String, IpAddr)> {
         })
     };
 
+    // Filter out link-local addresses and sort the results.
     let mut res: Vec<(String, IpAddr)> = res
         .unwrap_or_default()
         .into_iter()
@@ -112,13 +121,16 @@ pub fn find_adapter_names() -> Vec<(String, IpAddr)> {
     res
 }
 
+/// A helper function for calling the `GetAdaptersInfo` Windows API function.
 fn get_adapter_infos<T>(f: impl Fn(*mut windows::Win32::NetworkManagement::IpHelper::IP_ADAPTER_INFO) -> anyhow::Result<T>) -> anyhow::Result<T> {
     #![allow(clippy::cast_possible_truncation, clippy::crosspointer_transmute)]
 
     let mut adapterinfo = vec![0u8; std::mem::size_of::<IP_ADAPTER_INFO>()];
     let mut size = adapterinfo.len() as u32;
+    // Call GetAdaptersInfo once to get the required buffer size.
     let mut res = WIN32_ERROR(unsafe { GetAdaptersInfo(Some(adapterinfo.as_mut_ptr().cast()), &mut size) });
     if res == ERROR_BUFFER_OVERFLOW {
+        // Resize the buffer and call again.
         adapterinfo.resize(size as usize, 0);
         res = WIN32_ERROR(unsafe { GetAdaptersInfo(Some(adapterinfo.as_mut_ptr().cast()), &mut size) });
     }
@@ -128,6 +140,7 @@ fn get_adapter_infos<T>(f: impl Fn(*mut windows::Win32::NetworkManagement::IpHel
         }
         ERROR_SUCCESS => f(adapterinfo.as_mut_ptr().cast()),
         _ => unsafe {
+            // Format the error message from the Windows API.
             let mut buffer_ptr: PWSTR = PWSTR::null();
             let ptr_ptr: *mut PWSTR = &mut buffer_ptr;
             let chars = FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER, None, res.0, 0, std::mem::transmute::<*mut PWSTR, PWSTR>(ptr_ptr), 256, None);
@@ -144,10 +157,12 @@ fn get_adapter_infos<T>(f: impl Fn(*mut windows::Win32::NetworkManagement::IpHel
     }
 }
 
+/// A helper function for calling the `GetAdaptersAddresses` Windows API function.
 fn get_adapter_addresses<T>(f: impl Fn(*mut windows::Win32::NetworkManagement::IpHelper::IP_ADAPTER_ADDRESSES_LH) -> anyhow::Result<T>) -> anyhow::Result<T> {
     #![allow(clippy::cast_possible_truncation, clippy::crosspointer_transmute, clippy::cast_lossless)]
     let mut adapter_addresses = vec![0u8; std::mem::size_of::<IP_ADAPTER_ADDRESSES_LH>()];
     let mut size = adapter_addresses.len() as u32;
+    // Call GetAdaptersAddresses once to get the required buffer size.
     let mut res = WIN32_ERROR(unsafe {
         GetAdaptersAddresses(
             AF_INET.0 as u32,
@@ -158,6 +173,7 @@ fn get_adapter_addresses<T>(f: impl Fn(*mut windows::Win32::NetworkManagement::I
         )
     });
     if res == ERROR_BUFFER_OVERFLOW {
+        // Resize the buffer and call again.
         adapter_addresses.resize(size as usize, 0);
         res = WIN32_ERROR(unsafe {
             GetAdaptersAddresses(
@@ -175,6 +191,7 @@ fn get_adapter_addresses<T>(f: impl Fn(*mut windows::Win32::NetworkManagement::I
         }
         ERROR_SUCCESS => f(adapter_addresses.as_mut_ptr().cast()),
         _ => unsafe {
+            // Format the error message from the Windows API.
             let mut buffer_ptr: PWSTR = PWSTR::null();
             let ptr_ptr: *mut PWSTR = &mut buffer_ptr;
             let chars = FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER, None, res.0, 0, std::mem::transmute::<*mut PWSTR, PWSTR>(ptr_ptr), 256, None);

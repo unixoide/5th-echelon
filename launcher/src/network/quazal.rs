@@ -1,3 +1,8 @@
+//! Implements logic for testing Quazal authentication and P2P connectivity.
+//!
+//! This module provides functions to test the full Quazal login flow and to
+//! verify P2P connectivity with the server.
+
 use std::time::Duration;
 
 use quazal::prudp::packet::QPacket;
@@ -13,6 +18,10 @@ use super::Error;
 use crate::config::QUAZAL_DEFAULT_LOCAL_PORT;
 use crate::config::QUAZAL_DEFAULT_PORT;
 
+/// Tests the Quazal login process against a server.
+///
+/// This function simulates a full Quazal login, including the SYN/ACK handshake,
+/// connection setup, and RMC login call. It will time out after 5 seconds.
 pub async fn test_quazal_login(server: &str, username: &str, password: &str) -> Result<(), Error> {
     let ctx = quazal::Context::splinter_cell_blacklist();
 
@@ -37,6 +46,7 @@ pub async fn test_quazal_login(server: &str, username: &str, password: &str) -> 
     res
 }
 
+/// A struct to manage the state of a Quazal connection.
 struct Quazal {
     ctx: Context,
     socket: UdpSocket,
@@ -45,6 +55,7 @@ struct Quazal {
     sequence: u16,
 }
 
+/// Sets up a UDP socket for Quazal communication.
 async fn quazal_setup(server: &str) -> std::io::Result<UdpSocket> {
     let socket = tokio::net::UdpSocket::bind(format!("0.0.0.0:{QUAZAL_DEFAULT_LOCAL_PORT}")).await?;
     socket.connect(format!("{server}:{QUAZAL_DEFAULT_PORT}")).await?;
@@ -52,6 +63,7 @@ async fn quazal_setup(server: &str) -> std::io::Result<UdpSocket> {
 }
 
 impl Quazal {
+    /// Sends a Quazal packet, automatically setting the session ID, signature, and sequence number.
     async fn send(&mut self, mut packet: QPacket) -> Result<(), Error> {
         packet.session_id = self.session_id;
         packet.signature = self.signature;
@@ -62,6 +74,8 @@ impl Quazal {
         self.socket.send(&packet.to_bytes(&self.ctx)).await?;
         Ok(())
     }
+
+    /// Sends an ACK packet.
     async fn send_ack(&mut self, mut packet: QPacket) -> Result<(), Error> {
         packet.session_id = self.session_id;
         packet.signature = self.signature;
@@ -71,6 +85,7 @@ impl Quazal {
         Ok(())
     }
 
+    /// Performs the SYN/ACK handshake to establish a connection.
     async fn syn(&mut self) -> Result<u32, Error> {
         use quazal::prudp::packet::PacketFlag;
         use quazal::prudp::packet::PacketType;
@@ -111,6 +126,7 @@ impl Quazal {
         Ok(self.signature)
     }
 
+    /// Sends a CONNECT packet to finalize the connection.
     async fn connect(&mut self) -> Result<(), Error> {
         use quazal::prudp::packet::PacketFlag;
         use quazal::prudp::packet::PacketType;
@@ -145,6 +161,7 @@ impl Quazal {
         Ok(())
     }
 
+    /// Performs the RMC login call.
     async fn login(&mut self, username: &str, password: &str) -> Result<(), Error> {
         use quazal::prudp::packet::PacketFlag;
         use quazal::prudp::packet::PacketType;
@@ -160,6 +177,7 @@ impl Quazal {
         use sc_bl_protocols::authentication_foundation::ticket_granting_protocol::TICKET_GRANTING_PROTOCOL_ID;
         use sc_bl_protocols::ubi_authentication::types::UbiAuthenticationLoginCustomData;
 
+        // Construct the RMC login request.
         let parameters = LoginExRequest {
             str_user_name: username.to_string(),
             o_extra_data: Any::new(
@@ -182,6 +200,7 @@ impl Quazal {
             parameters,
         });
 
+        // Wrap the RMC packet in a PRUDP data packet.
         let login_prudp_pkt = QPacket {
             source: VPort {
                 port: 15,
@@ -199,8 +218,8 @@ impl Quazal {
         };
         self.send(login_prudp_pkt).await?;
 
+        // Wait for the ACK to the login request.
         let mut buf = vec![0u8; 4096];
-
         let n = self.socket.recv(&mut buf).await?;
         let (data_ack_pkt, _size) = QPacket::from_bytes(&self.ctx, &buf[..n])?;
 
@@ -208,8 +227,8 @@ impl Quazal {
             return Err(Error::IO(std::io::Error::other("invalid data ack")));
         }
 
+        // Wait for the login response.
         let mut buf = vec![0u8; 4096];
-
         let n = self.socket.recv(&mut buf).await?;
         let (login_resp, _size) = QPacket::from_bytes(&self.ctx, &buf[..n])?;
 
@@ -217,7 +236,7 @@ impl Quazal {
             return Err(Error::IO(std::io::Error::other("invalid response")));
         }
 
-        // ack the response
+        // Acknowledge the login response.
         self.send_ack(QPacket {
             source: VPort {
                 port: 15,
@@ -234,7 +253,7 @@ impl Quazal {
         })
         .await?;
 
-        // disconnect
+        // Disconnect from the server.
         self.send(QPacket {
             source: VPort {
                 port: 15,
@@ -256,6 +275,7 @@ impl Quazal {
             return Err(Error::IO(std::io::Error::other("invalid disco ack")));
         }
 
+        // Parse the RMC response and check for errors.
         let resp = Packet::from_bytes(&login_resp.payload)?;
         if let Packet::Response(resp) = resp {
             resp.result.map_err(|e| Error::Rmc(quazal::rmc::Error::from_error_code(e.error_code).unwrap()))?;
@@ -267,7 +287,13 @@ impl Quazal {
     }
 }
 
+/// Tests P2P connectivity with the server.
+///
+/// This function logs in to the API server, initiates a P2P test, and then
+/// listens for a UDP packet from the server containing a challenge. It then
+/// sends the challenge back to the server to confirm connectivity.
 pub async fn test_p2p(api_url: String, username: &str, password: &str) -> Result<(), Error> {
+    // Log in to the API server to get an authentication token.
     let Ok(mut client) = UsersClient::connect(api_url.clone()).await else {
         return Err(Error::ConnectionFailed);
     };
@@ -302,6 +328,7 @@ pub async fn test_p2p(api_url: String, username: &str, password: &str) -> Result
         Ok(req)
     });
 
+    // Spawn a task to listen for the UDP challenge from the server.
     let udp_client_handle = tokio::spawn(async {
         let socket = UdpSocket::bind("0.0.0.0:13000").await?;
         let mut buf = vec![0u8; 4096];
@@ -314,12 +341,14 @@ pub async fn test_p2p(api_url: String, username: &str, password: &str) -> Result
         Ok::<_, Error>(challenge.to_vec())
     });
 
+    // Spawn a task to make the RPC call to initiate the P2P test.
     let rpc_client_handle = tokio::spawn(async move {
         let challenge: [u8; 32] = rand::random();
         let resp = client.test_p2p(TestP2pRequest { challenge: challenge.to_vec() }).await?;
         Ok::<_, Error>(resp.into_inner().challenge)
     });
 
+    // Wait for both tasks to complete and compare the challenges.
     match tokio::try_join!(udp_client_handle, rpc_client_handle) {
         Ok((Err(udp_err), Ok(_))) => {
             return Err(Error::P2P(Box::new(udp_err)));

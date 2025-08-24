@@ -1,5 +1,11 @@
+//! Provides themes for the `imgui` UI by defining color schemes.
+//!
+//! This module contains functions that apply color styles to the `imgui` context,
+//! allowing for a consistent look and feel across the application.
+
 const TRANSPARENT: [f32; 4] = [0.00, 0.00, 0.00, 0.00];
 
+// Constants for imgui style colors, to make the code more readable.
 #[allow(non_upper_case_globals)]
 const ImGuiCol_Text: usize = imgui::StyleColor::Text as usize;
 #[allow(non_upper_case_globals)]
@@ -111,6 +117,7 @@ const ImGuiCol_NavWindowingDimBg: usize = imgui::StyleColor::NavWindowingDimBg a
 #[allow(non_upper_case_globals)]
 const ImGuiCol_ModalWindowDimBg: usize = imgui::StyleColor::ModalWindowDimBg as usize;
 
+/// A macro to convert C++ style color definitions to Rust.
 macro_rules! convert_cpp_to_rs {
     ($style:expr => $(colors[$i:expr] = ImVec4($r:expr, $g:expr, $b:expr, $a:expr);)*) => {
         $(
@@ -119,6 +126,7 @@ macro_rules! convert_cpp_to_rs {
     };
 }
 
+/// Applies the "old" theme to the UI.
 pub fn old(style: &mut imgui::Style) {
     use imgui::StyleColor;
 
@@ -136,10 +144,6 @@ pub fn old(style: &mut imgui::Style) {
     style.colors[StyleColor::TitleBgActive as usize] = [0.0, 0.56, 0.29, 1.0];
     style.colors[StyleColor::TitleBgCollapsed as usize] = [0.00, 0.56, 0.09, 0.51];
     style.colors[StyleColor::MenuBarBg as usize] = [0.0, 0.56, 0.29, 1.0];
-    // style.colors[StyleColor::TitleBg as usize] = [0.01, 0.07, 0.01, 1.00];
-    // style.colors[StyleColor::TitleBgActive as usize] = [0.0, 0.29, 0.68, 1.0];
-    // style.colors[StyleColor::TitleBgCollapsed as usize] = [0.00, 0.56, 0.09, 0.51];
-    // style.colors[StyleColor::MenuBarBg as usize] = [0.0, 0.29, 0.68, 1.0];
     style.colors[StyleColor::ScrollbarBg as usize] = [0.00, 0.15, 0.00, 0.53];
     style.colors[StyleColor::ScrollbarGrab as usize] = [0.10, 0.41, 0.06, 1.00];
     style.colors[StyleColor::ScrollbarGrabHovered as usize] = [0.00, 0.66, 0.04, 1.00];
@@ -181,6 +185,7 @@ pub fn old(style: &mut imgui::Style) {
     style.colors[StyleColor::ModalWindowDimBg as usize] = [0.80, 0.80, 0.80, 0.35];
 }
 
+/// Applies the "new" theme to the UI.
 pub fn new(style: &mut imgui::Style) {
     convert_cpp_to_rs! { style =>
         colors[ImGuiCol_Text] = ImVec4(1.00, 1.00, 1.00, 1.00);
