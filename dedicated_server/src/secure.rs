@@ -10,9 +10,14 @@ use crate::protocols::secure_connection_service::secure_connection_protocol::Reg
 use crate::protocols::secure_connection_service::secure_connection_protocol::SecureConnectionProtocolServer;
 use crate::protocols::secure_connection_service::secure_connection_protocol::SecureConnectionProtocolServerTrait;
 
+/// Implementation of the `SecureConnectionProtocolServerTrait` for handling secure connection requests.
 struct SecureConnectionProtocolServerImpl;
 
 impl<T> SecureConnectionProtocolServerTrait<T> for SecureConnectionProtocolServerImpl {
+    /// Handles the `Register` request, establishing a secure connection.
+    ///
+    /// This function requires the client to be logged in. It returns the connection ID
+    /// and the public URL of the client.
     fn register(
         &self,
         logger: &slog::Logger,
@@ -33,6 +38,10 @@ impl<T> SecureConnectionProtocolServerTrait<T> for SecureConnectionProtocolServe
         })
     }
 
+    /// Handles the `RegisterEx` request, establishing an extended secure connection.
+    ///
+    /// This function requires the client to be logged in. It returns the connection ID
+    /// and the public URL of the client.
     fn register_ex(
         &self,
         logger: &slog::Logger,
@@ -54,6 +63,10 @@ impl<T> SecureConnectionProtocolServerTrait<T> for SecureConnectionProtocolServe
     }
 }
 
+/// Creates a new boxed `SecureConnectionProtocolServer` instance.
+///
+/// This function is typically used to register the secure connection protocol
+/// with the server's protocol dispatcher.
 pub fn new_protocol<T: 'static>() -> Box<dyn Protocol<T>> {
     Box::new(SecureConnectionProtocolServer::new(SecureConnectionProtocolServerImpl))
 }

@@ -8,6 +8,10 @@ use std::path::PathBuf;
 use slog::debug;
 use slog::error;
 
+/// Serves a single file over HTTP.
+///
+/// This function binds to the given address and serves the provided content
+/// to any incoming HTTP request.
 pub fn serve(logger: &slog::Logger, addr: SocketAddr, content: &str) -> std::io::Result<()> {
     let listener = TcpListener::bind(addr)?;
     let resp = format!(
@@ -31,6 +35,11 @@ pub fn serve(logger: &slog::Logger, addr: SocketAddr, content: &str) -> std::io:
     }
 }
 
+/// Serves multiple files over HTTP.
+///
+/// This function binds to the given address and serves files from the provided
+/// `files` map. The keys of the map are the request paths, and the values are
+/// the paths to the files on disk.
 pub fn serve_many(logger: &slog::Logger, addr: SocketAddr, files: &HashMap<String, PathBuf>) -> std::io::Result<()> {
     let listener = TcpListener::bind(addr)?;
     loop {

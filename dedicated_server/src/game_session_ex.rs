@@ -1,3 +1,6 @@
+//! Implements the `GameSessionExProtocolServer` for extended game session management,
+//! including advanced session searching capabilities.
+
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -22,11 +25,16 @@ use crate::protocols::game_session_service::types::GameSessionParticipant;
 use crate::protocols::game_session_service::types::GameSessionSearchResult;
 use crate::storage::Storage;
 
+/// Implementation of the `GameSessionExProtocolServerTrait` for extended game session operations.
 struct GameSessionExProtocolServerImpl {
     storage: Arc<Storage>,
 }
 
 impl<CI> GameSessionExProtocolServerTrait<CI> for GameSessionExProtocolServerImpl {
+    /// Handles the `SearchSessions` request, providing extended search capabilities for game sessions.
+    ///
+    /// This function requires the client to be logged in. It filters sessions based on
+    /// various attributes and returns detailed session information.
     fn search_sessions(
         &self,
         logger: &Logger,

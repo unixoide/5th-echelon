@@ -20,9 +20,14 @@ use crate::protocols::user_storage::user_storage_protocol::SearchContentsRespons
 use crate::protocols::user_storage::user_storage_protocol::UserStorageProtocolServer;
 use crate::protocols::user_storage::user_storage_protocol::UserStorageProtocolServerTrait;
 
+/// Implementation of the `UserStorageProtocolServerTrait` for handling user storage requests.
 struct UserStorageProtocolServerImpl;
 
 impl<CI> UserStorageProtocolServerTrait<CI> for UserStorageProtocolServerImpl {
+    /// Handles the `SearchContents` request, returning a list of user content.
+    ///
+    /// This function requires the client to be logged in. It currently returns a hardcoded
+    /// list of user content for a specific query type.
     fn search_contents(
         &self,
         _logger: &Logger,
@@ -67,6 +72,10 @@ impl<CI> UserStorageProtocolServerTrait<CI> for UserStorageProtocolServerImpl {
         }
     }
 
+    /// Handles the `GetContentUrl` request, returning the URL for a piece of user content.
+    ///
+    /// This function requires the client to be logged in. It constructs the URL from
+    /// the server's configuration.
     fn get_content_url(
         &self,
         _logger: &Logger,
@@ -87,6 +96,10 @@ impl<CI> UserStorageProtocolServerTrait<CI> for UserStorageProtocolServerImpl {
     }
 }
 
+/// Creates a new boxed `UserStorageProtocolServer` instance.
+///
+/// This function is typically used to register the user storage protocol
+/// with the server's protocol dispatcher.
 pub fn new_protocol<T: 'static>() -> Box<dyn Protocol<T>> {
     Box::new(UserStorageProtocolServer::new(UserStorageProtocolServerImpl))
 }

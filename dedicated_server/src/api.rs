@@ -1,3 +1,6 @@
+//! This module defines and implements the gRPC services for the dedicated server,
+//! including Friends, Users, Misc, UsersAdmin, and GamesAdmin services.
+
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::future::Future;
@@ -37,6 +40,7 @@ use crate::config::DebugConfig;
 use crate::storage::LoginError;
 use crate::storage::Storage;
 
+/// Implements the `Friends` gRPC service.
 pub struct MyFriends {
     logger: Logger,
     storage: Arc<Storage>,
@@ -45,6 +49,9 @@ pub struct MyFriends {
 
 #[tonic::async_trait]
 impl Friends for MyFriends {
+    /// Handles friend invitation requests.
+    ///
+    /// Extracts sender and receiver IDs, adds the invite to storage, and returns a response.
     async fn invite(&self, request: Request<friends::InviteRequest>) -> Result<Response<friends::InviteResponse>, Status> {
         let sender: u32 = request.metadata().get("user_id").unwrap().to_str().unwrap().parse().unwrap();
         debug!(self.logger, "Invite request: {:?} from {}", request, sender);
@@ -70,6 +77,9 @@ impl Friends for MyFriends {
         Ok(Response::new(reply)) // Send back our formatted greeting
     }
 
+    /// Handles requests to list friends.
+    ///
+    /// Retrieves all users from storage and marks them as online based on debug configuration.
     async fn list(&self, request: Request<friends::ListRequest>) -> Result<Response<friends::ListResponse>, Status> {
         debug!(
             self.logger,
@@ -91,6 +101,11 @@ impl Friends for MyFriends {
     }
 }
 
+/// Authenticates a gRPC request by validating the provided authorization token.
+///
+/// This function extracts the token from the request metadata, decrypts it using the
+/// provided key, and verifies the user ID against the storage. If successful,
+/// the user ID is inserted into the request metadata for downstream services.
 async fn check_token<T>(logger: &Logger, key: &Key, storage: &Arc<Storage>, mut req: Request<T>) -> Result<Request<T>, Status> {
     let token = req.metadata().get("authorization").ok_or(Status::unauthenticated("Missing authorization"))?;
 
@@ -126,6 +141,7 @@ async fn check_token<T>(logger: &Logger, key: &Key, storage: &Arc<Storage>, mut 
     Ok(req)
 }
 
+/// Implements the `Users` gRPC service.
 pub struct MyUsers {
     logger: Logger,
     key: Key,
@@ -134,6 +150,9 @@ pub struct MyUsers {
 
 #[tonic::async_trait]
 impl Users for MyUsers {
+    /// Handles user login requests.
+    ///
+    /// Authenticates the user against the storage and generates an authorization token upon successful login.
     async fn login(&self, request: Request<users::LoginRequest>) -> Result<Response<users::LoginResponse>, Status> {
         let request = request.into_inner();
         let username = request.username;
@@ -165,6 +184,9 @@ impl Users for MyUsers {
         }))
     }
 
+    /// Handles user registration requests.
+    ///
+    /// Registers a new user in the storage, handling potential conflicts like duplicate usernames or Ubisoft IDs.
     async fn register(&self, request: Request<users::RegisterRequest>) -> Result<Response<users::RegisterResponse>, Status> {
         let request = request.into_inner();
         let username = request.username;
@@ -190,6 +212,7 @@ impl Users for MyUsers {
     }
 }
 
+/// Implements the `Misc` gRPC service.
 pub struct MyMisc {
     logger: Logger,
     storage: Arc<Storage>,
@@ -198,6 +221,7 @@ pub struct MyMisc {
 
 #[tonic::async_trait]
 impl Misc for MyMisc {
+    /// Handles event requests, primarily for retrieving pending friend invites.
     async fn event(&self, request: Request<misc::EventRequest>) -> Result<Response<misc::EventResponse>, Status> {
         let user_id: u32 = request.metadata().get("user_id").unwrap().to_str().unwrap().parse().unwrap();
 
@@ -230,6 +254,9 @@ impl Misc for MyMisc {
         }))
     }
 
+    /// Handles P2P testing requests.
+    ///
+    /// Attempts to establish a UDP connection with the client and exchanges a challenge.
     async fn test_p2p(&self, request: Request<misc::TestP2pRequest>) -> Result<Response<misc::TestP2pResponse>, Status> {
         let mut client_addr = request.remote_addr().ok_or(Status::failed_precondition("no client address"))?;
         client_addr.set_port(13_000);
@@ -256,6 +283,7 @@ impl Misc for MyMisc {
     }
 }
 
+/// Implements the `UsersAdmin` gRPC service for administrative user management.
 pub struct MyUsersAdmin {
     logger: Logger,
     storage: Arc<Storage>,
@@ -263,6 +291,9 @@ pub struct MyUsersAdmin {
 
 #[tonic::async_trait]
 impl UsersAdmin for MyUsersAdmin {
+    /// Handles requests to list all users.
+    ///
+    /// Retrieves user information and their associated IP addresses from storage.
     async fn list(&self, request: Request<users::ListRequest>) -> Result<Response<users::ListResponse>, Status> {
         let _request = request.into_inner();
         let Ok(db_users) = self.storage.list_users_async().await else {
@@ -295,6 +326,9 @@ impl UsersAdmin for MyUsersAdmin {
         Ok(Response::new(resp))
     }
 
+    /// Handles requests to retrieve a single user's details.
+    ///
+    /// Retrieves user information and their associated IP addresses from storage based on the provided user ID.
     async fn get(&self, request: Request<users::GetRequest>) -> Result<Response<users::GetResponse>, Status> {
         let request = request.into_inner();
         let user_id = request.id;
@@ -327,6 +361,9 @@ impl UsersAdmin for MyUsersAdmin {
         Ok(Response::new(resp))
     }
 
+    /// Handles requests to delete a user.
+    ///
+    /// Deletes a user from storage based on their Ubisoft ID.
     async fn delete(&self, request: Request<users::DeleteRequest>) -> Result<Response<users::DeleteResponse>, Status> {
         let request = request.into_inner();
         let Some(user) = self
@@ -347,6 +384,7 @@ impl UsersAdmin for MyUsersAdmin {
     }
 }
 
+/// Implements the `GamesAdmin` gRPC service for administrative game session management.
 struct MyGamesAdmin {
     logger: Logger,
     storage: Arc<Storage>,
@@ -354,6 +392,9 @@ struct MyGamesAdmin {
 
 #[tonic::async_trait]
 impl GamesAdmin for MyGamesAdmin {
+    /// Handles requests to list all active game sessions.
+    ///
+    /// Retrieves game session information from storage and parses game-specific attributes.
     async fn list(&self, request: Request<games::ListRequest>) -> Result<Response<games::ListResponse>, Status> {
         let _request = request.into_inner();
         let sessions = self.storage.list_game_sessions_async().await.map_err(|e| {
@@ -393,6 +434,9 @@ impl GamesAdmin for MyGamesAdmin {
         }))
     }
 
+    /// Handles requests to delete a game session.
+    ///
+    /// Deletes a game session from storage based on its session ID.
     async fn delete(&self, request: Request<games::DeleteRequest>) -> Result<Response<games::DeleteResponse>, Status> {
         let request = request.into_inner();
         let session_id = request.id;
@@ -406,6 +450,10 @@ impl GamesAdmin for MyGamesAdmin {
     }
 }
 
+/// Creates an authenticated gRPC service.
+///
+/// This function wraps a gRPC service with an interceptor that validates
+/// an authorization token present in the request metadata.
 fn authenticated<S>(
     service: S,
     logger: Logger,
@@ -427,6 +475,10 @@ fn authenticated<S>(
     })
 }
 
+/// Creates a gRPC service with preshared key authentication.
+///
+/// This function wraps a gRPC service with an interceptor that validates
+/// a preshared key present in the "authorization" metadata of the request.
 fn preshared_authentication<S>(service: S, key: String) -> tonic::service::interceptor::InterceptedService<S, impl tonic::service::Interceptor + Clone> {
     tonic::service::interceptor::InterceptedService::new(service, move |req: Request<()>| {
         let header_value = req.metadata().get("authorization").ok_or(Status::unauthenticated("Missing authorization"))?;
@@ -440,6 +492,7 @@ fn preshared_authentication<S>(service: S, key: String) -> tonic::service::inter
     })
 }
 
+/// Encodes a byte slice into a Base32 string.
 fn base32(data: &[u8]) -> String {
     let mut s = String::new();
     for chunk in data.chunks(5) {
@@ -468,6 +521,11 @@ fn base32(data: &[u8]) -> String {
     s
 }
 
+/// Starts the gRPC server, binding to the specified address and registering services.
+///
+/// This function initializes the server, sets up reflection services, and registers
+/// the Friends, Users, and Misc gRPC services. Optionally, it enables and registers
+/// administrative services (UsersAdmin and GamesAdmin) if `enable_admin_services` is true.
 pub async fn start_server(
     logger: Logger,
     storage: Arc<Storage>,

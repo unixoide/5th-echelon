@@ -37,6 +37,9 @@ macro_rules! rmc_err {
     )
 }
 
+/// Checks if a client is logged in and returns their user ID.
+///
+/// Returns an `AccessDenied` error if the client is not logged in.
 fn login_required<T>(ci: &ClientInfo<T>) -> quazal::rmc::Result<u32> {
     ci.user_id.ok_or(quazal::rmc::Error::AccessDenied)
 }
@@ -67,6 +70,10 @@ mod user_storage;
 
 use crate::config::Config;
 
+/// Starts a Quazal server (either secure or authentication).
+///
+/// This function sets up the necessary protocols and handlers for the server
+/// and then enters the server loop.
 fn start_server(logger: &slog::Logger, ctx: &Context, storage: &Arc<Storage>, is_secure: bool) -> io::Result<()> {
     use quazal::prudp::packet::StreamHandlerRegistry;
     use quazal::prudp::packet::StreamType;
@@ -133,6 +140,9 @@ fn start_server(logger: &slog::Logger, ctx: &Context, storage: &Arc<Storage>, is
     Ok(())
 }
 
+/// Handles user-specific RMC packets.
+///
+/// This function is a placeholder for handling user-specific RMC packets.
 fn handle_user_packet(_logger: &Logger, packet: QPacket, client: SocketAddr, socket: &UdpSocket) {
     // info!(logger, "user rmc incoming");
     assert_eq!(packet.source.port, 1);
@@ -146,6 +156,7 @@ fn handle_user_packet(_logger: &Logger, packet: QPacket, client: SocketAddr, soc
     socket.send_to(&response, client).unwrap();
 }
 
+/// Builds a terminal logger with a configurable log level.
 fn build_term_logger() -> Logger {
     sloggers::terminal::TerminalLoggerBuilder::new()
         .level(
@@ -165,6 +176,7 @@ fn build_term_logger() -> Logger {
         .unwrap()
 }
 
+/// Rotates log files, keeping a specified number of backups.
 fn rotate_log_files<S: AsRef<Path>>(fname: S, i: i32) -> io::Result<PathBuf> {
     let fname = fname.as_ref();
     if fname.exists() {
@@ -181,6 +193,7 @@ fn rotate_log_files<S: AsRef<Path>>(fname: S, i: i32) -> io::Result<PathBuf> {
     Ok(fname.to_path_buf())
 }
 
+/// Builds a file logger that writes to a JSON file.
 fn build_file_logger() -> Logger {
     let fname = rotate_log_files("server.log.json", 1).unwrap();
     sloggers::file::FileLoggerBuilder::new(fname)
@@ -191,6 +204,7 @@ fn build_file_logger() -> Logger {
         .unwrap()
 }
 
+/// Ensures that the necessary data directory and files exist.
 fn ensure_data_dir() -> io::Result<()> {
     let mp_ini = std::env::current_exe()?.parent().unwrap().join("data").join("mp_balancing.ini");
     if mp_ini.exists() {

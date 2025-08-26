@@ -15,11 +15,15 @@ use crate::protocols::ubi_account_management_service::ubi_account_management_pro
 use crate::protocols::ubi_account_management_service::ubi_account_management_protocol::UbiAccountManagementProtocolServerTrait;
 use crate::storage::Storage;
 
+/// Implementation of the `UbiAccountManagementProtocolServerTrait` for handling Ubisoft account management requests.
 struct UbiAccountManagementProtocolServerImpl {
     storage: Arc<Storage>,
 }
 
 impl<T> UbiAccountManagementProtocolServerTrait<T> for UbiAccountManagementProtocolServerImpl {
+    /// Handles the `LookupPrincipalIds` request, mapping Ubisoft account IDs to principal IDs (PIDs).
+    ///
+    /// This function requires the client to be logged in.
     fn lookup_principal_ids(
         &self,
         logger: &slog::Logger,
@@ -58,6 +62,9 @@ impl<T> UbiAccountManagementProtocolServerTrait<T> for UbiAccountManagementProto
         Ok(LookupPrincipalIdsResponse { pids })
     }
 
+    /// Handles the `LookupUbiAccountIDsByPids` request, mapping principal IDs (PIDs) to Ubisoft account IDs.
+    ///
+    /// This function requires the client to be logged in.
     fn lookup_ubi_account_ids_by_pids(
         &self,
         logger: &slog::Logger,
@@ -98,6 +105,9 @@ impl<T> UbiAccountManagementProtocolServerTrait<T> for UbiAccountManagementProto
         Ok(LookupUbiAccountIDsByPidsResponse { ubiaccount_ids })
     }
 
+    /// Handles the `HasAcceptedLatestTos` request, checking if the user has accepted the latest Terms of Service.
+    ///
+    /// This function requires the client to be logged in. It currently always returns `true`.
     fn has_accepted_latest_tos(
         &self,
         _logger: &slog::Logger,
@@ -115,6 +125,10 @@ impl<T> UbiAccountManagementProtocolServerTrait<T> for UbiAccountManagementProto
     }
 }
 
+/// Creates a new boxed `UbiAccountManagementProtocolServer` instance.
+///
+/// This function is typically used to register the Ubisoft account management protocol
+/// with the server's protocol dispatcher.
 pub fn new_protocol<T: 'static>(storage: Arc<Storage>) -> Box<dyn Protocol<T>> {
     Box::new(UbiAccountManagementProtocolServer::new(UbiAccountManagementProtocolServerImpl { storage }))
 }

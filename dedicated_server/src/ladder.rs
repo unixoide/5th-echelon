@@ -11,9 +11,13 @@ use crate::protocols::ladder_helper_service::ladder_helper_protocol::GetUnixUtcR
 use crate::protocols::ladder_helper_service::ladder_helper_protocol::LadderHelperProtocolServer;
 use crate::protocols::ladder_helper_service::ladder_helper_protocol::LadderHelperProtocolServerTrait;
 
+/// Implementation of the `LadderHelperProtocolServerTrait` for handling ladder-related requests.
 struct LadderHelperProtocolServerImpl;
 
 impl<T> LadderHelperProtocolServerTrait<T> for LadderHelperProtocolServerImpl {
+    /// Handles the `GetUnixUtc` request, returning the current Unix timestamp.
+    ///
+    /// This function requires the client to be logged in.
     fn get_unix_utc(
         &self,
         _logger: &slog::Logger,
@@ -32,6 +36,10 @@ impl<T> LadderHelperProtocolServerTrait<T> for LadderHelperProtocolServerImpl {
     }
 }
 
+/// Creates a new boxed `LadderHelperProtocolServer` instance.
+///
+/// This function is typically used to register the ladder helper protocol
+/// with the server's protocol dispatcher.
 pub fn new_protocol<T: 'static>() -> Box<dyn Protocol<T>> {
     Box::new(LadderHelperProtocolServer::new(LadderHelperProtocolServerImpl))
 }

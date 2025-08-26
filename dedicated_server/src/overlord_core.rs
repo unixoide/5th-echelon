@@ -1,3 +1,6 @@
+//! Implements the `OverlordCoreProtocol` for handling core server functionalities
+//! and configuration requests.
+
 use quazal::prudp::ClientRegistry;
 use quazal::rmc::basic::ToStream;
 use quazal::rmc::types::Variant;
@@ -7,21 +10,28 @@ use quazal::Context;
 use crate::login_required;
 
 #[allow(clippy::module_name_repetitions)]
+/// Implements the `Protocol` trait for the Overlord Core protocol.
 pub struct OverlordCoreProtocol;
 
 impl<T> Protocol<T> for OverlordCoreProtocol {
+    /// Returns the unique ID of this protocol.
     fn id(&self) -> u16 {
         5003
     }
 
+    /// Returns the name of this protocol.
     fn name(&self) -> String {
         "OverlordCoreProtocol".into()
     }
 
+    /// Returns the number of methods implemented by this protocol.
     fn num_methods(&self) -> u32 {
         1
     }
 
+    /// Handles incoming Remote Method Call (RMC) requests for the Overlord Core protocol.
+    ///
+    /// This function dispatches requests based on their method ID.
     fn handle(
         &self,
         _logger: &slog::Logger,
@@ -34,11 +44,14 @@ impl<T> Protocol<T> for OverlordCoreProtocol {
         #[allow(clippy::enum_glob_use)]
         use Variant::*;
 
+        // Ensure the client is logged in before processing the request.
         login_required(&*ci)?;
+        // Only method ID 1 (fetch_config) is supported by this protocol.
         if request.method_id != 1 {
             return Err(quazal::rmc::Error::UnknownMethod);
         }
 
+        // Hardcoded configuration values returned by the server.
         let cfg: Vec<(std::string::String, Variant)> = vec![
             ("VER_SERVER_STAGE".to_owned(), I64(10)),
             ("2593515025".to_owned(), I64(1)),
@@ -88,7 +101,9 @@ impl<T> Protocol<T> for OverlordCoreProtocol {
             ("NC_CONNECTION_ESTABLISHED_TIMEOUT".to_owned(), F64(10.0)),
         ];
 
-        /* Alternative with hashmap:
+                /*
+        // Alternative implementation using a HashMap for configuration values.
+        // This could be used for more dynamic configuration loading.
          let cfg: std::collections::HashMap<std::string::String, Variant> = [
             ...
         ].iter()
@@ -98,6 +113,9 @@ impl<T> Protocol<T> for OverlordCoreProtocol {
         Ok(cfg.to_bytes())
     }
 
+    /// Returns the name of the method corresponding to the given `method_id`.
+    ///
+    /// Returns `None` if the `method_id` is not recognized.
     fn method_name(&self, method_id: u32) -> Option<String> {
         if method_id == 1 {
             Some("fetch_config".into())
@@ -107,6 +125,10 @@ impl<T> Protocol<T> for OverlordCoreProtocol {
     }
 }
 
+/// Creates a new boxed `OverlordCoreProtocol` instance.
+///
+/// This function is typically used to register the core protocol
+/// with the server's protocol dispatcher.
 pub fn new_protocol<T: 'static>() -> Box<dyn Protocol<T>> {
     Box::new(OverlordCoreProtocol)
 }
@@ -116,6 +138,9 @@ mod tests {
     use super::*;
 
     #[test]
+    /// Tests the `handle` method for method ID 1 (fetch_config).
+    ///
+    /// Verifies that the returned configuration matches the expected binary data.
     fn test_method1() {
         let logger = slog::Logger::root(slog::Discard, slog::o!());
         let ctx = quazal::Context::default();

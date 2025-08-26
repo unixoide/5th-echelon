@@ -16,11 +16,13 @@ use crate::protocols::ubi_authentication::types::UbiAuthenticationLoginCustomDat
 use crate::storage::Storage;
 use crate::SERVER_PID;
 
+/// Implementation of the `TicketGrantingProtocolServerTrait` for handling ticket-granting requests.
 struct TicketGrantingProtocolServerImpl {
     storage: Arc<Storage>,
 }
 
 impl TicketGrantingProtocolServerImpl {
+    /// Generates a new session key for a user and stores it in the database.
     fn get_session_key(&self, logger: &slog::Logger, user_id: u32) -> [u8; SESSION_KEY_SIZE] {
         let mut key = [0u8; SESSION_KEY_SIZE];
         rand::rngs::OsRng.try_fill_bytes(&mut key).expect("Generating session key");
@@ -33,6 +35,7 @@ impl TicketGrantingProtocolServerImpl {
         key
     }
 
+    /// Retrieves the password for a user by their principal ID (PID).
     #[allow(unreachable_code)]
     fn get_password_by_pid(&self, logger: &slog::Logger, pid: u32) -> quazal::rmc::Result<Option<String>> {
         self.storage.find_password_for_user(pid).map_err(|e| {
@@ -42,6 +45,7 @@ impl TicketGrantingProtocolServerImpl {
         })
     }
 
+    /// Retrieves the password for a user by their username.
     fn get_password_by_username(&self, logger: &slog::Logger, username: &str) -> quazal::rmc::Result<Option<String>> {
         Ok(self
             .get_pid_by_username(logger, username)?
@@ -50,6 +54,7 @@ impl TicketGrantingProtocolServerImpl {
             .flatten())
     }
 
+    /// Retrieves the principal ID (PID) for a user by their username.
     #[allow(unreachable_code)]
     fn get_pid_by_username(&self, logger: &slog::Logger, username: &str) -> quazal::rmc::Result<Option<u32>> {
         self.storage.find_user_id_by_name(username).map_err(|e| {
@@ -59,6 +64,7 @@ impl TicketGrantingProtocolServerImpl {
         })
     }
 
+    /// Authenticates a user with their username and password.
     #[allow(unreachable_code)]
     fn login(&self, logger: &slog::Logger, username: &str, password: &str) -> quazal::rmc::Result<Option<u32>> {
         self.storage
@@ -72,6 +78,7 @@ impl TicketGrantingProtocolServerImpl {
     }
 }
 
+/// Creates the `RVConnectionData` for a client.
 fn get_connection_data(ctx: &Context, pid: u32) -> RVConnectionData {
     ctx.secure_server_addr.map_or_else(
         || RVConnectionData {
@@ -223,6 +230,10 @@ impl<T> TicketGrantingProtocolServerTrait<T> for TicketGrantingProtocolServerImp
     }
 }
 
+/// Creates a new boxed `TicketGrantingProtocolServer` instance.
+///
+/// This function is typically used to register the ticket-granting protocol
+/// with the server's protocol dispatcher.
 pub fn new_protocol<T: 'static>(storage: Arc<Storage>) -> Box<dyn Protocol<T>> {
     Box::new(TicketGrantingProtocolServer::new(TicketGrantingProtocolServerImpl { storage }))
 }

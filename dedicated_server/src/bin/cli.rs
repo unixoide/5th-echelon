@@ -1,3 +1,6 @@
+//! This module provides a command-line interface (CLI) for interacting with the
+//! dedicated server, allowing for actions like sending invites and retrieving events.
+
 // use dedicated_server::storage::Storage;
 use server_api::friends::friends_client::FriendsClient;
 use server_api::friends::InviteRequest;
@@ -7,6 +10,7 @@ use server_api::users::users_client::UsersClient;
 use server_api::users::LoginRequest;
 use tonic::Request;
 
+/// The URL of the dedicated server's gRPC endpoint.
 static URL: &str = "http://192.168.56.1:50051";
 
 // #[derive(argh::FromArgs, PartialEq, Debug)]
@@ -22,37 +26,39 @@ static URL: &str = "http://192.168.56.1:50051";
 //     username: String,
 // }
 
+/// Subcommand for sending a friend invitation to a target user.
 #[derive(argh::FromArgs, PartialEq, Debug)]
 #[argh(subcommand, name = "send-invite")]
-/// send an invite
 struct SubCommandSendInvite {
-    /// password
+    /// the password of the inviting user.
     #[argh(option, short = 'p')]
     password: String,
 
-    /// username
+    /// the username of the inviting user.
     #[argh(option, short = 'u')]
     username: String,
 
+    /// the username of the target user to invite.
     #[argh(positional)]
     target: String,
 }
 
+/// Subcommand for retrieving events for a user.
 #[derive(argh::FromArgs, PartialEq, Debug)]
 #[argh(subcommand, name = "get-event")]
-/// send an invite
 struct SubCommandGetEvent {
-    /// password
+    /// the password of the user.
     #[argh(option, short = 'p')]
     password: String,
 
-    /// username
+    /// the username of the user.
     #[argh(option, short = 'u')]
     username: String,
 }
 
 #[derive(argh::FromArgs, PartialEq, Debug)]
 #[argh(subcommand)]
+/// Defines the available subcommands for the CLI.
 enum SubCommand {
     // NewUser(SubCommandNewUser),
     SendInvite(SubCommandSendInvite),
@@ -61,12 +67,16 @@ enum SubCommand {
 
 #[derive(argh::FromArgs, PartialEq, Debug)]
 /// server cli
+/// Main structure for parsing command-line arguments.
 struct Args {
     #[argh(subcommand)]
     command: SubCommand,
 }
 
-fn main() -> color_eyre::Result<()> {
+/// Main entry point for the CLI application.
+///
+/// Parses command-line arguments and executes the corresponding subcommand.
+pub fn main() -> color_eyre::Result<()> {
     let args: Args = argh::from_env();
 
     match args.command {
@@ -84,6 +94,7 @@ fn main() -> color_eyre::Result<()> {
         //     });
         //     storage.register_user(&cmd.username, &password, None)?;
         // }
+        // Handles the 'send-invite' subcommand.
         SubCommand::SendInvite(cmd) => {
             tokio::runtime::Runtime::new()?.block_on(async {
                 let mut client = UsersClient::connect(URL).await?;
@@ -103,6 +114,7 @@ fn main() -> color_eyre::Result<()> {
                 Ok::<(), color_eyre::Report>(())
             })?;
         }
+        // Handles the 'get-event' subcommand.
         SubCommand::GetEvent(cmd) => {
             tokio::runtime::Runtime::new()?.block_on(async {
                 let mut client = UsersClient::connect(URL).await?;

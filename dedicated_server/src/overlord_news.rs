@@ -1,3 +1,5 @@
+//! Implements the `OverlordNewsProtocol` for handling news-related requests.
+
 use quazal::prudp::ClientRegistry;
 use quazal::rmc::basic::ToStream;
 use quazal::rmc::types::DateTime;
@@ -7,37 +9,45 @@ use serde::Deserialize;
 
 use crate::login_required;
 
+/// Represents a single news item.
 #[derive(Debug, ToStream, FromStream, Default, Deserialize)]
 struct NewsItem {
-    maybe_id: u32,
-    unk2: u32,
-    unk3: u32,
-    unk4: u32,
-    unk5: String,
-    unk6: DateTime,
-    unk7: DateTime,
-    expiration_time: DateTime,
-    title: String,
-    link: String,
-    description: String,
+    maybe_id: u32, // Likely a unique identifier for the news item.
+    unk2: u32,     // Unknown purpose.
+    unk3: u32,     // Unknown purpose.
+    unk4: u32,     // Unknown purpose.
+    unk5: String,  // Unknown purpose, possibly a category or source.
+    unk6: DateTime,// Unknown purpose, possibly creation or start date.
+    unk7: DateTime,// Unknown purpose, possibly an end date or last modified date.
+    expiration_time: DateTime, // The time when this news item expires.
+    title: String,       // The title of the news item.
+    link: String,        // A URL associated with the news item.
+    description: String, // The main content or description of the news item.
 }
 
 #[allow(clippy::module_name_repetitions)]
+/// Implements the `Protocol` trait for handling Overlord News requests.
 pub struct OverlordNewsProtocol;
 
 impl<T> Protocol<T> for OverlordNewsProtocol {
+    /// Returns the unique ID of this protocol.
     fn id(&self) -> u16 {
         5002
     }
 
+    /// Returns the name of this protocol.
     fn name(&self) -> String {
         "OverlordNewsProtocol".into()
     }
 
+    /// Returns the number of methods implemented by this protocol.
     fn num_methods(&self) -> u32 {
         2
     }
 
+    /// Handles incoming Remote Method Call (RMC) requests for the Overlord News protocol.
+    ///
+    /// This function dispatches requests based on their method ID.
     fn handle(
         &self,
         logger: &slog::Logger,
@@ -75,6 +85,9 @@ impl<T> Protocol<T> for OverlordNewsProtocol {
         }
     }
 
+    /// Returns the name of the method corresponding to the given `method_id`.
+    ///
+    /// Returns `None` if the `method_id` is not recognized.
     fn method_name(&self, method_id: u32) -> Option<String> {
         if method_id == 1 {
             Some("get_news".into())
@@ -84,6 +97,10 @@ impl<T> Protocol<T> for OverlordNewsProtocol {
     }
 }
 
+/// Creates a new boxed `OverlordNewsProtocol` instance.
+///
+/// This function is typically used to register the news protocol
+/// with the server's protocol dispatcher.
 pub fn new_protocol<T: 'static>() -> Box<dyn Protocol<T>> {
     Box::new(OverlordNewsProtocol)
 }
@@ -94,6 +111,7 @@ mod tests {
 
     use super::*;
     #[test]
+    /// Tests the parsing of a sample news item byte array.
     fn parse_sample() {
         let data = b"\x03\x00\x00\x00\x3c\xfb\x02\x00\x09\x00\x00\x00\x02\x00\x00\x00\
             \x02\x00\x00\x00\x13\x00\x51\x75\x61\x7a\x61\x6c\x20\x52\x65\x6e\

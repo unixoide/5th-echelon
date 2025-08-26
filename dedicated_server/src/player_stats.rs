@@ -1,3 +1,5 @@
+//! Implements the `PlayerStatsProtocolServer` for handling player statistics requests.
+
 use quazal::prudp::ClientRegistry;
 use quazal::rmc::types::PropertyVariant;
 use quazal::rmc::Error;
@@ -16,9 +18,13 @@ use crate::protocols::player_stats_service::player_stats_protocol::ReadStatsByPl
 use crate::protocols::player_stats_service::player_stats_protocol::WriteStatsRequest;
 use crate::protocols::player_stats_service::player_stats_protocol::WriteStatsResponse;
 
+/// Implementation of the `PlayerStatsProtocolServerTrait` for managing player statistics.
 struct PlayerStatsProtocolServerImpl;
 
 impl<T> PlayerStatsProtocolServerTrait<T> for PlayerStatsProtocolServerImpl {
+    /// Handles the `ReadStatsByPlayers` request, returning hardcoded player statistics.
+    ///
+    /// This function requires the client to be logged in.
     fn read_stats_by_players(
         &self,
         _logger: &Logger,
@@ -28,6 +34,7 @@ impl<T> PlayerStatsProtocolServerTrait<T> for PlayerStatsProtocolServerImpl {
         _client_registry: &ClientRegistry<T>,
         _socket: &std::net::UdpSocket,
     ) -> Result<ReadStatsByPlayersResponse, Error> {
+        // Ensure the client is logged in.
         login_required(&*ci)?;
 
         Ok(ReadStatsByPlayersResponse {
@@ -120,6 +127,9 @@ impl<T> PlayerStatsProtocolServerTrait<T> for PlayerStatsProtocolServerImpl {
         })
     }
 
+    /// Handles the `WriteStats` request.
+    ///
+    /// This function requires the client to be logged in.
     fn write_stats(
         &self,
         _logger: &Logger,
@@ -129,11 +139,16 @@ impl<T> PlayerStatsProtocolServerTrait<T> for PlayerStatsProtocolServerImpl {
         _client_registry: &ClientRegistry<T>,
         _socket: &std::net::UdpSocket,
     ) -> Result<WriteStatsResponse, Error> {
+        // Ensure the client is logged in.
         login_required(&*ci)?;
         Ok(WriteStatsResponse)
     }
 }
 
+/// Creates a new boxed `PlayerStatsProtocolServer` instance.
+///
+/// This function is typically used to register the player stats protocol
+/// with the server's protocol dispatcher.
 pub fn new_protocol<T: 'static>() -> Box<dyn Protocol<T>> {
     Box::new(PlayerStatsProtocolServer::new(PlayerStatsProtocolServerImpl))
 }

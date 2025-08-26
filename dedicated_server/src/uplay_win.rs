@@ -16,9 +16,13 @@ use crate::protocols::uplay_win_service::uplay_win_protocol::UplayWelcomeRespons
 use crate::protocols::uplay_win_service::uplay_win_protocol::UplayWinProtocolServer;
 use crate::protocols::uplay_win_service::uplay_win_protocol::UplayWinProtocolServerTrait;
 
+/// Implementation of the `UplayWinProtocolServerTrait` for handling Uplay-related requests.
 struct UplayWinProtocolServerImpl;
 
 impl<CI> UplayWinProtocolServerTrait<CI> for UplayWinProtocolServerImpl {
+    /// Handles the `UplayWelcome` request.
+    ///
+    /// This function requires the client to be logged in. It currently returns an empty list of actions.
     fn uplay_welcome(
         &self,
         _logger: &Logger,
@@ -31,6 +35,10 @@ impl<CI> UplayWinProtocolServerTrait<CI> for UplayWinProtocolServerImpl {
         login_required(&*ci)?;
         Ok(UplayWelcomeResponse { action_list: QList::default() })
     }
+
+    /// Handles the `GetActionsCompleted` request.
+    ///
+    /// This function requires the client to be logged in. It currently returns an empty list of completed actions.
     fn get_actions_completed(
         &self,
         _logger: &Logger,
@@ -44,6 +52,9 @@ impl<CI> UplayWinProtocolServerTrait<CI> for UplayWinProtocolServerImpl {
         Ok(GetActionsCompletedResponse { action_list: QList::default() })
     }
 
+    /// Handles the `GetRewardsPurchased` request.
+    ///
+    /// This function requires the client to be logged in. It currently returns an empty list of purchased rewards.
     fn get_rewards_purchased(
         &self,
         _logger: &Logger,
@@ -58,6 +69,10 @@ impl<CI> UplayWinProtocolServerTrait<CI> for UplayWinProtocolServerImpl {
     }
 }
 
+/// Creates a new boxed `UplayWinProtocolServer` instance.
+///
+/// This function is typically used to register the Uplay protocol
+/// with the server's protocol dispatcher.
 pub fn new_protocol<T: 'static>() -> Box<dyn Protocol<T>> {
     Box::new(UplayWinProtocolServer::new(UplayWinProtocolServerImpl))
 }
