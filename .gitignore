@@ -6,6 +6,7 @@ generated/
 *.swp
 *.db
 *.sqlite
+*.bin
 deps
-service.toml
+service*.toml
 /cross
