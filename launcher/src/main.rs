@@ -99,11 +99,17 @@ fn main() {
     info!("Launcher asset: {:?}", launcher_asset);
 
     // If the "update" argument is passed, perform a self-update.
-    if let Some("update") = std::env::args().nth(1).as_deref() {
-        runtime.block_on(<updater::Updater>::update_self(launcher_asset.expect("Launcher asset not found")));
-        return;
-    } else {
-        updater::remove_updater_if_needed();
+    match std::env::args().nth(1).as_deref() {
+        Some("update") => {
+            runtime.block_on(<updater::Updater>::update_self(launcher_asset.expect("Launcher asset not found")));
+            return;
+        }
+        Some("updated") => {
+            updater::remove_updater_after_update();
+        }
+        _ => {
+            updater::remove_updater_if_needed();
+        }
     }
     let mut update_available = launcher_asset.filter(|a| a.version > *VERSION).map(|a| a.version);
 

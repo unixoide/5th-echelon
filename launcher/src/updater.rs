@@ -302,7 +302,7 @@ impl<CF: UpdaterClientFactory + 'static> Updater<CF> {
 
         // If the download was successful, launch the new version.
         if done {
-            let mut child = std::process::Command::new(launcher_exe).spawn().unwrap();
+            let mut child = std::process::Command::new(launcher_exe).arg("updated").spawn().unwrap();
             child.try_wait().unwrap();
         }
     }
@@ -333,6 +333,13 @@ pub fn remove_updater_if_needed() {
     if updater.exists() {
         std::fs::remove_file(updater).unwrap();
     }
+}
+
+pub fn remove_updater_after_update() {
+    println!("Waiting for updater to finish");
+    #[cfg(target_os = "windows")]
+    windows_wait_parent::wait_for_parent_exit().unwrap();
+    remove_updater_if_needed();
 }
 
 /// Represents a release asset from GitHub.

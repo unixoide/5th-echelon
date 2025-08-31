@@ -2,7 +2,7 @@ cargo-features = ["per-package-target"]
 
 [package]
 name = "hooks"
-version = "0.2.3"
+version = "0.2.4"
 edition = "2021"
 forced-target = "i686-pc-windows-msvc"
 
