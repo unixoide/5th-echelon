@@ -273,11 +273,15 @@ fn get_savegames() -> Result<Vec<UplaySave>> {
         })
         .map(|(slot_id, mut fpath, size)| {
             fpath.set_extension("meta");
-            let name = if fpath.exists() {
+            let mut name = if fpath.exists() {
                 std::fs::read_to_string(fpath).unwrap_or_default()
             } else {
                 String::new()
             };
+            if let Some(i) = name.chars().enumerate().find_map(|(i, b)| if b == '\0' { Some(i) } else { None }) {
+                error!("Save game {slot_id} has invalid name: {name:?}");
+                name.truncate(i);
+            }
             UplaySave { slot_id, name, size }
         })
         .collect();

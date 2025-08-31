@@ -537,7 +537,7 @@ pub fn load_custom_addresses(dir: &Path) -> HashMap<String, HashMap<[u8; 32], Ad
         }
         Err(e) => {
             error!("Error parsing {filepath:?}: {e}");
-            return HashMap::default();
+            HashMap::default()
         }
     }
 }
