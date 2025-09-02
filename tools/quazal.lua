@@ -1,5 +1,11 @@
 local PROTO_MAPPING = {}
-for line in io.lines(Dir.personal_plugins_path() .. "/rmc.txt") do
+
+path_ext = "/rmc.txt"
+-- windows check
+if string.find(Dir.personal_plugins_path(), "\\") then
+    path_ext = "\\rmc.txt"
+end
+for line in io.lines(Dir.personal_plugins_path() .. path_ext) do
     local parts = {}
     for m in line:gmatch("%w+") do
         parts[#parts + 1] = m
@@ -166,6 +172,149 @@ local stream_index = Field.new("udp.stream")
 local ip_src = Field.new("ip.src")
 local udp_port = Field.new("udp.srcport")
 local fragments = {}
+
+local do_message_types = {
+    [0] = "JoinRequest",
+    [1] = "JoinResponse",
+    [2] = "Update",
+    [3] = nil,
+    [4] = "Delete",
+    [5] = "Action",
+    [6] = nil,
+    [7] = nil,
+    [8] = "CallOutcome",
+    [9] = nil,
+    [10] = "RMCCall",
+    [11] = "RMCResponse",
+    [12] = nil,
+    [13] = "FetchRequest",
+    [14] = nil,
+    [15] = "Bundle",
+    [16] = nil,
+    [17] = "Migration",
+    [18] = "CreateDuplica",
+    [19] = "CreateAndPromoteDuplica",
+    [20] = "GetParticipantsRequest",
+    [21] = "GetParticipantsResponse",
+    [254] = "Empty",
+    [255] = "EOS",
+}
+local do_proto = Proto("DO", "Quazal DO")
+do_proto.fields.size = ProtoField.uint32("do.size", "Size")
+do_proto.fields.message_id = ProtoField.uint8("do.message_id", "Message", base.DEC, do_message_types)
+local message_id_field = Field.new("do.message_id")
+
+local function do_parse_join_request(buffer, pinfo, tree)
+    
+end
+
+local function do_parse_join_response(buffer, pinfo, tree)
+    
+end
+
+local function do_parse_update(buffer, pinfo, tree)
+    
+end
+
+local function do_parse_delete(buffer, pinfo, tree)
+    
+end
+
+local function do_parse_action(buffer, pinfo, tree)
+    
+end
+
+local function do_parse_call_outcome(buffer, pinfo, tree)
+    
+end
+
+local function do_parse_rmc_call(buffer, pinfo, tree)
+    
+end
+
+local function do_parse_rmc_response(buffer, pinfo, tree)
+    
+end
+
+local function do_parse_fetch_request(buffer, pinfo, tree)
+    
+end
+
+local function do_parse_bundle(buffer, pinfo, tree)
+    
+end
+
+local function do_parse_migration(buffer, pinfo, tree)
+    
+end
+
+local function do_parse_create_duplica(buffer, pinfo, tree)
+    
+end
+
+local function do_parse_create_and_promote_duplica(buffer, pinfo, tree)
+    
+end
+
+local function do_parse_get_participants_request(buffer, pinfo, tree)
+    
+end
+
+local function do_parse_get_participants_response(buffer, pinfo, tree)
+    
+end
+
+-- This message carries no payload.
+local function do_parse_empty(buffer, pinfo, tree)
+    return 0
+end
+
+local function do_parse_eos(buffer, pinfo, tree)
+    
+end
+
+local do_message_parsers = {
+    ["JoinRequest"] = do_parse_join_request,
+    ["JoinResponse"] = do_parse_join_response,
+    ["Update"] = do_parse_update,
+    ["Delete"] = do_parse_delete,
+    ["Action"] = do_parse_action,
+    ["CallOutcome"] = do_parse_call_outcome,
+    ["RMCCall"] = do_parse_rmc_call,
+    ["RMCResponse"] = do_parse_rmc_response,
+    ["FetchRequest"] = do_parse_fetch_request,
+    ["Bundle"] = do_parse_bundle,
+    ["Migration"] = do_parse_migration,
+    ["CreateDuplica"] = do_parse_create_duplica,
+    ["CreateAndPromoteDuplica"] = do_parse_create_and_promote_duplica,
+    ["GetParticipantsRequest"] = do_parse_get_participants_request,
+    ["GetParticipantsResponse"] = do_parse_get_participants_response,
+    ["Empty"] = do_parse_empty,
+    ["EOS"] = do_parse_eos,
+}
+
+local function do_proto_dissector(buffer, pinfo, tree)
+    pinfo.cols.protocol = "DO"
+    local subtree = tree:add(do_proto, buffer(), "DO Message")
+    subtree:add_le(do_proto.fields.size, buffer(0, 4))
+    local size = buffer(0, 4):le_uint()
+    local off = 4
+    local message = subtree:add_le(do_proto.fields.message_id, buffer(off, 1))
+    local msg_id = buffer(off, 1):uint()
+    local msg_name = do_message_types[msg_id]
+    if msg_name == nil then
+       msg_name = "Empty"
+    end
+    pinfo.cols.info:append(" " .. msg_name)
+    local parser = do_message_parsers[msg_name]
+    off = off + 1
+    if parser then
+        off = off + parser(buffer(off), pinfo, tree)
+    end
+    if buffer:len() > off then
+        do_proto_dissector(buffer(off), pinfo, tree)
+    end
+end
 
 function table.map_length(t)
     local c = 0
@@ -358,7 +507,21 @@ local function quazal_proto_dissector(buffer, pinfo, tree, fragments)
         end
     end
 
-    if payload:len() > 0 and stype == "RVSec" and ptype == "Data" and ack == false then
+    -- DO decryption
+    -- DO decompression
+    if ptype ~= "Syn" and stype == "DO" then
+        -- local dec = new_rc4("CD&ML")
+        -- payload = ByteArray.new(dec(payload:raw()), true):tvb("Decrypted")
+        if payload:len() > 0 then
+            local compressed = payload(0, 1):uint() ~= 0
+            payload = payload(1)
+            if compressed then
+                payload = payload:uncompress("Decompressed")
+            end
+        end
+    end
+
+    if payload:len() > 0 and ptype == "Data" and ack == false then
         --
         local packets = fragments:update(payload:bytes(), sequence_id, fragment_id)
         -- print(#packets)
@@ -367,7 +530,11 @@ local function quazal_proto_dissector(buffer, pinfo, tree, fragments)
             for i = 1, #packets do
                 data:append(packets[i].data)
             end
-            rmc_proto_dissector(data:tvb("Reassembled"), pinfo, tree)
+            if stype == "RVSec" then
+                rmc_proto_dissector(data:tvb("Reassembled"), pinfo, tree)
+            elseif stype == "DO" then
+                do_proto_dissector(data:tvb("Reassembled"), pinfo, tree)
+            end
         end
     end
 
@@ -394,6 +561,7 @@ local udp_table = DissectorTable.get("udp.port")
 udp_table:add(3074, quazal_proto) -- SC:BL
 udp_table:add(2347, quazal_proto) -- GR:FS
 udp_table:add(9103, quazal_proto) -- SC:C
+udp_table:add(7917, quazal_proto) -- AC:B
 
 
 -- local secure_connect_proto = Proto("SecureConnectionProtocol", "SecureConnectionProtocol")
