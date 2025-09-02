@@ -1,4 +1,3 @@
-use std::ffi::OsString;
 use std::fs;
 use std::fs::File;
 use std::io::Read;
@@ -6,7 +5,6 @@ use std::io::Seek;
 use std::io::Write;
 use std::os::windows::prelude::FromRawHandle;
 use std::os::windows::prelude::IntoRawHandle;
-use std::os::windows::prelude::OsStringExt;
 use std::os::windows::prelude::RawHandle;
 use std::path::PathBuf;
 use std::slice;
@@ -14,8 +12,6 @@ use std::slice;
 use hooks_proc::forwardable_export;
 use tracing::error;
 use tracing::info;
-use windows::Win32;
-use windows::Win32::UI::Shell;
 
 use super::List;
 use super::Result;
@@ -23,7 +19,7 @@ use super::UplayList;
 use super::UplayOverlapped;
 use super::UplaySave;
 use crate::config::get;
-use crate::config::Save;
+use crate::config::SaveGameExt as _;
 
 #[allow(dead_code)]
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
@@ -59,18 +55,12 @@ impl SaveHandle {
 unsafe extern "cdecl" fn UPLAY_SAVE_Close(out_save_handle: *mut SaveHandle) -> bool {
     let out_save_handle = out_save_handle.as_mut().unwrap();
     let mut out_save_handle = SaveHandle::from_mut_ptr(out_save_handle);
-    let _file = out_save_handle
-        .raw_handle
-        .take()
-        .map(|h| File::from_raw_handle(h));
+    let _file = out_save_handle.raw_handle.take().map(|h| File::from_raw_handle(h));
     true
 }
 
 #[forwardable_export]
-unsafe extern "cdecl" fn UPLAY_SAVE_GetSavegames(
-    out_games_list: *mut *mut List,
-    overlapped: *mut UplayOverlapped,
-) -> bool {
+unsafe extern "cdecl" fn UPLAY_SAVE_GetSavegames(out_games_list: *mut *mut List, overlapped: *mut UplayOverlapped) -> bool {
     if out_games_list.is_null() {
         error!("Invalid out_games_list");
         if !overlapped.is_null() {
@@ -101,12 +91,7 @@ unsafe extern "cdecl" fn UPLAY_SAVE_GetSavegames(
 }
 
 #[forwardable_export]
-unsafe extern "cdecl" fn UPLAY_SAVE_Open(
-    slot_id: usize,
-    mode: OpenMode,
-    out_save_handle: *mut *mut SaveHandle,
-    overlapped: *mut UplayOverlapped,
-) -> bool {
+unsafe extern "cdecl" fn UPLAY_SAVE_Open(slot_id: usize, mode: OpenMode, out_save_handle: *mut *mut SaveHandle, overlapped: *mut UplayOverlapped) -> bool {
     if out_save_handle.is_null() {
         error!("Invalid handle {out_save_handle:?}");
         return false;
@@ -122,11 +107,7 @@ unsafe extern "cdecl" fn UPLAY_SAVE_Open(
     }
     let file = match mode {
         OpenMode::Read => File::options().read(true).open(path),
-        OpenMode::Write => File::options()
-            .write(true)
-            .create(true)
-            .truncate(true)
-            .open(path),
+        OpenMode::Write => File::options().write(true).create(true).truncate(true).open(path),
     };
     let file = match file {
         Ok(f) => f,
@@ -197,10 +178,7 @@ unsafe extern "cdecl" fn UPLAY_SAVE_Read(
 }
 
 #[forwardable_export]
-unsafe extern "cdecl" fn UPLAY_SAVE_Remove(
-    slot_id: usize,
-    overlapped: *mut UplayOverlapped,
-) -> bool {
+unsafe extern "cdecl" fn UPLAY_SAVE_Remove(slot_id: usize, overlapped: *mut UplayOverlapped) -> bool {
     let path: PathBuf = cfg.save.get_savegame_path(slot_id);
     if path.exists() {
         if let Err(e) = std::fs::remove_file(&path) {
@@ -238,12 +216,7 @@ unsafe extern "cdecl" fn UPLAY_SAVE_SetName(save_handle: *mut SaveHandle, name: 
 }
 
 #[forwardable_export]
-unsafe extern "cdecl" fn UPLAY_SAVE_Write(
-    save_handle: *mut SaveHandle,
-    num_of_bytes_to_write: usize,
-    buffer: *const *const u8,
-    overlapped: *mut UplayOverlapped,
-) -> bool {
+unsafe extern "cdecl" fn UPLAY_SAVE_Write(save_handle: *mut SaveHandle, num_of_bytes_to_write: usize, buffer: *const *const u8, overlapped: *mut UplayOverlapped) -> bool {
     // if save_handle.is_null() || !save_handle.is_aligned() {
     //     error!("Invalid save_handle {save_handle:?}");
     //     return false;
@@ -287,11 +260,7 @@ fn get_savegames() -> Result<Vec<UplaySave>> {
         .into_iter()
         .filter_map(std::result::Result::ok)
         .filter(|f| f.file_type().is_ok_and(|ft| ft.is_file()))
-        .filter(|f| {
-            f.path()
-                .extension()
-                .is_some_and(|e| e == std::ffi::OsStr::new("sav"))
-        })
+        .filter(|f| f.path().extension().is_some_and(|e| e == std::ffi::OsStr::new("sav")))
         .filter_map(|f| {
             let size = f.metadata().unwrap().len();
             #[allow(clippy::cast_possible_truncation)]
@@ -304,62 +273,18 @@ fn get_savegames() -> Result<Vec<UplaySave>> {
         })
         .map(|(slot_id, mut fpath, size)| {
             fpath.set_extension("meta");
-            let name = if fpath.exists() {
+            let mut name = if fpath.exists() {
                 std::fs::read_to_string(fpath).unwrap_or_default()
             } else {
                 String::new()
             };
-            UplaySave {
-                slot_id,
-                name,
-                size,
+            if let Some(i) = name.chars().enumerate().find_map(|(i, b)| if b == '\0' { Some(i) } else { None }) {
+                error!("Save game {slot_id} has invalid name: {name:?}");
+                name.truncate(i);
             }
+            UplaySave { slot_id, name, size }
         })
         .collect();
 
     Ok(saves)
-}
-
-trait SaveGame {
-    fn get_savegames_path(&self) -> PathBuf;
-    fn get_savegame_path(&self, slot_id: usize) -> PathBuf;
-}
-
-impl SaveGame for Save {
-    fn get_savegames_path(&self) -> PathBuf {
-        const SAVE_GAME_FOLDER: &str = "5th-Echelon\\Saves";
-        match self.save_dir {
-            crate::config::SaveDir::InstallLocation => todo!(),
-            crate::config::SaveDir::Roaming => known_folder_roaming_app_data()
-                .expect("Couldn't find roaming directory")
-                .join(SAVE_GAME_FOLDER),
-            crate::config::SaveDir::Custom(ref p) => PathBuf::from(p),
-        }
-    }
-
-    fn get_savegame_path(&self, slot_id: usize) -> PathBuf {
-        self.get_savegames_path().join(format!("{slot_id:08}.sav"))
-    }
-}
-
-fn known_folder(folder_id: windows::core::GUID) -> Option<PathBuf> {
-    unsafe {
-        let result = Shell::SHGetKnownFolderPath(
-            &folder_id,
-            Shell::KNOWN_FOLDER_FLAG(0),
-            Win32::Foundation::HANDLE::default(),
-        );
-        if let Ok(result) = result {
-            let path = result.as_wide();
-            let ostr: OsString = OsStringExt::from_wide(path);
-            windows::Win32::System::Com::CoTaskMemFree(Some(result.as_ptr() as *const _));
-            Some(PathBuf::from(ostr))
-        } else {
-            None
-        }
-    }
-}
-
-fn known_folder_roaming_app_data() -> Option<PathBuf> {
-    known_folder(Shell::FOLDERID_RoamingAppData)
 }

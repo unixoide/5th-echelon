@@ -275,10 +275,7 @@ pub struct ReportUnsuccessfulJoinSessionsRequest {
 }
 #[derive(Debug, ToStream, FromStream)]
 pub struct ReportUnsuccessfulJoinSessionsResponse;
-pub struct GameSessionProtocolServer<T: GameSessionProtocolServerTrait<CI>, CI>(
-    T,
-    ::std::marker::PhantomData<CI>,
-);
+pub struct GameSessionProtocolServer<T: GameSessionProtocolServerTrait<CI>, CI>(T, ::std::marker::PhantomData<CI>);
 impl<T: GameSessionProtocolServerTrait<CI>, CI> GameSessionProtocolServer<T, CI> {
     pub fn new(implementation: T) -> Self {
         Self(implementation, ::std::marker::PhantomData)
@@ -309,294 +306,217 @@ impl<T: GameSessionProtocolServerTrait<CI>, CI> Protocol<CI> for GameSessionProt
             Some(GameSessionProtocolMethod::CreateSession) => {
                 let req = CreateSessionRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .create_session(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.create_session(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::UpdateSession) => {
                 let req = UpdateSessionRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .update_session(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.update_session(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::DeleteSession) => {
                 let req = DeleteSessionRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .delete_session(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.delete_session(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::MigrateSession) => {
                 let req = MigrateSessionRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .migrate_session(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.migrate_session(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::LeaveSession) => {
                 let req = LeaveSessionRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .leave_session(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.leave_session(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::GetSession) => {
                 let req = GetSessionRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_session(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_session(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::SearchSessions) => {
                 let req = SearchSessionsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .search_sessions(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.search_sessions(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::AddParticipants) => {
                 let req = AddParticipantsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .add_participants(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.add_participants(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::RemoveParticipants) => {
                 let req = RemoveParticipantsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .remove_participants(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.remove_participants(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::GetParticipantCount) => {
                 let req = GetParticipantCountRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .get_participant_count(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_participant_count(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::GetParticipants) => {
                 let req = GetParticipantsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_participants(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_participants(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::SendInvitation) => {
                 let req = SendInvitationRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .send_invitation(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.send_invitation(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::GetInvitationReceivedCount) => {
                 let req = GetInvitationReceivedCountRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.get_invitation_received_count(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self.0.get_invitation_received_count(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::GetInvitationsReceived) => {
                 let req = GetInvitationsReceivedRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .get_invitations_received(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_invitations_received(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::GetInvitationSentCount) => {
                 let req = GetInvitationSentCountRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .get_invitation_sent_count(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_invitation_sent_count(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::GetInvitationsSent) => {
                 let req = GetInvitationsSentRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .get_invitations_sent(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_invitations_sent(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::AcceptInvitation) => {
                 let req = AcceptInvitationRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .accept_invitation(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.accept_invitation(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::DeclineInvitation) => {
                 let req = DeclineInvitationRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .decline_invitation(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.decline_invitation(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::CancelInvitation) => {
                 let req = CancelInvitationRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .cancel_invitation(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.cancel_invitation(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::SendTextMessage) => {
                 let req = SendTextMessageRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .send_text_message(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.send_text_message(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::RegisterUrLs) => {
                 let req = RegisterUrLsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .register_urls(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.register_urls(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::JoinSession) => {
                 let req = JoinSessionRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .join_session(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.join_session(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::AbandonSession) => {
                 let req = AbandonSessionRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .abandon_session(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.abandon_session(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::SearchSessionsWithParticipants) => {
                 let req = SearchSessionsWithParticipantsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.search_sessions_with_participants(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self.0.search_sessions_with_participants(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::GetSessions) => {
                 let req = GetSessionsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_sessions(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_sessions(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::GetParticipantsUrLs) => {
                 let req = GetParticipantsUrLsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .get_participants_urls(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_participants_urls(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::MigrateSessionHost) => {
                 let req = MigrateSessionHostRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .migrate_session_host(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.migrate_session_host(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::SplitSession) => {
                 let req = SplitSessionRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .split_session(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.split_session(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::SearchSocialSessions) => {
                 let req = SearchSocialSessionsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .search_social_sessions(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.search_social_sessions(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(GameSessionProtocolMethod::ReportUnsuccessfulJoinSessions) => {
                 let req = ReportUnsuccessfulJoinSessionsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.report_unsuccessful_join_sessions(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self.0.report_unsuccessful_join_sessions(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
         }
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        GameSessionProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        GameSessionProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
@@ -610,12 +530,7 @@ pub trait GameSessionProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<CreateSessionResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(create_session)
-        );
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(create_session));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn update_session(
@@ -627,12 +542,7 @@ pub trait GameSessionProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<UpdateSessionResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(update_session)
-        );
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(update_session));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn delete_session(
@@ -644,12 +554,7 @@ pub trait GameSessionProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<DeleteSessionResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(delete_session)
-        );
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(delete_session));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn migrate_session(
@@ -661,12 +566,7 @@ pub trait GameSessionProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<MigrateSessionResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(migrate_session)
-        );
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(migrate_session));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn leave_session(
@@ -678,12 +578,7 @@ pub trait GameSessionProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<LeaveSessionResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(leave_session)
-        );
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(leave_session));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_session(
@@ -695,12 +590,7 @@ pub trait GameSessionProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetSessionResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(get_session)
-        );
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(get_session));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn search_sessions(
@@ -712,12 +602,7 @@ pub trait GameSessionProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<SearchSessionsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(search_sessions)
-        );
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(search_sessions));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn add_participants(
@@ -729,12 +614,7 @@ pub trait GameSessionProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<AddParticipantsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(add_participants)
-        );
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(add_participants));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn remove_participants(
@@ -746,12 +626,7 @@ pub trait GameSessionProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<RemoveParticipantsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(remove_participants)
-        );
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(remove_participants));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_participant_count(
@@ -763,12 +638,7 @@ pub trait GameSessionProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetParticipantCountResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(get_participant_count)
-        );
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(get_participant_count));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_participants(
@@ -780,12 +650,7 @@ pub trait GameSessionProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetParticipantsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(get_participants)
-        );
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(get_participants));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn send_invitation(
@@ -797,12 +662,7 @@ pub trait GameSessionProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<SendInvitationResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(send_invitation)
-        );
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(send_invitation));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_invitation_received_count(
@@ -814,12 +674,7 @@ pub trait GameSessionProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetInvitationReceivedCountResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(get_invitation_received_count)
-        );
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(get_invitation_received_count));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_invitations_received(
@@ -831,12 +686,7 @@ pub trait GameSessionProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetInvitationsReceivedResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(get_invitations_received)
-        );
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(get_invitations_received));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_invitation_sent_count(
@@ -848,12 +698,7 @@ pub trait GameSessionProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetInvitationSentCountResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(get_invitation_sent_count)
-        );
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(get_invitation_sent_count));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_invitations_sent(
@@ -865,12 +710,7 @@ pub trait GameSessionProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetInvitationsSentResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(get_invitations_sent)
-        );
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(get_invitations_sent));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn accept_invitation(
@@ -882,12 +722,7 @@ pub trait GameSessionProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<AcceptInvitationResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(accept_invitation)
-        );
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(accept_invitation));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn decline_invitation(
@@ -899,12 +734,7 @@ pub trait GameSessionProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<DeclineInvitationResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(decline_invitation)
-        );
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(decline_invitation));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn cancel_invitation(
@@ -916,12 +746,7 @@ pub trait GameSessionProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<CancelInvitationResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(cancel_invitation)
-        );
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(cancel_invitation));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn send_text_message(
@@ -933,12 +758,7 @@ pub trait GameSessionProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<SendTextMessageResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(send_text_message)
-        );
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(send_text_message));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn register_urls(
@@ -950,12 +770,7 @@ pub trait GameSessionProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<RegisterUrLsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(register_urls)
-        );
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(register_urls));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn join_session(
@@ -967,12 +782,7 @@ pub trait GameSessionProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<JoinSessionResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(join_session)
-        );
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(join_session));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn abandon_session(
@@ -984,12 +794,7 @@ pub trait GameSessionProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<AbandonSessionResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(abandon_session)
-        );
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(abandon_session));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn search_sessions_with_participants(
@@ -1001,12 +806,7 @@ pub trait GameSessionProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<SearchSessionsWithParticipantsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(search_sessions_with_participants)
-        );
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(search_sessions_with_participants));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_sessions(
@@ -1018,12 +818,7 @@ pub trait GameSessionProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetSessionsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(get_sessions)
-        );
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(get_sessions));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_participants_urls(
@@ -1035,12 +830,7 @@ pub trait GameSessionProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetParticipantsUrLsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(get_participants_urls)
-        );
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(get_participants_urls));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn migrate_session_host(
@@ -1052,12 +842,7 @@ pub trait GameSessionProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<MigrateSessionHostResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(migrate_session_host)
-        );
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(migrate_session_host));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn split_session(
@@ -1069,12 +854,7 @@ pub trait GameSessionProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<SplitSessionResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(split_session)
-        );
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(split_session));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn search_social_sessions(
@@ -1086,12 +866,7 @@ pub trait GameSessionProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<SearchSocialSessionsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(search_social_sessions)
-        );
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(search_social_sessions));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn report_unsuccessful_join_sessions(
@@ -1103,12 +878,7 @@ pub trait GameSessionProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<ReportUnsuccessfulJoinSessionsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(report_unsuccessful_join_sessions)
-        );
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(report_unsuccessful_join_sessions));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }
@@ -1134,209 +904,54 @@ impl<CI> ClientProtocol<CI> for GameSessionProtocolClient<CI> {
         30u32
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        GameSessionProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        GameSessionProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
 impl<CI> GameSessionProtocolClient<CI> {
-    pub fn create_session(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: CreateSessionRequest,
-    ) -> Result<CreateSessionResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(create_session)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            GameSessionProtocolMethod::CreateSession as u32,
-            request.to_bytes(),
-        );
+    pub fn create_session(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: CreateSessionRequest) -> Result<CreateSessionResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(create_session));
+        self.send(logger, ctx, ci, GameSessionProtocolMethod::CreateSession as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn update_session(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: UpdateSessionRequest,
-    ) -> Result<UpdateSessionResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(update_session)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            GameSessionProtocolMethod::UpdateSession as u32,
-            request.to_bytes(),
-        );
+    pub fn update_session(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: UpdateSessionRequest) -> Result<UpdateSessionResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(update_session));
+        self.send(logger, ctx, ci, GameSessionProtocolMethod::UpdateSession as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn delete_session(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: DeleteSessionRequest,
-    ) -> Result<DeleteSessionResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(delete_session)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            GameSessionProtocolMethod::DeleteSession as u32,
-            request.to_bytes(),
-        );
+    pub fn delete_session(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: DeleteSessionRequest) -> Result<DeleteSessionResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(delete_session));
+        self.send(logger, ctx, ci, GameSessionProtocolMethod::DeleteSession as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn migrate_session(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: MigrateSessionRequest,
-    ) -> Result<MigrateSessionResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(migrate_session)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            GameSessionProtocolMethod::MigrateSession as u32,
-            request.to_bytes(),
-        );
+    pub fn migrate_session(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: MigrateSessionRequest) -> Result<MigrateSessionResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(migrate_session));
+        self.send(logger, ctx, ci, GameSessionProtocolMethod::MigrateSession as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn leave_session(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: LeaveSessionRequest,
-    ) -> Result<LeaveSessionResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(leave_session)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            GameSessionProtocolMethod::LeaveSession as u32,
-            request.to_bytes(),
-        );
+    pub fn leave_session(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: LeaveSessionRequest) -> Result<LeaveSessionResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(leave_session));
+        self.send(logger, ctx, ci, GameSessionProtocolMethod::LeaveSession as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn get_session(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetSessionRequest,
-    ) -> Result<GetSessionResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(get_session)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            GameSessionProtocolMethod::GetSession as u32,
-            request.to_bytes(),
-        );
+    pub fn get_session(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetSessionRequest) -> Result<GetSessionResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(get_session));
+        self.send(logger, ctx, ci, GameSessionProtocolMethod::GetSession as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn search_sessions(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: SearchSessionsRequest,
-    ) -> Result<SearchSessionsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(search_sessions)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            GameSessionProtocolMethod::SearchSessions as u32,
-            request.to_bytes(),
-        );
+    pub fn search_sessions(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: SearchSessionsRequest) -> Result<SearchSessionsResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(search_sessions));
+        self.send(logger, ctx, ci, GameSessionProtocolMethod::SearchSessions as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn add_participants(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: AddParticipantsRequest,
-    ) -> Result<AddParticipantsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(add_participants)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            GameSessionProtocolMethod::AddParticipants as u32,
-            request.to_bytes(),
-        );
+    pub fn add_participants(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: AddParticipantsRequest) -> Result<AddParticipantsResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(add_participants));
+        self.send(logger, ctx, ci, GameSessionProtocolMethod::AddParticipants as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn remove_participants(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: RemoveParticipantsRequest,
-    ) -> Result<RemoveParticipantsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(remove_participants)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            GameSessionProtocolMethod::RemoveParticipants as u32,
-            request.to_bytes(),
-        );
+    pub fn remove_participants(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: RemoveParticipantsRequest) -> Result<RemoveParticipantsResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(remove_participants));
+        self.send(logger, ctx, ci, GameSessionProtocolMethod::RemoveParticipants as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn get_participant_count(
@@ -1346,63 +961,18 @@ impl<CI> GameSessionProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: GetParticipantCountRequest,
     ) -> Result<GetParticipantCountResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(get_participant_count)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            GameSessionProtocolMethod::GetParticipantCount as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(get_participant_count));
+        self.send(logger, ctx, ci, GameSessionProtocolMethod::GetParticipantCount as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn get_participants(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetParticipantsRequest,
-    ) -> Result<GetParticipantsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(get_participants)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            GameSessionProtocolMethod::GetParticipants as u32,
-            request.to_bytes(),
-        );
+    pub fn get_participants(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetParticipantsRequest) -> Result<GetParticipantsResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(get_participants));
+        self.send(logger, ctx, ci, GameSessionProtocolMethod::GetParticipants as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn send_invitation(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: SendInvitationRequest,
-    ) -> Result<SendInvitationResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(send_invitation)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            GameSessionProtocolMethod::SendInvitation as u32,
-            request.to_bytes(),
-        );
+    pub fn send_invitation(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: SendInvitationRequest) -> Result<SendInvitationResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(send_invitation));
+        self.send(logger, ctx, ci, GameSessionProtocolMethod::SendInvitation as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn get_invitation_received_count(
@@ -1412,19 +982,8 @@ impl<CI> GameSessionProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: GetInvitationReceivedCountRequest,
     ) -> Result<GetInvitationReceivedCountResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(get_invitation_received_count)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            GameSessionProtocolMethod::GetInvitationReceivedCount as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(get_invitation_received_count));
+        self.send(logger, ctx, ci, GameSessionProtocolMethod::GetInvitationReceivedCount as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn get_invitations_received(
@@ -1434,19 +993,8 @@ impl<CI> GameSessionProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: GetInvitationsReceivedRequest,
     ) -> Result<GetInvitationsReceivedResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(get_invitations_received)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            GameSessionProtocolMethod::GetInvitationsReceived as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(get_invitations_received));
+        self.send(logger, ctx, ci, GameSessionProtocolMethod::GetInvitationsReceived as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn get_invitation_sent_count(
@@ -1456,195 +1004,48 @@ impl<CI> GameSessionProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: GetInvitationSentCountRequest,
     ) -> Result<GetInvitationSentCountResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(get_invitation_sent_count)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            GameSessionProtocolMethod::GetInvitationSentCount as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(get_invitation_sent_count));
+        self.send(logger, ctx, ci, GameSessionProtocolMethod::GetInvitationSentCount as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn get_invitations_sent(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetInvitationsSentRequest,
-    ) -> Result<GetInvitationsSentResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(get_invitations_sent)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            GameSessionProtocolMethod::GetInvitationsSent as u32,
-            request.to_bytes(),
-        );
+    pub fn get_invitations_sent(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetInvitationsSentRequest) -> Result<GetInvitationsSentResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(get_invitations_sent));
+        self.send(logger, ctx, ci, GameSessionProtocolMethod::GetInvitationsSent as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn accept_invitation(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: AcceptInvitationRequest,
-    ) -> Result<AcceptInvitationResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(accept_invitation)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            GameSessionProtocolMethod::AcceptInvitation as u32,
-            request.to_bytes(),
-        );
+    pub fn accept_invitation(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: AcceptInvitationRequest) -> Result<AcceptInvitationResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(accept_invitation));
+        self.send(logger, ctx, ci, GameSessionProtocolMethod::AcceptInvitation as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn decline_invitation(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: DeclineInvitationRequest,
-    ) -> Result<DeclineInvitationResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(decline_invitation)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            GameSessionProtocolMethod::DeclineInvitation as u32,
-            request.to_bytes(),
-        );
+    pub fn decline_invitation(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: DeclineInvitationRequest) -> Result<DeclineInvitationResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(decline_invitation));
+        self.send(logger, ctx, ci, GameSessionProtocolMethod::DeclineInvitation as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn cancel_invitation(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: CancelInvitationRequest,
-    ) -> Result<CancelInvitationResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(cancel_invitation)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            GameSessionProtocolMethod::CancelInvitation as u32,
-            request.to_bytes(),
-        );
+    pub fn cancel_invitation(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: CancelInvitationRequest) -> Result<CancelInvitationResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(cancel_invitation));
+        self.send(logger, ctx, ci, GameSessionProtocolMethod::CancelInvitation as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn send_text_message(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: SendTextMessageRequest,
-    ) -> Result<SendTextMessageResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(send_text_message)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            GameSessionProtocolMethod::SendTextMessage as u32,
-            request.to_bytes(),
-        );
+    pub fn send_text_message(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: SendTextMessageRequest) -> Result<SendTextMessageResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(send_text_message));
+        self.send(logger, ctx, ci, GameSessionProtocolMethod::SendTextMessage as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn register_urls(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: RegisterUrLsRequest,
-    ) -> Result<RegisterUrLsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(register_urls)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            GameSessionProtocolMethod::RegisterUrLs as u32,
-            request.to_bytes(),
-        );
+    pub fn register_urls(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: RegisterUrLsRequest) -> Result<RegisterUrLsResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(register_urls));
+        self.send(logger, ctx, ci, GameSessionProtocolMethod::RegisterUrLs as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn join_session(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: JoinSessionRequest,
-    ) -> Result<JoinSessionResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(join_session)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            GameSessionProtocolMethod::JoinSession as u32,
-            request.to_bytes(),
-        );
+    pub fn join_session(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: JoinSessionRequest) -> Result<JoinSessionResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(join_session));
+        self.send(logger, ctx, ci, GameSessionProtocolMethod::JoinSession as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn abandon_session(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: AbandonSessionRequest,
-    ) -> Result<AbandonSessionResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(abandon_session)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            GameSessionProtocolMethod::AbandonSession as u32,
-            request.to_bytes(),
-        );
+    pub fn abandon_session(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: AbandonSessionRequest) -> Result<AbandonSessionResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(abandon_session));
+        self.send(logger, ctx, ci, GameSessionProtocolMethod::AbandonSession as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn search_sessions_with_participants(
@@ -1654,41 +1055,13 @@ impl<CI> GameSessionProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: SearchSessionsWithParticipantsRequest,
     ) -> Result<SearchSessionsWithParticipantsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(search_sessions_with_participants)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            GameSessionProtocolMethod::SearchSessionsWithParticipants as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(search_sessions_with_participants));
+        self.send(logger, ctx, ci, GameSessionProtocolMethod::SearchSessionsWithParticipants as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn get_sessions(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetSessionsRequest,
-    ) -> Result<GetSessionsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(get_sessions)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            GameSessionProtocolMethod::GetSessions as u32,
-            request.to_bytes(),
-        );
+    pub fn get_sessions(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetSessionsRequest) -> Result<GetSessionsResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(get_sessions));
+        self.send(logger, ctx, ci, GameSessionProtocolMethod::GetSessions as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn get_participants_urls(
@@ -1698,63 +1071,18 @@ impl<CI> GameSessionProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: GetParticipantsUrLsRequest,
     ) -> Result<GetParticipantsUrLsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(get_participants_urls)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            GameSessionProtocolMethod::GetParticipantsUrLs as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(get_participants_urls));
+        self.send(logger, ctx, ci, GameSessionProtocolMethod::GetParticipantsUrLs as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn migrate_session_host(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: MigrateSessionHostRequest,
-    ) -> Result<MigrateSessionHostResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(migrate_session_host)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            GameSessionProtocolMethod::MigrateSessionHost as u32,
-            request.to_bytes(),
-        );
+    pub fn migrate_session_host(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: MigrateSessionHostRequest) -> Result<MigrateSessionHostResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(migrate_session_host));
+        self.send(logger, ctx, ci, GameSessionProtocolMethod::MigrateSessionHost as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn split_session(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: SplitSessionRequest,
-    ) -> Result<SplitSessionResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(split_session)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            GameSessionProtocolMethod::SplitSession as u32,
-            request.to_bytes(),
-        );
+    pub fn split_session(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: SplitSessionRequest) -> Result<SplitSessionResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(split_session));
+        self.send(logger, ctx, ci, GameSessionProtocolMethod::SplitSession as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn search_social_sessions(
@@ -1764,19 +1092,8 @@ impl<CI> GameSessionProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: SearchSocialSessionsRequest,
     ) -> Result<SearchSocialSessionsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(search_social_sessions)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            GameSessionProtocolMethod::SearchSocialSessions as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(search_social_sessions));
+        self.send(logger, ctx, ci, GameSessionProtocolMethod::SearchSocialSessions as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn report_unsuccessful_join_sessions(
@@ -1786,19 +1103,8 @@ impl<CI> GameSessionProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: ReportUnsuccessfulJoinSessionsRequest,
     ) -> Result<ReportUnsuccessfulJoinSessionsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionProtocol",
-            stringify!(report_unsuccessful_join_sessions)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            GameSessionProtocolMethod::ReportUnsuccessfulJoinSessions as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "GameSessionProtocol", stringify!(report_unsuccessful_join_sessions));
+        self.send(logger, ctx, ci, GameSessionProtocolMethod::ReportUnsuccessfulJoinSessions as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }

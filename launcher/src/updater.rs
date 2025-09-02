@@ -1,3 +1,9 @@
+//! Provides functionality for checking for and applying application updates from GitHub.
+//!
+//! This module includes a client for interacting with the GitHub Releases API,
+//! logic for downloading and replacing application files, and a UI for displaying
+//! update progress.
+
 use std::ffi::OsString;
 use std::future::Future;
 use std::path::Path;
@@ -14,6 +20,7 @@ use tracing::debug;
 
 use crate::version::Version;
 
+/// A callback function for the Windows Task Dialog used to display download progress.
 unsafe extern "system" fn dialog_cb(
     hwnd: windows::Win32::Foundation::HWND,
     msg: windows::Win32::UI::Controls::TASKDIALOG_NOTIFICATIONS,
@@ -32,15 +39,13 @@ unsafe extern "system" fn dialog_cb(
     let total_size = lprefdata as usize;
 
     if msg == TDN_CREATED {
+        // Store the window handle so we can close it later.
         TASKDIALOG_HWND.store(Box::into_raw(Box::new(hwnd)), Ordering::SeqCst);
     } else if msg == TDN_TIMER {
+        // Update the progress bar.
         let sz = DOWNLOADED_SIZE.load(Ordering::SeqCst);
-        SendMessageW(
-            hwnd,
-            TDM_SET_PROGRESS_BAR_POS.0 as u32,
-            WPARAM(sz * 100 / total_size),
-            LPARAM(0),
-        );
+        SendMessageW(hwnd, TDM_SET_PROGRESS_BAR_POS.0 as u32, WPARAM(sz * 100 / total_size), LPARAM(0));
+        // Close the dialog when the download is complete.
         if sz >= total_size {
             SendMessageW(hwnd, WM_CLOSE, WPARAM(0), LPARAM(0));
         }
@@ -48,42 +53,12 @@ unsafe extern "system" fn dialog_cb(
     windows::core::HRESULT(0)
 }
 
-// struct AsyncChunks {
-//     resp: reqwest::Response,
-//     chunk_fut:
-//         Option<Pin<Box<dyn std::future::Future<Output = reqwest::Result<Option<bytes::Bytes>>>>>>,
-// }
-
-// impl std::future::Future for AsyncChunks {
-//     type Output = reqwest::Result<Option<bytes::Bytes>>;
-
-//     fn poll(
-//         mut self: std::pin::Pin<&mut Self>,
-//         cx: &mut std::task::Context<'_>,
-//     ) -> std::task::Poll<Self::Output> {
-//         let mut fut = if let Some(fut) = self.chunk_fut.take() {
-//             fut
-//         } else {
-//             let chunks = self.resp.chunk();
-//             Box::pin(chunks)
-//         };
-
-//         let r = match fut.as_mut().poll(cx) {
-//             std::task::Poll::Ready(r) => std::task::Poll::Ready(r),
-//             std::task::Poll::Pending => std::task::Poll::Pending,
-//         };
-
-//         if matches!(r, std::task::Poll::Pending) {
-//             self.chunk_fut = Some(fut);
-//         }
-//         r
-//     }
-// }
-
+/// A factory for creating `UpdaterClient` instances.
 pub trait UpdaterClientFactory {
     fn new() -> impl UpdaterClient;
 }
 
+/// A client for the GitHub Releases API.
 pub struct GitHubClient;
 
 impl UpdaterClientFactory for GitHubClient {
@@ -96,20 +71,16 @@ impl UpdaterClientFactory for GitHubClient {
     }
 }
 
+/// A trait for an updater client, abstracting the source of updates.
 pub trait UpdaterClient: Send {
     fn fetch_latest_assets(&self) -> impl Future<Output = reqwest::Result<Vec<Asset>>> + Send;
-    fn download<U: reqwest::IntoUrl + Send>(
-        &self,
-        url: U,
-    ) -> impl Future<Output = reqwest::Result<impl Stream<Item = reqwest::Result<Bytes>> + Send>> + Send;
+    fn download<U: reqwest::IntoUrl + Send>(&self, url: U) -> impl Future<Output = reqwest::Result<impl Stream<Item = reqwest::Result<Bytes>> + Send>> + Send;
 }
 
 impl UpdaterClient for reqwest::Client {
+    /// Fetches the latest release assets from the GitHub repository.
     async fn fetch_latest_assets(&self) -> reqwest::Result<Vec<Asset>> {
-        let resp = self
-            .get(" https://api.github.com/repos/unixoide/5th-echelon/releases/latest")
-            .send()
-            .await?;
+        let resp = self.get(" https://api.github.com/repos/unixoide/5th-echelon/releases/latest").send().await?;
         let body = resp.text().await.unwrap();
         let resp = jzon::parse(&body).unwrap();
         let JsonValue::Object(obj) = resp else {
@@ -121,7 +92,7 @@ impl UpdaterClient for reqwest::Client {
             return Ok(Vec::new());
         };
 
-        let version = if let Some(tag_name) = tag_name.strip_prefix("v") {
+        let version = if let Some(tag_name) = tag_name.strip_prefix('v') {
             tag_name.parse::<Version>().ok()
         } else {
             None
@@ -166,10 +137,8 @@ impl UpdaterClient for reqwest::Client {
             .collect())
     }
 
-    async fn download<U: reqwest::IntoUrl + Send>(
-        &self,
-        url: U,
-    ) -> reqwest::Result<impl Stream<Item = reqwest::Result<Bytes>> + Send> {
+    /// Downloads a file from the given URL.
+    async fn download<U: reqwest::IntoUrl + Send>(&self, url: U) -> reqwest::Result<impl Stream<Item = reqwest::Result<Bytes>> + Send> {
         match self.get(url).send().await {
             Ok(resp) => Ok(resp.bytes_stream()),
             Err(err) => Err(err),
@@ -177,6 +146,7 @@ impl UpdaterClient for reqwest::Client {
     }
 }
 
+/// A mock updater client for testing purposes.
 pub struct MockUpdaterClient;
 
 impl UpdaterClientFactory for MockUpdaterClient {
@@ -190,21 +160,13 @@ impl UpdaterClient for MockUpdaterClient {
         async {
             Ok(vec![
                 Asset {
-                    version: Version {
-                        major: 1,
-                        minor: 2,
-                        patch: 3,
-                    },
+                    version: Version { major: 1, minor: 2, patch: 3 },
                     name: "launcher.exe".to_string(),
                     url: "http://localhost/launcher.exe".to_string(),
                     size: 1024,
                 },
                 Asset {
-                    version: Version {
-                        major: 1,
-                        minor: 2,
-                        patch: 3,
-                    },
+                    version: Version { major: 1, minor: 2, patch: 3 },
                     name: "dedicated_server.exe".to_string(),
                     url: "http://localhost/dedicated_server.exe".to_string(),
                     size: 2048,
@@ -213,24 +175,11 @@ impl UpdaterClient for MockUpdaterClient {
         }
     }
 
-    async fn download<U: reqwest::IntoUrl + Send>(
-        &self,
-        url: U,
-    ) -> reqwest::Result<impl Stream<Item = reqwest::Result<Bytes>> + Send> {
+    async fn download<U: reqwest::IntoUrl + Send>(&self, url: U) -> reqwest::Result<impl Stream<Item = reqwest::Result<Bytes>> + Send> {
         let stream = if url.as_str() == "http://localhost/launcher.exe" {
-            futures::stream::iter(
-                vec![Bytes::from_owner([0u8; 512]); 2]
-                    .into_iter()
-                    .map(Ok)
-                    .collect::<Vec<_>>(),
-            )
+            futures::stream::iter(vec![Bytes::from_owner([0u8; 512]); 2].into_iter().map(Ok).collect::<Vec<_>>())
         } else if url.as_str() == "http://localhost/dedicated_server.exe" {
-            futures::stream::iter(
-                vec![Bytes::from_owner([0u8; 512]); 4]
-                    .into_iter()
-                    .map(Ok)
-                    .collect::<Vec<_>>(),
-            )
+            futures::stream::iter(vec![Bytes::from_owner([0u8; 512]); 4].into_iter().map(Ok).collect::<Vec<_>>())
         } else {
             unreachable!()
         };
@@ -242,19 +191,21 @@ impl UpdaterClient for MockUpdaterClient {
     }
 }
 
+/// The total size of the download, used by the progress dialog.
 static DOWNLOADED_SIZE: AtomicUsize = AtomicUsize::new(0);
+/// The handle to the progress dialog window.
 static TASKDIALOG_HWND: AtomicPtr<windows::Win32::Foundation::HWND> = AtomicPtr::new(std::ptr::null_mut());
 
+/// The main updater struct.
 pub struct Updater<CF: UpdaterClientFactory = GitHubClient> {
     phantom: std::marker::PhantomData<CF>,
 }
 
 impl<CF: UpdaterClientFactory + 'static> Updater<CF> {
+    /// Downloads an asset with progress reporting.
     pub async fn download_with_progress(asset: Asset, target_path: impl AsRef<Path>, progress: &AtomicUsize) {
         let target_path = target_path.as_ref();
-        let mut launcher_exe_file = tokio::fs::File::create(target_path.with_extension("download"))
-            .await
-            .unwrap();
+        let mut launcher_exe_file = tokio::fs::File::create(target_path.with_extension("download")).await.unwrap();
         let client = CF::new();
         let resp = client.download(asset.url).await.unwrap();
         tokio::pin!(resp);
@@ -268,11 +219,13 @@ impl<CF: UpdaterClientFactory + 'static> Updater<CF> {
         launcher_exe_file.flush().await.unwrap();
         progress.store(10000, Ordering::SeqCst);
         drop(launcher_exe_file);
-        tokio::fs::rename(target_path.with_extension("download"), target_path)
-            .await
-            .unwrap();
+        tokio::fs::rename(target_path.with_extension("download"), target_path).await.unwrap();
     }
 
+    /// Performs a self-update of the launcher.
+    ///
+    /// This function downloads the new version of the launcher, displays a
+    /// progress dialog, and then replaces the current executable.
     pub async fn update_self(asset: Asset) {
         use std::os::windows::ffi::OsStrExt as _;
 
@@ -291,26 +244,22 @@ impl<CF: UpdaterClientFactory + 'static> Updater<CF> {
         let updater_exe = std::env::current_exe().unwrap();
         let launcher_exe = updater_exe.parent().unwrap().join(&asset.name);
 
+        // Wait for the parent process to exit before starting the update.
         tokio::join!(tokio::task::spawn_blocking(move || {
             windows_wait_parent::wait_for_parent_exit().unwrap();
         }))
         .0
         .unwrap();
         DOWNLOADED_SIZE.store(0, Ordering::SeqCst);
-        let downloader = tokio::spawn(Self::download_with_progress(
-            asset.clone(),
-            launcher_exe.clone(),
-            &DOWNLOADED_SIZE,
-        ));
+        let downloader = tokio::spawn(Self::download_with_progress(asset.clone(), launcher_exe.clone(), &DOWNLOADED_SIZE));
 
+        // Show the progress dialog.
         let progress = tokio::task::spawn_blocking(move || unsafe {
             let buttons = [TASKDIALOG_BUTTON {
                 nButtonID: IDCANCEL.0, // must be cancel to work with PostMessage(WM_CLOSE)
                 pszButtonText: w!("Cancel"),
             }];
-            let mut content = OsString::from(format!("Fetching {} bytes from the server", asset.size))
-                .encode_wide()
-                .collect::<Vec<u16>>();
+            let mut content = OsString::from(format!("Fetching {} bytes from the server", asset.size)).encode_wide().collect::<Vec<u16>>();
             content.push(0);
             let task_dlg_cfg = TASKDIALOGCONFIG {
                 cbSize: std::mem::size_of::<TASKDIALOGCONFIG>() as u32,
@@ -328,8 +277,10 @@ impl<CF: UpdaterClientFactory + 'static> Updater<CF> {
             TaskDialogIndirect(&task_dlg_cfg, Some(&mut selected_button), None, None).unwrap();
         });
 
+        // Wait for either the download to finish or the dialog to be closed.
         let done = tokio::select! {
             _ = downloader => {
+                // If the download finishes, close the dialog.
                 unsafe {
                     let hwnd_ptr = TASKDIALOG_HWND.load(Ordering::SeqCst);
                     if !hwnd_ptr.is_null() {
@@ -341,6 +292,7 @@ impl<CF: UpdaterClientFactory + 'static> Updater<CF> {
             }
             _ = progress => false
         };
+        // Clean up the window handle.
         let hwnd_ptr = TASKDIALOG_HWND.swap(std::ptr::null_mut(), Ordering::SeqCst);
         if !hwnd_ptr.is_null() {
             unsafe {
@@ -348,31 +300,32 @@ impl<CF: UpdaterClientFactory + 'static> Updater<CF> {
             }
         }
 
+        // If the download was successful, launch the new version.
         if done {
-            let mut child = std::process::Command::new(launcher_exe).spawn().unwrap();
+            let mut child = std::process::Command::new(launcher_exe).arg("updated").spawn().unwrap();
             child.try_wait().unwrap();
         }
     }
 
+    /// Checks for updates and returns a list of available assets.
     pub async fn check_for_updates() -> Vec<Asset> {
         CF::new().fetch_latest_assets().await.unwrap()
     }
 }
 
+/// Starts the update process by creating a copy of the launcher and
+/// running it with the "update" argument.
 pub fn start_update_process_and_terminate() {
     let myself = std::env::current_exe().unwrap();
     let dest_dir = myself.parent().unwrap();
     let updater = dest_dir.join("launcher_updater.exe");
     std::fs::copy(&myself, &updater).unwrap();
-    let mut child = std::process::Command::new(updater)
-        .arg("update")
-        .arg(myself.as_os_str())
-        .spawn()
-        .unwrap();
+    let mut child = std::process::Command::new(updater).arg("update").arg(myself.as_os_str()).spawn().unwrap();
     child.try_wait().unwrap();
     std::process::exit(0);
 }
 
+/// Removes the updater executable if it exists.
 pub fn remove_updater_if_needed() {
     let myself = std::env::current_exe().unwrap();
     let dest_dir = myself.parent().unwrap();
@@ -382,6 +335,14 @@ pub fn remove_updater_if_needed() {
     }
 }
 
+pub fn remove_updater_after_update() {
+    println!("Waiting for updater to finish");
+    #[cfg(target_os = "windows")]
+    windows_wait_parent::wait_for_parent_exit().unwrap();
+    remove_updater_if_needed();
+}
+
+/// Represents a release asset from GitHub.
 #[derive(Debug, Clone)]
 pub struct Asset {
     pub name: String,
@@ -390,6 +351,7 @@ pub struct Asset {
     size: usize,
 }
 
+/// A module for waiting for the parent process to exit on Windows.
 #[cfg(target_os = "windows")]
 mod windows_wait_parent {
     use std::mem;
@@ -409,6 +371,7 @@ mod windows_wait_parent {
     use windows::Win32::System::Threading::PROCESS_QUERY_INFORMATION;
     use windows::Win32::System::Threading::PROCESS_SYNCHRONIZE;
 
+    /// Gets the process ID of the parent process.
     pub fn get_parent_pid() -> Option<u32> {
         unsafe {
             let current_pid = process::id();
@@ -434,6 +397,7 @@ mod windows_wait_parent {
         }
     }
 
+    /// Waits for the parent process to exit.
     pub fn wait_for_parent_exit() -> Result<()> {
         if let Some(ppid) = get_parent_pid() {
             println!("Parent PID: {}", ppid);
@@ -453,7 +417,7 @@ mod windows_wait_parent {
                     Ok(())
                 } else {
                     eprintln!("Error waiting for parent process (code: {:?}).", result);
-                    Err(windows::core::Error::from_win32()) // Consider a more specific error
+                    Err(windows::core::Error::from_win32())
                 }
             }
         } else {

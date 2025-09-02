@@ -41,18 +41,13 @@ pub struct SetLocaleCodeRequest {
 }
 #[derive(Debug, ToStream, FromStream)]
 pub struct SetLocaleCodeResponse;
-pub struct LocalizationProtocolServer<T: LocalizationProtocolServerTrait<CI>, CI>(
-    T,
-    ::std::marker::PhantomData<CI>,
-);
+pub struct LocalizationProtocolServer<T: LocalizationProtocolServerTrait<CI>, CI>(T, ::std::marker::PhantomData<CI>);
 impl<T: LocalizationProtocolServerTrait<CI>, CI> LocalizationProtocolServer<T, CI> {
     pub fn new(implementation: T) -> Self {
         Self(implementation, ::std::marker::PhantomData)
     }
 }
-impl<T: LocalizationProtocolServerTrait<CI>, CI> Protocol<CI>
-    for LocalizationProtocolServer<T, CI>
-{
+impl<T: LocalizationProtocolServerTrait<CI>, CI> Protocol<CI> for LocalizationProtocolServer<T, CI> {
     fn id(&self) -> u16 {
         LOCALIZATION_PROTOCOL_ID
     }
@@ -77,27 +72,21 @@ impl<T: LocalizationProtocolServerTrait<CI>, CI> Protocol<CI>
             Some(LocalizationProtocolMethod::GetLocaleCode) => {
                 let req = GetLocaleCodeRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_locale_code(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_locale_code(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(LocalizationProtocolMethod::SetLocaleCode) => {
                 let req = SetLocaleCodeRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .set_locale_code(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.set_locale_code(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
         }
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        LocalizationProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        LocalizationProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
@@ -111,12 +100,7 @@ pub trait LocalizationProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetLocaleCodeResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "LocalizationProtocol",
-            stringify!(get_locale_code)
-        );
+        warn!(logger, "Method {}.{} not implemented", "LocalizationProtocol", stringify!(get_locale_code));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn set_locale_code(
@@ -128,12 +112,7 @@ pub trait LocalizationProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<SetLocaleCodeResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "LocalizationProtocol",
-            stringify!(set_locale_code)
-        );
+        warn!(logger, "Method {}.{} not implemented", "LocalizationProtocol", stringify!(set_locale_code));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }
@@ -159,55 +138,19 @@ impl<CI> ClientProtocol<CI> for LocalizationProtocolClient<CI> {
         2u32
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        LocalizationProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        LocalizationProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
 impl<CI> LocalizationProtocolClient<CI> {
-    pub fn get_locale_code(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetLocaleCodeRequest,
-    ) -> Result<GetLocaleCodeResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "LocalizationProtocol",
-            stringify!(get_locale_code)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            LocalizationProtocolMethod::GetLocaleCode as u32,
-            request.to_bytes(),
-        );
+    pub fn get_locale_code(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetLocaleCodeRequest) -> Result<GetLocaleCodeResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "LocalizationProtocol", stringify!(get_locale_code));
+        self.send(logger, ctx, ci, LocalizationProtocolMethod::GetLocaleCode as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn set_locale_code(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: SetLocaleCodeRequest,
-    ) -> Result<SetLocaleCodeResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "LocalizationProtocol",
-            stringify!(set_locale_code)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            LocalizationProtocolMethod::SetLocaleCode as u32,
-            request.to_bytes(),
-        );
+    pub fn set_locale_code(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: SetLocaleCodeRequest) -> Result<SetLocaleCodeResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "LocalizationProtocol", stringify!(set_locale_code));
+        self.send(logger, ctx, ci, LocalizationProtocolMethod::SetLocaleCode as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }

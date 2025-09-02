@@ -1,3 +1,8 @@
+//! Defines the main UI component for the new launcher design.
+//!
+//! This module acts as a container for the different menus (Client, Server, Settings)
+//! and handles the main layout, including the header and status bar.
+
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::net::IpAddr;
@@ -29,6 +34,7 @@ use crate::version::Version;
 
 const ID_MODAL_SEARCHING: &str = "Identifying...";
 
+/// Represents the currently active menu in the UI.
 #[derive(Default)]
 enum MainMenuType<'a> {
     #[default]
@@ -37,6 +43,8 @@ enum MainMenuType<'a> {
     Server(Box<ServerMenu>),
     Settings(SettingsMenu),
 }
+
+/// The main UI component, which holds the state for the entire UI.
 pub struct Main<'a> {
     menu_type: MainMenuType<'a>,
     cfg: Rc<RefCell<ConfigMut>>,
@@ -53,6 +61,7 @@ pub struct Main<'a> {
 }
 
 impl<'a> Main<'a> {
+    /// Creates a new `Main` UI component.
     pub fn new(
         cfg: ConfigMut,
         adapters: &'a [(String, IpAddr)],
@@ -61,18 +70,9 @@ impl<'a> Main<'a> {
         target_dir: &'a Path,
         fonts: Fonts,
     ) -> Self {
-        let bundled_dll_version: Option<Version> = option_env!("HOOKS_VERSION")
-            .map(core::str::FromStr::from_str)
-            .and_then(Result::ok);
+        let bundled_dll_version: Option<Version> = option_env!("HOOKS_VERSION").map(core::str::FromStr::from_str).and_then(Result::ok);
         let installed_dll_version = get_dll_version(target_dir.join("uplay_r1_loader.dll")).ok();
-        let server_version = get_dll_version(
-            std::env::current_exe()
-                .unwrap()
-                .parent()
-                .unwrap()
-                .join("dedicated_server.exe"),
-        )
-        .ok();
+        let server_version = get_dll_version(std::env::current_exe().unwrap().parent().unwrap().join("dedicated_server.exe")).ok();
         let launcher_version = env!("CARGO_PKG_VERSION").parse().unwrap_or_default();
         Self {
             menu_type: MainMenuType::None,
@@ -90,6 +90,7 @@ impl<'a> Main<'a> {
         }
     }
 
+    /// Renders the main UI.
     pub fn render(&mut self, ui: &imgui::Ui, window_size: Size) {
         ui.window("Launcher")
             .flags(WindowFlags::NO_BRING_TO_FRONT_ON_FOCUS)
@@ -99,6 +100,7 @@ impl<'a> Main<'a> {
             .resizable(false)
             .title_bar(false)
             .build(|| {
+                // Header section
                 let font = ui.push_font(self.fonts.header);
                 let header_size = ui.calc_text_size("FIFTH ECHELON");
                 font.end();
@@ -106,10 +108,7 @@ impl<'a> Main<'a> {
                 let text_size = ui.calc_text_size("Launcher Version");
                 ui.set_window_font_scale(1.0);
                 ui.child_window("##Header")
-                    .size([
-                        0f32,
-                        header_size[1] + text_size[1] * 2f32 + unsafe { ui.style() }.frame_padding[1] * 2f32 + 10f32,
-                    ])
+                    .size([0f32, header_size[1] + text_size[1] * 2f32 + unsafe { ui.style() }.frame_padding[1] * 2f32 + 10f32])
                     .build(|| {
                         let font = ui.push_font(self.fonts.header);
                         let center = ui.content_region_max()[0] / 2.0;
@@ -142,132 +141,111 @@ impl<'a> Main<'a> {
                         ui.text_disabled(format!("Game Dir: {}", self.target_dir.display()));
                         ui.set_window_font_scale(1.0);
                     });
-                ui.child_window("##Content")
-                    .size([0f32, -ui.frame_height_with_spacing()])
-                    .build(|| {
-                        match self.menu_type {
-                            MainMenuType::None => {
-                                ui.modal_popup("Outdated Launcher", || {
-                                    ui.text("Launcher is outdated.");
-                                    ui.text(format!("Current: {}", self.launcher_version,));
-                                    ui.text(format!("Latest: {}", self.update_available.unwrap()));
-                                    if ui.button("Update Now") {
-                                        crate::updater::start_update_process_and_terminate();
-                                    }
-                                    if ui.button("Discard") {
-                                        ui.close_current_popup();
-                                    }
-                                });
-                                if self.show_update_modal {
-                                    self.show_update_modal = false;
-                                    ui.open_popup("Outdated Launcher");
+                // Content section
+                ui.child_window("##Content").size([0f32, -ui.frame_height_with_spacing()]).build(|| {
+                    match self.menu_type {
+                        MainMenuType::None => {
+                            // Main menu buttons
+                            ui.modal_popup("Outdated Launcher", || {
+                                ui.text("Launcher is outdated.");
+                                ui.text(format!("Current: {}", self.launcher_version,));
+                                ui.text(format!("Latest: {}", self.update_available.unwrap()));
+                                if ui.button("Update Now") {
+                                    crate::updater::start_update_process_and_terminate();
                                 }
-
-                                let join_server_text = format!("{} Join Server", ICON_GAMEPAD);
-                                let host_server_text = format!("{} Server Management", ICON_SERVER);
-                                let text_size = [&join_server_text, &host_server_text]
-                                    .iter()
-                                    .map(|s| ui.calc_text_size(s)[0])
-                                    .fold(0f32, |acc, cur| acc.max(cur))
-                                    + 32f32;
-
-                                let width = ui.content_region_max()[0];
-                                let mut cursor = ui.cursor_pos();
-                                cursor[0] =
-                                    (width - (text_size * 2f32 + unsafe { ui.style() }.frame_padding[0] * 2f32)) / 2.0
-                                        - unsafe { ui.style() }.frame_padding[0];
-                                ui.set_cursor_pos(cursor);
-
-                                if ui.button_with_size(&join_server_text, [text_size, 100f32]) {
-                                    self.menu_type = MainMenuType::Client(ClientMenu::new(
-                                        Rc::clone(&self.cfg),
-                                        self.adapters,
-                                        self.target_dir,
-                                        Rc::clone(&self.exe_loader),
-                                    ));
+                                if ui.button("Discard") {
+                                    ui.close_current_popup();
                                 }
-                                if ui.is_item_hovered() {
-                                    ui.tooltip_text("Connect to an existing server and host or join games.");
-                                }
-                                ui.same_line();
-                                if ui.button_with_size(&host_server_text, [text_size, 100f32]) {
-                                    self.menu_type = MainMenuType::Server(Box::new(ServerMenu::new(self.adapters)));
-                                }
-                                if ui.is_item_hovered() {
-                                    ui.tooltip_text("Run the server component for other players to use.");
-                                }
-                                let mut cursor = ui.cursor_pos();
-                                cursor[0] =
-                                    (width - (text_size * 2f32 + unsafe { ui.style() }.frame_padding[0] * 2f32)) / 2.0
-                                        - unsafe { ui.style() }.frame_padding[0];
-                                ui.set_cursor_pos(cursor);
-                                if ui.button_with_size(
-                                    format!("{} Settings", ICON_GEAR),
-                                    [text_size * 2f32 + unsafe { ui.style() }.frame_padding[0] * 2f32, 0f32],
-                                ) {
-                                    self.menu_type = MainMenuType::Settings(SettingsMenu::new(Rc::clone(&self.cfg)));
-                                }
-                                // ui.text(format!("{:#?}", self.cfg));
-                            }
-                            MainMenuType::Client(ref mut client_menu) => {
-                                if !client_menu.render(ui) {
-                                    self.menu_type = MainMenuType::None
-                                }
-                            }
-                            MainMenuType::Server(ref mut server_menu) => {
-                                if !server_menu.render(ui) {
-                                    self.menu_type = MainMenuType::None
-                                }
-                            }
-                            MainMenuType::Settings(ref mut settings_menu) => {
-                                if !settings_menu.render(ui) {
-                                    self.menu_type = MainMenuType::None
-                                }
-                            }
-                        };
-                    });
-                ui.child_window("##StatusBar")
-                    .size([0f32, ui.frame_height()])
-                    .build(|| {
-                        self.search_modal(ui);
-                        ui.set_window_font_scale(0.8);
-                        if let Some(hooks) = self.exe_loader.borrow_mut().try_mut() {
-                            ui.text("Game Versions: ");
-                            for gv in [
-                                GameVersion::SplinterCellBlacklistDx9,
-                                GameVersion::SplinterCellBlacklistDx11,
-                            ] {
-                                ui.same_line();
-                                let (color, tooltip) = if let Some(gh) = hooks.get(gv) {
-                                    (game_hook_state_to_color(&gh.state), game_hook_state_to_text(&gh.state))
-                                } else {
-                                    (RED, "Not found")
-                                };
-                                ui.text_colored(color.to_rgba_f32s(), gv.label_short());
-                                if ui.is_item_hovered() {
-                                    ui.tooltip_text(tooltip);
-                                }
+                            });
+                            if self.show_update_modal {
+                                self.show_update_modal = false;
+                                ui.open_popup("Outdated Launcher");
                             }
 
-                            if hooks
-                                .games
-                                .values()
-                                .any(|gv| matches!(gv.state, GameHookState::UnsupportedBinary))
-                            {
-                                ui.same_line();
-                                if ui.button("Attempt to identify") {
-                                    hooks.start_searching();
-                                    ui.open_popup(ID_MODAL_SEARCHING);
-                                }
+                            let join_server_text = format!("{} Join Server", ICON_GAMEPAD);
+                            let host_server_text = format!("{} Server Management", ICON_SERVER);
+                            let text_size = [&join_server_text, &host_server_text]
+                                .iter()
+                                .map(|s| ui.calc_text_size(s)[0])
+                                .fold(0f32, |acc, cur| acc.max(cur))
+                                + 32f32;
+
+                            let width = ui.content_region_max()[0];
+                            let mut cursor = ui.cursor_pos();
+                            cursor[0] = (width - (text_size * 2f32 + unsafe { ui.style() }.frame_padding[0] * 2f32)) / 2.0 - unsafe { ui.style() }.frame_padding[0];
+                            ui.set_cursor_pos(cursor);
+
+                            if ui.button_with_size(&join_server_text, [text_size, 100f32]) {
+                                self.menu_type = MainMenuType::Client(ClientMenu::new(Rc::clone(&self.cfg), self.adapters, self.target_dir, Rc::clone(&self.exe_loader)));
                             }
-                        } else {
-                            ui.text("Searching Game Binaries...");
+                            if ui.is_item_hovered() {
+                                ui.tooltip_text("Connect to an existing server and host or join games.");
+                            }
+                            ui.same_line();
+                            if ui.button_with_size(&host_server_text, [text_size, 100f32]) {
+                                self.menu_type = MainMenuType::Server(Box::new(ServerMenu::new(self.adapters)));
+                            }
+                            if ui.is_item_hovered() {
+                                ui.tooltip_text("Run the server component for other players to use.");
+                            }
+                            let mut cursor = ui.cursor_pos();
+                            cursor[0] = (width - (text_size * 2f32 + unsafe { ui.style() }.frame_padding[0] * 2f32)) / 2.0 - unsafe { ui.style() }.frame_padding[0];
+                            ui.set_cursor_pos(cursor);
+                            if ui.button_with_size(format!("{} Settings", ICON_GEAR), [text_size * 2f32 + unsafe { ui.style() }.frame_padding[0] * 2f32, 0f32]) {
+                                self.menu_type = MainMenuType::Settings(SettingsMenu::new(Rc::clone(&self.cfg)));
+                            }
                         }
-                    })
+                        MainMenuType::Client(ref mut client_menu) => {
+                            if !client_menu.render(ui) {
+                                self.menu_type = MainMenuType::None
+                            }
+                        }
+                        MainMenuType::Server(ref mut server_menu) => {
+                            if !server_menu.render(ui) {
+                                self.menu_type = MainMenuType::None
+                            }
+                        }
+                        MainMenuType::Settings(ref mut settings_menu) => {
+                            if !settings_menu.render(ui) {
+                                self.menu_type = MainMenuType::None
+                            }
+                        }
+                    };
+                });
+                // Status bar section
+                ui.child_window("##StatusBar").size([0f32, ui.frame_height()]).build(|| {
+                    self.search_modal(ui);
+                    ui.set_window_font_scale(0.8);
+                    if let Some(hooks) = self.exe_loader.borrow_mut().try_mut() {
+                        ui.text("Game Versions: ");
+                        for gv in [GameVersion::SplinterCellBlacklistDx9, GameVersion::SplinterCellBlacklistDx11] {
+                            ui.same_line();
+                            let (color, tooltip) = if let Some(gh) = hooks.get(gv) {
+                                (game_hook_state_to_color(&gh.state), game_hook_state_to_text(&gh.state))
+                            } else {
+                                (RED, "Not found")
+                            };
+                            ui.text_colored(color.to_rgba_f32s(), gv.label_short());
+                            if ui.is_item_hovered() {
+                                ui.tooltip_text(tooltip);
+                            }
+                        }
+
+                        if hooks.games.values().any(|gv| matches!(gv.state, GameHookState::UnsupportedBinary)) {
+                            ui.same_line();
+                            if ui.button("Attempt to identify") {
+                                hooks.start_searching();
+                                ui.open_popup(ID_MODAL_SEARCHING);
+                            }
+                        }
+                    } else {
+                        ui.text("Searching Game Binaries...");
+                    }
+                })
             });
-        // ui.show_default_style_editor();
     }
 
+    /// Renders the modal for searching for game binaries.
     fn search_modal(&mut self, ui: &imgui::Ui) -> bool {
         let mut el = self.exe_loader.borrow_mut();
         let Some(games) = el.try_mut() else {
@@ -301,14 +279,8 @@ impl<'a> Main<'a> {
                         };
                         Some(HashMap::from([(hash, *a.clone())]))
                     };
-                    let dx9 = games
-                        .get(GameVersion::SplinterCellBlacklistDx9)
-                        .and_then(gen_hash)
-                        .unwrap_or_default();
-                    let dx11 = games
-                        .get(GameVersion::SplinterCellBlacklistDx11)
-                        .and_then(gen_hash)
-                        .unwrap_or_default();
+                    let dx9 = games.get(GameVersion::SplinterCellBlacklistDx9).and_then(gen_hash).unwrap_or_default();
+                    let dx11 = games.get(GameVersion::SplinterCellBlacklistDx11).and_then(gen_hash).unwrap_or_default();
                     hooks_addresses::save_addresses(self.target_dir, dx9, dx11);
                     ui.close_current_popup();
                 }
@@ -317,6 +289,7 @@ impl<'a> Main<'a> {
     }
 }
 
+/// Converts a `GameHookState` to a color.
 fn game_hook_state_to_color(state: &GameHookState) -> ImColor32 {
     match state {
         GameHookState::Resolved(_) => GREEN,
@@ -327,6 +300,7 @@ fn game_hook_state_to_color(state: &GameHookState) -> ImColor32 {
     }
 }
 
+/// Converts a `GameHookState` to a human-readable string.
 fn game_hook_state_to_text(state: &GameHookState) -> &'static str {
     match state {
         GameHookState::Resolved(_) => "Identified",

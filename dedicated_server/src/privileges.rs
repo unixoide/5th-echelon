@@ -1,3 +1,5 @@
+//! Implements the `PrivilegesProtocolServer` for handling user privilege requests.
+
 use std::collections::HashMap;
 
 use quazal::prudp::ClientRegistry;
@@ -14,9 +16,15 @@ use crate::protocols::privileges_service::privileges_protocol::GetPrivilegesResp
 use crate::protocols::privileges_service::privileges_protocol::PrivilegesProtocolServer;
 use crate::protocols::privileges_service::privileges_protocol::PrivilegesProtocolServerTrait;
 
+/// Implementation of the `PrivilegesProtocolServerTrait` for managing user privileges.
 struct PrivilegesProtocolServerImpl;
 
 impl<T> PrivilegesProtocolServerTrait<T> for PrivilegesProtocolServerImpl {
+    /// Handles the `GetPrivileges` request, returning a map of user privileges.
+    ///
+    /// This function requires the client to be logged in. Currently, it returns a hardcoded
+    /// "PlayOnline" privilege. The commented-out section shows how additional privileges
+    /// could be dynamically generated.
     fn get_privileges(
         &self,
         _logger: &Logger,
@@ -26,8 +34,9 @@ impl<T> PrivilegesProtocolServerTrait<T> for PrivilegesProtocolServerImpl {
         _client_registry: &ClientRegistry<T>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetPrivilegesResponse, Error> {
+        // Ensure the client is logged in before retrieving privileges.
         login_required(&*ci)?;
-        let mut privileges = HashMap::from([(
+        let privileges = HashMap::from([(
             1,
             Privilege {
                 id: 1,
@@ -47,6 +56,10 @@ impl<T> PrivilegesProtocolServerTrait<T> for PrivilegesProtocolServerImpl {
     }
 }
 
+/// Creates a new boxed `PrivilegesProtocolServer` instance.
+///
+/// This function is typically used to register the privileges protocol
+/// with the server's protocol dispatcher.
 pub fn new_protocol<T: 'static>() -> Box<dyn Protocol<T>> {
     Box::new(PrivilegesProtocolServer::new(PrivilegesProtocolServerImpl))
 }

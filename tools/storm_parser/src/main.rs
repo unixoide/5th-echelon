@@ -3,13 +3,14 @@ use std::ops::AddAssign;
 use std::ops::Shl;
 use std::ops::Shr;
 
-use nom::complete::bool;
-use nom::complete::tag;
-use nom::complete::take;
+use nom::bits::complete::bool;
+use nom::bits::complete::tag;
+use nom::bits::complete::take;
 use nom::multi::count;
 use nom::multi::length_count;
 use nom::multi::many0;
 use nom::IResult;
+use nom::Parser as _;
 
 type BitInput<'a> = (&'a [u8], usize);
 
@@ -126,8 +127,7 @@ fn ulong(input: BitInput) -> IResult<BitInput, u64> {
 }
 
 fn uint_be(input: BitInput) -> IResult<BitInput, u32> {
-    let (input, tmp): (BitInput, u32) =
-        peek_take(32usize)(input).map(|(input, peek)| (input, dbg!(peek)))?;
+    let (input, tmp): (BitInput, u32) = peek_take(32usize)(input).map(|(input, peek)| (input, dbg!(peek)))?;
     Ok((input, tmp.swap_bytes()))
 }
 
@@ -179,11 +179,7 @@ fn compressed_ulong_be(input: BitInput) -> IResult<BitInput, u64> {
     Ok((input, tmp.swap_bytes()))
 }
 
-fn take_compressed(
-    mut input: BitInput,
-    num_bytes: usize,
-    is_unsigned: bool,
-) -> IResult<BitInput, Vec<u8>> {
+fn take_compressed(mut input: BitInput, num_bytes: usize, is_unsigned: bool) -> IResult<BitInput, Vec<u8>> {
     let mut res = Vec::new();
     let (prefix1, prefix2) = if !is_unsigned {
         let flag;
@@ -201,7 +197,7 @@ fn take_compressed(
         (input, flag) = bool(input)?;
         if !flag {
             let tmp;
-            (input, tmp) = count(byte, num_bytes - i + 1)(input)?;
+            (input, tmp) = count(byte, num_bytes - i + 1).parse(input)?;
             res.extend(tmp);
             return Ok((input, res));
         }
@@ -237,7 +233,7 @@ fn parse_peer_descriptor(input: BitInput) -> IResult<BitInput, ()> {
     println!("x = {x:#x?}");
     // end field
     // start field
-    let (input, x) = length_count(byte, byte)(input)?;
+    let (input, x) = length_count(byte, byte).parse(input)?;
     println!("x = {x:#x?}");
     // end field
     // start field
@@ -370,7 +366,7 @@ fn parse_packet(input: BitInput) -> IResult<BitInput, ()> {
 }
 
 fn take_rest(input: BitInput) -> IResult<BitInput, Vec<u8>> {
-    let (mut input, mut res) = many0(byte)(input)?;
+    let (mut input, mut res) = many0(byte).parse(input)?;
     if input.1 > 0 {
         let tmp;
         (input, tmp) = take(8 - input.1)(input)?;
@@ -383,9 +379,6 @@ fn main() {
     let data = fs::read(std::env::args().nth(1).expect("filename")).expect("readable file");
     let input = (data.as_slice(), 0);
     let (input, _out) = parse_packet(input).unwrap();
-    println!(
-        "parsed bits = {:#x}",
-        (data.len() - input.0.len()) * 8 + input.1
-    );
+    println!("parsed bits = {:#x}", (data.len() - input.0.len()) * 8 + input.1);
     hexdump(&take_rest(input).expect("take_rest").1);
 }

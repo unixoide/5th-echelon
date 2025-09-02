@@ -13,9 +13,13 @@ use crate::protocols::trackingextension::tracking_extension_protocol::GetTrackin
 use crate::protocols::trackingextension::tracking_extension_protocol::TrackingExtensionProtocolServer;
 use crate::protocols::trackingextension::tracking_extension_protocol::TrackingExtensionProtocolServerTrait;
 
+/// Implementation of the `TrackingExtensionProtocolServerTrait` for handling extended tracking requests.
 struct TrackingExtensionProtocolServerImpl;
 
 impl<T> TrackingExtensionProtocolServerTrait<T> for TrackingExtensionProtocolServerImpl {
+    /// Handles the `GetTrackingUserGroup` request, returning a hardcoded user group.
+    ///
+    /// This function requires the client to be logged in.
     fn get_tracking_user_group(
         &self,
         _logger: &Logger,
@@ -29,6 +33,11 @@ impl<T> TrackingExtensionProtocolServerTrait<T> for TrackingExtensionProtocolSer
         Ok(GetTrackingUserGroupResponse { usergroup: 0 })
     }
 
+    /// Handles the `GetTrackingUserGroupTags` request, returning a list of tracking tags for a user group.
+    ///
+    /// This function requires the client to be logged in. The list of tags returned
+    /// depends on whether the "tracking" feature is enabled during compilation.
+    /// If the "tracking" feature is not enabled, an empty list of tags is returned.
     fn get_tracking_user_group_tags(
         &self,
         _logger: &Logger,
@@ -64,8 +73,10 @@ impl<T> TrackingExtensionProtocolServerTrait<T> for TrackingExtensionProtocolSer
     }
 }
 
+/// Creates a new boxed `TrackingExtensionProtocolServer` instance.
+///
+/// This function is typically used to register the tracking extension protocol
+/// with the server's protocol dispatcher.
 pub fn new_protocol<T: 'static>() -> Box<dyn Protocol<T>> {
-    Box::new(TrackingExtensionProtocolServer::new(
-        TrackingExtensionProtocolServerImpl,
-    ))
+    Box::new(TrackingExtensionProtocolServer::new(TrackingExtensionProtocolServerImpl))
 }

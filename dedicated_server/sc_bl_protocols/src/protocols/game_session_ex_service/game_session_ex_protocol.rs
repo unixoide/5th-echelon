@@ -37,18 +37,13 @@ pub struct SearchSessionsRequest {
 pub struct SearchSessionsResponse {
     pub search_results: quazal::rmc::types::QList<GameSessionSearchResultEx>,
 }
-pub struct GameSessionExProtocolServer<T: GameSessionExProtocolServerTrait<CI>, CI>(
-    T,
-    ::std::marker::PhantomData<CI>,
-);
+pub struct GameSessionExProtocolServer<T: GameSessionExProtocolServerTrait<CI>, CI>(T, ::std::marker::PhantomData<CI>);
 impl<T: GameSessionExProtocolServerTrait<CI>, CI> GameSessionExProtocolServer<T, CI> {
     pub fn new(implementation: T) -> Self {
         Self(implementation, ::std::marker::PhantomData)
     }
 }
-impl<T: GameSessionExProtocolServerTrait<CI>, CI> Protocol<CI>
-    for GameSessionExProtocolServer<T, CI>
-{
+impl<T: GameSessionExProtocolServerTrait<CI>, CI> Protocol<CI> for GameSessionExProtocolServer<T, CI> {
     fn id(&self) -> u16 {
         GAME_SESSION_EX_PROTOCOL_ID
     }
@@ -73,18 +68,14 @@ impl<T: GameSessionExProtocolServerTrait<CI>, CI> Protocol<CI>
             Some(GameSessionExProtocolMethod::SearchSessions) => {
                 let req = SearchSessionsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .search_sessions(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.search_sessions(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
         }
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        GameSessionExProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        GameSessionExProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
@@ -98,12 +89,7 @@ pub trait GameSessionExProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<SearchSessionsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionExProtocol",
-            stringify!(search_sessions)
-        );
+        warn!(logger, "Method {}.{} not implemented", "GameSessionExProtocol", stringify!(search_sessions));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }
@@ -129,33 +115,14 @@ impl<CI> ClientProtocol<CI> for GameSessionExProtocolClient<CI> {
         1u32
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        GameSessionExProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        GameSessionExProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
 impl<CI> GameSessionExProtocolClient<CI> {
-    pub fn search_sessions(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: SearchSessionsRequest,
-    ) -> Result<SearchSessionsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "GameSessionExProtocol",
-            stringify!(search_sessions)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            GameSessionExProtocolMethod::SearchSessions as u32,
-            request.to_bytes(),
-        );
+    pub fn search_sessions(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: SearchSessionsRequest) -> Result<SearchSessionsResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "GameSessionExProtocol", stringify!(search_sessions));
+        self.send(logger, ctx, ci, GameSessionExProtocolMethod::SearchSessions as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }

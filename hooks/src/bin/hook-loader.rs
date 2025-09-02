@@ -11,7 +11,12 @@ fn get_or_spawn() -> OwnedProcess {
     //     "-gamelauncher_wait_handle", "1376",
     //     "-upc_uplay_id","449",
     //     "-upc_game_version", "1",
-    //     "-upc_exe_path", "QzpcUHJvZ3JhbSBGaWxlcyAoeDg2KVxTdGVhbVxzdGVhbWFwcHNcY29tbW9uXFRvbSBDbGFuY3kncyBTcGxpbnRlciBDZWxsIEJsYWNrbGlzdFxzcmNcU1lTVEVNXEJsYWNrbGlzdF9nYW1lLmV4ZQ== -upc_working_directory QzpcUHJvZ3JhbSBGaWxlcyAoeDg2KVxTdGVhbVxzdGVhbWFwcHNcY29tbW9uXFRvbSBDbGFuY3kncyBTcGxpbnRlciBDZWxsIEJsYWNrbGlzdFxzcmNcU1lTVEVN",
+    //     "-upc_exe_path",
+    //     "QzpcUHJvZ3JhbSBGaWxlcyAoeDg2KVxTdGVhbVxzdGVhbWFwcHNcY29tbW9uXFRvbSBDbGFuY3kncyBTcGxpbnR\
+    //lciBDZWxsIEJsYWNrbGlzdFxzcmNcU1lTVEVNXEJsYWNrbGlzdF9nYW1lLmV4ZQ==",
+    //     "-upc_working_directory",
+    //     "QzpcUHJvZ3JhbSBGaWxlcyAoeDg2KVxTdGVhbVxzdGVhbWFwcHNcY29tbW9uXFRvbSBDbGFuY3kncyBTcGxpbnR\
+    //lciBDZWxsIEJsYWNrbGlzdFxzcmNcU1lTVEVN",
     //     "-upc_arguments"
     //     ])
     // .spawn().unwrap();
@@ -32,9 +37,7 @@ fn main() {
     println!("Found process");
     let syringe = Syringe::for_process(target_process);
 
-    let _injected_payload = syringe
-        .inject("target/i686-pc-windows-msvc/release/hooks.dll")
-        .unwrap();
+    let _injected_payload = syringe.inject("target/i686-pc-windows-msvc/release/hooks.dll").unwrap();
 
     println!("Injectect dll into process");
 
@@ -50,12 +53,7 @@ mod tests {
         HASHES
             .split('\n')
             .flat_map(|line| line.split_once('\t'))
-            .flat_map(|(txt, id)| {
-                Some((
-                    dbg!(usize::from_str_radix(dbg!(id.trim_end()), 16)).ok()?,
-                    txt,
-                ))
-            })
+            .flat_map(|(txt, id)| Some((dbg!(usize::from_str_radix(dbg!(id.trim_end()), 16)).ok()?, txt)))
             .collect()
     }
     #[test]

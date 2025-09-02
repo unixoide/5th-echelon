@@ -55,10 +55,7 @@ pub struct FixSanityErrorsRequest;
 pub struct FixSanityErrorsResponse {
     pub return_value: bool,
 }
-pub struct HealthProtocolServer<T: HealthProtocolServerTrait<CI>, CI>(
-    T,
-    ::std::marker::PhantomData<CI>,
-);
+pub struct HealthProtocolServer<T: HealthProtocolServerTrait<CI>, CI>(T, ::std::marker::PhantomData<CI>);
 impl<T: HealthProtocolServerTrait<CI>, CI> HealthProtocolServer<T, CI> {
     pub fn new(implementation: T) -> Self {
         Self(implementation, ::std::marker::PhantomData)
@@ -89,45 +86,35 @@ impl<T: HealthProtocolServerTrait<CI>, CI> Protocol<CI> for HealthProtocolServer
             Some(HealthProtocolMethod::PingDaemon) => {
                 let req = PingDaemonRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .ping_daemon(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.ping_daemon(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(HealthProtocolMethod::PingDatabase) => {
                 let req = PingDatabaseRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .ping_database(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.ping_database(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(HealthProtocolMethod::RunSanityCheck) => {
                 let req = RunSanityCheckRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .run_sanity_check(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.run_sanity_check(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(HealthProtocolMethod::FixSanityErrors) => {
                 let req = FixSanityErrorsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .fix_sanity_errors(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.fix_sanity_errors(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
         }
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        HealthProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        HealthProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
@@ -141,12 +128,7 @@ pub trait HealthProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<PingDaemonResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "HealthProtocol",
-            stringify!(ping_daemon)
-        );
+        warn!(logger, "Method {}.{} not implemented", "HealthProtocol", stringify!(ping_daemon));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn ping_database(
@@ -158,12 +140,7 @@ pub trait HealthProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<PingDatabaseResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "HealthProtocol",
-            stringify!(ping_database)
-        );
+        warn!(logger, "Method {}.{} not implemented", "HealthProtocol", stringify!(ping_database));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn run_sanity_check(
@@ -175,12 +152,7 @@ pub trait HealthProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<RunSanityCheckResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "HealthProtocol",
-            stringify!(run_sanity_check)
-        );
+        warn!(logger, "Method {}.{} not implemented", "HealthProtocol", stringify!(run_sanity_check));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn fix_sanity_errors(
@@ -192,12 +164,7 @@ pub trait HealthProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<FixSanityErrorsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "HealthProtocol",
-            stringify!(fix_sanity_errors)
-        );
+        warn!(logger, "Method {}.{} not implemented", "HealthProtocol", stringify!(fix_sanity_errors));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }
@@ -223,99 +190,29 @@ impl<CI> ClientProtocol<CI> for HealthProtocolClient<CI> {
         4u32
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        HealthProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        HealthProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
 impl<CI> HealthProtocolClient<CI> {
-    pub fn ping_daemon(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: PingDaemonRequest,
-    ) -> Result<PingDaemonResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "HealthProtocol",
-            stringify!(ping_daemon)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            HealthProtocolMethod::PingDaemon as u32,
-            request.to_bytes(),
-        );
+    pub fn ping_daemon(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: PingDaemonRequest) -> Result<PingDaemonResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "HealthProtocol", stringify!(ping_daemon));
+        self.send(logger, ctx, ci, HealthProtocolMethod::PingDaemon as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn ping_database(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: PingDatabaseRequest,
-    ) -> Result<PingDatabaseResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "HealthProtocol",
-            stringify!(ping_database)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            HealthProtocolMethod::PingDatabase as u32,
-            request.to_bytes(),
-        );
+    pub fn ping_database(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: PingDatabaseRequest) -> Result<PingDatabaseResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "HealthProtocol", stringify!(ping_database));
+        self.send(logger, ctx, ci, HealthProtocolMethod::PingDatabase as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn run_sanity_check(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: RunSanityCheckRequest,
-    ) -> Result<RunSanityCheckResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "HealthProtocol",
-            stringify!(run_sanity_check)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            HealthProtocolMethod::RunSanityCheck as u32,
-            request.to_bytes(),
-        );
+    pub fn run_sanity_check(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: RunSanityCheckRequest) -> Result<RunSanityCheckResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "HealthProtocol", stringify!(run_sanity_check));
+        self.send(logger, ctx, ci, HealthProtocolMethod::RunSanityCheck as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn fix_sanity_errors(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: FixSanityErrorsRequest,
-    ) -> Result<FixSanityErrorsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "HealthProtocol",
-            stringify!(fix_sanity_errors)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            HealthProtocolMethod::FixSanityErrors as u32,
-            request.to_bytes(),
-        );
+    pub fn fix_sanity_errors(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: FixSanityErrorsRequest) -> Result<FixSanityErrorsResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "HealthProtocol", stringify!(fix_sanity_errors));
+        self.send(logger, ctx, ci, HealthProtocolMethod::FixSanityErrors as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }

@@ -158,10 +158,7 @@ pub struct GetRelationshipsResponse {
     pub ui_total_count: u32,
     pub lst_relationships_list: Vec<RelationshipData>,
 }
-pub struct FriendsProtocolServer<T: FriendsProtocolServerTrait<CI>, CI>(
-    T,
-    ::std::marker::PhantomData<CI>,
-);
+pub struct FriendsProtocolServer<T: FriendsProtocolServerTrait<CI>, CI>(T, ::std::marker::PhantomData<CI>);
 impl<T: FriendsProtocolServerTrait<CI>, CI> FriendsProtocolServer<T, CI> {
     pub fn new(implementation: T) -> Self {
         Self(implementation, ::std::marker::PhantomData)
@@ -192,131 +189,98 @@ impl<T: FriendsProtocolServerTrait<CI>, CI> Protocol<CI> for FriendsProtocolServ
             Some(FriendsProtocolMethod::AddFriend) => {
                 let req = AddFriendRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .add_friend(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.add_friend(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(FriendsProtocolMethod::AddFriendByName) => {
                 let req = AddFriendByNameRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .add_friend_by_name(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.add_friend_by_name(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(FriendsProtocolMethod::AddFriendWithDetails) => {
                 let req = AddFriendWithDetailsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .add_friend_with_details(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.add_friend_with_details(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(FriendsProtocolMethod::AddFriendByNameWithDetails) => {
                 let req = AddFriendByNameWithDetailsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.add_friend_by_name_with_details(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self.0.add_friend_by_name_with_details(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(FriendsProtocolMethod::AcceptFriendship) => {
                 let req = AcceptFriendshipRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .accept_friendship(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.accept_friendship(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(FriendsProtocolMethod::DeclineFriendship) => {
                 let req = DeclineFriendshipRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .decline_friendship(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.decline_friendship(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(FriendsProtocolMethod::BlackList) => {
                 let req = BlackListRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .black_list(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.black_list(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(FriendsProtocolMethod::BlackListByName) => {
                 let req = BlackListByNameRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .black_list_by_name(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.black_list_by_name(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(FriendsProtocolMethod::ClearRelationship) => {
                 let req = ClearRelationshipRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .clear_relationship(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.clear_relationship(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(FriendsProtocolMethod::UpdateDetails) => {
                 let req = UpdateDetailsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .update_details(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.update_details(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(FriendsProtocolMethod::GetList) => {
                 let req = GetListRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_list(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_list(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(FriendsProtocolMethod::GetDetailedList) => {
                 let req = GetDetailedListRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_detailed_list(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_detailed_list(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(FriendsProtocolMethod::GetRelationships) => {
                 let req = GetRelationshipsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_relationships(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_relationships(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
         }
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        FriendsProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        FriendsProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
@@ -330,12 +294,7 @@ pub trait FriendsProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<AddFriendResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "FriendsProtocol",
-            stringify!(add_friend)
-        );
+        warn!(logger, "Method {}.{} not implemented", "FriendsProtocol", stringify!(add_friend));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn add_friend_by_name(
@@ -347,12 +306,7 @@ pub trait FriendsProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<AddFriendByNameResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "FriendsProtocol",
-            stringify!(add_friend_by_name)
-        );
+        warn!(logger, "Method {}.{} not implemented", "FriendsProtocol", stringify!(add_friend_by_name));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn add_friend_with_details(
@@ -364,12 +318,7 @@ pub trait FriendsProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<AddFriendWithDetailsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "FriendsProtocol",
-            stringify!(add_friend_with_details)
-        );
+        warn!(logger, "Method {}.{} not implemented", "FriendsProtocol", stringify!(add_friend_with_details));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn add_friend_by_name_with_details(
@@ -381,12 +330,7 @@ pub trait FriendsProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<AddFriendByNameWithDetailsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "FriendsProtocol",
-            stringify!(add_friend_by_name_with_details)
-        );
+        warn!(logger, "Method {}.{} not implemented", "FriendsProtocol", stringify!(add_friend_by_name_with_details));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn accept_friendship(
@@ -398,12 +342,7 @@ pub trait FriendsProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<AcceptFriendshipResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "FriendsProtocol",
-            stringify!(accept_friendship)
-        );
+        warn!(logger, "Method {}.{} not implemented", "FriendsProtocol", stringify!(accept_friendship));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn decline_friendship(
@@ -415,12 +354,7 @@ pub trait FriendsProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<DeclineFriendshipResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "FriendsProtocol",
-            stringify!(decline_friendship)
-        );
+        warn!(logger, "Method {}.{} not implemented", "FriendsProtocol", stringify!(decline_friendship));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn black_list(
@@ -432,12 +366,7 @@ pub trait FriendsProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<BlackListResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "FriendsProtocol",
-            stringify!(black_list)
-        );
+        warn!(logger, "Method {}.{} not implemented", "FriendsProtocol", stringify!(black_list));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn black_list_by_name(
@@ -449,12 +378,7 @@ pub trait FriendsProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<BlackListByNameResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "FriendsProtocol",
-            stringify!(black_list_by_name)
-        );
+        warn!(logger, "Method {}.{} not implemented", "FriendsProtocol", stringify!(black_list_by_name));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn clear_relationship(
@@ -466,12 +390,7 @@ pub trait FriendsProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<ClearRelationshipResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "FriendsProtocol",
-            stringify!(clear_relationship)
-        );
+        warn!(logger, "Method {}.{} not implemented", "FriendsProtocol", stringify!(clear_relationship));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn update_details(
@@ -483,12 +402,7 @@ pub trait FriendsProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<UpdateDetailsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "FriendsProtocol",
-            stringify!(update_details)
-        );
+        warn!(logger, "Method {}.{} not implemented", "FriendsProtocol", stringify!(update_details));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_list(
@@ -500,12 +414,7 @@ pub trait FriendsProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetListResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "FriendsProtocol",
-            stringify!(get_list)
-        );
+        warn!(logger, "Method {}.{} not implemented", "FriendsProtocol", stringify!(get_list));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_detailed_list(
@@ -517,12 +426,7 @@ pub trait FriendsProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetDetailedListResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "FriendsProtocol",
-            stringify!(get_detailed_list)
-        );
+        warn!(logger, "Method {}.{} not implemented", "FriendsProtocol", stringify!(get_detailed_list));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_relationships(
@@ -534,12 +438,7 @@ pub trait FriendsProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetRelationshipsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "FriendsProtocol",
-            stringify!(get_relationships)
-        );
+        warn!(logger, "Method {}.{} not implemented", "FriendsProtocol", stringify!(get_relationships));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }
@@ -565,55 +464,19 @@ impl<CI> ClientProtocol<CI> for FriendsProtocolClient<CI> {
         13u32
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        FriendsProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        FriendsProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
 impl<CI> FriendsProtocolClient<CI> {
-    pub fn add_friend(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: AddFriendRequest,
-    ) -> Result<AddFriendResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "FriendsProtocol",
-            stringify!(add_friend)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            FriendsProtocolMethod::AddFriend as u32,
-            request.to_bytes(),
-        );
+    pub fn add_friend(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: AddFriendRequest) -> Result<AddFriendResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "FriendsProtocol", stringify!(add_friend));
+        self.send(logger, ctx, ci, FriendsProtocolMethod::AddFriend as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn add_friend_by_name(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: AddFriendByNameRequest,
-    ) -> Result<AddFriendByNameResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "FriendsProtocol",
-            stringify!(add_friend_by_name)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            FriendsProtocolMethod::AddFriendByName as u32,
-            request.to_bytes(),
-        );
+    pub fn add_friend_by_name(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: AddFriendByNameRequest) -> Result<AddFriendByNameResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "FriendsProtocol", stringify!(add_friend_by_name));
+        self.send(logger, ctx, ci, FriendsProtocolMethod::AddFriendByName as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn add_friend_with_details(
@@ -623,19 +486,8 @@ impl<CI> FriendsProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: AddFriendWithDetailsRequest,
     ) -> Result<AddFriendWithDetailsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "FriendsProtocol",
-            stringify!(add_friend_with_details)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            FriendsProtocolMethod::AddFriendWithDetails as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "FriendsProtocol", stringify!(add_friend_with_details));
+        self.send(logger, ctx, ci, FriendsProtocolMethod::AddFriendWithDetails as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn add_friend_by_name_with_details(
@@ -645,217 +497,53 @@ impl<CI> FriendsProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: AddFriendByNameWithDetailsRequest,
     ) -> Result<AddFriendByNameWithDetailsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "FriendsProtocol",
-            stringify!(add_friend_by_name_with_details)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            FriendsProtocolMethod::AddFriendByNameWithDetails as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "FriendsProtocol", stringify!(add_friend_by_name_with_details));
+        self.send(logger, ctx, ci, FriendsProtocolMethod::AddFriendByNameWithDetails as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn accept_friendship(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: AcceptFriendshipRequest,
-    ) -> Result<AcceptFriendshipResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "FriendsProtocol",
-            stringify!(accept_friendship)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            FriendsProtocolMethod::AcceptFriendship as u32,
-            request.to_bytes(),
-        );
+    pub fn accept_friendship(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: AcceptFriendshipRequest) -> Result<AcceptFriendshipResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "FriendsProtocol", stringify!(accept_friendship));
+        self.send(logger, ctx, ci, FriendsProtocolMethod::AcceptFriendship as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn decline_friendship(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: DeclineFriendshipRequest,
-    ) -> Result<DeclineFriendshipResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "FriendsProtocol",
-            stringify!(decline_friendship)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            FriendsProtocolMethod::DeclineFriendship as u32,
-            request.to_bytes(),
-        );
+    pub fn decline_friendship(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: DeclineFriendshipRequest) -> Result<DeclineFriendshipResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "FriendsProtocol", stringify!(decline_friendship));
+        self.send(logger, ctx, ci, FriendsProtocolMethod::DeclineFriendship as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn black_list(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: BlackListRequest,
-    ) -> Result<BlackListResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "FriendsProtocol",
-            stringify!(black_list)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            FriendsProtocolMethod::BlackList as u32,
-            request.to_bytes(),
-        );
+    pub fn black_list(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: BlackListRequest) -> Result<BlackListResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "FriendsProtocol", stringify!(black_list));
+        self.send(logger, ctx, ci, FriendsProtocolMethod::BlackList as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn black_list_by_name(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: BlackListByNameRequest,
-    ) -> Result<BlackListByNameResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "FriendsProtocol",
-            stringify!(black_list_by_name)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            FriendsProtocolMethod::BlackListByName as u32,
-            request.to_bytes(),
-        );
+    pub fn black_list_by_name(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: BlackListByNameRequest) -> Result<BlackListByNameResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "FriendsProtocol", stringify!(black_list_by_name));
+        self.send(logger, ctx, ci, FriendsProtocolMethod::BlackListByName as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn clear_relationship(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: ClearRelationshipRequest,
-    ) -> Result<ClearRelationshipResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "FriendsProtocol",
-            stringify!(clear_relationship)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            FriendsProtocolMethod::ClearRelationship as u32,
-            request.to_bytes(),
-        );
+    pub fn clear_relationship(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: ClearRelationshipRequest) -> Result<ClearRelationshipResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "FriendsProtocol", stringify!(clear_relationship));
+        self.send(logger, ctx, ci, FriendsProtocolMethod::ClearRelationship as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn update_details(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: UpdateDetailsRequest,
-    ) -> Result<UpdateDetailsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "FriendsProtocol",
-            stringify!(update_details)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            FriendsProtocolMethod::UpdateDetails as u32,
-            request.to_bytes(),
-        );
+    pub fn update_details(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: UpdateDetailsRequest) -> Result<UpdateDetailsResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "FriendsProtocol", stringify!(update_details));
+        self.send(logger, ctx, ci, FriendsProtocolMethod::UpdateDetails as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn get_list(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetListRequest,
-    ) -> Result<GetListResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "FriendsProtocol",
-            stringify!(get_list)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            FriendsProtocolMethod::GetList as u32,
-            request.to_bytes(),
-        );
+    pub fn get_list(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetListRequest) -> Result<GetListResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "FriendsProtocol", stringify!(get_list));
+        self.send(logger, ctx, ci, FriendsProtocolMethod::GetList as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn get_detailed_list(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetDetailedListRequest,
-    ) -> Result<GetDetailedListResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "FriendsProtocol",
-            stringify!(get_detailed_list)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            FriendsProtocolMethod::GetDetailedList as u32,
-            request.to_bytes(),
-        );
+    pub fn get_detailed_list(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetDetailedListRequest) -> Result<GetDetailedListResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "FriendsProtocol", stringify!(get_detailed_list));
+        self.send(logger, ctx, ci, FriendsProtocolMethod::GetDetailedList as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn get_relationships(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetRelationshipsRequest,
-    ) -> Result<GetRelationshipsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "FriendsProtocol",
-            stringify!(get_relationships)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            FriendsProtocolMethod::GetRelationships as u32,
-            request.to_bytes(),
-        );
+    pub fn get_relationships(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetRelationshipsRequest) -> Result<GetRelationshipsResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "FriendsProtocol", stringify!(get_relationships));
+        self.send(logger, ctx, ci, FriendsProtocolMethod::GetRelationships as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }

@@ -176,10 +176,7 @@ pub struct BuyRewardRequest {
 pub struct BuyRewardResponse {
     pub virtual_currency_user_balance: i32,
 }
-pub struct UplayWinProtocolServer<T: UplayWinProtocolServerTrait<CI>, CI>(
-    T,
-    ::std::marker::PhantomData<CI>,
-);
+pub struct UplayWinProtocolServer<T: UplayWinProtocolServerTrait<CI>, CI>(T, ::std::marker::PhantomData<CI>);
 impl<T: UplayWinProtocolServerTrait<CI>, CI> UplayWinProtocolServer<T, CI> {
     pub fn new(implementation: T) -> Self {
         Self(implementation, ::std::marker::PhantomData)
@@ -210,136 +207,98 @@ impl<T: UplayWinProtocolServerTrait<CI>, CI> Protocol<CI> for UplayWinProtocolSe
             Some(UplayWinProtocolMethod::GetActions) => {
                 let req = GetActionsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_actions(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_actions(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UplayWinProtocolMethod::GetActionsCompleted) => {
                 let req = GetActionsCompletedRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .get_actions_completed(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_actions_completed(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UplayWinProtocolMethod::GetActionsCount) => {
                 let req = GetActionsCountRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_actions_count(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_actions_count(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UplayWinProtocolMethod::GetActionsCompletedCount) => {
                 let req = GetActionsCompletedCountRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.get_actions_completed_count(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self.0.get_actions_completed_count(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UplayWinProtocolMethod::GetRewards) => {
                 let req = GetRewardsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_rewards(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_rewards(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UplayWinProtocolMethod::GetRewardsPurchased) => {
                 let req = GetRewardsPurchasedRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .get_rewards_purchased(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_rewards_purchased(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UplayWinProtocolMethod::UplayWelcome) => {
                 let req = UplayWelcomeRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .uplay_welcome(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.uplay_welcome(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UplayWinProtocolMethod::SetActionCompleted) => {
                 let req = SetActionCompletedRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .set_action_completed(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.set_action_completed(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UplayWinProtocolMethod::SetActionsCompleted) => {
                 let req = SetActionsCompletedRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .set_actions_completed(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.set_actions_completed(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UplayWinProtocolMethod::GetUserToken) => {
                 let req = GetUserTokenRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_user_token(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_user_token(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UplayWinProtocolMethod::GetVirtualCurrencyUserBalance) => {
                 let req = GetVirtualCurrencyUserBalanceRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.get_virtual_currency_user_balance(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self.0.get_virtual_currency_user_balance(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UplayWinProtocolMethod::GetSectionsByKey) => {
                 let req = GetSectionsByKeyRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .get_sections_by_key(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_sections_by_key(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UplayWinProtocolMethod::BuyReward) => {
                 let req = BuyRewardRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .buy_reward(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.buy_reward(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
         }
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        UplayWinProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        UplayWinProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
@@ -353,12 +312,7 @@ pub trait UplayWinProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetActionsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UplayWinProtocol",
-            stringify!(get_actions)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UplayWinProtocol", stringify!(get_actions));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_actions_completed(
@@ -370,12 +324,7 @@ pub trait UplayWinProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetActionsCompletedResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UplayWinProtocol",
-            stringify!(get_actions_completed)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UplayWinProtocol", stringify!(get_actions_completed));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_actions_count(
@@ -387,12 +336,7 @@ pub trait UplayWinProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetActionsCountResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UplayWinProtocol",
-            stringify!(get_actions_count)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UplayWinProtocol", stringify!(get_actions_count));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_actions_completed_count(
@@ -404,12 +348,7 @@ pub trait UplayWinProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetActionsCompletedCountResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UplayWinProtocol",
-            stringify!(get_actions_completed_count)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UplayWinProtocol", stringify!(get_actions_completed_count));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_rewards(
@@ -421,12 +360,7 @@ pub trait UplayWinProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetRewardsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UplayWinProtocol",
-            stringify!(get_rewards)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UplayWinProtocol", stringify!(get_rewards));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_rewards_purchased(
@@ -438,12 +372,7 @@ pub trait UplayWinProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetRewardsPurchasedResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UplayWinProtocol",
-            stringify!(get_rewards_purchased)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UplayWinProtocol", stringify!(get_rewards_purchased));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn uplay_welcome(
@@ -455,12 +384,7 @@ pub trait UplayWinProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<UplayWelcomeResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UplayWinProtocol",
-            stringify!(uplay_welcome)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UplayWinProtocol", stringify!(uplay_welcome));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn set_action_completed(
@@ -472,12 +396,7 @@ pub trait UplayWinProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<SetActionCompletedResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UplayWinProtocol",
-            stringify!(set_action_completed)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UplayWinProtocol", stringify!(set_action_completed));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn set_actions_completed(
@@ -489,12 +408,7 @@ pub trait UplayWinProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<SetActionsCompletedResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UplayWinProtocol",
-            stringify!(set_actions_completed)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UplayWinProtocol", stringify!(set_actions_completed));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_user_token(
@@ -506,12 +420,7 @@ pub trait UplayWinProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetUserTokenResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UplayWinProtocol",
-            stringify!(get_user_token)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UplayWinProtocol", stringify!(get_user_token));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_virtual_currency_user_balance(
@@ -523,12 +432,7 @@ pub trait UplayWinProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetVirtualCurrencyUserBalanceResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UplayWinProtocol",
-            stringify!(get_virtual_currency_user_balance)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UplayWinProtocol", stringify!(get_virtual_currency_user_balance));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_sections_by_key(
@@ -540,12 +444,7 @@ pub trait UplayWinProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetSectionsByKeyResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UplayWinProtocol",
-            stringify!(get_sections_by_key)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UplayWinProtocol", stringify!(get_sections_by_key));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn buy_reward(
@@ -557,12 +456,7 @@ pub trait UplayWinProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<BuyRewardResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UplayWinProtocol",
-            stringify!(buy_reward)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UplayWinProtocol", stringify!(buy_reward));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }
@@ -588,33 +482,14 @@ impl<CI> ClientProtocol<CI> for UplayWinProtocolClient<CI> {
         13u32
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        UplayWinProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        UplayWinProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
 impl<CI> UplayWinProtocolClient<CI> {
-    pub fn get_actions(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetActionsRequest,
-    ) -> Result<GetActionsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UplayWinProtocol",
-            stringify!(get_actions)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UplayWinProtocolMethod::GetActions as u32,
-            request.to_bytes(),
-        );
+    pub fn get_actions(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetActionsRequest) -> Result<GetActionsResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UplayWinProtocol", stringify!(get_actions));
+        self.send(logger, ctx, ci, UplayWinProtocolMethod::GetActions as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn get_actions_completed(
@@ -624,41 +499,13 @@ impl<CI> UplayWinProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: GetActionsCompletedRequest,
     ) -> Result<GetActionsCompletedResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UplayWinProtocol",
-            stringify!(get_actions_completed)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UplayWinProtocolMethod::GetActionsCompleted as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "UplayWinProtocol", stringify!(get_actions_completed));
+        self.send(logger, ctx, ci, UplayWinProtocolMethod::GetActionsCompleted as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn get_actions_count(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetActionsCountRequest,
-    ) -> Result<GetActionsCountResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UplayWinProtocol",
-            stringify!(get_actions_count)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UplayWinProtocolMethod::GetActionsCount as u32,
-            request.to_bytes(),
-        );
+    pub fn get_actions_count(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetActionsCountRequest) -> Result<GetActionsCountResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UplayWinProtocol", stringify!(get_actions_count));
+        self.send(logger, ctx, ci, UplayWinProtocolMethod::GetActionsCount as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn get_actions_completed_count(
@@ -668,41 +515,13 @@ impl<CI> UplayWinProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: GetActionsCompletedCountRequest,
     ) -> Result<GetActionsCompletedCountResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UplayWinProtocol",
-            stringify!(get_actions_completed_count)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UplayWinProtocolMethod::GetActionsCompletedCount as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "UplayWinProtocol", stringify!(get_actions_completed_count));
+        self.send(logger, ctx, ci, UplayWinProtocolMethod::GetActionsCompletedCount as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn get_rewards(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetRewardsRequest,
-    ) -> Result<GetRewardsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UplayWinProtocol",
-            stringify!(get_rewards)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UplayWinProtocolMethod::GetRewards as u32,
-            request.to_bytes(),
-        );
+    pub fn get_rewards(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetRewardsRequest) -> Result<GetRewardsResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UplayWinProtocol", stringify!(get_rewards));
+        self.send(logger, ctx, ci, UplayWinProtocolMethod::GetRewards as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn get_rewards_purchased(
@@ -712,63 +531,18 @@ impl<CI> UplayWinProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: GetRewardsPurchasedRequest,
     ) -> Result<GetRewardsPurchasedResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UplayWinProtocol",
-            stringify!(get_rewards_purchased)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UplayWinProtocolMethod::GetRewardsPurchased as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "UplayWinProtocol", stringify!(get_rewards_purchased));
+        self.send(logger, ctx, ci, UplayWinProtocolMethod::GetRewardsPurchased as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn uplay_welcome(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: UplayWelcomeRequest,
-    ) -> Result<UplayWelcomeResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UplayWinProtocol",
-            stringify!(uplay_welcome)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UplayWinProtocolMethod::UplayWelcome as u32,
-            request.to_bytes(),
-        );
+    pub fn uplay_welcome(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: UplayWelcomeRequest) -> Result<UplayWelcomeResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UplayWinProtocol", stringify!(uplay_welcome));
+        self.send(logger, ctx, ci, UplayWinProtocolMethod::UplayWelcome as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn set_action_completed(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: SetActionCompletedRequest,
-    ) -> Result<SetActionCompletedResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UplayWinProtocol",
-            stringify!(set_action_completed)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UplayWinProtocolMethod::SetActionCompleted as u32,
-            request.to_bytes(),
-        );
+    pub fn set_action_completed(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: SetActionCompletedRequest) -> Result<SetActionCompletedResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UplayWinProtocol", stringify!(set_action_completed));
+        self.send(logger, ctx, ci, UplayWinProtocolMethod::SetActionCompleted as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn set_actions_completed(
@@ -778,41 +552,13 @@ impl<CI> UplayWinProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: SetActionsCompletedRequest,
     ) -> Result<SetActionsCompletedResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UplayWinProtocol",
-            stringify!(set_actions_completed)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UplayWinProtocolMethod::SetActionsCompleted as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "UplayWinProtocol", stringify!(set_actions_completed));
+        self.send(logger, ctx, ci, UplayWinProtocolMethod::SetActionsCompleted as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn get_user_token(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetUserTokenRequest,
-    ) -> Result<GetUserTokenResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UplayWinProtocol",
-            stringify!(get_user_token)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UplayWinProtocolMethod::GetUserToken as u32,
-            request.to_bytes(),
-        );
+    pub fn get_user_token(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetUserTokenRequest) -> Result<GetUserTokenResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UplayWinProtocol", stringify!(get_user_token));
+        self.send(logger, ctx, ci, UplayWinProtocolMethod::GetUserToken as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn get_virtual_currency_user_balance(
@@ -822,63 +568,18 @@ impl<CI> UplayWinProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: GetVirtualCurrencyUserBalanceRequest,
     ) -> Result<GetVirtualCurrencyUserBalanceResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UplayWinProtocol",
-            stringify!(get_virtual_currency_user_balance)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UplayWinProtocolMethod::GetVirtualCurrencyUserBalance as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "UplayWinProtocol", stringify!(get_virtual_currency_user_balance));
+        self.send(logger, ctx, ci, UplayWinProtocolMethod::GetVirtualCurrencyUserBalance as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn get_sections_by_key(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetSectionsByKeyRequest,
-    ) -> Result<GetSectionsByKeyResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UplayWinProtocol",
-            stringify!(get_sections_by_key)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UplayWinProtocolMethod::GetSectionsByKey as u32,
-            request.to_bytes(),
-        );
+    pub fn get_sections_by_key(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetSectionsByKeyRequest) -> Result<GetSectionsByKeyResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UplayWinProtocol", stringify!(get_sections_by_key));
+        self.send(logger, ctx, ci, UplayWinProtocolMethod::GetSectionsByKey as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn buy_reward(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: BuyRewardRequest,
-    ) -> Result<BuyRewardResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UplayWinProtocol",
-            stringify!(buy_reward)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UplayWinProtocolMethod::BuyReward as u32,
-            request.to_bytes(),
-        );
+    pub fn buy_reward(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: BuyRewardRequest) -> Result<BuyRewardResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UplayWinProtocol", stringify!(buy_reward));
+        self.send(logger, ctx, ci, UplayWinProtocolMethod::BuyReward as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }

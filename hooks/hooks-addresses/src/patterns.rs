@@ -44,10 +44,7 @@ pub enum PatternOctet {
 
 impl PatternOctet {
     pub fn new(byte: u8) -> Self {
-        PatternOctet::Full([
-            PatternNibble::Exact(byte >> 4),
-            PatternNibble::Exact(byte & 0xF),
-        ])
+        PatternOctet::Full([PatternNibble::Exact(byte >> 4), PatternNibble::Exact(byte & 0xF)])
     }
 
     pub const fn matches(&self, byte: u8) -> bool {
@@ -136,12 +133,7 @@ impl FromStr for Pattern {
     type Err = ();
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let nibbles = s
-            .chars()
-            .filter(|c| *c != ' ')
-            .map(PatternNibble::parse)
-            .collect::<Option<Vec<_>>>()
-            .ok_or(())?;
+        let nibbles = s.chars().filter(|c| *c != ' ').map(PatternNibble::parse).collect::<Option<Vec<_>>>().ok_or(())?;
 
         let octets = nibbles
             .chunks(2)
@@ -176,10 +168,7 @@ mod tests {
 
     #[test]
     fn test_pattern_nibble_parsing() {
-        assert!(matches!(
-            PatternNibble::parse('?'),
-            Some(PatternNibble::Wildcard)
-        ));
+        assert!(matches!(PatternNibble::parse('?'), Some(PatternNibble::Wildcard)));
         for i in 0..=15 {
             let hex_char = format!("{i:X}").chars().next().unwrap();
             assert!(matches!(
@@ -201,39 +190,17 @@ mod tests {
 
     #[test]
     fn test_pattern_octet_matches() {
-        assert!(
-            PatternOctet::Full([PatternNibble::Wildcard, PatternNibble::Wildcard]).matches(0x00)
-        );
-        assert!(
-            PatternOctet::Full([PatternNibble::Wildcard, PatternNibble::Wildcard]).matches(0xFF)
-        );
-        assert!(
-            PatternOctet::Full([PatternNibble::Exact(0), PatternNibble::Wildcard]).matches(0x00)
-        );
-        assert!(
-            PatternOctet::Full([PatternNibble::Exact(0), PatternNibble::Wildcard]).matches(0x0F)
-        );
-        assert!(
-            !PatternOctet::Full([PatternNibble::Exact(0), PatternNibble::Wildcard]).matches(0x10)
-        );
-        assert!(
-            PatternOctet::Full([PatternNibble::Wildcard, PatternNibble::Exact(0)]).matches(0x00)
-        );
-        assert!(
-            PatternOctet::Full([PatternNibble::Wildcard, PatternNibble::Exact(0)]).matches(0xF0)
-        );
-        assert!(
-            !PatternOctet::Full([PatternNibble::Wildcard, PatternNibble::Exact(0)]).matches(0x01)
-        );
-        assert!(
-            PatternOctet::Full([PatternNibble::Exact(0), PatternNibble::Exact(0)]).matches(0x00)
-        );
-        assert!(
-            !PatternOctet::Full([PatternNibble::Exact(0), PatternNibble::Exact(0)]).matches(0x01)
-        );
-        assert!(
-            PatternOctet::Full([PatternNibble::Exact(0), PatternNibble::Exact(0xF)]).matches(0x0F)
-        );
+        assert!(PatternOctet::Full([PatternNibble::Wildcard, PatternNibble::Wildcard]).matches(0x00));
+        assert!(PatternOctet::Full([PatternNibble::Wildcard, PatternNibble::Wildcard]).matches(0xFF));
+        assert!(PatternOctet::Full([PatternNibble::Exact(0), PatternNibble::Wildcard]).matches(0x00));
+        assert!(PatternOctet::Full([PatternNibble::Exact(0), PatternNibble::Wildcard]).matches(0x0F));
+        assert!(!PatternOctet::Full([PatternNibble::Exact(0), PatternNibble::Wildcard]).matches(0x10));
+        assert!(PatternOctet::Full([PatternNibble::Wildcard, PatternNibble::Exact(0)]).matches(0x00));
+        assert!(PatternOctet::Full([PatternNibble::Wildcard, PatternNibble::Exact(0)]).matches(0xF0));
+        assert!(!PatternOctet::Full([PatternNibble::Wildcard, PatternNibble::Exact(0)]).matches(0x01));
+        assert!(PatternOctet::Full([PatternNibble::Exact(0), PatternNibble::Exact(0)]).matches(0x00));
+        assert!(!PatternOctet::Full([PatternNibble::Exact(0), PatternNibble::Exact(0)]).matches(0x01));
+        assert!(PatternOctet::Full([PatternNibble::Exact(0), PatternNibble::Exact(0xF)]).matches(0x0F));
         assert!(PatternOctet::Partial(PatternNibble::Wildcard).matches(0x00));
         assert!(PatternOctet::Partial(PatternNibble::Wildcard).matches(0x0F));
         assert!(PatternOctet::Partial(PatternNibble::Wildcard).matches(0xFF));
@@ -249,18 +216,9 @@ mod tests {
         assert!(pattern_result.is_ok());
         let pattern = pattern_result.unwrap();
         assert_eq!(pattern.len(), 3);
-        assert!(matches!(
-            pattern.octets[0],
-            PatternOctet::Full([PatternNibble::Wildcard, PatternNibble::Wildcard])
-        ));
-        assert!(matches!(
-            pattern.octets[1],
-            PatternOctet::Full([PatternNibble::Exact(0), PatternNibble::Wildcard])
-        ));
-        assert!(matches!(
-            pattern.octets[2],
-            PatternOctet::Full([PatternNibble::Exact(0xF), PatternNibble::Exact(5)])
-        ));
+        assert!(matches!(pattern.octets[0], PatternOctet::Full([PatternNibble::Wildcard, PatternNibble::Wildcard])));
+        assert!(matches!(pattern.octets[1], PatternOctet::Full([PatternNibble::Exact(0), PatternNibble::Wildcard])));
+        assert!(matches!(pattern.octets[2], PatternOctet::Full([PatternNibble::Exact(0xF), PatternNibble::Exact(5)])));
 
         assert!(Pattern::from_str("?? ?? ?? ??").is_ok());
         assert!(Pattern::from_str("??").is_ok());

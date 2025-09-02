@@ -24,10 +24,7 @@ unsafe extern "cdecl" fn UPLAY_FRIENDS_EnableFriendMenuItem() -> isize {
 }
 
 #[forwardable_export]
-unsafe extern "cdecl" fn UPLAY_FRIENDS_GetFriendList(
-    friend_list_filter: *mut c_void,
-    out_friend_list: *mut uplay_r1_loader::List,
-) -> bool {
+unsafe extern "cdecl" fn UPLAY_FRIENDS_GetFriendList(friend_list_filter: *mut c_void, out_friend_list: *mut uplay_r1_loader::List) -> bool {
     let list = uplay_r1_loader::UplayList::Friends(
         crate::api::list_friends()
             .unwrap_or_default()
@@ -53,10 +50,7 @@ unsafe extern "cdecl" fn UPLAY_FRIENDS_Init(flags: usize) -> bool {
 }
 
 #[forwardable_export]
-unsafe extern "cdecl" fn UPLAY_FRIENDS_InviteToGame(
-    account_id_utf8: *const c_char,
-    overlapped: *mut UplayOverlapped,
-) -> bool {
+unsafe extern "cdecl" fn UPLAY_FRIENDS_InviteToGame(account_id_utf8: *const c_char, overlapped: *mut UplayOverlapped) -> bool {
     crate::api::invite_friend(std::ffi::CStr::from_ptr(account_id_utf8).to_str().unwrap()).unwrap();
     if !overlapped.is_null() && overlapped.is_aligned() {
         (*overlapped).set_completed(true);

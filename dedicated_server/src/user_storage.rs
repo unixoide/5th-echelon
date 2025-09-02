@@ -20,9 +20,14 @@ use crate::protocols::user_storage::user_storage_protocol::SearchContentsRespons
 use crate::protocols::user_storage::user_storage_protocol::UserStorageProtocolServer;
 use crate::protocols::user_storage::user_storage_protocol::UserStorageProtocolServerTrait;
 
+/// Implementation of the `UserStorageProtocolServerTrait` for handling user storage requests.
 struct UserStorageProtocolServerImpl;
 
 impl<CI> UserStorageProtocolServerTrait<CI> for UserStorageProtocolServerImpl {
+    /// Handles the `SearchContents` request, returning a list of user content.
+    ///
+    /// This function requires the client to be logged in. It currently returns a hardcoded
+    /// list of user content for a specific query type.
     fn search_contents(
         &self,
         _logger: &Logger,
@@ -63,12 +68,14 @@ impl<CI> UserStorageProtocolServerTrait<CI> for UserStorageProtocolServerImpl {
             }]);
             Ok(SearchContentsResponse { search_results })
         } else {
-            Ok(SearchContentsResponse {
-                search_results: QList::default(),
-            })
+            Ok(SearchContentsResponse { search_results: QList::default() })
         }
     }
 
+    /// Handles the `GetContentUrl` request, returning the URL for a piece of user content.
+    ///
+    /// This function requires the client to be logged in. It constructs the URL from
+    /// the server's configuration.
     fn get_content_url(
         &self,
         _logger: &Logger,
@@ -79,34 +86,20 @@ impl<CI> UserStorageProtocolServerTrait<CI> for UserStorageProtocolServerImpl {
         _socket: &std::net::UdpSocket,
     ) -> Result<GetContentUrlResponse, Error> {
         login_required(&*ci)?;
-        let protocol = ctx
-            .settings
-            .get("content_protocol")
-            .map_or("http://", String::as_str)
-            .to_owned();
-        let host = ctx
-            .settings
-            .get("storage_host")
-            .expect("missing storage_host setting")
-            .to_owned();
-        let path = ctx
-            .settings
-            .get("storage_path")
-            .expect("missing storage_path setting")
-            .to_owned();
+        let protocol = ctx.settings.get("content_protocol").map_or("http://", String::as_str).to_owned();
+        let host = ctx.settings.get("storage_host").expect("missing storage_host setting").to_owned();
+        let path = ctx.settings.get("storage_path").expect("missing storage_path setting").to_owned();
 
         Ok(GetContentUrlResponse {
-            download_info: UserContentURL {
-                protocol,
-                host,
-                path,
-            },
+            download_info: UserContentURL { protocol, host, path },
         })
     }
 }
 
+/// Creates a new boxed `UserStorageProtocolServer` instance.
+///
+/// This function is typically used to register the user storage protocol
+/// with the server's protocol dispatcher.
 pub fn new_protocol<T: 'static>() -> Box<dyn Protocol<T>> {
-    Box::new(UserStorageProtocolServer::new(
-        UserStorageProtocolServerImpl,
-    ))
+    Box::new(UserStorageProtocolServer::new(UserStorageProtocolServerImpl))
 }

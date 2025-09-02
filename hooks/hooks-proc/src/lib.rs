@@ -24,37 +24,20 @@ fn parse_meta_bool_value(value: &Expr) -> Option<bool> {
     }
 }
 
-fn parse_attributes(
-    meta: &Meta,
-    with_logging: &mut bool,
-    always_call: &mut bool,
-) -> Result<(), syn::Error> {
+fn parse_attributes(meta: &Meta, with_logging: &mut bool, always_call: &mut bool) -> Result<(), syn::Error> {
     match &meta {
-        Meta::Path(path) => match path
-            .get_ident()
-            .map(std::string::ToString::to_string)
-            .as_deref()
-        {
+        Meta::Path(path) => match path.get_ident().map(std::string::ToString::to_string).as_deref() {
             Some("log") => *with_logging = true,
             Some("always_call") => *always_call = true,
             Some(id) => {
-                return Err(syn::Error::new(
-                    meta.span(),
-                    format!("unexpected attribute {id}"),
-                ));
+                return Err(syn::Error::new(meta.span(), format!("unexpected attribute {id}")));
             }
             None => {}
         },
         Meta::List(MetaList { tokens, .. }) => {
-            return Meta::parse
-                .parse(tokens.clone().into())
-                .and_then(|meta| parse_attributes(&meta, with_logging, always_call));
+            return Meta::parse.parse(tokens.clone().into()).and_then(|meta| parse_attributes(&meta, with_logging, always_call));
         }
-        Meta::NameValue(MetaNameValue { path, value, .. }) => match path
-            .get_ident()
-            .map(std::string::ToString::to_string)
-            .as_deref()
-        {
+        Meta::NameValue(MetaNameValue { path, value, .. }) => match path.get_ident().map(std::string::ToString::to_string).as_deref() {
             Some("log") => {
                 if let Some(v) = parse_meta_bool_value(value) {
                     *with_logging = v;
@@ -70,10 +53,7 @@ fn parse_attributes(
                 }
             }
             Some(id) => {
-                return Err(syn::Error::new(
-                    meta.span(),
-                    format!("unexpected attribute {id}"),
-                ));
+                return Err(syn::Error::new(meta.span(), format!("unexpected attribute {id}")));
             }
             None => {}
         },
@@ -133,7 +113,7 @@ pub fn forwardable_export(attr: TokenStream, input: TokenStream) -> TokenStream 
                 ::tracing::error!("Config not loaded!");
                 return Default::default();
             };
-            let do_forward =  cfg!(feature = "forward_calls") 
+            let do_forward =  cfg!(feature = "forward_calls")
             || cfg.forward_all_calls
             || cfg.forward_calls.iter().any(|s| s == #name_str);
             let result = if do_forward {

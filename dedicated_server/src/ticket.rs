@@ -16,16 +16,16 @@ use crate::protocols::ubi_authentication::types::UbiAuthenticationLoginCustomDat
 use crate::storage::Storage;
 use crate::SERVER_PID;
 
+/// Implementation of the `TicketGrantingProtocolServerTrait` for handling ticket-granting requests.
 struct TicketGrantingProtocolServerImpl {
     storage: Arc<Storage>,
 }
 
 impl TicketGrantingProtocolServerImpl {
+    /// Generates a new session key for a user and stores it in the database.
     fn get_session_key(&self, logger: &slog::Logger, user_id: u32) -> [u8; SESSION_KEY_SIZE] {
         let mut key = [0u8; SESSION_KEY_SIZE];
-        rand::rngs::OsRng
-            .try_fill_bytes(&mut key)
-            .expect("Generating session key");
+        rand::rngs::OsRng.try_fill_bytes(&mut key).expect("Generating session key");
 
         if let Err(e) = self.storage.create_user_session(user_id, &key) {
             eprintln!("Error saving user session: {e}");
@@ -35,6 +35,7 @@ impl TicketGrantingProtocolServerImpl {
         key
     }
 
+    /// Retrieves the password for a user by their principal ID (PID).
     #[allow(unreachable_code)]
     fn get_password_by_pid(&self, logger: &slog::Logger, pid: u32) -> quazal::rmc::Result<Option<String>> {
         self.storage.find_password_for_user(pid).map_err(|e| {
@@ -44,6 +45,7 @@ impl TicketGrantingProtocolServerImpl {
         })
     }
 
+    /// Retrieves the password for a user by their username.
     fn get_password_by_username(&self, logger: &slog::Logger, username: &str) -> quazal::rmc::Result<Option<String>> {
         Ok(self
             .get_pid_by_username(logger, username)?
@@ -52,6 +54,7 @@ impl TicketGrantingProtocolServerImpl {
             .flatten())
     }
 
+    /// Retrieves the principal ID (PID) for a user by their username.
     #[allow(unreachable_code)]
     fn get_pid_by_username(&self, logger: &slog::Logger, username: &str) -> quazal::rmc::Result<Option<u32>> {
         self.storage.find_user_id_by_name(username).map_err(|e| {
@@ -61,6 +64,7 @@ impl TicketGrantingProtocolServerImpl {
         })
     }
 
+    /// Authenticates a user with their username and password.
     #[allow(unreachable_code)]
     fn login(&self, logger: &slog::Logger, username: &str, password: &str) -> quazal::rmc::Result<Option<u32>> {
         self.storage
@@ -74,17 +78,13 @@ impl TicketGrantingProtocolServerImpl {
     }
 }
 
+/// Creates the `RVConnectionData` for a client.
 fn get_connection_data(ctx: &Context, pid: u32) -> RVConnectionData {
     ctx.secure_server_addr.map_or_else(
         || RVConnectionData {
-            url_regular_protocols: format!(
-                "prudp:/address={};port={};CID=1;PID={};sid=2;stream=3;type=2",
-                ctx.listen.ip(),
-                ctx.listen.port(),
-                pid
-            )
-            .parse()
-            .unwrap(),
+            url_regular_protocols: format!("prudp:/address={};port={};CID=1;PID={};sid=2;stream=3;type=2", ctx.listen.ip(), ctx.listen.port(), pid)
+                .parse()
+                .unwrap(),
             lst_special_protocols: vec![],
             url_special_protocols: StationURL::default(),
         },
@@ -122,12 +122,10 @@ impl<T> TicketGrantingProtocolServerTrait<T> for TicketGrantingProtocolServerImp
             warn!(logger, "user {} not found", request.str_user_name);
             return Err(quazal::rmc::Error::AccessDenied);
         };
-        let password = self
-            .get_password_by_username(logger, &request.str_user_name)?
-            .or_else(|| {
-                warn!(logger, "user {} has no plaintext password", request.str_user_name);
-                None
-            });
+        let password = self.get_password_by_username(logger, &request.str_user_name)?.or_else(|| {
+            warn!(logger, "user {} has no plaintext password", request.str_user_name);
+            None
+        });
         ci.user_id = Some(user_id);
         let session_key = self.get_session_key(logger, user_id);
         let ticket = KerberosTicket {
@@ -212,10 +210,7 @@ impl<T> TicketGrantingProtocolServerTrait<T> for TicketGrantingProtocolServerImp
         let user_id = request.id_source;
         let server_id = request.id_target;
         if !matches!(ci.user_id, Some(uid) if uid == user_id) {
-            warn!(
-                logger,
-                "Ticket request for {} to {} denied (user: {:?})", user_id, server_id, ci.user_id
-            );
+            warn!(logger, "Ticket request for {} to {} denied (user: {:?})", user_id, server_id, ci.user_id);
             return Err(quazal::rmc::Error::AccessDenied);
         }
         let session_key = self.get_session_key(logger, user_id);
@@ -230,17 +225,15 @@ impl<T> TicketGrantingProtocolServerTrait<T> for TicketGrantingProtocolServerImp
         };
         Ok(RequestTicketResponse {
             return_value: QResult::Ok,
-            buf_response: ticket.as_bytes(
-                user_id,
-                self.get_password_by_pid(logger, user_id)?.as_deref(),
-                &ctx.ticket_key,
-            ),
+            buf_response: ticket.as_bytes(user_id, self.get_password_by_pid(logger, user_id)?.as_deref(), &ctx.ticket_key),
         })
     }
 }
 
+/// Creates a new boxed `TicketGrantingProtocolServer` instance.
+///
+/// This function is typically used to register the ticket-granting protocol
+/// with the server's protocol dispatcher.
 pub fn new_protocol<T: 'static>(storage: Arc<Storage>) -> Box<dyn Protocol<T>> {
-    Box::new(TicketGrantingProtocolServer::new(TicketGrantingProtocolServerImpl {
-        storage,
-    }))
+    Box::new(TicketGrantingProtocolServer::new(TicketGrantingProtocolServerImpl { storage }))
 }

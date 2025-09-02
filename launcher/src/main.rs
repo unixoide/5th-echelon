@@ -1,8 +1,14 @@
+//! The main entry point for the launcher application.
+//!
+//! This file is responsible for initializing the application, checking for updates,
+//! loading the configuration, and launching the user interface.
+
 #![windows_subsystem = "windows"]
 
 use tracing::info;
 use tracing::warn;
 
+// Conditionally compile the `sys` module based on the target operating system.
 #[cfg(target_os = "windows")]
 #[path = "windows.rs"]
 mod sys;
@@ -11,22 +17,26 @@ mod sys;
 #[path = "unix.rs"]
 mod sys;
 
+// Declare the modules used in the application.
 mod config;
 mod dll_utils;
 mod games;
 mod logging;
 mod network;
+mod registry;
 mod render;
 mod ui;
 mod updater;
 mod version;
 
+/// The version of the launcher, parsed from the Cargo environment variables.
 static VERSION: std::sync::LazyLock<version::Version> = std::sync::LazyLock::new(|| version::Version {
     major: env!("CARGO_PKG_VERSION_MAJOR").parse().unwrap(),
     minor: env!("CARGO_PKG_VERSION_MINOR").parse().unwrap(),
     patch: env!("CARGO_PKG_VERSION_PATCH").parse().unwrap(),
 });
 
+/// Asks the user to select a UI version using a Windows Task Dialog.
 fn ask_for_ui_version() -> config::UIVersion {
     use windows::core::w;
     use windows::Win32::UI::Controls::TaskDialogIndirect;
@@ -65,10 +75,12 @@ fn ask_for_ui_version() -> config::UIVersion {
     }
 }
 
+/// The main function of the launcher.
 fn main() {
     #![allow(clippy::option_env_unwrap)]
     logging::init();
 
+    // Warn if the Git tag doesn't match the Cargo version.
     if matches!(option_env!("GITHUB_REF_NAME"), Some(gh_ref) if gh_ref != format!("v{}", *VERSION)) {
         warn!(
             "Launcher built on GH has a mismatch in cargo version and tag: {} != v{}",
@@ -77,55 +89,58 @@ fn main() {
         );
     }
 
-    let runtime = tokio::runtime::Builder::new_multi_thread()
-        .enable_all()
-        .build()
-        .unwrap();
+    // Create a Tokio runtime for asynchronous operations.
+    let runtime = tokio::runtime::Builder::new_multi_thread().enable_all().build().unwrap();
 
+    // Check for updates.
     let assets = runtime.block_on(<updater::Updater>::check_for_updates());
     let launcher_asset = assets.into_iter().find(|a| a.name == "launcher.exe");
 
     info!("Launcher asset: {:?}", launcher_asset);
 
-    if let Some("update") = std::env::args().nth(1).as_deref() {
-        runtime.block_on(<updater::Updater>::update_self(
-            launcher_asset.expect("Launcher asset not found"),
-        ));
-        return;
-    } else {
-        updater::remove_updater_if_needed();
+    // If the "update" argument is passed, perform a self-update.
+    match std::env::args().nth(1).as_deref() {
+        Some("update") => {
+            runtime.block_on(<updater::Updater>::update_self(launcher_asset.expect("Launcher asset not found")));
+            return;
+        }
+        Some("updated") => {
+            updater::remove_updater_after_update();
+        }
+        _ => {
+            updater::remove_updater_if_needed();
+        }
     }
     let mut update_available = launcher_asset.filter(|a| a.version > *VERSION).map(|a| a.version);
 
-    if matches!(update_available.zip(option_env!("GITHUB_REF_NAME")), Some((latest, gh_ref)) if format!("v{latest}") == gh_ref)
-    {
+    // Another check to prevent updating if the tag name is the same.
+    if matches!(update_available.zip(option_env!("GITHUB_REF_NAME")), Some((latest, gh_ref)) if format!("v{latest}") == gh_ref) {
         warn!("Identified update for launcher while it was built with the same tag name");
         update_available = None;
     }
 
     drop(runtime);
 
+    // Find the game's target directory.
     let target_dir = games::find_target_dir().expect("Game not found. Try to place the launcher in the games folder.");
-    info!("Found target dir {target_dir:?}");
+    info!("Found target dir {:?}", &target_dir);
 
+    // If the `embed-dll` feature is enabled, drop the DLL.
     #[cfg(feature = "embed-dll")]
     dll_utils::drop_dll(&target_dir);
 
+    // Load the configuration.
     let mut cfg = config::Config::load(&target_dir);
     let adapters = sys::find_adapter_names();
     let (adapter_names, adapter_ips) = adapters.clone().into_iter().unzip::<_, _, Vec<_>, Vec<_>>();
 
+    // Determine which UI version to use.
     let ui_version = cfg.ui_version.unwrap_or_else(ask_for_ui_version);
     cfg.update(|cfg| cfg.ui_version = Some(ui_version));
 
+    // Run the selected UI.
     match ui_version {
         config::UIVersion::New => ui::new::run(target_dir, cfg, &adapters, update_available),
-        config::UIVersion::Old => ui::old::run(
-            target_dir,
-            cfg.into_inner(),
-            &adapter_names,
-            &adapter_ips,
-            update_available.is_some(),
-        ),
+        config::UIVersion::Old => ui::old::run(target_dir, cfg.into_inner(), &adapter_names, &adapter_ips, update_available.is_some()),
     }
 }

@@ -45,46 +45,31 @@ fn extract_pattern(
         formatter.format(&instruction, output);
         let pos = (instruction.ip() - start_ip) as usize + start_pos;
         let instruction_bytes = &text_data[pos..pos + instruction.len()];
-        let code = instruction_bytes
-            .iter()
-            .map(|byte| format!("{:02x}", byte))
-            .collect::<String>();
+        let code = instruction_bytes.iter().map(|byte| format!("{:02x}", byte)).collect::<String>();
         println!("{:#x} {} {}", instruction.ip(), code, output);
 
         let const_off = decoder.get_constant_offsets(&instruction);
 
         let displ_range = if const_off.has_displacement() {
-            Some(
-                const_off.displacement_offset()
-                    ..const_off.displacement_offset() + const_off.displacement_size(),
-            )
+            Some(const_off.displacement_offset()..const_off.displacement_offset() + const_off.displacement_size())
         } else {
             None
         };
 
         let imm_range = if const_off.has_immediate() {
-            Some(
-                const_off.immediate_offset()
-                    ..const_off.immediate_offset() + const_off.immediate_size(),
-            )
+            Some(const_off.immediate_offset()..const_off.immediate_offset() + const_off.immediate_size())
         } else {
             None
         };
 
         let imm2_range = if const_off.has_immediate2() {
-            Some(
-                const_off.immediate_offset2()
-                    ..const_off.immediate_offset2() + const_off.immediate_size2(),
-            )
+            Some(const_off.immediate_offset2()..const_off.immediate_offset2() + const_off.immediate_size2())
         } else {
             None
         };
 
         pattern.extend(instruction_bytes.iter().enumerate().map(|(i, b)| {
-            if displ_range
-                .as_ref()
-                .map(|r| r.contains(&i))
-                .unwrap_or(false)
+            if displ_range.as_ref().map(|r| r.contains(&i)).unwrap_or(false)
                 || imm_range.as_ref().map(|r| r.contains(&i)).unwrap_or(false)
                 || imm2_range.as_ref().map(|r| r.contains(&i)).unwrap_or(false)
             {
@@ -109,18 +94,13 @@ fn main() {
     let args: Args = argh::from_env();
     println!("Trying to generate patterns for {:?}", args.binary);
 
-    let addresses =
-        hooks_addresses::get_from_path(&args.binary).expect("no known addresses for given binary");
+    let addresses = hooks_addresses::get_from_path(&args.binary).expect("no known addresses for given binary");
 
     let binary_content = fs::read(args.binary).unwrap(); // we already hashed the binary before
 
     let pe = goblin::pe::PE::parse(&binary_content).expect("valid PE");
     let image_base = pe.image_base;
-    let text_section = pe
-        .sections
-        .into_iter()
-        .find(|s| dbg!(s.name.as_ref()) == b".text\0\0\0")
-        .expect("text section");
+    let text_section = pe.sections.into_iter().find(|s| dbg!(s.name.as_ref()) == b".text\0\0\0").expect("text section");
 
     let text_data = text_section.data(&binary_content).unwrap().unwrap();
     let relocations = text_section.relocations(&binary_content).unwrap();
@@ -151,11 +131,7 @@ fn main() {
             println!("No known addresses for hook {hook:?}");
             continue;
         }
-        println!(
-            "Generating patterns for {} addresses for hook {:?}",
-            addrs.len(),
-            hook
-        );
+        println!("Generating patterns for {} addresses for hook {:?}", addrs.len(), hook);
 
         let patterns: Vec<Pattern> = addrs
             .into_iter()
@@ -176,9 +152,7 @@ fn main() {
         hook_patterns.push((hook, patterns));
     }
 
-    println!(
-        "static HOOK_PATTERNS: LazyLock<Vec<(Hook, Vec<Pattern>)>> = LazyLock::new(|| {{\nvec!["
-    );
+    println!("static HOOK_PATTERNS: LazyLock<Vec<(Hook, Vec<Pattern>)>> = LazyLock::new(|| {{\nvec![");
 
     for (hook, patterns) in hook_patterns.into_iter() {
         println!(

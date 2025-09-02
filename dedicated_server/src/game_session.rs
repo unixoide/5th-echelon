@@ -1,3 +1,5 @@
+//! Implements the `GameSessionProtocolServer` for managing game sessions.
+
 use std::sync::Arc;
 
 use quazal::prudp::ClientRegistry;
@@ -37,11 +39,16 @@ use crate::protocols::game_session_service::types::GameSessionSearchResult;
 use crate::protocols::game_session_service::types::GameSessionSearchWithParticipantsResult;
 use crate::storage::Storage;
 
+/// Implementation of the `GameSessionProtocolServerTrait` for handling game session operations.
 struct GameSessionProtocolServerImpl {
     storage: Arc<Storage>,
 }
 
 impl<CI> GameSessionProtocolServerTrait<CI> for GameSessionProtocolServerImpl {
+    /// Handles the `CreateSession` request, creating a new game session.
+    ///
+    /// This function requires the client to be logged in. It extracts and stores
+    /// game session attributes.
     fn create_session(
         &self,
         logger: &Logger,
@@ -52,6 +59,7 @@ impl<CI> GameSessionProtocolServerTrait<CI> for GameSessionProtocolServerImpl {
         _socket: &std::net::UdpSocket,
     ) -> Result<CreateSessionResponse, Error> {
         info!(logger, "Client creates session: {:?}", request);
+        // Ensure the client is logged in.
         let user_id = login_required(&*ci)?;
 
         let attributes = request
@@ -68,8 +76,7 @@ impl<CI> GameSessionProtocolServerTrait<CI> for GameSessionProtocolServerImpl {
             .collect::<Vec<_>>()
             .join(";");
         let session_id = rmc_err!(
-            self.storage
-                .create_game_session(user_id, request.game_session.type_id, attributes),
+            self.storage.create_game_session(user_id, request.game_session.type_id, attributes),
             logger,
             "error creating game session"
         )?;
@@ -81,6 +88,9 @@ impl<CI> GameSessionProtocolServerTrait<CI> for GameSessionProtocolServerImpl {
         })
     }
 
+    /// Handles the `UpdateSession` request, updating an existing game session.
+    ///
+    /// This function requires the client to be logged in. It updates game session attributes.
     fn update_session(
         &self,
         logger: &Logger,
@@ -90,6 +100,7 @@ impl<CI> GameSessionProtocolServerTrait<CI> for GameSessionProtocolServerImpl {
         _client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<UpdateSessionResponse, Error> {
+        // Ensure the client is logged in.
         login_required(&*ci)?;
         info!(logger, "Client updates session: {:?}", request);
         let attributes = request
@@ -117,6 +128,9 @@ impl<CI> GameSessionProtocolServerTrait<CI> for GameSessionProtocolServerImpl {
         Ok(UpdateSessionResponse)
     }
 
+    /// Handles the `DeleteSession` request, deleting an existing game session.
+    ///
+    /// This function requires the client to be logged in.
     fn delete_session(
         &self,
         logger: &Logger,
@@ -126,13 +140,11 @@ impl<CI> GameSessionProtocolServerTrait<CI> for GameSessionProtocolServerImpl {
         _client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<DeleteSessionResponse, Error> {
+        // Ensure the client is logged in.
         let user_id = login_required(&*ci)?;
         if rmc_err!(
-            self.storage.delete_game_session(
-                user_id,
-                request.game_session_key.type_id,
-                request.game_session_key.session_id
-            ),
+            self.storage
+                .delete_game_session(user_id, request.game_session_key.type_id, request.game_session_key.session_id),
             logger,
             "error deleting session"
         )? != 1
@@ -142,6 +154,9 @@ impl<CI> GameSessionProtocolServerTrait<CI> for GameSessionProtocolServerImpl {
         Ok(DeleteSessionResponse)
     }
 
+    /// Handles the `LeaveSession` request.
+    ///
+    /// This function requires the client to be logged in. It currently returns an empty response.
     fn leave_session(
         &self,
         _logger: &Logger,
@@ -151,10 +166,14 @@ impl<CI> GameSessionProtocolServerTrait<CI> for GameSessionProtocolServerImpl {
         _client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<LeaveSessionResponse, Error> {
+        // Ensure the client is logged in.
         login_required(&*ci)?;
         Ok(LeaveSessionResponse)
     }
 
+    /// Handles the `AddParticipants` request, adding participants to a game session.
+    ///
+    /// This function requires the client to be logged in.
     fn add_participants(
         &self,
         logger: &Logger,
@@ -164,6 +183,7 @@ impl<CI> GameSessionProtocolServerTrait<CI> for GameSessionProtocolServerImpl {
         _client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<AddParticipantsResponse, Error> {
+        // Ensure the client is logged in.
         login_required(&*ci)?;
         info!(logger, "Client adds participants: {:?}", request);
         rmc_err!(
@@ -179,6 +199,9 @@ impl<CI> GameSessionProtocolServerTrait<CI> for GameSessionProtocolServerImpl {
         Ok(AddParticipantsResponse)
     }
 
+    /// Handles the `RemoveParticipants` request, removing participants from a game session.
+    ///
+    /// This function requires the client to be logged in.
     fn remove_participants(
         &self,
         logger: &Logger,
@@ -188,20 +211,21 @@ impl<CI> GameSessionProtocolServerTrait<CI> for GameSessionProtocolServerImpl {
         _client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<RemoveParticipantsResponse, Error> {
+        // Ensure the client is logged in.
         login_required(&*ci)?;
         info!(logger, "Client removes participants: {:?}", request);
         rmc_err!(
-            self.storage.remove_participants(
-                request.game_session_key.type_id,
-                request.game_session_key.session_id,
-                request.participant_ids.0.clone(),
-            ),
+            self.storage
+                .remove_participants(request.game_session_key.type_id, request.game_session_key.session_id, request.participant_ids.0.clone(),),
             logger,
             "error removing participants"
         )?;
         Ok(RemoveParticipantsResponse)
     }
 
+    /// Handles the `AbandonSession` request.
+    ///
+    /// This function requires the client to be logged in. It currently returns an empty response.
     fn abandon_session(
         &self,
         _logger: &Logger,
@@ -211,10 +235,14 @@ impl<CI> GameSessionProtocolServerTrait<CI> for GameSessionProtocolServerImpl {
         _client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<AbandonSessionResponse, Error> {
+        // Ensure the client is logged in.
         login_required(&*ci)?;
         Ok(AbandonSessionResponse)
     }
 
+    /// Handles the `RegisterUrLs` request, registering client URLs.
+    ///
+    /// This function requires the client to be logged in.
     fn register_urls(
         &self,
         logger: &Logger,
@@ -224,24 +252,20 @@ impl<CI> GameSessionProtocolServerTrait<CI> for GameSessionProtocolServerImpl {
         _client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<RegisterUrLsResponse, Error> {
+        // Ensure the client is logged in.
         let user_id = login_required(&*ci)?;
         info!(logger, "Client registers urls: {:?}", request);
         rmc_err!(
-            self.storage.register_urls(
-                user_id,
-                request
-                    .station_urls
-                    .0
-                    .into_iter()
-                    .map(|su| su.to_string())
-                    .collect()
-            ),
+            self.storage.register_urls(user_id, request.station_urls.0.into_iter().map(|su| su.to_string()).collect()),
             logger,
             "error adding participants"
         )?;
         Ok(RegisterUrLsResponse)
     }
 
+    /// Handles the `SearchSessionsWithParticipants` request, searching for game sessions.
+    ///
+    /// This function requires the client to be logged in.
     fn search_sessions_with_participants(
         &self,
         logger: &Logger,
@@ -251,15 +275,13 @@ impl<CI> GameSessionProtocolServerTrait<CI> for GameSessionProtocolServerImpl {
         _client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<SearchSessionsWithParticipantsResponse, Error> {
+        // Ensure the client is logged in.
         let _user_id = login_required(&*ci)?;
         info!(logger, "Searches for sessions with {request:?}");
 
         let sessions = self
             .storage
-            .search_sessions_with_participants(
-                request.game_session_type_id,
-                request.participant_ids.0.as_slice(),
-            )
+            .search_sessions_with_participants(request.game_session_type_id, request.participant_ids.0.as_slice())
             .map_err(|e| {
                 error!(logger, "Error searching game sessions: {e}");
                 Error::InternalError
@@ -271,11 +293,7 @@ impl<CI> GameSessionProtocolServerTrait<CI> for GameSessionProtocolServerImpl {
             search_results: sessions
                 .into_iter()
                 .map(|session| {
-                    let host = session
-                        .participants
-                        .iter()
-                        .find(|p| p.user_id == session.creator_id)
-                        .unwrap();
+                    let host = session.participants.iter().find(|p| p.user_id == session.creator_id).unwrap();
                     GameSessionSearchWithParticipantsResult {
                         game_session_search_result: GameSessionSearchResult {
                             session_key: GameSessionKey {
@@ -286,17 +304,16 @@ impl<CI> GameSessionProtocolServerTrait<CI> for GameSessionProtocolServerImpl {
                             host_urls: host.station_urls.clone().try_into().unwrap(),
                             attributes: session.attributes.as_str().parse().unwrap(),
                         },
-                        participant_ids: session
-                            .participants
-                            .into_iter()
-                            .map(|p| p.user_id)
-                            .collect(),
+                        participant_ids: session.participants.into_iter().map(|p| p.user_id).collect(),
                     }
                 })
                 .collect(),
         })
     }
 
+    /// Handles the `SplitSession` request.
+    ///
+    /// This function requires the client to be logged in. It currently returns a placeholder response.
     fn split_session(
         &self,
         _logger: &Logger,
@@ -306,12 +323,16 @@ impl<CI> GameSessionProtocolServerTrait<CI> for GameSessionProtocolServerImpl {
         _client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<SplitSessionResponse, Error> {
+        // Ensure the client is logged in.
         let _user_id = login_required(&*ci)?;
         Ok(SplitSessionResponse {
             game_session_key_migrated: request.game_session_key,
         })
     }
 
+    /// Handles the `JoinSession` request.
+    ///
+    /// This function currently returns an empty response.
     fn join_session(
         &self,
         _logger: &Logger,
@@ -325,8 +346,10 @@ impl<CI> GameSessionProtocolServerTrait<CI> for GameSessionProtocolServerImpl {
     }
 }
 
+/// Creates a new boxed `GameSessionProtocolServer` instance.
+///
+/// This function is typically used to register the game session protocol
+/// with the server's protocol dispatcher.
 pub fn new_protocol<T: 'static>(storage: Arc<Storage>) -> Box<dyn Protocol<T>> {
-    Box::new(GameSessionProtocolServer::new(
-        GameSessionProtocolServerImpl { storage },
-    ))
+    Box::new(GameSessionProtocolServer::new(GameSessionProtocolServerImpl { storage }))
 }

@@ -60,18 +60,13 @@ pub struct ClearLadderLeaderboardRequest {
 pub struct ClearLadderLeaderboardResponse {
     pub success: bool,
 }
-pub struct LadderHelperProtocolServer<T: LadderHelperProtocolServerTrait<CI>, CI>(
-    T,
-    ::std::marker::PhantomData<CI>,
-);
+pub struct LadderHelperProtocolServer<T: LadderHelperProtocolServerTrait<CI>, CI>(T, ::std::marker::PhantomData<CI>);
 impl<T: LadderHelperProtocolServerTrait<CI>, CI> LadderHelperProtocolServer<T, CI> {
     pub fn new(implementation: T) -> Self {
         Self(implementation, ::std::marker::PhantomData)
     }
 }
-impl<T: LadderHelperProtocolServerTrait<CI>, CI> Protocol<CI>
-    for LadderHelperProtocolServer<T, CI>
-{
+impl<T: LadderHelperProtocolServerTrait<CI>, CI> Protocol<CI> for LadderHelperProtocolServer<T, CI> {
     fn id(&self) -> u16 {
         LADDER_HELPER_PROTOCOL_ID
     }
@@ -96,50 +91,35 @@ impl<T: LadderHelperProtocolServerTrait<CI>, CI> Protocol<CI>
             Some(LadderHelperProtocolMethod::GetUnixUtc) => {
                 let req = GetUnixUtcRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_unix_utc(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_unix_utc(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(LadderHelperProtocolMethod::AreLaddersAvailableInCountry) => {
                 let req = AreLaddersAvailableInCountryRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.are_ladders_available_in_country(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self.0.are_ladders_available_in_country(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(LadderHelperProtocolMethod::CheckLadderIsRunning) => {
                 let req = CheckLadderIsRunningRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .check_ladder_is_running(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.check_ladder_is_running(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(LadderHelperProtocolMethod::ClearLadderLeaderboard) => {
                 let req = ClearLadderLeaderboardRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .clear_ladder_leaderboard(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.clear_ladder_leaderboard(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
         }
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        LadderHelperProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        LadderHelperProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
@@ -153,12 +133,7 @@ pub trait LadderHelperProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetUnixUtcResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "LadderHelperProtocol",
-            stringify!(get_unix_utc)
-        );
+        warn!(logger, "Method {}.{} not implemented", "LadderHelperProtocol", stringify!(get_unix_utc));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn are_ladders_available_in_country(
@@ -170,12 +145,7 @@ pub trait LadderHelperProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<AreLaddersAvailableInCountryResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "LadderHelperProtocol",
-            stringify!(are_ladders_available_in_country)
-        );
+        warn!(logger, "Method {}.{} not implemented", "LadderHelperProtocol", stringify!(are_ladders_available_in_country));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn check_ladder_is_running(
@@ -187,12 +157,7 @@ pub trait LadderHelperProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<CheckLadderIsRunningResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "LadderHelperProtocol",
-            stringify!(check_ladder_is_running)
-        );
+        warn!(logger, "Method {}.{} not implemented", "LadderHelperProtocol", stringify!(check_ladder_is_running));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn clear_ladder_leaderboard(
@@ -204,12 +169,7 @@ pub trait LadderHelperProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<ClearLadderLeaderboardResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "LadderHelperProtocol",
-            stringify!(clear_ladder_leaderboard)
-        );
+        warn!(logger, "Method {}.{} not implemented", "LadderHelperProtocol", stringify!(clear_ladder_leaderboard));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }
@@ -235,33 +195,14 @@ impl<CI> ClientProtocol<CI> for LadderHelperProtocolClient<CI> {
         4u32
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        LadderHelperProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        LadderHelperProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
 impl<CI> LadderHelperProtocolClient<CI> {
-    pub fn get_unix_utc(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetUnixUtcRequest,
-    ) -> Result<GetUnixUtcResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "LadderHelperProtocol",
-            stringify!(get_unix_utc)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            LadderHelperProtocolMethod::GetUnixUtc as u32,
-            request.to_bytes(),
-        );
+    pub fn get_unix_utc(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetUnixUtcRequest) -> Result<GetUnixUtcResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "LadderHelperProtocol", stringify!(get_unix_utc));
+        self.send(logger, ctx, ci, LadderHelperProtocolMethod::GetUnixUtc as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn are_ladders_available_in_country(
@@ -271,19 +212,8 @@ impl<CI> LadderHelperProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: AreLaddersAvailableInCountryRequest,
     ) -> Result<AreLaddersAvailableInCountryResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "LadderHelperProtocol",
-            stringify!(are_ladders_available_in_country)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            LadderHelperProtocolMethod::AreLaddersAvailableInCountry as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "LadderHelperProtocol", stringify!(are_ladders_available_in_country));
+        self.send(logger, ctx, ci, LadderHelperProtocolMethod::AreLaddersAvailableInCountry as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn check_ladder_is_running(
@@ -293,19 +223,8 @@ impl<CI> LadderHelperProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: CheckLadderIsRunningRequest,
     ) -> Result<CheckLadderIsRunningResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "LadderHelperProtocol",
-            stringify!(check_ladder_is_running)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            LadderHelperProtocolMethod::CheckLadderIsRunning as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "LadderHelperProtocol", stringify!(check_ladder_is_running));
+        self.send(logger, ctx, ci, LadderHelperProtocolMethod::CheckLadderIsRunning as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn clear_ladder_leaderboard(
@@ -315,19 +234,8 @@ impl<CI> LadderHelperProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: ClearLadderLeaderboardRequest,
     ) -> Result<ClearLadderLeaderboardResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "LadderHelperProtocol",
-            stringify!(clear_ladder_leaderboard)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            LadderHelperProtocolMethod::ClearLadderLeaderboard as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "LadderHelperProtocol", stringify!(clear_ladder_leaderboard));
+        self.send(logger, ctx, ci, LadderHelperProtocolMethod::ClearLadderLeaderboard as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }

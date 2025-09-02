@@ -5,6 +5,7 @@ use std::io::BufRead as _;
 use std::io::BufReader;
 use std::net::IpAddr;
 use std::net::Ipv4Addr;
+use std::net::Ipv6Addr;
 use std::net::SocketAddr;
 use std::path::PathBuf;
 use std::process::Command;
@@ -27,6 +28,7 @@ use server_api::users::User;
 use tonic::transport::Channel;
 use tonic::Request;
 use tracing::error;
+use tracing::info;
 
 use super::super::icons::ICON_REPEAT;
 use super::super::icons::ICON_TRASH;
@@ -58,15 +60,13 @@ pub struct ServerMenu {
     downloader: Option<BackgroundValue<()>>,
     server_version: Option<Version>,
     latest_version: BackgroundValue<Option<Version>>,
+    show_delete_user_confirmation: Option<String>,
+    show_delete_game_confirmation: Option<u32>,
 }
 
 impl ServerMenu {
     pub fn new(adapters: &[(String, IpAddr)]) -> Self {
-        let dedicated_server_path = std::env::current_exe()
-            .unwrap()
-            .parent()
-            .unwrap()
-            .join("dedicated_server.exe");
+        let dedicated_server_path = std::env::current_exe().unwrap().parent().unwrap().join("dedicated_server.exe");
         let dedicated_server_cfg_path = dedicated_server_path.parent().unwrap().join("service.toml");
         let dedicated_server_log_path = dedicated_server_path.parent().unwrap().join("server.log.json");
 
@@ -102,9 +102,7 @@ impl ServerMenu {
             .service
             .values()
             .find_map(|svc| match svc {
-                quazal::Service::Secure(context) | quazal::Service::Authentication(context) => {
-                    context.secure_server_addr
-                }
+                quazal::Service::Secure(context) | quazal::Service::Authentication(context) => context.secure_server_addr,
                 quazal::Service::Config(_) => None,
                 quazal::Service::Content(_) => None,
             })
@@ -122,15 +120,14 @@ impl ServerMenu {
             users: None,
             selected_log_level: LogLevel::Info as _,
             games: None,
-            download_text: AnimatedText::new(
-                &["Downloading...", "Downloading..", "Downloading"],
-                Duration::from_millis(200),
-            ),
+            download_text: AnimatedText::new(&["Downloading...", "Downloading..", "Downloading"], Duration::from_millis(200)),
             public_ip,
             download_progress: Arc::new(AtomicUsize::new(0)),
             downloader: None,
             server_version,
             latest_version,
+            show_delete_user_confirmation: None,
+            show_delete_game_confirmation: None,
         }
     }
 
@@ -140,6 +137,7 @@ impl ServerMenu {
         }
 
         self.download_server_modal(ui);
+        self.render_delete_confirmation_modals(ui);
 
         if !self.dedicated_server_path.exists() {
             ui.text_colored(RED.to_rgba_f32s(), "Dedicated server binary not found");
@@ -154,22 +152,16 @@ impl ServerMenu {
                         error!("Dedicated server release not found");
                         return;
                     };
-                    <crate::updater::Updater>::download_with_progress(asset, &dedicated_server_path, progress.as_ref())
-                        .await;
+                    <crate::updater::Updater>::download_with_progress(asset, &dedicated_server_path, progress.as_ref()).await;
                 }));
                 ui.open_popup("Download Server");
             }
             return true;
-        } else if let Some((Some(latest_version), ref server_version)) =
-            self.latest_version.try_get().zip(self.server_version)
-        {
+        } else if let Some((Some(latest_version), ref server_version)) = self.latest_version.try_get().zip(self.server_version) {
             if latest_version > server_version {
                 ui.text_colored(
                     YELLOW.to_rgba_f32s(),
-                    format!(
-                        "Dedicated server outdated (current: {}, latest: {})",
-                        server_version, latest_version
-                    ),
+                    format!("Dedicated server outdated (current: {}, latest: {})", server_version, latest_version),
                 );
                 if ui.button("Download") {
                     let progress = self.download_progress.clone();
@@ -180,12 +172,7 @@ impl ServerMenu {
                             error!("Dedicated server release not found");
                             return;
                         };
-                        <crate::updater::Updater>::download_with_progress(
-                            asset,
-                            &dedicated_server_path,
-                            progress.as_ref(),
-                        )
-                        .await;
+                        <crate::updater::Updater>::download_with_progress(asset, &dedicated_server_path, progress.as_ref()).await;
                     }));
                     ui.open_popup("Download Server");
                 }
@@ -198,11 +185,7 @@ impl ServerMenu {
             }
         }
 
-        let mut ips = self
-            .adapters
-            .iter()
-            .map(|(name, ip)| format!("{ip} ({name})"))
-            .collect::<Vec<_>>();
+        let mut ips = self.adapters.iter().map(|(name, ip)| format!("{ip} ({name})")).collect::<Vec<_>>();
         ips.insert(0, String::from("All IPs"));
         ui.combo_simple_string("IP to listen on", &mut self.selected_ip, &ips);
 
@@ -296,9 +279,7 @@ impl ServerMenu {
                 quazal::Service::Content(content_server) => content_server.listen.set_ip(ip),
             }
         }
-        self.server_config
-            .save_to_file(&self.dedicated_server_cfg_path)
-            .unwrap();
+        self.server_config.save_to_file(&self.dedicated_server_cfg_path).unwrap();
     }
 
     fn start_server(&mut self) {
@@ -325,21 +306,21 @@ impl ServerMenu {
     }
 
     fn log_table(&mut self, ui: &imgui::Ui) {
-        let log_levels = [
-            LogLevel::Trace,
-            LogLevel::Debug,
-            LogLevel::Info,
-            LogLevel::Warn,
-            LogLevel::Error,
-            LogLevel::Critical,
-        ];
-        ui.combo("Min Log Level", &mut self.selected_log_level, &log_levels, |lvl| {
-            Cow::Owned(lvl.to_string())
-        });
+        let log_levels = [LogLevel::Trace, LogLevel::Debug, LogLevel::Info, LogLevel::Warn, LogLevel::Error, LogLevel::Critical];
+        ui.combo("Min Log Level", &mut self.selected_log_level, &log_levels, |lvl| Cow::Owned(lvl.to_string()));
         if ui.button(format!("{ICON_REPEAT}")) || self.logs.is_none() {
             self.logs = load_logs(&self.dedicated_server_log_path, log_levels[self.selected_log_level])
                 .inspect_err(|e| {
                     error!("Error loading logs: {e}");
+                })
+                .or_else(|e| {
+                    if let Some(io_err) = e.downcast_ref::<std::io::Error>() {
+                        // don't try again if the file was not found
+                        if io_err.kind() == std::io::ErrorKind::NotFound {
+                            return Ok(Vec::new());
+                        }
+                    }
+                    Err(e)
                 })
                 .ok();
         }
@@ -394,10 +375,10 @@ impl ServerMenu {
     fn users_table(&mut self, ui: &imgui::Ui) {
         if ui.button(format!("{ICON_REPEAT}")) || self.users.is_none() {
             tokio::runtime::Runtime::new().unwrap().block_on(async {
-                self.users = load_users(format!("http://{}", self.server_config.api_server))
+                self.users = load_users(format!("http://{}", self.api_server()))
                     .await
                     .inspect_err(|e| {
-                        error!("Error loading users: {e}");
+                        error!("Error loading users from {}: {}", self.api_server(), e);
                     })
                     .ok();
             });
@@ -434,7 +415,6 @@ impl ServerMenu {
             ],
         ) {
             if let Some(users) = self.users.as_ref() {
-                let mut deleted = false;
                 for user in users {
                     ui.table_next_row();
                     ui.table_next_column();
@@ -444,24 +424,12 @@ impl ServerMenu {
                     ui.table_next_column();
                     ui.text(user.ips.join(", "));
                     ui.table_next_column();
-                    if ui.button(format!("{ICON_TRASH}")) {
-                        let api_url = format!("http://{}", self.server_config.api_server);
-                        let user_id = user.id.clone();
-                        deleted = tokio::runtime::Runtime::new().unwrap().block_on(async {
-                            delete_user(api_url.clone(), user_id.clone())
-                                .await
-                                .inspect_err(|e| {
-                                    error!("Error deleting user {}: {}", user_id, e);
-                                })
-                                .is_ok()
-                        });
+                    if ui.button(format!("{}##{}", ICON_TRASH, user.id)) {
+                        self.show_delete_user_confirmation = Some(user.id.clone());
                     }
                     if ui.is_item_hovered() {
                         ui.tooltip_text("Delete user");
                     }
-                }
-                if deleted {
-                    self.users = None;
                 }
             }
             table.end();
@@ -471,7 +439,7 @@ impl ServerMenu {
     fn games_table(&mut self, ui: &imgui::Ui) {
         if ui.button(format!("{ICON_REPEAT}")) || self.games.is_none() {
             tokio::runtime::Runtime::new().unwrap().block_on(async {
-                self.games = load_games(format!("http://{}", self.server_config.api_server))
+                self.games = load_games(format!("http://{}", self.api_server()))
                     .await
                     .inspect_err(|e| {
                         error!("Error loading games: {e}");
@@ -517,7 +485,6 @@ impl ServerMenu {
             ],
         ) {
             if let Some(games) = self.games.as_ref() {
-                let mut deleted = false;
                 for game in games {
                     ui.table_next_row();
                     ui.table_next_column();
@@ -529,52 +496,111 @@ impl ServerMenu {
                     ui.table_next_column();
                     ui.text(game.participants.join(", "));
                     ui.table_next_column();
-                    if ui.button(format!("{ICON_TRASH}")) {
-                        let api_url = format!("http://{}", self.server_config.api_server);
-                        let game_id = game.id;
-                        deleted = tokio::runtime::Runtime::new().unwrap().block_on(async {
-                            delete_game(api_url.clone(), game_id)
-                                .await
-                                .inspect_err(|e| {
-                                    error!("Error deleting game {}: {}", game_id, e);
-                                })
-                                .is_ok()
-                        });
+                    if ui.button(format!("{}##{}", ICON_TRASH, game.id)) {
+                        self.show_delete_game_confirmation = Some(game.id);
                     }
                     if ui.is_item_hovered() {
                         ui.tooltip_text("Delete game");
                     }
-                }
-                if deleted {
-                    self.games = None;
                 }
             }
             table.end();
         }
     }
 
-    fn download_server_modal(&mut self, ui: &imgui::Ui) {
-        ui.modal_popup_config("Download Server")
-            .resizable(false)
-            .movable(false)
-            .build(|| {
-                if let Some(()) = self.downloader.as_mut().and_then(BackgroundValue::try_take) {
+    fn render_delete_confirmation_modals(&mut self, ui: &imgui::Ui) {
+        if let Some(user_id) = self.show_delete_user_confirmation.clone() {
+            let popup_name = "Delete User?";
+            ui.open_popup(popup_name);
+            ui.modal_popup_config(popup_name).always_auto_resize(true).build(|| {
+                ui.text(format!("Are you sure you want to delete user {}?", user_id));
+                ui.separator();
+                if ui.button("Yes") {
+                    let api_url = format!("http://{}", self.api_server());
+                    info!("Deleting user {user_id}");
+                    let deleted = tokio::runtime::Runtime::new().unwrap().block_on(async {
+                        delete_user(api_url.clone(), user_id.clone())
+                            .await
+                            .inspect_err(|e| {
+                                error!("Error deleting user {}: {}", user_id, e);
+                            })
+                            .is_ok()
+                    });
+                    if deleted {
+                        self.users = None;
+                    }
+                    self.show_delete_user_confirmation = None;
                     ui.close_current_popup();
-                    self.downloader.take();
-                    self.server_version = if self.dedicated_server_path.exists() {
-                        crate::dll_utils::get_dll_version(&self.dedicated_server_path).ok()
-                    } else {
-                        None
-                    };
                 }
-                self.download_text.update();
-                ui.text(self.download_text.text());
-                ProgressBar::new(self.download_progress.load(Ordering::Relaxed) as f32 / 100.0).build(ui);
+                ui.same_line();
+                if ui.button("No") {
+                    self.show_delete_user_confirmation = None;
+                    ui.close_current_popup();
+                }
             });
+        }
+
+        if let Some(game_id) = self.show_delete_game_confirmation {
+            let popup_name = "Delete Game?";
+            ui.open_popup(popup_name);
+            ui.modal_popup_config(popup_name).always_auto_resize(true).build(|| {
+                ui.text(format!("Are you sure you want to delete game {}?", game_id));
+                ui.separator();
+                if ui.button("Yes") {
+                    let api_url = format!("http://{}", self.api_server());
+                    let deleted = tokio::runtime::Runtime::new().unwrap().block_on(async {
+                        delete_game(api_url.clone(), game_id)
+                            .await
+                            .inspect_err(|e| {
+                                error!("Error deleting game {}: {}", game_id, e);
+                            })
+                            .is_ok()
+                    });
+                    if deleted {
+                        self.games = None;
+                    }
+                    self.show_delete_game_confirmation = None;
+                    ui.close_current_popup();
+                }
+                ui.same_line();
+                if ui.button("No") {
+                    self.show_delete_game_confirmation = None;
+                    ui.close_current_popup();
+                }
+            });
+        }
+    }
+
+    fn download_server_modal(&mut self, ui: &imgui::Ui) {
+        ui.modal_popup_config("Download Server").resizable(false).movable(false).build(|| {
+            if let Some(()) = self.downloader.as_mut().and_then(BackgroundValue::try_take) {
+                ui.close_current_popup();
+                self.downloader.take();
+                self.server_version = if self.dedicated_server_path.exists() {
+                    crate::dll_utils::get_dll_version(&self.dedicated_server_path).ok()
+                } else {
+                    None
+                };
+            }
+            self.download_text.update();
+            ui.text(self.download_text.text());
+            ProgressBar::new(self.download_progress.load(Ordering::Relaxed) as f32 / 100.0).build(ui);
+        });
     }
 
     pub fn server_version(&self) -> Option<Version> {
         self.server_version
+    }
+
+    fn api_server(&self) -> SocketAddr {
+        let mut api_server = self.server_config.api_server;
+        if api_server.ip().is_unspecified() {
+            api_server.set_ip(match api_server.ip() {
+                IpAddr::V4(_) => IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)),
+                IpAddr::V6(_) => IpAddr::V6(Ipv6Addr::new(0, 0, 0, 0, 0, 0, 0, 1)),
+            });
+        };
+        api_server
     }
 }
 
@@ -629,44 +655,24 @@ fn load_logs(path: &PathBuf, min_level: LogLevel) -> anyhow::Result<Vec<LogItem>
 
 async fn users_admin_client(
     api_server_url: String,
-) -> anyhow::Result<
-    users::users_admin_client::UsersAdminClient<
-        tonic::service::interceptor::InterceptedService<Channel, impl tonic::service::Interceptor>,
-    >,
-> {
-    let channel = tonic::transport::Channel::from_shared(api_server_url)?
-        .connect()
-        .await?;
+) -> anyhow::Result<users::users_admin_client::UsersAdminClient<tonic::service::interceptor::InterceptedService<Channel, impl tonic::service::Interceptor>>> {
+    let channel = tonic::transport::Channel::from_shared(api_server_url)?.connect().await?;
 
-    Ok(users::users_admin_client::UsersAdminClient::with_interceptor(
-        channel,
-        |mut req: Request<()>| {
-            req.metadata_mut()
-                .insert("authorization", unsafe { ADMIN_TOKEN.parse().unwrap() });
-            Ok(req)
-        },
-    ))
+    Ok(users::users_admin_client::UsersAdminClient::with_interceptor(channel, |mut req: Request<()>| {
+        req.metadata_mut().insert("authorization", unsafe { ADMIN_TOKEN.parse().unwrap() });
+        Ok(req)
+    }))
 }
 
 async fn games_admin_client(
     api_server_url: String,
-) -> anyhow::Result<
-    games::games_admin_client::GamesAdminClient<
-        tonic::service::interceptor::InterceptedService<Channel, impl tonic::service::Interceptor>,
-    >,
-> {
-    let channel = tonic::transport::Channel::from_shared(api_server_url)?
-        .connect()
-        .await?;
+) -> anyhow::Result<games::games_admin_client::GamesAdminClient<tonic::service::interceptor::InterceptedService<Channel, impl tonic::service::Interceptor>>> {
+    let channel = tonic::transport::Channel::from_shared(api_server_url)?.connect().await?;
 
-    Ok(games::games_admin_client::GamesAdminClient::with_interceptor(
-        channel,
-        |mut req: Request<()>| {
-            req.metadata_mut()
-                .insert("authorization", unsafe { ADMIN_TOKEN.parse().unwrap() });
-            Ok(req)
-        },
-    ))
+    Ok(games::games_admin_client::GamesAdminClient::with_interceptor(channel, |mut req: Request<()>| {
+        req.metadata_mut().insert("authorization", unsafe { ADMIN_TOKEN.parse().unwrap() });
+        Ok(req)
+    }))
 }
 
 async fn load_users(api_server_url: String) -> anyhow::Result<Vec<User>> {

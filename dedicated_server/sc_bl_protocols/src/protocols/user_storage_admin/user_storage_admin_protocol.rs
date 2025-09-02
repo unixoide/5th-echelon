@@ -178,18 +178,13 @@ pub struct GetBannedUsersResponse {
     pub banned_users: quazal::rmc::types::QList<BannedUser>,
     pub total_banned_users: u32,
 }
-pub struct UserStorageAdminProtocolServer<T: UserStorageAdminProtocolServerTrait<CI>, CI>(
-    T,
-    ::std::marker::PhantomData<CI>,
-);
+pub struct UserStorageAdminProtocolServer<T: UserStorageAdminProtocolServerTrait<CI>, CI>(T, ::std::marker::PhantomData<CI>);
 impl<T: UserStorageAdminProtocolServerTrait<CI>, CI> UserStorageAdminProtocolServer<T, CI> {
     pub fn new(implementation: T) -> Self {
         Self(implementation, ::std::marker::PhantomData)
     }
 }
-impl<T: UserStorageAdminProtocolServerTrait<CI>, CI> Protocol<CI>
-    for UserStorageAdminProtocolServer<T, CI>
-{
+impl<T: UserStorageAdminProtocolServerTrait<CI>, CI> Protocol<CI> for UserStorageAdminProtocolServer<T, CI> {
     fn id(&self) -> u16 {
         USER_STORAGE_ADMIN_PROTOCOL_ID
     }
@@ -214,165 +209,112 @@ impl<T: UserStorageAdminProtocolServerTrait<CI>, CI> Protocol<CI>
             Some(UserStorageAdminProtocolMethod::GetContentsToModerate) => {
                 let req = GetContentsToModerateRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .get_contents_to_moderate(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_contents_to_moderate(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageAdminProtocolMethod::FlagContentAsVerified) => {
                 let req = FlagContentAsVerifiedRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .flag_content_as_verified(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.flag_content_as_verified(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageAdminProtocolMethod::BanContent) => {
                 let req = BanContentRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .ban_content(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.ban_content(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageAdminProtocolMethod::BanUser) => {
                 let req = BanUserRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .ban_user(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.ban_user(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageAdminProtocolMethod::BanUserFromContentType) => {
                 let req = BanUserFromContentTypeRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.ban_user_from_content_type(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self.0.ban_user_from_content_type(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageAdminProtocolMethod::UnbanUser) => {
                 let req = UnbanUserRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .unban_user(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.unban_user(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageAdminProtocolMethod::UnbanUserFromContentType) => {
                 let req = UnbanUserFromContentTypeRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.unban_user_from_content_type(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self.0.unban_user_from_content_type(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageAdminProtocolMethod::GetContentsToModerateWithThreshold) => {
-                let req =
-                    GetContentsToModerateWithThresholdRequest::from_bytes(&request.parameters)?;
+                let req = GetContentsToModerateWithThresholdRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.get_contents_to_moderate_with_threshold(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self.0.get_contents_to_moderate_with_threshold(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageAdminProtocolMethod::UpdateMetaData) => {
                 let req = UpdateMetaDataRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .update_meta_data(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.update_meta_data(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageAdminProtocolMethod::UpdateContentDb) => {
                 let req = UpdateContentDbRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .update_content_db(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.update_content_db(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageAdminProtocolMethod::UpdateContentAndGetUploadInfo) => {
                 let req = UpdateContentAndGetUploadInfoRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.update_content_and_get_upload_info(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self.0.update_content_and_get_upload_info(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageAdminProtocolMethod::DeleteContent) => {
                 let req = DeleteContentRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .delete_content(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.delete_content(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageAdminProtocolMethod::BrowseContents) => {
                 let req = BrowseContentsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .browse_contents(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.browse_contents(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageAdminProtocolMethod::IsUserbanned) => {
                 let req = IsUserbannedRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .is_userbanned(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.is_userbanned(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserStorageAdminProtocolMethod::GetBannedUsers) => {
                 let req = GetBannedUsersRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_banned_users(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_banned_users(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
         }
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        UserStorageAdminProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        UserStorageAdminProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
@@ -386,12 +328,7 @@ pub trait UserStorageAdminProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetContentsToModerateResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageAdminProtocol",
-            stringify!(get_contents_to_moderate)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageAdminProtocol", stringify!(get_contents_to_moderate));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn flag_content_as_verified(
@@ -403,12 +340,7 @@ pub trait UserStorageAdminProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<FlagContentAsVerifiedResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageAdminProtocol",
-            stringify!(flag_content_as_verified)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageAdminProtocol", stringify!(flag_content_as_verified));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn ban_content(
@@ -420,12 +352,7 @@ pub trait UserStorageAdminProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<BanContentResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageAdminProtocol",
-            stringify!(ban_content)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageAdminProtocol", stringify!(ban_content));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn ban_user(
@@ -437,12 +364,7 @@ pub trait UserStorageAdminProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<BanUserResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageAdminProtocol",
-            stringify!(ban_user)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageAdminProtocol", stringify!(ban_user));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn ban_user_from_content_type(
@@ -454,12 +376,7 @@ pub trait UserStorageAdminProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<BanUserFromContentTypeResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageAdminProtocol",
-            stringify!(ban_user_from_content_type)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageAdminProtocol", stringify!(ban_user_from_content_type));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn unban_user(
@@ -471,12 +388,7 @@ pub trait UserStorageAdminProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<UnbanUserResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageAdminProtocol",
-            stringify!(unban_user)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageAdminProtocol", stringify!(unban_user));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn unban_user_from_content_type(
@@ -488,12 +400,7 @@ pub trait UserStorageAdminProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<UnbanUserFromContentTypeResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageAdminProtocol",
-            stringify!(unban_user_from_content_type)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageAdminProtocol", stringify!(unban_user_from_content_type));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_contents_to_moderate_with_threshold(
@@ -522,12 +429,7 @@ pub trait UserStorageAdminProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<UpdateMetaDataResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageAdminProtocol",
-            stringify!(update_meta_data)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageAdminProtocol", stringify!(update_meta_data));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn update_content_db(
@@ -539,12 +441,7 @@ pub trait UserStorageAdminProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<UpdateContentDbResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageAdminProtocol",
-            stringify!(update_content_db)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageAdminProtocol", stringify!(update_content_db));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn update_content_and_get_upload_info(
@@ -573,12 +470,7 @@ pub trait UserStorageAdminProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<DeleteContentResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageAdminProtocol",
-            stringify!(delete_content)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageAdminProtocol", stringify!(delete_content));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn browse_contents(
@@ -590,12 +482,7 @@ pub trait UserStorageAdminProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<BrowseContentsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageAdminProtocol",
-            stringify!(browse_contents)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageAdminProtocol", stringify!(browse_contents));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn is_userbanned(
@@ -607,12 +494,7 @@ pub trait UserStorageAdminProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<IsUserbannedResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageAdminProtocol",
-            stringify!(is_userbanned)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageAdminProtocol", stringify!(is_userbanned));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_banned_users(
@@ -624,12 +506,7 @@ pub trait UserStorageAdminProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetBannedUsersResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageAdminProtocol",
-            stringify!(get_banned_users)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageAdminProtocol", stringify!(get_banned_users));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }
@@ -655,9 +532,7 @@ impl<CI> ClientProtocol<CI> for UserStorageAdminProtocolClient<CI> {
         15u32
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        UserStorageAdminProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        UserStorageAdminProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
@@ -669,19 +544,8 @@ impl<CI> UserStorageAdminProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: GetContentsToModerateRequest,
     ) -> Result<GetContentsToModerateResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageAdminProtocol",
-            stringify!(get_contents_to_moderate)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserStorageAdminProtocolMethod::GetContentsToModerate as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageAdminProtocol", stringify!(get_contents_to_moderate));
+        self.send(logger, ctx, ci, UserStorageAdminProtocolMethod::GetContentsToModerate as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn flag_content_as_verified(
@@ -691,63 +555,18 @@ impl<CI> UserStorageAdminProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: FlagContentAsVerifiedRequest,
     ) -> Result<FlagContentAsVerifiedResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageAdminProtocol",
-            stringify!(flag_content_as_verified)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserStorageAdminProtocolMethod::FlagContentAsVerified as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageAdminProtocol", stringify!(flag_content_as_verified));
+        self.send(logger, ctx, ci, UserStorageAdminProtocolMethod::FlagContentAsVerified as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn ban_content(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: BanContentRequest,
-    ) -> Result<BanContentResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageAdminProtocol",
-            stringify!(ban_content)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserStorageAdminProtocolMethod::BanContent as u32,
-            request.to_bytes(),
-        );
+    pub fn ban_content(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: BanContentRequest) -> Result<BanContentResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UserStorageAdminProtocol", stringify!(ban_content));
+        self.send(logger, ctx, ci, UserStorageAdminProtocolMethod::BanContent as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn ban_user(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: BanUserRequest,
-    ) -> Result<BanUserResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageAdminProtocol",
-            stringify!(ban_user)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserStorageAdminProtocolMethod::BanUser as u32,
-            request.to_bytes(),
-        );
+    pub fn ban_user(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: BanUserRequest) -> Result<BanUserResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UserStorageAdminProtocol", stringify!(ban_user));
+        self.send(logger, ctx, ci, UserStorageAdminProtocolMethod::BanUser as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn ban_user_from_content_type(
@@ -757,41 +576,13 @@ impl<CI> UserStorageAdminProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: BanUserFromContentTypeRequest,
     ) -> Result<BanUserFromContentTypeResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageAdminProtocol",
-            stringify!(ban_user_from_content_type)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserStorageAdminProtocolMethod::BanUserFromContentType as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageAdminProtocol", stringify!(ban_user_from_content_type));
+        self.send(logger, ctx, ci, UserStorageAdminProtocolMethod::BanUserFromContentType as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn unban_user(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: UnbanUserRequest,
-    ) -> Result<UnbanUserResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageAdminProtocol",
-            stringify!(unban_user)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserStorageAdminProtocolMethod::UnbanUser as u32,
-            request.to_bytes(),
-        );
+    pub fn unban_user(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: UnbanUserRequest) -> Result<UnbanUserResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UserStorageAdminProtocol", stringify!(unban_user));
+        self.send(logger, ctx, ci, UserStorageAdminProtocolMethod::UnbanUser as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn unban_user_from_content_type(
@@ -801,19 +592,8 @@ impl<CI> UserStorageAdminProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: UnbanUserFromContentTypeRequest,
     ) -> Result<UnbanUserFromContentTypeResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageAdminProtocol",
-            stringify!(unban_user_from_content_type)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserStorageAdminProtocolMethod::UnbanUserFromContentType as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserStorageAdminProtocol", stringify!(unban_user_from_content_type));
+        self.send(logger, ctx, ci, UserStorageAdminProtocolMethod::UnbanUserFromContentType as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn get_contents_to_moderate_with_threshold(
@@ -838,48 +618,14 @@ impl<CI> UserStorageAdminProtocolClient<CI> {
         );
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn update_meta_data(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: UpdateMetaDataRequest,
-    ) -> Result<UpdateMetaDataResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageAdminProtocol",
-            stringify!(update_meta_data)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserStorageAdminProtocolMethod::UpdateMetaData as u32,
-            request.to_bytes(),
-        );
+    pub fn update_meta_data(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: UpdateMetaDataRequest) -> Result<UpdateMetaDataResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UserStorageAdminProtocol", stringify!(update_meta_data));
+        self.send(logger, ctx, ci, UserStorageAdminProtocolMethod::UpdateMetaData as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn update_content_db(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: UpdateContentDbRequest,
-    ) -> Result<UpdateContentDbResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageAdminProtocol",
-            stringify!(update_content_db)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserStorageAdminProtocolMethod::UpdateContentDb as u32,
-            request.to_bytes(),
-        );
+    pub fn update_content_db(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: UpdateContentDbRequest) -> Result<UpdateContentDbResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UserStorageAdminProtocol", stringify!(update_content_db));
+        self.send(logger, ctx, ci, UserStorageAdminProtocolMethod::UpdateContentDb as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn update_content_and_get_upload_info(
@@ -895,101 +641,27 @@ impl<CI> UserStorageAdminProtocolClient<CI> {
             "UserStorageAdminProtocol",
             stringify!(update_content_and_get_upload_info)
         );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserStorageAdminProtocolMethod::UpdateContentAndGetUploadInfo as u32,
-            request.to_bytes(),
-        );
+        self.send(logger, ctx, ci, UserStorageAdminProtocolMethod::UpdateContentAndGetUploadInfo as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn delete_content(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: DeleteContentRequest,
-    ) -> Result<DeleteContentResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageAdminProtocol",
-            stringify!(delete_content)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserStorageAdminProtocolMethod::DeleteContent as u32,
-            request.to_bytes(),
-        );
+    pub fn delete_content(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: DeleteContentRequest) -> Result<DeleteContentResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UserStorageAdminProtocol", stringify!(delete_content));
+        self.send(logger, ctx, ci, UserStorageAdminProtocolMethod::DeleteContent as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn browse_contents(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: BrowseContentsRequest,
-    ) -> Result<BrowseContentsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageAdminProtocol",
-            stringify!(browse_contents)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserStorageAdminProtocolMethod::BrowseContents as u32,
-            request.to_bytes(),
-        );
+    pub fn browse_contents(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: BrowseContentsRequest) -> Result<BrowseContentsResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UserStorageAdminProtocol", stringify!(browse_contents));
+        self.send(logger, ctx, ci, UserStorageAdminProtocolMethod::BrowseContents as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn is_userbanned(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: IsUserbannedRequest,
-    ) -> Result<IsUserbannedResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageAdminProtocol",
-            stringify!(is_userbanned)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserStorageAdminProtocolMethod::IsUserbanned as u32,
-            request.to_bytes(),
-        );
+    pub fn is_userbanned(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: IsUserbannedRequest) -> Result<IsUserbannedResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UserStorageAdminProtocol", stringify!(is_userbanned));
+        self.send(logger, ctx, ci, UserStorageAdminProtocolMethod::IsUserbanned as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn get_banned_users(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetBannedUsersRequest,
-    ) -> Result<GetBannedUsersResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserStorageAdminProtocol",
-            stringify!(get_banned_users)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserStorageAdminProtocolMethod::GetBannedUsers as u32,
-            request.to_bytes(),
-        );
+    pub fn get_banned_users(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetBannedUsersRequest) -> Result<GetBannedUsersResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UserStorageAdminProtocol", stringify!(get_banned_users));
+        self.send(logger, ctx, ci, UserStorageAdminProtocolMethod::GetBannedUsers as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }

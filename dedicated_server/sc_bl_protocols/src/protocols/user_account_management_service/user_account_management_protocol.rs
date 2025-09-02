@@ -94,20 +94,13 @@ pub struct LookupUsernamesRequest {
 pub struct LookupUsernamesResponse {
     pub user_names: std::collections::HashMap<u32, String>,
 }
-pub struct UserAccountManagementProtocolServer<T: UserAccountManagementProtocolServerTrait<CI>, CI>(
-    T,
-    ::std::marker::PhantomData<CI>,
-);
-impl<T: UserAccountManagementProtocolServerTrait<CI>, CI>
-    UserAccountManagementProtocolServer<T, CI>
-{
+pub struct UserAccountManagementProtocolServer<T: UserAccountManagementProtocolServerTrait<CI>, CI>(T, ::std::marker::PhantomData<CI>);
+impl<T: UserAccountManagementProtocolServerTrait<CI>, CI> UserAccountManagementProtocolServer<T, CI> {
     pub fn new(implementation: T) -> Self {
         Self(implementation, ::std::marker::PhantomData)
     }
 }
-impl<T: UserAccountManagementProtocolServerTrait<CI>, CI> Protocol<CI>
-    for UserAccountManagementProtocolServer<T, CI>
-{
+impl<T: UserAccountManagementProtocolServerTrait<CI>, CI> Protocol<CI> for UserAccountManagementProtocolServer<T, CI> {
     fn id(&self) -> u16 {
         USER_ACCOUNT_MANAGEMENT_PROTOCOL_ID
     }
@@ -132,72 +125,56 @@ impl<T: UserAccountManagementProtocolServerTrait<CI>, CI> Protocol<CI>
             Some(UserAccountManagementProtocolMethod::LookupSceNpIds) => {
                 let req = LookupSceNpIdsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .lookup_sce_np_ids(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.lookup_sce_np_ids(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserAccountManagementProtocolMethod::LookupPrincipalIDs) => {
                 let req = LookupPrincipalIDsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .lookup_principal_ids(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.lookup_principal_ids(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserAccountManagementProtocolMethod::LookupFirstPartyIds) => {
                 let req = LookupFirstPartyIdsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .lookup_first_party_ids(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.lookup_first_party_ids(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserAccountManagementProtocolMethod::UserHasPlayed) => {
                 let req = UserHasPlayedRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .user_has_played(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.user_has_played(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserAccountManagementProtocolMethod::IsUserPlaying) => {
                 let req = IsUserPlayingRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .is_user_playing(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.is_user_playing(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserAccountManagementProtocolMethod::UpdateSonyAccountInfo) => {
                 let req = UpdateSonyAccountInfoRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .update_sony_account_info(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.update_sony_account_info(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(UserAccountManagementProtocolMethod::LookupUsernames) => {
                 let req = LookupUsernamesRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .lookup_usernames(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.lookup_usernames(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
         }
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        UserAccountManagementProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        UserAccountManagementProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
@@ -211,12 +188,7 @@ pub trait UserAccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<LookupSceNpIdsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserAccountManagementProtocol",
-            stringify!(lookup_sce_np_ids)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserAccountManagementProtocol", stringify!(lookup_sce_np_ids));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn lookup_principal_ids(
@@ -228,12 +200,7 @@ pub trait UserAccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<LookupPrincipalIDsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserAccountManagementProtocol",
-            stringify!(lookup_principal_ids)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserAccountManagementProtocol", stringify!(lookup_principal_ids));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn lookup_first_party_ids(
@@ -245,12 +212,7 @@ pub trait UserAccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<LookupFirstPartyIdsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserAccountManagementProtocol",
-            stringify!(lookup_first_party_ids)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserAccountManagementProtocol", stringify!(lookup_first_party_ids));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn user_has_played(
@@ -262,12 +224,7 @@ pub trait UserAccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<UserHasPlayedResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserAccountManagementProtocol",
-            stringify!(user_has_played)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserAccountManagementProtocol", stringify!(user_has_played));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn is_user_playing(
@@ -279,12 +236,7 @@ pub trait UserAccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<IsUserPlayingResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserAccountManagementProtocol",
-            stringify!(is_user_playing)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserAccountManagementProtocol", stringify!(is_user_playing));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn update_sony_account_info(
@@ -313,12 +265,7 @@ pub trait UserAccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<LookupUsernamesResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserAccountManagementProtocol",
-            stringify!(lookup_usernames)
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserAccountManagementProtocol", stringify!(lookup_usernames));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }
@@ -344,55 +291,19 @@ impl<CI> ClientProtocol<CI> for UserAccountManagementProtocolClient<CI> {
         7u32
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        UserAccountManagementProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        UserAccountManagementProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
 impl<CI> UserAccountManagementProtocolClient<CI> {
-    pub fn lookup_sce_np_ids(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: LookupSceNpIdsRequest,
-    ) -> Result<LookupSceNpIdsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserAccountManagementProtocol",
-            stringify!(lookup_sce_np_ids)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserAccountManagementProtocolMethod::LookupSceNpIds as u32,
-            request.to_bytes(),
-        );
+    pub fn lookup_sce_np_ids(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: LookupSceNpIdsRequest) -> Result<LookupSceNpIdsResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UserAccountManagementProtocol", stringify!(lookup_sce_np_ids));
+        self.send(logger, ctx, ci, UserAccountManagementProtocolMethod::LookupSceNpIds as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn lookup_principal_ids(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: LookupPrincipalIDsRequest,
-    ) -> Result<LookupPrincipalIDsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserAccountManagementProtocol",
-            stringify!(lookup_principal_ids)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserAccountManagementProtocolMethod::LookupPrincipalIDs as u32,
-            request.to_bytes(),
-        );
+    pub fn lookup_principal_ids(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: LookupPrincipalIDsRequest) -> Result<LookupPrincipalIDsResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UserAccountManagementProtocol", stringify!(lookup_principal_ids));
+        self.send(logger, ctx, ci, UserAccountManagementProtocolMethod::LookupPrincipalIDs as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn lookup_first_party_ids(
@@ -402,63 +313,18 @@ impl<CI> UserAccountManagementProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: LookupFirstPartyIdsRequest,
     ) -> Result<LookupFirstPartyIdsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserAccountManagementProtocol",
-            stringify!(lookup_first_party_ids)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserAccountManagementProtocolMethod::LookupFirstPartyIds as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "UserAccountManagementProtocol", stringify!(lookup_first_party_ids));
+        self.send(logger, ctx, ci, UserAccountManagementProtocolMethod::LookupFirstPartyIds as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn user_has_played(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: UserHasPlayedRequest,
-    ) -> Result<UserHasPlayedResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserAccountManagementProtocol",
-            stringify!(user_has_played)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserAccountManagementProtocolMethod::UserHasPlayed as u32,
-            request.to_bytes(),
-        );
+    pub fn user_has_played(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: UserHasPlayedRequest) -> Result<UserHasPlayedResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UserAccountManagementProtocol", stringify!(user_has_played));
+        self.send(logger, ctx, ci, UserAccountManagementProtocolMethod::UserHasPlayed as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn is_user_playing(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: IsUserPlayingRequest,
-    ) -> Result<IsUserPlayingResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserAccountManagementProtocol",
-            stringify!(is_user_playing)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserAccountManagementProtocolMethod::IsUserPlaying as u32,
-            request.to_bytes(),
-        );
+    pub fn is_user_playing(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: IsUserPlayingRequest) -> Result<IsUserPlayingResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UserAccountManagementProtocol", stringify!(is_user_playing));
+        self.send(logger, ctx, ci, UserAccountManagementProtocolMethod::IsUserPlaying as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn update_sony_account_info(
@@ -474,35 +340,12 @@ impl<CI> UserAccountManagementProtocolClient<CI> {
             "UserAccountManagementProtocol",
             stringify!(update_sony_account_info)
         );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserAccountManagementProtocolMethod::UpdateSonyAccountInfo as u32,
-            request.to_bytes(),
-        );
+        self.send(logger, ctx, ci, UserAccountManagementProtocolMethod::UpdateSonyAccountInfo as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn lookup_usernames(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: LookupUsernamesRequest,
-    ) -> Result<LookupUsernamesResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "UserAccountManagementProtocol",
-            stringify!(lookup_usernames)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            UserAccountManagementProtocolMethod::LookupUsernames as u32,
-            request.to_bytes(),
-        );
+    pub fn lookup_usernames(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: LookupUsernamesRequest) -> Result<LookupUsernamesResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "UserAccountManagementProtocol", stringify!(lookup_usernames));
+        self.send(logger, ctx, ci, UserAccountManagementProtocolMethod::LookupUsernames as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }

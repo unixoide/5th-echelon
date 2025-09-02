@@ -137,18 +137,13 @@ pub struct LoginWithTokenCafeExResponse {
     pub p_connection_data: RVConnectionData,
     pub str_return_msg: String,
 }
-pub struct SimpleAuthenticationProtocolServer<T: SimpleAuthenticationProtocolServerTrait<CI>, CI>(
-    T,
-    ::std::marker::PhantomData<CI>,
-);
+pub struct SimpleAuthenticationProtocolServer<T: SimpleAuthenticationProtocolServerTrait<CI>, CI>(T, ::std::marker::PhantomData<CI>);
 impl<T: SimpleAuthenticationProtocolServerTrait<CI>, CI> SimpleAuthenticationProtocolServer<T, CI> {
     pub fn new(implementation: T) -> Self {
         Self(implementation, ::std::marker::PhantomData)
     }
 }
-impl<T: SimpleAuthenticationProtocolServerTrait<CI>, CI> Protocol<CI>
-    for SimpleAuthenticationProtocolServer<T, CI>
-{
+impl<T: SimpleAuthenticationProtocolServerTrait<CI>, CI> Protocol<CI> for SimpleAuthenticationProtocolServer<T, CI> {
     fn id(&self) -> u16 {
         SIMPLE_AUTHENTICATION_PROTOCOL_ID
     }
@@ -173,27 +168,21 @@ impl<T: SimpleAuthenticationProtocolServerTrait<CI>, CI> Protocol<CI>
             Some(SimpleAuthenticationProtocolMethod::Authenticate) => {
                 let req = AuthenticateRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .authenticate(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.authenticate(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(SimpleAuthenticationProtocolMethod::LoginWithToken) => {
                 let req = LoginWithTokenRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .login_with_token(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.login_with_token(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(SimpleAuthenticationProtocolMethod::LoginWithTokenEx) => {
                 let req = LoginWithTokenExRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .login_with_token_ex(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.login_with_token_ex(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
@@ -207,54 +196,42 @@ impl<T: SimpleAuthenticationProtocolServerTrait<CI>, CI> Protocol<CI>
             Some(SimpleAuthenticationProtocolMethod::LoginWithSubAccount) => {
                 let req = LoginWithSubAccountRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .login_with_sub_account(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.login_with_sub_account(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(SimpleAuthenticationProtocolMethod::Register) => {
                 let req = RegisterRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .register(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.register(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(SimpleAuthenticationProtocolMethod::RegisterEx) => {
                 let req = RegisterExRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .register_ex(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.register_ex(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(SimpleAuthenticationProtocolMethod::LoginWithTokenCafe) => {
                 let req = LoginWithTokenCafeRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .login_with_token_cafe(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.login_with_token_cafe(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(SimpleAuthenticationProtocolMethod::LoginWithTokenCafeEx) => {
                 let req = LoginWithTokenCafeExRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .login_with_token_cafe_ex(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.login_with_token_cafe_ex(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
         }
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        SimpleAuthenticationProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        SimpleAuthenticationProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
@@ -268,12 +245,7 @@ pub trait SimpleAuthenticationProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<AuthenticateResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "SimpleAuthenticationProtocol",
-            stringify!(authenticate)
-        );
+        warn!(logger, "Method {}.{} not implemented", "SimpleAuthenticationProtocol", stringify!(authenticate));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn login_with_token(
@@ -285,12 +257,7 @@ pub trait SimpleAuthenticationProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<LoginWithTokenResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "SimpleAuthenticationProtocol",
-            stringify!(login_with_token)
-        );
+        warn!(logger, "Method {}.{} not implemented", "SimpleAuthenticationProtocol", stringify!(login_with_token));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn login_with_token_ex(
@@ -302,12 +269,7 @@ pub trait SimpleAuthenticationProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<LoginWithTokenExResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "SimpleAuthenticationProtocol",
-            stringify!(login_with_token_ex)
-        );
+        warn!(logger, "Method {}.{} not implemented", "SimpleAuthenticationProtocol", stringify!(login_with_token_ex));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn login(
@@ -319,12 +281,7 @@ pub trait SimpleAuthenticationProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<LoginResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "SimpleAuthenticationProtocol",
-            stringify!(login)
-        );
+        warn!(logger, "Method {}.{} not implemented", "SimpleAuthenticationProtocol", stringify!(login));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn login_with_sub_account(
@@ -336,12 +293,7 @@ pub trait SimpleAuthenticationProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<LoginWithSubAccountResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "SimpleAuthenticationProtocol",
-            stringify!(login_with_sub_account)
-        );
+        warn!(logger, "Method {}.{} not implemented", "SimpleAuthenticationProtocol", stringify!(login_with_sub_account));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn register(
@@ -353,12 +305,7 @@ pub trait SimpleAuthenticationProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<RegisterResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "SimpleAuthenticationProtocol",
-            stringify!(register)
-        );
+        warn!(logger, "Method {}.{} not implemented", "SimpleAuthenticationProtocol", stringify!(register));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn register_ex(
@@ -370,12 +317,7 @@ pub trait SimpleAuthenticationProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<RegisterExResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "SimpleAuthenticationProtocol",
-            stringify!(register_ex)
-        );
+        warn!(logger, "Method {}.{} not implemented", "SimpleAuthenticationProtocol", stringify!(register_ex));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn login_with_token_cafe(
@@ -387,12 +329,7 @@ pub trait SimpleAuthenticationProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<LoginWithTokenCafeResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "SimpleAuthenticationProtocol",
-            stringify!(login_with_token_cafe)
-        );
+        warn!(logger, "Method {}.{} not implemented", "SimpleAuthenticationProtocol", stringify!(login_with_token_cafe));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn login_with_token_cafe_ex(
@@ -404,12 +341,7 @@ pub trait SimpleAuthenticationProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<LoginWithTokenCafeExResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "SimpleAuthenticationProtocol",
-            stringify!(login_with_token_cafe_ex)
-        );
+        warn!(logger, "Method {}.{} not implemented", "SimpleAuthenticationProtocol", stringify!(login_with_token_cafe_ex));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }
@@ -435,99 +367,29 @@ impl<CI> ClientProtocol<CI> for SimpleAuthenticationProtocolClient<CI> {
         9u32
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        SimpleAuthenticationProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        SimpleAuthenticationProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
 impl<CI> SimpleAuthenticationProtocolClient<CI> {
-    pub fn authenticate(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: AuthenticateRequest,
-    ) -> Result<AuthenticateResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "SimpleAuthenticationProtocol",
-            stringify!(authenticate)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            SimpleAuthenticationProtocolMethod::Authenticate as u32,
-            request.to_bytes(),
-        );
+    pub fn authenticate(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: AuthenticateRequest) -> Result<AuthenticateResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "SimpleAuthenticationProtocol", stringify!(authenticate));
+        self.send(logger, ctx, ci, SimpleAuthenticationProtocolMethod::Authenticate as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn login_with_token(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: LoginWithTokenRequest,
-    ) -> Result<LoginWithTokenResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "SimpleAuthenticationProtocol",
-            stringify!(login_with_token)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            SimpleAuthenticationProtocolMethod::LoginWithToken as u32,
-            request.to_bytes(),
-        );
+    pub fn login_with_token(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: LoginWithTokenRequest) -> Result<LoginWithTokenResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "SimpleAuthenticationProtocol", stringify!(login_with_token));
+        self.send(logger, ctx, ci, SimpleAuthenticationProtocolMethod::LoginWithToken as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn login_with_token_ex(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: LoginWithTokenExRequest,
-    ) -> Result<LoginWithTokenExResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "SimpleAuthenticationProtocol",
-            stringify!(login_with_token_ex)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            SimpleAuthenticationProtocolMethod::LoginWithTokenEx as u32,
-            request.to_bytes(),
-        );
+    pub fn login_with_token_ex(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: LoginWithTokenExRequest) -> Result<LoginWithTokenExResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "SimpleAuthenticationProtocol", stringify!(login_with_token_ex));
+        self.send(logger, ctx, ci, SimpleAuthenticationProtocolMethod::LoginWithTokenEx as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn login(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: LoginRequest,
-    ) -> Result<LoginResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "SimpleAuthenticationProtocol",
-            stringify!(login)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            SimpleAuthenticationProtocolMethod::Login as u32,
-            request.to_bytes(),
-        );
+    pub fn login(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: LoginRequest) -> Result<LoginResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "SimpleAuthenticationProtocol", stringify!(login));
+        self.send(logger, ctx, ci, SimpleAuthenticationProtocolMethod::Login as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn login_with_sub_account(
@@ -537,85 +399,23 @@ impl<CI> SimpleAuthenticationProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: LoginWithSubAccountRequest,
     ) -> Result<LoginWithSubAccountResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "SimpleAuthenticationProtocol",
-            stringify!(login_with_sub_account)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            SimpleAuthenticationProtocolMethod::LoginWithSubAccount as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "SimpleAuthenticationProtocol", stringify!(login_with_sub_account));
+        self.send(logger, ctx, ci, SimpleAuthenticationProtocolMethod::LoginWithSubAccount as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn register(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: RegisterRequest,
-    ) -> Result<RegisterResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "SimpleAuthenticationProtocol",
-            stringify!(register)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            SimpleAuthenticationProtocolMethod::Register as u32,
-            request.to_bytes(),
-        );
+    pub fn register(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: RegisterRequest) -> Result<RegisterResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "SimpleAuthenticationProtocol", stringify!(register));
+        self.send(logger, ctx, ci, SimpleAuthenticationProtocolMethod::Register as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn register_ex(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: RegisterExRequest,
-    ) -> Result<RegisterExResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "SimpleAuthenticationProtocol",
-            stringify!(register_ex)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            SimpleAuthenticationProtocolMethod::RegisterEx as u32,
-            request.to_bytes(),
-        );
+    pub fn register_ex(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: RegisterExRequest) -> Result<RegisterExResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "SimpleAuthenticationProtocol", stringify!(register_ex));
+        self.send(logger, ctx, ci, SimpleAuthenticationProtocolMethod::RegisterEx as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn login_with_token_cafe(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: LoginWithTokenCafeRequest,
-    ) -> Result<LoginWithTokenCafeResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "SimpleAuthenticationProtocol",
-            stringify!(login_with_token_cafe)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            SimpleAuthenticationProtocolMethod::LoginWithTokenCafe as u32,
-            request.to_bytes(),
-        );
+    pub fn login_with_token_cafe(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: LoginWithTokenCafeRequest) -> Result<LoginWithTokenCafeResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "SimpleAuthenticationProtocol", stringify!(login_with_token_cafe));
+        self.send(logger, ctx, ci, SimpleAuthenticationProtocolMethod::LoginWithTokenCafe as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn login_with_token_cafe_ex(
@@ -625,19 +425,8 @@ impl<CI> SimpleAuthenticationProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: LoginWithTokenCafeExRequest,
     ) -> Result<LoginWithTokenCafeExResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "SimpleAuthenticationProtocol",
-            stringify!(login_with_token_cafe_ex)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            SimpleAuthenticationProtocolMethod::LoginWithTokenCafeEx as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "SimpleAuthenticationProtocol", stringify!(login_with_token_cafe_ex));
+        self.send(logger, ctx, ci, SimpleAuthenticationProtocolMethod::LoginWithTokenCafeEx as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }

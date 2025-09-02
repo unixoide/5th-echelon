@@ -14,6 +14,7 @@ use nom::number::streaming::be_u32;
 use nom::number::streaming::be_u8;
 use nom::sequence::preceded;
 use nom::sequence::tuple;
+use nom::Parser;
 use quazal_tools_macros::DDLParser;
 use serde::Serialize;
 
@@ -323,34 +324,29 @@ pub struct DupSpaceDeclaration {
 }
 
 fn string(input: &[u8]) -> IResult<&[u8], String> {
-    let (input, data) = length_data(be_u32)(input)?;
-    Ok((
-        input,
-        dump_value(String::from_utf8(data.to_vec()).expect("utf8 string")),
-    ))
+    let (input, data) = length_data(be_u32).parse(input)?;
+    Ok((input, dump_value(String::from_utf8(data.to_vec()).expect("utf8 string"))))
 }
 
 #[allow(dead_code)]
-fn boxed<I, O, E, F>(f: F) -> impl Fn(I) -> nom::IResult<I, Box<O>, E>
+fn boxed<I, O, E, F>(mut f: F) -> impl Parser<I, Box<O>, E>
 where
     I: Clone + PartialEq,
-    // F: Parser<I, O, E>,
-    F: Fn(I) -> nom::IResult<I, O, E>,
+    F: Parser<I, O, E>,
+    // F: Fn(I) -> nom::IResult<I, O, E>,
     E: ParseError<I>,
 {
-    // move |i: I| f.parse(i).map(|(i, o)| (i, Box::new(o)))
-    move |i: I| f(i).map(|(i, o)| (i, Box::new(o)))
+    move |i: I| f.parse(i).map(|(i, o)| (i, Box::new(o)))
+    // move |i: I| f(i).map(|(i, o)| (i, Box::new(o)))
 }
 
-fn dbg_dmp<'a, F, O>(
-    mut f: F,
-    context: &'static str,
-) -> impl FnMut(&'a [u8]) -> nom::IResult<&'a [u8], O, nom::error::Error<&'a [u8]>>
+fn dbg_dmp<'a, F, O>(mut f: F, context: &'static str) -> impl Parser<&'a [u8], O, nom::error::Error<&'a [u8]>>
 where
-    F: FnMut(&'a [u8]) -> nom::IResult<&'a [u8], O, nom::error::Error<&'a [u8]>>,
+    // F: FnMut(&'a [u8]) -> nom::IResult<&'a [u8], O, nom::error::Error<&'a [u8]>>,
+    F: Parser<&'a [u8], O, nom::error::Error<&'a [u8]>>,
 {
     use nom::HexDisplay;
-    move |i: &'a [u8]| match f(i) {
+    move |i: &'a [u8]| match f.parse(i) {
         Err(e) => {
             let hd = &i[..512].to_hex(16);
             match &e {

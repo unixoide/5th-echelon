@@ -41,11 +41,7 @@ pub fn ddl_parser_dervice(input: proc_macro::TokenStream) -> proc_macro::TokenSt
 }
 
 #[allow(clippy::too_many_lines)]
-fn derive_struct(
-    data: DataStruct,
-    ident: &Ident,
-    _attrs: &[Attribute],
-) -> proc_macro2::TokenStream {
+fn derive_struct(data: DataStruct, ident: &Ident, _attrs: &[Attribute]) -> proc_macro2::TokenStream {
     let name = ident;
     let func_name = Ident::new(&name.to_string().to_lowercase(), Span::call_site());
 
@@ -61,9 +57,7 @@ fn derive_struct(
         }
     };
 
-    let (skipped_fields, fields): (Vec<_>, Vec<_>) = fields
-        .into_iter()
-        .partition(|f| f.attrs.iter().any(|a| a.path().is_ident("skip")));
+    let (skipped_fields, fields): (Vec<_>, Vec<_>) = fields.into_iter().partition(|f| f.attrs.iter().any(|a| a.path().is_ident("skip")));
 
     let (field_names, tokens): (Vec<Ident>, Vec<TokenStream>) = fields
         .into_iter()
@@ -86,16 +80,7 @@ fn derive_struct(
                 let Some(GenericArgument::Type(Type::Path(ty))) = ty.first() else {
                     return Some((name, error(span, "not supported")));
                 };
-                let ty_name = Ident::new(
-                    &ty.path
-                        .segments
-                        .first()
-                        .unwrap()
-                        .ident
-                        .to_string()
-                        .to_lowercase(),
-                    ty.span(),
-                );
+                let ty_name = Ident::new(&ty.path.segments.first().unwrap().ident.to_string().to_lowercase(), ty.span());
                 let ty_name = translate_type(ty_name);
                 let count_type = f.attrs.into_iter().find_map(|attr| {
                     if attr.path().is_ident("count") {
@@ -125,16 +110,7 @@ fn derive_struct(
                 let Some(GenericArgument::Type(Type::Path(ty))) = ty.first() else {
                     return Some((name, error(span, "not supported")));
                 };
-                let ty_name = Ident::new(
-                    &ty.path
-                        .segments
-                        .first()
-                        .unwrap()
-                        .ident
-                        .to_string()
-                        .to_lowercase(),
-                    ty.span(),
-                );
+                let ty_name = Ident::new(&ty.path.segments.first().unwrap().ident.to_string().to_lowercase(), ty.span());
                 let ty_name = translate_type(ty_name);
                 quote! {
                     boxed(#ty_name)
@@ -158,14 +134,14 @@ fn derive_struct(
     if field_names.len() > 1 {
         quote! {
             fn #func_name(input: &[u8]) -> IResult<&[u8], #ident> {
-                let (input, (#(#field_names),*)) = context(#name_str, tuple((#(#tokens),*)))(input)?;
+                let (input, (#(#field_names),*)) = context(#name_str, tuple((#(#tokens),*))).parse(input)?;
                 Ok((input, dump_value(#name { #(#field_names,)* #(#skipped_fields)* })))
             }
         }
     } else {
         quote! {
             fn #func_name(input: &[u8]) -> IResult<&[u8], #ident> {
-                let (input, #(#field_names),*) = context(#name_str, dbg_dmp(#(#tokens),*, #name_str))(input)?;
+                let (input, #(#field_names),*) = context(#name_str, dbg_dmp(#(#tokens),*, #name_str)).parse(input)?;
                 Ok((input, dump_value(#name { #(#field_names,)* #(#skipped_fields)* })))
             }
         }
@@ -201,10 +177,7 @@ fn derive_enum(data: &DataEnum, ident: &Ident, attrs: &[Attribute]) -> proc_macr
             Some("u8") => "be_u8",
             Some("u16") => "be_u16",
             Some("u32") => "be_u32",
-            t => {
-                return Error::new(ident.span(), format!("Invalid tag type {t:?}"))
-                    .to_compile_error()
-            }
+            t => return Error::new(ident.span(), format!("Invalid tag type {t:?}")).to_compile_error(),
         },
         Span::call_site(),
     );
@@ -217,19 +190,9 @@ fn derive_enum(data: &DataEnum, ident: &Ident, attrs: &[Attribute]) -> proc_macr
         let value: u64 = match d {
             Expr::Lit(ref l) => match l.lit {
                 Lit::Int(ref i) => i.base10_parse().expect("number"),
-                _ => {
-                    return (
-                        func_name,
-                        Error::new(l.span(), "not supported").to_compile_error(),
-                    )
-                }
+                _ => return (func_name, Error::new(l.span(), "not supported").to_compile_error()),
             },
-            _ => {
-                return (
-                    func_name,
-                    Error::new(d.span(), "not supported").to_compile_error(),
-                )
-            }
+            _ => return (func_name, Error::new(d.span(), "not supported").to_compile_error()),
         };
 
         #[allow(clippy::cast_possible_truncation)]
@@ -244,10 +207,7 @@ fn derive_enum(data: &DataEnum, ident: &Ident, attrs: &[Attribute]) -> proc_macr
             Fields::Named(_) => panic!("not supported"),
             Fields::Unnamed(f) => {
                 if f.unnamed.len() != 1 {
-                    return (
-                        func_name,
-                        Error::new(v.span(), "not supported").to_compile_error(),
-                    );
+                    return (func_name, Error::new(v.span(), "not supported").to_compile_error());
                 }
                 f.unnamed.first().unwrap()
             }
@@ -257,7 +217,7 @@ fn derive_enum(data: &DataEnum, ident: &Ident, attrs: &[Attribute]) -> proc_macr
                     func_name.clone(),
                     quote! {
                         fn #func_name(input: &[u8]) -> IResult<&[u8], #ident> {
-                            let (input, value) = context(#name_str, tag(&[#(#tag),*]))(input)?;
+                            let (input, value) = context(#name_str, tag(&[#(#tag),*] as &[_])).parse(input)?;
                             Ok(
                                 (
                                     input,
@@ -266,28 +226,18 @@ fn derive_enum(data: &DataEnum, ident: &Ident, attrs: &[Attribute]) -> proc_macr
                             )
                         }
                     },
-                )
-            },
+                );
+            }
         };
         let Type::Path(inner_type) = &inner.ty else {
-            return (func_name,Error::new(inner.span(), "not supported").to_compile_error());
+            return (func_name, Error::new(inner.span(), "not supported").to_compile_error());
         };
-        let func_inner = Ident::new(
-            &inner_type
-                .path
-                .segments
-                .last()
-                .unwrap()
-                .ident
-                .to_string()
-                .to_lowercase(),
-            inner.span(),
-        );
+        let func_inner = Ident::new(&inner_type.path.segments.last().unwrap().ident.to_string().to_lowercase(), inner.span());
         (
             func_name.clone(),
             quote! {
                 fn #func_name(input: &[u8]) -> IResult<&[u8], #ident> {
-                    let (input, value) = context(#name_str, preceded(tag(&[#(#tag),*]), dbg_dmp(#func_inner, #name_str)))(input)?;
+                    let (input, value) = context(#name_str, preceded(tag(&[#(#tag),*] as &[_]), dbg_dmp(#func_inner, #name_str))).parse(input)?;
                     Ok(
                         (
                             input,
@@ -306,7 +256,7 @@ fn derive_enum(data: &DataEnum, ident: &Ident, attrs: &[Attribute]) -> proc_macr
 
     quote! {
         fn #func_name(input: &[u8]) -> IResult<&[u8], #ident> {
-            context(#name_str, dbg_dmp(alt((#(#ident::#names),*)), #name_str))(input)
+            context(#name_str, dbg_dmp(alt((#(#ident::#names),*)), #name_str)).parse(input)
         }
         impl #ident {
             #(

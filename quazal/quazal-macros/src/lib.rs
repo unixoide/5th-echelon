@@ -1,3 +1,4 @@
+//! This crate provides procedural macros for the quazal crate.
 #![deny(clippy::pedantic)]
 
 extern crate proc_macro;
@@ -19,6 +20,7 @@ use stream::to_stream_derive_impl;
 mod protocol;
 use protocol::protocol_derive_impl;
 
+/// Returns the name of the quazal crate.
 fn what_crate() -> TokenStream {
     match crate_name("quazal").expect("quazal is in Cargo.toml") {
         FoundCrate::Itself => Ident::new("crate", Span::call_site()).to_token_stream(),
@@ -29,18 +31,21 @@ fn what_crate() -> TokenStream {
     }
 }
 
+/// Derives the `ToStream` trait.
 #[proc_macro_derive(ToStream)]
 pub fn to_stream_derive(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     proc_macro::TokenStream::from(to_stream_derive_impl(input))
 }
 
+/// Derives the `FromStream` trait.
 #[proc_macro_derive(FromStream)]
 pub fn from_stream_derive(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     proc_macro::TokenStream::from(from_stream_derive_impl(input))
 }
 
+/// Derives the `Protocol` trait.
 #[proc_macro_derive(Protocol, attributes(id))]
 pub fn protocol_derive(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let input = parse_macro_input!(input as DeriveInput);

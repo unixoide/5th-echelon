@@ -140,15 +140,14 @@ fn init(hmodule: Option<HMODULE>) {
         config::LogLevel::Warning => tracing_subscriber::filter::LevelFilter::WARN,
         config::LogLevel::Error => tracing_subscriber::filter::LevelFilter::ERROR,
     };
-    reload_handle
-        .reload(tracing_subscriber::EnvFilter::default().add_directive(level.into()))
-        .unwrap();
+    reload_handle.reload(tracing_subscriber::EnvFilter::default().add_directive(level.into())).unwrap();
 
     let addr = addresses::get();
 
     unsafe {
         hooks::init(config, &addr);
         if let Some(config_server) = config.config_server.as_ref() {
+            #[cfg(not(feature = "patch-free"))]
             patch_url(config_server, &addr);
         } else {
             info!("Keeping original config server");
@@ -211,12 +210,7 @@ fn show_msgbox(msg: &str, caption: &str) {
     let msg = CString::new(msg).unwrap();
     let caption = CString::new(caption).unwrap();
     unsafe {
-        MessageBoxA(
-            None,
-            PCSTR(msg.as_ptr().cast::<u8>()),
-            PCSTR(caption.as_ptr().cast::<u8>()),
-            MB_OK,
-        );
+        MessageBoxA(None, PCSTR(msg.as_ptr().cast::<u8>()), PCSTR(caption.as_ptr().cast::<u8>()), MB_OK);
     }
 }
 
@@ -260,12 +254,7 @@ fn get_target_dir(hinst: Option<HMODULE>) -> PathBuf {
 type ReconfigurableLogger = tracing_subscriber::reload::Handle<
     tracing_subscriber::EnvFilter,
     tracing_subscriber::layer::Layered<
-        tracing_subscriber::fmt::Layer<
-            tracing_subscriber::Registry,
-            tracing_subscriber::fmt::format::DefaultFields,
-            tracing_subscriber::fmt::format::Format,
-            FileWriter,
-        >,
+        tracing_subscriber::fmt::Layer<tracing_subscriber::Registry, tracing_subscriber::fmt::format::DefaultFields, tracing_subscriber::fmt::format::Format, FileWriter>,
         tracing_subscriber::Registry,
     >,
 >;
@@ -279,11 +268,7 @@ fn init_log(target_dir: &Path) -> ReconfigurableLogger {
         .with_thread_ids(true)
         .with_thread_names(true)
         .with_line_number(true)
-        .with_env_filter(
-            tracing_subscriber::EnvFilter::builder()
-                .with_default_directive(LevelFilter::INFO.into())
-                .from_env_lossy(),
-        )
+        .with_env_filter(tracing_subscriber::EnvFilter::builder().with_default_directive(LevelFilter::INFO.into()).from_env_lossy())
         .with_filter_reloading();
     let reload_handle = subscriber_builder.reload_handle();
     subscriber_builder.init();
@@ -292,10 +277,7 @@ fn init_log(target_dir: &Path) -> ReconfigurableLogger {
     std::panic::set_hook(Box::new(|panic_info| {
         let mut expl = String::new();
 
-        let message = match (
-            panic_info.payload().downcast_ref::<&str>(),
-            panic_info.payload().downcast_ref::<String>(),
-        ) {
+        let message = match (panic_info.payload().downcast_ref::<&str>(), panic_info.payload().downcast_ref::<String>()) {
             (Some(s), _) => Some((*s).to_string()),
             (_, Some(s)) => Some(s.to_string()),
             (None, None) => None,
@@ -308,11 +290,7 @@ fn init_log(target_dir: &Path) -> ReconfigurableLogger {
 
         match panic_info.location() {
             Some(location) => {
-                expl.push_str(&format!(
-                    "Panic occurred in file '{}' at line {}",
-                    location.file(),
-                    location.line()
-                ));
+                expl.push_str(&format!("Panic occurred in file '{}' at line {}", location.file(), location.line()));
             }
             None => expl.push_str("Panic location unknown."),
         }

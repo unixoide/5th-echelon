@@ -124,10 +124,7 @@ pub struct List {
 macro_rules! valid_ptr {
     ($e:expr) => {
         anyhow::ensure!(!$e.is_null(), format!("{} is null", stringify!($e)));
-        anyhow::ensure!(
-            $e.is_aligned(),
-            format!("{} is not aligned", stringify!($e))
-        );
+        anyhow::ensure!($e.is_aligned(), format!("{} is not aligned", stringify!($e)));
     };
     ($e:expr, $ty:ty) => {{
         let tmp = $e.cast::<$ty>();
@@ -139,8 +136,7 @@ macro_rules! valid_ptr {
 impl List {
     fn into_vec<T>(self) -> anyhow::Result<Vec<Box<T>>> {
         valid_ptr!(self.list);
-        let vec =
-            unsafe { Vec::from_raw_parts(self.list.cast::<*mut T>(), self.count, self.count) };
+        let vec = unsafe { Vec::from_raw_parts(self.list.cast::<*mut T>(), self.count, self.count) };
 
         vec.into_iter()
             .map(|item| {
@@ -194,11 +190,7 @@ impl List {
                 let username = unsafe { CString::from_raw(item.username) };
                 let id = id.into_string().map_err(anyhow::Error::from)?;
                 let username = username.into_string().map_err(anyhow::Error::from)?;
-                Ok(UplayFriend {
-                    id,
-                    username,
-                    is_online,
-                })
+                Ok(UplayFriend { id, username, is_online })
             })
             .collect()
     }
@@ -300,12 +292,7 @@ mod tests {
 
     #[test]
     fn cdkeys_are_same_after_conversion() {
-        let expected = UplayList::CdKeys(
-            ["1234", "ABCD", "foo", "bar"]
-                .into_iter()
-                .map(String::from)
-                .collect(),
-        );
+        let expected = UplayList::CdKeys(["1234", "ABCD", "foo", "bar"].into_iter().map(String::from).collect());
 
         let converted: List = expected.clone().into();
         assert!(matches!(expected, UplayList::CdKeys(ref keys) if keys.len() == converted.count));
@@ -359,9 +346,7 @@ mod tests {
         ]);
 
         let converted: List = expected.clone().into();
-        assert!(
-            matches!(expected, UplayList::Friends(ref friends) if friends.len() == converted.count)
-        );
+        assert!(matches!(expected, UplayList::Friends(ref friends) if friends.len() == converted.count));
         assert_eq!(converted.ty, ListType::Friends);
 
         let converted_back: UplayList = converted.try_into().unwrap();

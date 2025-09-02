@@ -1,3 +1,5 @@
+//! Implements the `TrackingProtocol3Server` for handling tracking-related requests.
+
 use quazal::prudp::ClientRegistry;
 use quazal::rmc::Error;
 use quazal::rmc::Protocol;
@@ -13,9 +15,15 @@ use crate::protocols::tracking_service::tracking_protocol_3::SendTagsResponse;
 use crate::protocols::tracking_service::tracking_protocol_3::TrackingProtocol3Server;
 use crate::protocols::tracking_service::tracking_protocol_3::TrackingProtocol3ServerTrait;
 
+/// Implementation of the `TrackingProtocol3ServerTrait` for handling tracking requests.
 struct TrackingProtocol3ServerImpl;
 
 impl<T> TrackingProtocol3ServerTrait<T> for TrackingProtocol3ServerImpl {
+    /// Handles the `GetConfiguration` request, returning a list of tracking tags.
+    ///
+    /// This function requires the client to be logged in. The list of tags returned
+    /// depends on whether the "tracking" feature is enabled during compilation.
+    /// If the "tracking" feature is not enabled, an empty list of tags is returned.
     fn get_configuration(
         &self,
         _logger: &Logger,
@@ -25,10 +33,13 @@ impl<T> TrackingProtocol3ServerTrait<T> for TrackingProtocol3ServerImpl {
         _client_registry: &ClientRegistry<T>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetConfigurationResponse, Error> {
+        // Ensure the client is logged in before proceeding.
         login_required(&*ci)?;
         Ok(GetConfigurationResponse {
+            // If the "tracking" feature is disabled, return an empty list of tags.
             #[cfg(not(feature = "tracking"))]
             tags: Vec::new(),
+            // If the "tracking" feature is enabled, return a predefined list of tags.
             #[cfg(feature = "tracking")]
             tags: vec![
                 "ADVCLIENT_STOP".to_string(),
@@ -103,6 +114,9 @@ impl<T> TrackingProtocol3ServerTrait<T> for TrackingProtocol3ServerImpl {
         })
     }
 
+    /// Handles the `SendTags` request, processing incoming tracking tags.
+    ///
+    /// This function requires the client to be logged in.
     fn send_tags(
         &self,
         _logger: &Logger,
@@ -112,11 +126,16 @@ impl<T> TrackingProtocol3ServerTrait<T> for TrackingProtocol3ServerImpl {
         _client_registry: &ClientRegistry<T>,
         _socket: &std::net::UdpSocket,
     ) -> Result<SendTagsResponse, Error> {
+        // Ensure the client is logged in before processing the tags.
         login_required(&*ci)?;
         Ok(SendTagsResponse)
     }
 }
 
+/// Creates a new boxed `TrackingProtocol3Server` instance.
+///
+/// This function is typically used to register the tracking protocol
+/// with the server's protocol dispatcher.
 pub fn new_protocol<T: 'static>() -> Box<dyn Protocol<T>> {
     Box::new(TrackingProtocol3Server::new(TrackingProtocol3ServerImpl))
 }

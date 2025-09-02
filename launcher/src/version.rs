@@ -1,13 +1,20 @@
 use std::str::FromStr;
 
+/// Represents a semantic version with major, minor, and patch components.
+///
+/// The struct derives several traits to allow for easy comparison, debugging, and cloning.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Default)]
 pub struct Version {
+    /// The major version number, indicating incompatible API changes.
     pub major: usize,
+    /// The minor version number, indicating new functionality in a backwards-compatible manner.
     pub minor: usize,
+    /// The patch version number, indicating backwards-compatible bug fixes.
     pub patch: usize,
 }
 
 impl From<(usize, usize, usize)> for Version {
+    /// Creates a `Version` from a tuple of `(major, minor, patch)`.
     fn from(v: (usize, usize, usize)) -> Self {
         Version {
             major: v.0,
@@ -18,6 +25,7 @@ impl From<(usize, usize, usize)> for Version {
 }
 
 impl From<[usize; 3]> for Version {
+    /// Creates a `Version` from an array of `[major, minor, patch]`.
     fn from(v: [usize; 3]) -> Self {
         Version {
             major: v[0],
@@ -30,19 +38,30 @@ impl From<[usize; 3]> for Version {
 impl FromStr for Version {
     type Err = ();
 
+    /// Parses a version string (e.g., "1.2.3") into a `Version` struct.
+    ///
+    /// The string must contain exactly three parts separated by dots,
+    /// and each part must be a valid number.
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut parts = s.split('.');
+
+        // Parse major, minor, and patch versions.
+        // The `?` operator and `map_err` are used for concise error handling.
         let major = parts.next().ok_or(())?.parse().map_err(|_| ())?;
         let minor = parts.next().ok_or(())?.parse().map_err(|_| ())?;
         let patch = parts.next().ok_or(())?.parse().map_err(|_| ())?;
+
+        // Ensure there are no extra parts in the version string.
         if parts.next().is_some() {
             return Err(());
         }
+
         Ok(Version { major, minor, patch })
     }
 }
 
 impl std::fmt::Display for Version {
+    /// Formats the version as a "major.minor.patch" string.
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}.{}.{}", self.major, self.minor, self.patch)
     }
@@ -102,11 +121,7 @@ mod tests {
 
     #[test]
     fn test_display() {
-        let version = Version {
-            major: 10,
-            minor: 20,
-            patch: 30,
-        };
+        let version = Version { major: 10, minor: 20, patch: 30 };
         assert_eq!(format!("{}", version), "10.20.30");
 
         let version_zero = Version::default();

@@ -8,6 +8,10 @@ use std::path::PathBuf;
 use slog::debug;
 use slog::error;
 
+/// Serves a single file over HTTP.
+///
+/// This function binds to the given address and serves the provided content
+/// to any incoming HTTP request.
 pub fn serve(logger: &slog::Logger, addr: SocketAddr, content: &str) -> std::io::Result<()> {
     let listener = TcpListener::bind(addr)?;
     let resp = format!(
@@ -31,11 +35,12 @@ pub fn serve(logger: &slog::Logger, addr: SocketAddr, content: &str) -> std::io:
     }
 }
 
-pub fn serve_many(
-    logger: &slog::Logger,
-    addr: SocketAddr,
-    files: &HashMap<String, PathBuf>,
-) -> std::io::Result<()> {
+/// Serves multiple files over HTTP.
+///
+/// This function binds to the given address and serves files from the provided
+/// `files` map. The keys of the map are the request paths, and the values are
+/// the paths to the files on disk.
+pub fn serve_many(logger: &slog::Logger, addr: SocketAddr, files: &HashMap<String, PathBuf>) -> std::io::Result<()> {
     let listener = TcpListener::bind(addr)?;
     loop {
         let (mut stream, _addr) = listener.accept()?;
@@ -66,10 +71,7 @@ pub fn serve_many(
         if let Some(path) = files.get(path) {
             let data = std::fs::read(path)?;
 
-            let resp = format!(
-                "HTTP/1.0 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {}\r\n\r\n",
-                data.len(),
-            );
+            let resp = format!("HTTP/1.0 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {}\r\n\r\n", data.len(),);
             debug!(logger, "Status 200");
             let mut resp = resp.into_bytes();
             resp.extend(data);

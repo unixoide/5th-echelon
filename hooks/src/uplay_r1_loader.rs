@@ -106,18 +106,12 @@ unsafe fn into_friend_invite_accepted(event: *mut UplayEvent, ubi_name: String) 
         value496: 496,
     };
 
-    static mut FRIEND_ACCEPTED: FriendAccepted = FriendAccepted {
-        foo: std::ptr::addr_of!(FOO),
-    };
+    static mut FRIEND_ACCEPTED: FriendAccepted = FriendAccepted { foo: std::ptr::addr_of!(FOO) };
 
     (*event).event_type = UplayEventType::FriendsGameInviteAccepted;
     let mut ub = ubi_name.into_bytes();
     ub.push(0);
-    let l = if ub.len() > BAR.username.len() {
-        BAR.username.len()
-    } else {
-        ub.len()
-    };
+    let l = if ub.len() > BAR.username.len() { BAR.username.len() } else { ub.len() };
     BAR.username[..l].copy_from_slice(&ub[..l]);
     (*event).unknown = std::ptr::addr_of!(FRIEND_ACCEPTED) as usize;
 }
@@ -154,11 +148,7 @@ unsafe fn into_party_invite_accepted(event: *mut UplayEvent, ubi_name: String) {
     (*event).event_type = UplayEventType::PartyGameInviteAccepted;
     let mut ub = ubi_name.into_bytes();
     ub.push(0);
-    let l = if ub.len() > BAR.len() {
-        BAR.len()
-    } else {
-        ub.len()
-    };
+    let l = if ub.len() > BAR.len() { BAR.len() } else { ub.len() };
     BAR[..l].copy_from_slice(&ub[..l]);
     BAR[l] = 0;
     FOO.length = l + 1;
@@ -201,10 +191,7 @@ unsafe extern "cdecl" fn UPLAY_GetNextEvent(event: *mut UplayEvent) -> bool {
 }
 
 #[forwardable_export]
-unsafe extern "cdecl" fn UPLAY_GetOverlappedOperationResult_(
-    overlapped: *mut UplayOverlapped,
-    result: *mut usize,
-) -> bool {
+unsafe extern "cdecl" fn UPLAY_GetOverlappedOperationResult_(overlapped: *mut UplayOverlapped, result: *mut usize) -> bool {
     let overlapped = unsafe { overlapped.as_ref() };
     let result = unsafe { result.as_mut() };
     if let Some((overlapped, result)) = overlapped.filter(|o| o.is_completed != 0).zip(result) {
@@ -216,10 +203,7 @@ unsafe extern "cdecl" fn UPLAY_GetOverlappedOperationResult_(
 }
 
 #[forwardable_export]
-unsafe extern "cdecl" fn UPLAY_GetOverlappedOperationResult(
-    overlapped: *mut UplayOverlapped,
-    result: *mut usize,
-) -> bool {
+unsafe extern "cdecl" fn UPLAY_GetOverlappedOperationResult(overlapped: *mut UplayOverlapped, result: *mut usize) -> bool {
     let overlapped = unsafe { overlapped.as_ref() };
     let result = unsafe { result.as_mut() };
     if let Some((overlapped, result)) = overlapped.filter(|o| o.is_completed != 0).zip(result) {
@@ -231,9 +215,7 @@ unsafe extern "cdecl" fn UPLAY_GetOverlappedOperationResult(
 }
 
 #[forwardable_export]
-unsafe extern "cdecl" fn UPLAY_HasOverlappedOperationCompleted(
-    overlapped: *mut UplayOverlapped,
-) -> bool {
+unsafe extern "cdecl" fn UPLAY_HasOverlappedOperationCompleted(overlapped: *mut UplayOverlapped) -> bool {
     let overlapped = unsafe { overlapped.as_ref() };
     overlapped.is_some_and(|o| o.is_completed != 0)
 }
@@ -254,11 +236,7 @@ unsafe extern "cdecl" fn UPLAY_Release(ptr: *mut List) -> bool {
 }
 
 #[forwardable_export(always_call)]
-unsafe extern "cdecl" fn UPLAY_Startup(
-    uplay_id: usize,
-    game_version: usize,
-    language_country_code_utf8: *const c_char,
-) -> isize {
+unsafe extern "cdecl" fn UPLAY_Startup(uplay_id: usize, game_version: usize, language_country_code_utf8: *const c_char) -> isize {
     if let Some(config) = crate::config::get() {
         if config.enable_overlay {
             info!("Initializing overlay");
@@ -289,10 +267,7 @@ unsafe extern "cdecl" fn UPLAY_Startup(
                         let mut failures = 0;
                         loop {
                             tokio::time::sleep(Duration::from_secs(1)).await;
-                            let event: Option<std::result::Result<_, _>> = crate::api::event()
-                                .await
-                                .map(|resp| resp.invite)
-                                .transpose();
+                            let event: Option<std::result::Result<_, _>> = crate::api::event().await.map(|resp| resp.invite).transpose();
                             if let Some(invite) = event {
                                 if invite.is_err() {
                                     failures += 1;
@@ -301,8 +276,7 @@ unsafe extern "cdecl" fn UPLAY_Startup(
                                 }
                                 let invite = invite.map(Some);
                                 tx.send(invite).unwrap();
-                                if failures > 0 && failures % 10 == 0 && crate::api::relogin().await
-                                {
+                                if failures > 0 && failures % 10 == 0 && crate::api::relogin().await {
                                     // signal successful relogin
                                     tx.send(Ok(None)).unwrap();
                                 }

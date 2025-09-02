@@ -1,0 +1,179 @@
+0	ntoskrnl.exe	RtlIsCloudFilesPlaceholder + 0x3f7b	0xfffff8037806130b	C:\Windows\system32\ntoskrnl.exe
+1	tcpip.sys	tcpip.sys + 0xde047	0xfffff8037dd7e047	C:\Windows\System32\drivers\tcpip.sys
+2	tcpip.sys	tcpip.sys + 0x79834	0xfffff8037dd19834	C:\Windows\System32\drivers\tcpip.sys
+3	tcpip.sys	tcpip.sys + 0x7851a	0xfffff8037dd1851a	C:\Windows\System32\drivers\tcpip.sys
+4	tcpip.sys	tcpip.sys + 0x78225	0xfffff8037dd18225	C:\Windows\System32\drivers\tcpip.sys
+5	ntoskrnl.exe	Ordinal7 + 0x7a	0xfffff80377e0f04a	C:\Windows\system32\ntoskrnl.exe
+6	ntoskrnl.exe	KeExpandKernelStackAndCalloutEx + 0x1d	0xfffff80377e0efbd	C:\Windows\system32\ntoskrnl.exe
+7	tcpip.sys	tcpip.sys + 0xf92a	0xfffff8037dcaf92a	C:\Windows\System32\drivers\tcpip.sys
+8	afd.sys	afd.sys + 0x79b9	0xfffff8037f2379b9	C:\Windows\system32\drivers\afd.sys
+9	afd.sys	afd.sys + 0x7237	0xfffff8037f237237	C:\Windows\system32\drivers\afd.sys
+10	ntoskrnl.exe	NtDeviceIoControlFile + 0x4ce	0xfffff803782b355e	C:\Windows\system32\ntoskrnl.exe
+11	ntoskrnl.exe	NtDeviceIoControlFile + 0x56	0xfffff803782b30e6	C:\Windows\system32\ntoskrnl.exe
+12	ntoskrnl.exe	setjmpex + 0x8da5	0xfffff8037802c9e5	C:\Windows\system32\ntoskrnl.exe
+13	wow64cpu.dll	TurboDispatchJumpAddressEnd + 0x544	0x77821cf3	C:\Windows\System32\wow64cpu.dll
+14	wow64cpu.dll	TurboDispatchJumpAddressEnd + 0x17d	0x7782192c	C:\Windows\System32\wow64cpu.dll
+15	wow64cpu.dll	TurboDispatchJumpAddressEnd + 0x5c6	0x77821d75	C:\Windows\System32\wow64cpu.dll
+16	wow64.dll	Wow64KiUserCallbackDispatcher + 0x67d	0x7ffe5a43ea8d	C:\Windows\System32\wow64.dll
+17	wow64.dll	Wow64LdrpInitialize + 0x12d	0x7ffe5a43e18d	C:\Windows\System32\wow64.dll
+18	ntdll.dll	LdrInitializeThunk + 0x203	0x7ffe5a9e3fd3	C:\Windows\SYSTEM32\ntdll.dll
+19	ntdll.dll	LdrInitializeThunk + 0xe3	0x7ffe5a9e3eb3	C:\Windows\SYSTEM32\ntdll.dll
+20	ntdll.dll	LdrInitializeThunk + 0xe	0x7ffe5a9e3dde	C:\Windows\SYSTEM32\ntdll.dll
+21	ntdll.dll	ZwDeviceIoControlFile + 0xc	0x778a67cc	C:\Windows\SysWOW64\ntdll.dll
+22	mswsock.dll	sethostname + 0xc177	0x6ed9f5c7	C:\Windows\SysWOW64\mswsock.dll
+23	WS2_32.dll	sendto + 0x94	0x7562a3e4	C:\Windows\SysWOW64\WS2_32.dll
+24	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x1aa4991	0x20c3741	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+25	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x19fcad4	0x201b884	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+26	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x19fcc86	0x201ba36	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+27	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x1a03e51	0x2022c01	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+28	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x1a0a511	0x20292c1	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+29	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x1a199fc	0x20387ac	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+30	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x1a9e4b3	0x20bd263	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+31	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x1a42dac	0x2061b5c	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+32	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x1aa904f	0x20c7dff	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+33	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x1ab4db3	0x20d3b63	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+34	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x1a9ee5f	0x20bdc0f	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+35	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x1aa0dd9	0x20bfb89	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+36	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x43b466	0xa5a216	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+37	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0xb4f5f	0x6d3d0f	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+38	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0xa48f7	0x6c36a7	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+39	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x1e89050	0x24a7e00	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+40	KERNEL32.DLL	BaseThreadInitThunk + 0x19	0x76b07ba9	C:\Windows\SysWOW64\KERNEL32.DLL
+41	ntdll.dll	RtlInitializeExceptionChain + 0x6b	0x7789bdab	C:\Windows\SysWOW64\ntdll.dll
+42	ntdll.dll	RtlClearBits + 0xbf	0x7789bd2f	C:\Windows\SysWOW64\ntdll.dll
+
+
+0	ntoskrnl.exe	RtlIsCloudFilesPlaceholder + 0x3f7b	0xfffff8037806130b	C:\Windows\system32\ntoskrnl.exe
+1	tcpip.sys	tcpip.sys + 0xde047	0xfffff8037dd7e047	C:\Windows\System32\drivers\tcpip.sys
+2	tcpip.sys	tcpip.sys + 0x79834	0xfffff8037dd19834	C:\Windows\System32\drivers\tcpip.sys
+3	tcpip.sys	tcpip.sys + 0x7851a	0xfffff8037dd1851a	C:\Windows\System32\drivers\tcpip.sys
+4	tcpip.sys	tcpip.sys + 0x78225	0xfffff8037dd18225	C:\Windows\System32\drivers\tcpip.sys
+5	ntoskrnl.exe	Ordinal7 + 0x7a	0xfffff80377e0f04a	C:\Windows\system32\ntoskrnl.exe
+6	ntoskrnl.exe	KeExpandKernelStackAndCalloutEx + 0x1d	0xfffff80377e0efbd	C:\Windows\system32\ntoskrnl.exe
+7	tcpip.sys	tcpip.sys + 0xf92a	0xfffff8037dcaf92a	C:\Windows\System32\drivers\tcpip.sys
+8	afd.sys	afd.sys + 0x79b9	0xfffff8037f2379b9	C:\Windows\system32\drivers\afd.sys
+9	afd.sys	afd.sys + 0x7237	0xfffff8037f237237	C:\Windows\system32\drivers\afd.sys
+10	ntoskrnl.exe	NtDeviceIoControlFile + 0x4ce	0xfffff803782b355e	C:\Windows\system32\ntoskrnl.exe
+11	ntoskrnl.exe	NtDeviceIoControlFile + 0x56	0xfffff803782b30e6	C:\Windows\system32\ntoskrnl.exe
+12	ntoskrnl.exe	setjmpex + 0x8da5	0xfffff8037802c9e5	C:\Windows\system32\ntoskrnl.exe
+13	wow64cpu.dll	TurboDispatchJumpAddressEnd + 0x544	0x77821cf3	C:\Windows\System32\wow64cpu.dll
+14	wow64cpu.dll	TurboDispatchJumpAddressEnd + 0x17d	0x7782192c	C:\Windows\System32\wow64cpu.dll
+15	wow64cpu.dll	TurboDispatchJumpAddressEnd + 0x5c6	0x77821d75	C:\Windows\System32\wow64cpu.dll
+16	wow64.dll	Wow64KiUserCallbackDispatcher + 0x67d	0x7ffe5a43ea8d	C:\Windows\System32\wow64.dll
+17	wow64.dll	Wow64LdrpInitialize + 0x12d	0x7ffe5a43e18d	C:\Windows\System32\wow64.dll
+18	ntdll.dll	LdrInitializeThunk + 0x203	0x7ffe5a9e3fd3	C:\Windows\SYSTEM32\ntdll.dll
+19	ntdll.dll	LdrInitializeThunk + 0xe3	0x7ffe5a9e3eb3	C:\Windows\SYSTEM32\ntdll.dll
+20	ntdll.dll	LdrInitializeThunk + 0xe	0x7ffe5a9e3dde	C:\Windows\SYSTEM32\ntdll.dll
+21	ntdll.dll	ZwDeviceIoControlFile + 0xc	0x778a67cc	C:\Windows\SysWOW64\ntdll.dll
+22	mswsock.dll	sethostname + 0xc177	0x6ed9f5c7	C:\Windows\SysWOW64\mswsock.dll
+23	WS2_32.dll	sendto + 0x94	0x7562a3e4	C:\Windows\SysWOW64\WS2_32.dll
+24	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x1aa4991	0x20c3741	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+25	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x19fcad4	0x201b884	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+26	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x19fcc86	0x201ba36	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+27	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x1a03e51	0x2022c01	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+28	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x1a0a511	0x20292c1	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+29	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x1a199fc	0x20387ac	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+30	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x1a9e4b3	0x20bd263	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+31	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x1a42dac	0x2061b5c	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+32	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x1aa904f	0x20c7dff	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+33	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x1ab4db3	0x20d3b63	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+34	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x1a9ee5f	0x20bdc0f	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+35	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x1aa0dd9	0x20bfb89	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+36	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x43b466	0xa5a216	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+37	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0xb4f5f	0x6d3d0f	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+38	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0xa48f7	0x6c36a7	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+39	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x1e89050	0x24a7e00	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+40	KERNEL32.DLL	BaseThreadInitThunk + 0x19	0x76b07ba9	C:\Windows\SysWOW64\KERNEL32.DLL
+41	ntdll.dll	RtlInitializeExceptionChain + 0x6b	0x7789bdab	C:\Windows\SysWOW64\ntdll.dll
+42	ntdll.dll	RtlClearBits + 0xbf	0x7789bd2f	C:\Windows\SysWOW64\ntdll.dll
+
+
+## 70 bytes packet
+0	ntoskrnl.exe	RtlIsCloudFilesPlaceholder + 0x3f7b	0xfffff8037806130b	C:\Windows\system32\ntoskrnl.exe
+1	tcpip.sys	tcpip.sys + 0xde047	0xfffff8037dd7e047	C:\Windows\System32\drivers\tcpip.sys
+2	tcpip.sys	tcpip.sys + 0x79834	0xfffff8037dd19834	C:\Windows\System32\drivers\tcpip.sys
+3	tcpip.sys	tcpip.sys + 0x7851a	0xfffff8037dd1851a	C:\Windows\System32\drivers\tcpip.sys
+4	tcpip.sys	tcpip.sys + 0x78225	0xfffff8037dd18225	C:\Windows\System32\drivers\tcpip.sys
+5	ntoskrnl.exe	Ordinal7 + 0x7a	0xfffff80377e0f04a	C:\Windows\system32\ntoskrnl.exe
+6	ntoskrnl.exe	KeExpandKernelStackAndCalloutEx + 0x1d	0xfffff80377e0efbd	C:\Windows\system32\ntoskrnl.exe
+7	tcpip.sys	tcpip.sys + 0xf92a	0xfffff8037dcaf92a	C:\Windows\System32\drivers\tcpip.sys
+8	afd.sys	afd.sys + 0x79b9	0xfffff8037f2379b9	C:\Windows\system32\drivers\afd.sys
+9	afd.sys	afd.sys + 0x7237	0xfffff8037f237237	C:\Windows\system32\drivers\afd.sys
+10	ntoskrnl.exe	NtDeviceIoControlFile + 0x4ce	0xfffff803782b355e	C:\Windows\system32\ntoskrnl.exe
+11	ntoskrnl.exe	NtDeviceIoControlFile + 0x56	0xfffff803782b30e6	C:\Windows\system32\ntoskrnl.exe
+12	ntoskrnl.exe	setjmpex + 0x8da5	0xfffff8037802c9e5	C:\Windows\system32\ntoskrnl.exe
+13	wow64cpu.dll	TurboDispatchJumpAddressEnd + 0x544	0x77821cf3	C:\Windows\System32\wow64cpu.dll
+14	wow64cpu.dll	TurboDispatchJumpAddressEnd + 0x17d	0x7782192c	C:\Windows\System32\wow64cpu.dll
+15	wow64cpu.dll	TurboDispatchJumpAddressEnd + 0x5c6	0x77821d75	C:\Windows\System32\wow64cpu.dll
+16	wow64.dll	Wow64KiUserCallbackDispatcher + 0x67d	0x7ffe5a43ea8d	C:\Windows\System32\wow64.dll
+17	wow64.dll	Wow64LdrpInitialize + 0x12d	0x7ffe5a43e18d	C:\Windows\System32\wow64.dll
+18	ntdll.dll	LdrInitializeThunk + 0x203	0x7ffe5a9e3fd3	C:\Windows\SYSTEM32\ntdll.dll
+19	ntdll.dll	LdrInitializeThunk + 0xe3	0x7ffe5a9e3eb3	C:\Windows\SYSTEM32\ntdll.dll
+20	ntdll.dll	LdrInitializeThunk + 0xe	0x7ffe5a9e3dde	C:\Windows\SYSTEM32\ntdll.dll
+21	ntdll.dll	ZwDeviceIoControlFile + 0xc	0x778a67cc	C:\Windows\SysWOW64\ntdll.dll
+22	mswsock.dll	sethostname + 0xc177	0x6ed9f5c7	C:\Windows\SysWOW64\mswsock.dll
+23	WS2_32.dll	sendto + 0x94	0x7562a3e4	C:\Windows\SysWOW64\WS2_32.dll
+24	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x1aa4991	0x20c3741	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+25	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x19fcad4	0x201b884	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+26	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x19fcc86	0x201ba36	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+27	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x1a03e51	0x2022c01	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+28	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x1a0a511	0x20292c1	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+29	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x1a199fc	0x20387ac	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+30	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x1a9e4b3	0x20bd263	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+31	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x1a42dac	0x2061b5c	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+32	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x1aa904f	0x20c7dff	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+33	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x1ab4db3	0x20d3b63	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+34	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x1a9ee5f	0x20bdc0f	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+35	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x1aa0dd9	0x20bfb89	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+36	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x43b466	0xa5a216	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+37	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0xb4f5f	0x6d3d0f	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+38	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0xa48f7	0x6c36a7	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+39	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x1e89050	0x24a7e00	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+40	KERNEL32.DLL	BaseThreadInitThunk + 0x19	0x76b07ba9	C:\Windows\SysWOW64\KERNEL32.DLL
+41	ntdll.dll	RtlInitializeExceptionChain + 0x6b	0x7789bdab	C:\Windows\SysWOW64\ntdll.dll
+42	ntdll.dll	RtlClearBits + 0xbf	0x7789bd2f	C:\Windows\SysWOW64\ntdll.dll
+
+
+## 66 bytes packet
+0	ntoskrnl.exe	RtlIsCloudFilesPlaceholder + 0x3f7b	0xfffff8037806130b	C:\Windows\system32\ntoskrnl.exe
+1	tcpip.sys	tcpip.sys + 0xde047	0xfffff8037dd7e047	C:\Windows\System32\drivers\tcpip.sys
+2	tcpip.sys	tcpip.sys + 0x79834	0xfffff8037dd19834	C:\Windows\System32\drivers\tcpip.sys
+3	tcpip.sys	tcpip.sys + 0x7851a	0xfffff8037dd1851a	C:\Windows\System32\drivers\tcpip.sys
+4	tcpip.sys	tcpip.sys + 0x78225	0xfffff8037dd18225	C:\Windows\System32\drivers\tcpip.sys
+5	ntoskrnl.exe	Ordinal7 + 0x7a	0xfffff80377e0f04a	C:\Windows\system32\ntoskrnl.exe
+6	ntoskrnl.exe	KeExpandKernelStackAndCalloutEx + 0x1d	0xfffff80377e0efbd	C:\Windows\system32\ntoskrnl.exe
+7	tcpip.sys	tcpip.sys + 0xf92a	0xfffff8037dcaf92a	C:\Windows\System32\drivers\tcpip.sys
+8	afd.sys	afd.sys + 0x79b9	0xfffff8037f2379b9	C:\Windows\system32\drivers\afd.sys
+9	afd.sys	afd.sys + 0x7237	0xfffff8037f237237	C:\Windows\system32\drivers\afd.sys
+10	ntoskrnl.exe	NtDeviceIoControlFile + 0x4ce	0xfffff803782b355e	C:\Windows\system32\ntoskrnl.exe
+11	ntoskrnl.exe	NtDeviceIoControlFile + 0x56	0xfffff803782b30e6	C:\Windows\system32\ntoskrnl.exe
+12	ntoskrnl.exe	setjmpex + 0x8da5	0xfffff8037802c9e5	C:\Windows\system32\ntoskrnl.exe
+13	wow64cpu.dll	TurboDispatchJumpAddressEnd + 0x544	0x77821cf3	C:\Windows\System32\wow64cpu.dll
+14	wow64cpu.dll	TurboDispatchJumpAddressEnd + 0x17d	0x7782192c	C:\Windows\System32\wow64cpu.dll
+15	wow64cpu.dll	TurboDispatchJumpAddressEnd + 0x5c6	0x77821d75	C:\Windows\System32\wow64cpu.dll
+16	wow64.dll	Wow64KiUserCallbackDispatcher + 0x67d	0x7ffe5a43ea8d	C:\Windows\System32\wow64.dll
+17	wow64.dll	Wow64LdrpInitialize + 0x12d	0x7ffe5a43e18d	C:\Windows\System32\wow64.dll
+18	ntdll.dll	LdrInitializeThunk + 0x203	0x7ffe5a9e3fd3	C:\Windows\SYSTEM32\ntdll.dll
+19	ntdll.dll	LdrInitializeThunk + 0xe3	0x7ffe5a9e3eb3	C:\Windows\SYSTEM32\ntdll.dll
+20	ntdll.dll	LdrInitializeThunk + 0xe	0x7ffe5a9e3dde	C:\Windows\SYSTEM32\ntdll.dll
+21	ntdll.dll	ZwDeviceIoControlFile + 0xc	0x778a67cc	C:\Windows\SysWOW64\ntdll.dll
+22	mswsock.dll	sethostname + 0xc177	0x6ed9f5c7	C:\Windows\SysWOW64\mswsock.dll
+23	WS2_32.dll	sendto + 0x94	0x7562a3e4	C:\Windows\SysWOW64\WS2_32.dll
+24	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x1aa4991	0x20c3741	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+25	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x19fcad4	0x201b884	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+26	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x19fcc86	0x201ba36	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+27	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x1a03e51	0x2022c01	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+28	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x1a097c1	0x2028571	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+29	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x1a83f8f	0x20a2d3f	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+30	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x1a42e38	0x2061be8	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+31	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x1aa904f	0x20c7dff	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+32	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x1ab4db3	0x20d3b63	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+33	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x1a9ee5f	0x20bdc0f	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+34	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x1aa0dd9	0x20bfb89	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+35	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x43b466	0xa5a216	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+36	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0xb4f5f	0x6d3d0f	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+37	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0xa48f7	0x6c36a7	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+38	Blacklist_game.exe	Scaleform::Render::Matrix2x4<float>::GetYScale + 0x1e89050	0x24a7e00	C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\Blacklist_game.exe
+39	KERNEL32.DLL	BaseThreadInitThunk + 0x19	0x76b07ba9	C:\Windows\SysWOW64\KERNEL32.DLL
+40	ntdll.dll	RtlInitializeExceptionChain + 0x6b	0x7789bdab	C:\Windows\SysWOW64\ntdll.dll
+41	ntdll.dll	RtlClearBits + 0xbf	0x7789bd2f	C:\Windows\SysWOW64\ntdll.dll

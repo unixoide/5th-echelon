@@ -45,20 +45,13 @@ pub struct PollNotificationsResponse {
 pub struct UnregisterUserRequest;
 #[derive(Debug, ToStream, FromStream)]
 pub struct UnregisterUserResponse;
-pub struct WebNotificationsStorageProtocolServer<
-    T: WebNotificationsStorageProtocolServerTrait<CI>,
-    CI,
->(T, ::std::marker::PhantomData<CI>);
-impl<T: WebNotificationsStorageProtocolServerTrait<CI>, CI>
-    WebNotificationsStorageProtocolServer<T, CI>
-{
+pub struct WebNotificationsStorageProtocolServer<T: WebNotificationsStorageProtocolServerTrait<CI>, CI>(T, ::std::marker::PhantomData<CI>);
+impl<T: WebNotificationsStorageProtocolServerTrait<CI>, CI> WebNotificationsStorageProtocolServer<T, CI> {
     pub fn new(implementation: T) -> Self {
         Self(implementation, ::std::marker::PhantomData)
     }
 }
-impl<T: WebNotificationsStorageProtocolServerTrait<CI>, CI> Protocol<CI>
-    for WebNotificationsStorageProtocolServer<T, CI>
-{
+impl<T: WebNotificationsStorageProtocolServerTrait<CI>, CI> Protocol<CI> for WebNotificationsStorageProtocolServer<T, CI> {
     fn id(&self) -> u16 {
         WEB_NOTIFICATIONS_STORAGE_PROTOCOL_ID
     }
@@ -83,36 +76,28 @@ impl<T: WebNotificationsStorageProtocolServerTrait<CI>, CI> Protocol<CI>
             Some(WebNotificationsStorageProtocolMethod::RegisterUser) => {
                 let req = RegisterUserRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .register_user(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.register_user(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(WebNotificationsStorageProtocolMethod::PollNotifications) => {
                 let req = PollNotificationsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .poll_notifications(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.poll_notifications(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(WebNotificationsStorageProtocolMethod::UnregisterUser) => {
                 let req = UnregisterUserRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .unregister_user(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.unregister_user(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
         }
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        WebNotificationsStorageProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        WebNotificationsStorageProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
@@ -126,12 +111,7 @@ pub trait WebNotificationsStorageProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<RegisterUserResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "WebNotificationsStorageProtocol",
-            stringify!(register_user)
-        );
+        warn!(logger, "Method {}.{} not implemented", "WebNotificationsStorageProtocol", stringify!(register_user));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn poll_notifications(
@@ -143,12 +123,7 @@ pub trait WebNotificationsStorageProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<PollNotificationsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "WebNotificationsStorageProtocol",
-            stringify!(poll_notifications)
-        );
+        warn!(logger, "Method {}.{} not implemented", "WebNotificationsStorageProtocol", stringify!(poll_notifications));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn unregister_user(
@@ -160,12 +135,7 @@ pub trait WebNotificationsStorageProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<UnregisterUserResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "WebNotificationsStorageProtocol",
-            stringify!(unregister_user)
-        );
+        warn!(logger, "Method {}.{} not implemented", "WebNotificationsStorageProtocol", stringify!(unregister_user));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }
@@ -191,77 +161,24 @@ impl<CI> ClientProtocol<CI> for WebNotificationsStorageProtocolClient<CI> {
         3u32
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        WebNotificationsStorageProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        WebNotificationsStorageProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
 impl<CI> WebNotificationsStorageProtocolClient<CI> {
-    pub fn register_user(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: RegisterUserRequest,
-    ) -> Result<RegisterUserResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "WebNotificationsStorageProtocol",
-            stringify!(register_user)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            WebNotificationsStorageProtocolMethod::RegisterUser as u32,
-            request.to_bytes(),
-        );
+    pub fn register_user(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: RegisterUserRequest) -> Result<RegisterUserResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "WebNotificationsStorageProtocol", stringify!(register_user));
+        self.send(logger, ctx, ci, WebNotificationsStorageProtocolMethod::RegisterUser as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn poll_notifications(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: PollNotificationsRequest,
-    ) -> Result<PollNotificationsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "WebNotificationsStorageProtocol",
-            stringify!(poll_notifications)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            WebNotificationsStorageProtocolMethod::PollNotifications as u32,
-            request.to_bytes(),
-        );
+    pub fn poll_notifications(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: PollNotificationsRequest) -> Result<PollNotificationsResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "WebNotificationsStorageProtocol", stringify!(poll_notifications));
+        self.send(logger, ctx, ci, WebNotificationsStorageProtocolMethod::PollNotifications as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn unregister_user(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: UnregisterUserRequest,
-    ) -> Result<UnregisterUserResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "WebNotificationsStorageProtocol",
-            stringify!(unregister_user)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            WebNotificationsStorageProtocolMethod::UnregisterUser as u32,
-            request.to_bytes(),
-        );
+    pub fn unregister_user(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: UnregisterUserRequest) -> Result<UnregisterUserResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "WebNotificationsStorageProtocol", stringify!(unregister_user));
+        self.send(logger, ctx, ci, WebNotificationsStorageProtocolMethod::UnregisterUser as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }

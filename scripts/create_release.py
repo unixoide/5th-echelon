@@ -154,6 +154,7 @@ def main():
     grp.add_argument("--patch", action="store_true")
     parser.add_argument("--auto", action="store_true")
     parser.add_argument("--set", type=version_type)
+    parser.add_argument("--amend", action="store_true")
     args = parser.parse_args()
 
     manifests = [
@@ -196,7 +197,10 @@ def main():
     subprocess.run(
         ["git", "add", *map(str, find_cargo_files()), "Cargo.lock"], check=True
     )
-    subprocess.run(["git", "commit", "-m", f"release {new_version}"], check=True)
+    if args.amend:
+        subprocess.run(["git", "commit", "--amend", "--no-edit"], check=True)
+    else:
+        subprocess.run(["git", "commit", "-m", f"release {new_version}"], check=True)
     subprocess.run(
         ["git", "tag", "-a", f"v{new_version}", "-m", f"v{new_version}"], check=True
     )

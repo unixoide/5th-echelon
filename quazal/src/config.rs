@@ -1,3 +1,4 @@
+// Provides functionality for handling byte serialization and deserialization.
 use std::collections::HashMap;
 use std::net::SocketAddr;
 use std::num::Wrapping;
@@ -13,11 +14,13 @@ use toml::Value;
 use crate::prudp::packet::StreamType;
 use crate::Error;
 
+// Custom serialization and deserialization for byte arrays.
 mod bytes {
     use serde::de::Visitor;
     use serde::Deserializer;
     use serde::Serializer;
 
+    // Deserializes a value into a byte vector.
     pub fn deserialize<'de, D>(deserializer: D) -> Result<Vec<u8>, D::Error>
     where
         D: Deserializer<'de>,
@@ -28,7 +31,7 @@ mod bytes {
             type Value = Vec<u8>;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
-                formatter.write_str("stirng or bytes")
+                formatter.write_str("string or bytes")
             }
 
             fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
@@ -62,6 +65,7 @@ mod bytes {
         deserializer.deserialize_any(BytesVisitor)
     }
 
+    // Serializes a byte slice.
     pub fn serialize<S>(value: &[u8], serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
@@ -74,18 +78,26 @@ mod bytes {
     }
 }
 
+/// Represents the context for a service, including keys, addresses, and settings.
 #[derive(Deserialize, Serialize, Debug, Clone)]
 #[serde(default)]
 pub struct Context {
+    /// Access key for the service.
     #[serde(with = "bytes")]
     pub access_key: Vec<u8>,
+    /// Crypto key for the service.
     #[serde(with = "bytes")]
     pub crypto_key: Vec<u8>,
+    /// Listening address for the service.
     pub listen: SocketAddr,
     // pub server_id: u32,
+    /// Virtual port for the service.
     pub vport: u8,
+    /// Address of the secure server.
     pub secure_server_addr: Option<SocketAddr>,
+    /// Additional settings for the service.
     pub settings: HashMap<String, String>,
+    /// Ticket key for the service.
     pub ticket_key: secretbox::Key,
 }
 
@@ -105,6 +117,7 @@ impl Default for Context {
 }
 
 impl Context {
+    /// Creates a new context for Splinter Cell Blacklist.
     #[must_use]
     pub fn splinter_cell_blacklist() -> Context {
         Context {
@@ -113,13 +126,11 @@ impl Context {
         }
     }
 
+    /// Returns the key for a given stream type.
     #[must_use]
     pub fn key(&self, stype: StreamType) -> u32 {
         let sum = || {
-            let key_sum = self
-                .access_key
-                .iter()
-                .fold(Wrapping(0u32), |acc, x| acc + Wrapping(u32::from(*x)));
+            let key_sum = self.access_key.iter().fold(Wrapping(0u32), |acc, x| acc + Wrapping(u32::from(*x)));
             key_sum.0
         };
 
@@ -137,6 +148,7 @@ impl Context {
     }
 }
 
+/// Represents an item in the online configuration.
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "PascalCase")]
 pub struct OnlineConfigItem {
@@ -144,16 +156,21 @@ pub struct OnlineConfigItem {
     values: Vec<String>,
 }
 
+/// Represents the content of the online configuration.
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(untagged)]
 pub enum OnlineConfigContent {
+    /// Raw string content.
     Raw(String),
+    /// Typed content as a vector of items.
     Typed(Vec<OnlineConfigItem>),
 }
 
+/// Represents the online configuration.
 #[allow(clippy::module_name_repetitions)]
 #[derive(Serialize, Deserialize, Debug)]
 pub struct OnlineConfig {
+    /// Listening address for the configuration service.
     pub listen: SocketAddr,
     content: OnlineConfigContent,
 }
@@ -172,12 +189,30 @@ impl Default for OnlineConfig {
                         name: "SandboxUrlWS".into(),
                         values: vec!["127.0.0.1:21126".into()],
                     },
-                    // OnlineConfigItem { name: "punch_DetectUrls".into(), values: vec!["b-prod-mm-detect01.ubisoft.com:11020".into(),"lb-prod-mm-detect02.ubisoft.com:11020".into()]},
-                    // OnlineConfigItem { name: "SandboxUrl".into(), values: vec!["prudp:/address=mdc-mm-rdv66.ubisoft.com;port=21170".into()]},
-                    // OnlineConfigItem { name: "SandboxUrlWS".into(), values: vec!["mdc-mm-rdv66.ubisoft.com:21170".into()]},
-                    // OnlineConfigItem { name: "uplay_DownloadServiceUrl".into(), values: vec!["https://secure.ubi.com/UplayServices/UplayFacade/DownloadServicesRESTXML.svc/REST/XML/?url=".into()]},
-                    // OnlineConfigItem { name: "uplay_DynContentBaseUrl".into(), values: vec!["http://static8.cdn.ubi.com/u/Uplay/".into()]},
-                    // OnlineConfigItem { name: "uplay_DynContentSecureBaseUrl".into(), values: vec!["http://static8.cdn.ubi.com/".into()]},
+                    // OnlineConfigItem {
+                    //     name: "punch_DetectUrls".into(),
+                    //     values: vec!["b-prod-mm-detect01.ubisoft.com:11020".into(), "lb-prod-mm-detect02.ubisoft.com:11020".into()],
+                    // },
+                    // OnlineConfigItem {
+                    //     name: "SandboxUrl".into(),
+                    //     values: vec!["prudp:/address=mdc-mm-rdv66.ubisoft.com;port=21170".into()],
+                    // },
+                    // OnlineConfigItem {
+                    //     name: "SandboxUrlWS".into(),
+                    //     values: vec!["mdc-mm-rdv66.ubisoft.com:21170".into()],
+                    // },
+                    // OnlineConfigItem {
+                    //     name: "uplay_DownloadServiceUrl".into(),
+                    //     values: vec!["https://secure.ubi.com/UplayServices/UplayFacade/DownloadServicesRESTXML.svc/REST/XML/?url=".into()],
+                    // },
+                    // OnlineConfigItem {
+                    //     name: "uplay_DynContentBaseUrl".into(),
+                    //     values: vec!["http://static8.cdn.ubi.com/u/Uplay/".into()],
+                    // },
+                    // OnlineConfigItem {
+                    //     name: "uplay_DynContentSecureBaseUrl".into(),
+                    //     values: vec!["http://static8.cdn.ubi.com/".into()],
+                    // },
                 ]),
             }
         }
@@ -185,6 +220,7 @@ impl Default for OnlineConfig {
 }
 
 impl OnlineConfig {
+    /// Returns the content of the online configuration as a string.
     #[must_use]
     pub fn content(&self) -> String {
         match &self.content {
@@ -193,6 +229,7 @@ impl OnlineConfig {
         }
     }
 
+    /// Sets the IP addresses in the online configuration.
     pub fn set_ips(&mut self, ip: std::net::IpAddr, public_ip: std::net::IpAddr) {
         self.listen.set_ip(ip);
 
@@ -211,8 +248,8 @@ impl OnlineConfig {
                 let rest = s.split_off(start_idx);
                 s.push_str(&public_ip.to_string());
                 s.push_str(&rest[end_idx - start_idx..]);
-				
-				// repeat the same for SandboxUrlWS
+
+                // repeat the same for SandboxUrlWS
                 let Some(idx) = s.find(r#""Name":"SandboxUrlWS","#) else {
                     return;
                 };
@@ -256,9 +293,12 @@ impl OnlineConfig {
     }
 }
 
+/// Represents a content server.
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ContentServer {
+    /// Listening address for the content server.
     pub listen: SocketAddr,
+    /// A map of file names to their paths.
     pub files: HashMap<String, PathBuf>,
 }
 
@@ -271,12 +311,17 @@ impl Default for ContentServer {
     }
 }
 
+/// Represents the different types of services.
 #[derive(Serialize, Debug)]
 #[serde(tag = "type", rename_all = "lowercase")]
 pub enum Service {
+    /// Authentication service.
     Authentication(Context),
+    /// Secure service.
     Secure(Context),
+    /// Configuration service.
     Config(OnlineConfig),
+    /// Content service.
     Content(ContentServer),
 }
 
@@ -302,11 +347,7 @@ impl<'de> Deserialize<'de> for Service {
 
         let v = Value::deserialize(deserializer)?;
         let t = v.get("type");
-        match t
-            .map(|v| Tag::deserialize(v.to_owned()))
-            .transpose()
-            .map_err(de::Error::custom)?
-        {
+        match t.map(|v| Tag::deserialize(v.to_owned())).transpose().map_err(de::Error::custom)? {
             Some(Tag::Authentication) => {
                 let inner = Context::deserialize(v).map_err(de::Error::custom)?;
                 Ok(Service::Authentication(inner))
@@ -335,40 +376,38 @@ impl<'de> Deserialize<'de> for Service {
     }
 }
 
+/// Represents the overall configuration.
 #[derive(Serialize, Deserialize, Default, Debug)]
 pub struct Config {
+    /// A set of enabled services.
     pub services: std::collections::HashSet<String>,
+    /// A map of service names to their configurations.
     pub service: std::collections::HashMap<String, Service>,
 }
 
 impl Config {
+    /// Loads the configuration from a file.
     pub fn load_from_file<P: AsRef<std::path::Path>>(path: P) -> Result<Self, Box<dyn std::error::Error>> {
         let data = std::fs::read_to_string(path)?;
         let w: Config = toml::from_str(&data)?;
         Ok(w)
     }
 
+    /// Converts the configuration into a vector of services.
     pub fn into_services(self) -> Result<Vec<(String, Service)>, Error> {
         let Config { mut services, service } = self;
         let service_contexts = service
             .into_iter()
-            .filter_map(|(ref name, ctx)| {
-                if services.remove(name) {
-                    Some((name.to_string(), ctx))
-                } else {
-                    None
-                }
-            })
+            .filter_map(|(ref name, ctx)| if services.remove(name) { Some((name.to_string(), ctx)) } else { None })
             .collect();
         if services.is_empty() {
             Ok(service_contexts)
         } else {
-            Err(Error::ServiceNotFound(
-                services.into_iter().collect::<Vec<_>>().join("/"),
-            ))
+            Err(Error::ServiceNotFound(services.into_iter().collect::<Vec<_>>().join("/")))
         }
     }
 
+    /// Saves the configuration to a file.
     pub fn save_to_file<P: AsRef<std::path::Path>>(&self, path: P) -> Result<(), Box<dyn std::error::Error>> {
         let data = toml::to_string_pretty(self)?;
         std::fs::write(path, data)?;

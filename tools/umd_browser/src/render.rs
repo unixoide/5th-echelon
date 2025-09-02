@@ -24,10 +24,7 @@ use windows::Win32::Foundation::HWND;
 
 use crate::clipboard;
 
-pub fn render(
-    mut imgui_context: imgui::Context,
-    mut do_render: impl FnMut(&mut imgui::Ui, f32, f32),
-) {
+pub fn render(mut imgui_context: imgui::Context, mut do_render: impl FnMut(&mut imgui::Ui, f32, f32)) {
     let (event_loop, window, surface, context) = create_window();
     let mut winit_platform = imgui_init(&window, &mut imgui_context);
 
@@ -35,8 +32,7 @@ pub fn render(
     let gl = glow_context(&context);
 
     // OpenGL renderer from this crate
-    let mut ig_renderer = imgui_glow_renderer::AutoRenderer::new(gl, &mut imgui_context)
-        .expect("failed to create renderer");
+    let mut ig_renderer = imgui_glow_renderer::AutoRenderer::new(gl, &mut imgui_context).expect("failed to create renderer");
 
     let mut last_frame = Instant::now();
 
@@ -47,15 +43,11 @@ pub fn render(
             match event {
                 winit::event::Event::NewEvents(_) => {
                     let now = Instant::now();
-                    imgui_context
-                        .io_mut()
-                        .update_delta_time(now.duration_since(last_frame));
+                    imgui_context.io_mut().update_delta_time(now.duration_since(last_frame));
                     last_frame = now;
                 }
                 winit::event::Event::AboutToWait => {
-                    winit_platform
-                        .prepare_frame(imgui_context.io_mut(), &window)
-                        .unwrap();
+                    winit_platform.prepare_frame(imgui_context.io_mut(), &window).unwrap();
                     window.request_redraw();
                 }
                 winit::event::Event::WindowEvent {
@@ -77,13 +69,9 @@ pub fn render(
                     let draw_data = imgui_context.render();
 
                     // This is the only extra render step to add
-                    ig_renderer
-                        .render(draw_data)
-                        .expect("error rendering imgui");
+                    ig_renderer.render(draw_data).expect("error rendering imgui");
 
-                    surface
-                        .swap_buffers(&context)
-                        .expect("Failed to swap buffers");
+                    surface.swap_buffers(&context).expect("Failed to swap buffers");
                 }
                 winit::event::Event::WindowEvent {
                     event: winit::event::WindowEvent::CloseRequested,
@@ -96,11 +84,7 @@ pub fn render(
                     ..
                 } => {
                     if new_size.width > 0 && new_size.height > 0 {
-                        surface.resize(
-                            &context,
-                            NonZeroU32::new(new_size.width).unwrap(),
-                            NonZeroU32::new(new_size.height).unwrap(),
-                        );
+                        surface.resize(&context, NonZeroU32::new(new_size.width).unwrap(), NonZeroU32::new(new_size.height).unwrap());
                     }
                     winit_platform.handle_event(imgui_context.io_mut(), &window, &event);
                 }
@@ -112,12 +96,7 @@ pub fn render(
         .expect("main event loop");
 }
 
-fn create_window() -> (
-    EventLoop<()>,
-    Window,
-    Surface<WindowSurface>,
-    PossiblyCurrentContext,
-) {
+fn create_window() -> (EventLoop<()>, Window, Surface<WindowSurface>, PossiblyCurrentContext) {
     let event_loop = EventLoop::new().expect("event loop");
 
     let attr = Window::default_attributes()
@@ -125,37 +104,21 @@ fn create_window() -> (
         .with_inner_size(LogicalSize::new(1024, 768));
     let (window, cfg) = glutin_winit::DisplayBuilder::new()
         .with_window_attributes(Some(attr))
-        .build(&event_loop, ConfigTemplateBuilder::new(), |mut configs| {
-            configs.next().unwrap()
-        })
+        .build(&event_loop, ConfigTemplateBuilder::new(), |mut configs| configs.next().unwrap())
         .expect("Failed to create OpenGL window");
 
     let window = window.unwrap();
 
     let raw_handle = window.window_handle().expect("raw window handle").as_raw();
     let context_attribs = ContextAttributesBuilder::new().build(Some(raw_handle));
-    let context = unsafe {
-        cfg.display()
-            .create_context(&cfg, &context_attribs)
-            .expect("Failed to create OpenGL context")
-    };
+    let context = unsafe { cfg.display().create_context(&cfg, &context_attribs).expect("Failed to create OpenGL context") };
 
     let surface_attribs = SurfaceAttributesBuilder::<WindowSurface>::new()
         .with_srgb(Some(true))
-        .build(
-            raw_handle,
-            NonZeroU32::new(1024).unwrap(),
-            NonZeroU32::new(768).unwrap(),
-        );
-    let surface = unsafe {
-        cfg.display()
-            .create_window_surface(&cfg, &surface_attribs)
-            .expect("Failed to create OpenGL surface")
-    };
+        .build(raw_handle, NonZeroU32::new(1024).unwrap(), NonZeroU32::new(768).unwrap());
+    let surface = unsafe { cfg.display().create_window_surface(&cfg, &surface_attribs).expect("Failed to create OpenGL surface") };
 
-    let context = context
-        .make_current(&surface)
-        .expect("Failed to make OpenGL context current");
+    let context = context.make_current(&surface).expect("Failed to make OpenGL context current");
 
     (event_loop, window, surface, context)
 }
@@ -184,9 +147,7 @@ fn imgui_init(window: &Window, imgui: &mut imgui::Context) -> WinitPlatform {
 
     let raw_handle = window.window_handle().expect("raw window handle").as_raw();
     let hwnd = match raw_handle {
-        winit::raw_window_handle::RawWindowHandle::Win32(win32_window_handle) => {
-            HWND(win32_window_handle.hwnd.into())
-        }
+        winit::raw_window_handle::RawWindowHandle::Win32(win32_window_handle) => HWND(win32_window_handle.hwnd.into()),
         _ => unreachable!(),
     };
 

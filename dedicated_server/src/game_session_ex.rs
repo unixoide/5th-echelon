@@ -1,3 +1,6 @@
+//! Implements the `GameSessionExProtocolServer` for extended game session management,
+//! including advanced session searching capabilities.
+
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -22,11 +25,16 @@ use crate::protocols::game_session_service::types::GameSessionParticipant;
 use crate::protocols::game_session_service::types::GameSessionSearchResult;
 use crate::storage::Storage;
 
+/// Implementation of the `GameSessionExProtocolServerTrait` for extended game session operations.
 struct GameSessionExProtocolServerImpl {
     storage: Arc<Storage>,
 }
 
 impl<CI> GameSessionExProtocolServerTrait<CI> for GameSessionExProtocolServerImpl {
+    /// Handles the `SearchSessions` request, providing extended search capabilities for game sessions.
+    ///
+    /// This function requires the client to be logged in. It filters sessions based on
+    /// various attributes and returns detailed session information.
     fn search_sessions(
         &self,
         logger: &Logger,
@@ -41,8 +49,7 @@ impl<CI> GameSessionExProtocolServerTrait<CI> for GameSessionExProtocolServerImp
         login_required(&*ci)?;
         info!(logger, "Client searches for session: {:?}", request);
         let sessions = rmc_err!(
-            self.storage
-                .search_sessions(request.game_session_query.type_id, ci.user_id),
+            self.storage.search_sessions(request.game_session_query.type_id, ci.user_id),
             logger,
             "Error searching game sessions"
         )?;
@@ -70,13 +77,7 @@ impl<CI> GameSessionExProtocolServerTrait<CI> for GameSessionExProtocolServerImp
         // 102 => might be game mode
         // 4 => might be number of players? (svm)
         // 112 => might be number of players? (svm) first is set to 4, but 8 after opening and closening the match settings
-        let mut req_attrs = request
-            .game_session_query
-            .parameters
-            .0
-            .into_iter()
-            .map(|p| (p.id, p.value))
-            .collect::<HashMap<_, _>>();
+        let mut req_attrs = request.game_session_query.parameters.0.into_iter().map(|p| (p.id, p.value)).collect::<HashMap<_, _>>();
         // if not set assume 0 (required for keeping coop and svm apart)
         if let Entry::Vacant(entry) = req_attrs.entry(103) {
             entry.insert(0);
@@ -85,11 +86,7 @@ impl<CI> GameSessionExProtocolServerTrait<CI> for GameSessionExProtocolServerImp
             .into_iter()
             .filter(|session| {
                 let sess_attrs: QList<Property> = session.attributes.parse().unwrap();
-                let sess_attrs = sess_attrs
-                    .0
-                    .into_iter()
-                    .map(|p| (p.id, p.value))
-                    .collect::<HashMap<_, _>>();
+                let sess_attrs = sess_attrs.0.into_iter().map(|p| (p.id, p.value)).collect::<HashMap<_, _>>();
                 for (id, value) in &req_attrs {
                     if *id == 112 {
                         // search request says 1 but in the session create request it says 2.
@@ -143,7 +140,5 @@ impl<CI> GameSessionExProtocolServerTrait<CI> for GameSessionExProtocolServerImp
 }
 
 pub fn new_protocol<T: 'static>(storage: Arc<Storage>) -> Box<dyn Protocol<T>> {
-    Box::new(GameSessionExProtocolServer::new(
-        GameSessionExProtocolServerImpl { storage },
-    ))
+    Box::new(GameSessionExProtocolServer::new(GameSessionExProtocolServerImpl { storage }))
 }

@@ -1,3 +1,4 @@
+/// Represents a core error.
 enum CoreError {
     Unknown,
     NotImplemented,
@@ -72,6 +73,7 @@ impl From<CoreError> for u32 {
     }
 }
 
+/// Represents a DDL error.
 enum DDLError {
     InvalidSignature,
     IncorrectVersion,
@@ -95,6 +97,7 @@ impl From<DDLError> for u32 {
     }
 }
 
+/// Represents a RendezVous error.
 enum RendezVousError {
     ConnectionFailure,
     NotAuthenticated,
@@ -253,6 +256,7 @@ impl From<RendezVousError> for u32 {
     }
 }
 
+/// Represents a Python core error.
 enum PythonCoreError {
     Exception,
     TypeError,
@@ -300,6 +304,7 @@ impl From<PythonCoreError> for u32 {
     }
 }
 
+/// Represents a transport error.
 enum TransportError {
     Unknown,
     ConnectionFailure,
@@ -413,6 +418,7 @@ impl From<TransportError> for u32 {
     }
 }
 
+/// Represents a DO core error.
 enum DOCoreError {
     StationNotReached,
     TargetStationDisconnect,
@@ -496,6 +502,7 @@ impl From<DOCoreError> for u32 {
     }
 }
 
+/// Represents an FPD error.
 enum FPDError {
     NotInitialized,
     AlreadyInitialized,
@@ -642,6 +649,7 @@ impl From<FPDError> for u32 {
     }
 }
 
+/// Represents a ranking error.
 enum RankingError {
     NotInitialized,
     InvalidArgument,
@@ -686,6 +694,7 @@ impl From<RankingError> for u32 {
     }
 }
 
+/// Represents an authentication error.
 enum AuthenticationError {
     NASAuthenticateError,
     TokenParseError,
@@ -775,6 +784,7 @@ impl From<AuthenticationError> for u32 {
     }
 }
 
+/// Represents a data store error.
 enum DataStoreError {
     Unknown,
     InvalidArgument,
@@ -831,6 +841,7 @@ impl From<DataStoreError> for u32 {
     }
 }
 
+/// Represents a service item error.
 enum ServiceItemError {
     Unknown,
     InvalidArgument,
@@ -869,6 +880,7 @@ impl From<ServiceItemError> for u32 {
     }
 }
 
+/// Represents a matchmake referee error.
 enum MatchmakeRefereeError {
     Unknown,
     InvalidArgument,
@@ -913,6 +925,7 @@ impl From<MatchmakeRefereeError> for u32 {
     }
 }
 
+/// Represents a subscriber error.
 enum SubscriberError {
     Unknown,
     InvalidArgument,
@@ -942,6 +955,7 @@ impl From<SubscriberError> for u32 {
     }
 }
 
+/// Represents a ranking2 error.
 enum Ranking2Error {
     Unknown,
     InvalidArgument,
@@ -968,6 +982,7 @@ impl From<Ranking2Error> for u32 {
     }
 }
 
+/// Represents a smart device voice chat error.
 enum SmartDeviceVoiceChatError {
     Unknown,
     InvalidArgument,
@@ -1045,6 +1060,7 @@ impl From<SmartDeviceVoiceChatError> for u32 {
     }
 }
 
+/// Represents a screening error.
 enum ScreeningError {
     Unknown,
     InvalidArgument,
@@ -1071,6 +1087,7 @@ impl From<ScreeningError> for u32 {
     }
 }
 
+/// Represents a custom error.
 enum CustomError {
     Unknown,
 }
@@ -1091,6 +1108,7 @@ impl From<CustomError> for u32 {
     }
 }
 
+/// Represents an ESS error.
 enum EssError {
     Unknown,
     GameSessionError,
@@ -1117,6 +1135,7 @@ impl From<EssError> for u32 {
     }
 }
 
+/// Represents a general error.
 enum Error {
     Core(CoreError),
     DDL(DDLError),

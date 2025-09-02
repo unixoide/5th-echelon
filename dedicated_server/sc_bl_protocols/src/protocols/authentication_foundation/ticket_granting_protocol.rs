@@ -95,18 +95,13 @@ pub struct LoginWithContextResponse {
     pub pbuf_response: Vec<u8>,
     pub p_connection_data: RVConnectionData,
 }
-pub struct TicketGrantingProtocolServer<T: TicketGrantingProtocolServerTrait<CI>, CI>(
-    T,
-    ::std::marker::PhantomData<CI>,
-);
+pub struct TicketGrantingProtocolServer<T: TicketGrantingProtocolServerTrait<CI>, CI>(T, ::std::marker::PhantomData<CI>);
 impl<T: TicketGrantingProtocolServerTrait<CI>, CI> TicketGrantingProtocolServer<T, CI> {
     pub fn new(implementation: T) -> Self {
         Self(implementation, ::std::marker::PhantomData)
     }
 }
-impl<T: TicketGrantingProtocolServerTrait<CI>, CI> Protocol<CI>
-    for TicketGrantingProtocolServer<T, CI>
-{
+impl<T: TicketGrantingProtocolServerTrait<CI>, CI> Protocol<CI> for TicketGrantingProtocolServer<T, CI> {
     fn id(&self) -> u16 {
         TICKET_GRANTING_PROTOCOL_ID
     }
@@ -138,54 +133,42 @@ impl<T: TicketGrantingProtocolServerTrait<CI>, CI> Protocol<CI>
             Some(TicketGrantingProtocolMethod::LoginEx) => {
                 let req = LoginExRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .login_ex(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.login_ex(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(TicketGrantingProtocolMethod::RequestTicket) => {
                 let req = RequestTicketRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .request_ticket(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.request_ticket(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(TicketGrantingProtocolMethod::GetPid) => {
                 let req = GetPidRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_pid(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_pid(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(TicketGrantingProtocolMethod::GetName) => {
                 let req = GetNameRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_name(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_name(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(TicketGrantingProtocolMethod::LoginWithContext) => {
                 let req = LoginWithContextRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .login_with_context(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.login_with_context(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
         }
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        TicketGrantingProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        TicketGrantingProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
@@ -199,12 +182,7 @@ pub trait TicketGrantingProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<LoginResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "TicketGrantingProtocol",
-            stringify!(login)
-        );
+        warn!(logger, "Method {}.{} not implemented", "TicketGrantingProtocol", stringify!(login));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn login_ex(
@@ -216,12 +194,7 @@ pub trait TicketGrantingProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<LoginExResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "TicketGrantingProtocol",
-            stringify!(login_ex)
-        );
+        warn!(logger, "Method {}.{} not implemented", "TicketGrantingProtocol", stringify!(login_ex));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn request_ticket(
@@ -233,12 +206,7 @@ pub trait TicketGrantingProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<RequestTicketResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "TicketGrantingProtocol",
-            stringify!(request_ticket)
-        );
+        warn!(logger, "Method {}.{} not implemented", "TicketGrantingProtocol", stringify!(request_ticket));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_pid(
@@ -250,12 +218,7 @@ pub trait TicketGrantingProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetPidResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "TicketGrantingProtocol",
-            stringify!(get_pid)
-        );
+        warn!(logger, "Method {}.{} not implemented", "TicketGrantingProtocol", stringify!(get_pid));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_name(
@@ -267,12 +230,7 @@ pub trait TicketGrantingProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetNameResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "TicketGrantingProtocol",
-            stringify!(get_name)
-        );
+        warn!(logger, "Method {}.{} not implemented", "TicketGrantingProtocol", stringify!(get_name));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn login_with_context(
@@ -284,12 +242,7 @@ pub trait TicketGrantingProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<LoginWithContextResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "TicketGrantingProtocol",
-            stringify!(login_with_context)
-        );
+        warn!(logger, "Method {}.{} not implemented", "TicketGrantingProtocol", stringify!(login_with_context));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }
@@ -315,143 +268,39 @@ impl<CI> ClientProtocol<CI> for TicketGrantingProtocolClient<CI> {
         6u32
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        TicketGrantingProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        TicketGrantingProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
 impl<CI> TicketGrantingProtocolClient<CI> {
-    pub fn login(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: LoginRequest,
-    ) -> Result<LoginResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "TicketGrantingProtocol",
-            stringify!(login)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            TicketGrantingProtocolMethod::Login as u32,
-            request.to_bytes(),
-        );
+    pub fn login(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: LoginRequest) -> Result<LoginResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "TicketGrantingProtocol", stringify!(login));
+        self.send(logger, ctx, ci, TicketGrantingProtocolMethod::Login as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn login_ex(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: LoginExRequest,
-    ) -> Result<LoginExResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "TicketGrantingProtocol",
-            stringify!(login_ex)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            TicketGrantingProtocolMethod::LoginEx as u32,
-            request.to_bytes(),
-        );
+    pub fn login_ex(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: LoginExRequest) -> Result<LoginExResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "TicketGrantingProtocol", stringify!(login_ex));
+        self.send(logger, ctx, ci, TicketGrantingProtocolMethod::LoginEx as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn request_ticket(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: RequestTicketRequest,
-    ) -> Result<RequestTicketResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "TicketGrantingProtocol",
-            stringify!(request_ticket)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            TicketGrantingProtocolMethod::RequestTicket as u32,
-            request.to_bytes(),
-        );
+    pub fn request_ticket(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: RequestTicketRequest) -> Result<RequestTicketResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "TicketGrantingProtocol", stringify!(request_ticket));
+        self.send(logger, ctx, ci, TicketGrantingProtocolMethod::RequestTicket as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn get_pid(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetPidRequest,
-    ) -> Result<GetPidResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "TicketGrantingProtocol",
-            stringify!(get_pid)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            TicketGrantingProtocolMethod::GetPid as u32,
-            request.to_bytes(),
-        );
+    pub fn get_pid(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetPidRequest) -> Result<GetPidResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "TicketGrantingProtocol", stringify!(get_pid));
+        self.send(logger, ctx, ci, TicketGrantingProtocolMethod::GetPid as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn get_name(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetNameRequest,
-    ) -> Result<GetNameResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "TicketGrantingProtocol",
-            stringify!(get_name)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            TicketGrantingProtocolMethod::GetName as u32,
-            request.to_bytes(),
-        );
+    pub fn get_name(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetNameRequest) -> Result<GetNameResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "TicketGrantingProtocol", stringify!(get_name));
+        self.send(logger, ctx, ci, TicketGrantingProtocolMethod::GetName as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn login_with_context(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: LoginWithContextRequest,
-    ) -> Result<LoginWithContextResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "TicketGrantingProtocol",
-            stringify!(login_with_context)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            TicketGrantingProtocolMethod::LoginWithContext as u32,
-            request.to_bytes(),
-        );
+    pub fn login_with_context(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: LoginWithContextRequest) -> Result<LoginWithContextResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "TicketGrantingProtocol", stringify!(login_with_context));
+        self.send(logger, ctx, ci, TicketGrantingProtocolMethod::LoginWithContext as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }

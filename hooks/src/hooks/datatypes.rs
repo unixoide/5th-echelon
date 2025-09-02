@@ -47,10 +47,7 @@ pub struct NetFiniteStateMachineVMT {
     unknown2: *const c_void,
     unknown3: *const c_void,
     unknown4: *const c_void,
-    get_statemachine_id: extern "thiscall" fn(
-        *const NetFiniteStateMachine,
-        *mut NetFiniteStateID,
-    ) -> *mut NetFiniteStateID,
+    get_statemachine_id: extern "thiscall" fn(*const NetFiniteStateMachine, *mut NetFiniteStateID) -> *mut NetFiniteStateID,
 }
 
 #[repr(C)]

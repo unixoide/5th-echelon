@@ -1,3 +1,4 @@
+// This module provides the implementation for the `Protocol` derive macro.
 use proc_macro2::Span;
 use proc_macro2::TokenStream;
 use syn::Attribute;
@@ -7,10 +8,12 @@ use syn::DeriveInput;
 use syn::Error;
 use syn::LitInt;
 
+/// Creates a compile error.
 fn error(span: Span, msg: &str) -> TokenStream {
     Error::new(span, msg).to_compile_error()
 }
 
+/// The implementation of the `Protocol` derive macro.
 #[allow(clippy::module_name_repetitions)]
 pub fn protocol_derive_impl(input: DeriveInput) -> TokenStream {
     match input.data {
@@ -20,6 +23,7 @@ pub fn protocol_derive_impl(input: DeriveInput) -> TokenStream {
     }
 }
 
+/// Derives the `Protocol` trait for a struct.
 #[allow(clippy::needless_pass_by_value)]
 fn derive_struct(_input: DataStruct, attrs: Vec<Attribute>) -> TokenStream {
     let pid: Option<u32> = attrs.into_iter().find_map(|a| {

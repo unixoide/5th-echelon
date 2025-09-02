@@ -318,18 +318,13 @@ pub struct DisconnectAllPrincipalsRequest;
 pub struct DisconnectAllPrincipalsResponse {
     pub return_value: bool,
 }
-pub struct AccountManagementProtocolServer<T: AccountManagementProtocolServerTrait<CI>, CI>(
-    T,
-    ::std::marker::PhantomData<CI>,
-);
+pub struct AccountManagementProtocolServer<T: AccountManagementProtocolServerTrait<CI>, CI>(T, ::std::marker::PhantomData<CI>);
 impl<T: AccountManagementProtocolServerTrait<CI>, CI> AccountManagementProtocolServer<T, CI> {
     pub fn new(implementation: T) -> Self {
         Self(implementation, ::std::marker::PhantomData)
     }
 }
-impl<T: AccountManagementProtocolServerTrait<CI>, CI> Protocol<CI>
-    for AccountManagementProtocolServer<T, CI>
-{
+impl<T: AccountManagementProtocolServerTrait<CI>, CI> Protocol<CI> for AccountManagementProtocolServer<T, CI> {
     fn id(&self) -> u16 {
         ACCOUNT_MANAGEMENT_PROTOCOL_ID
     }
@@ -354,294 +349,217 @@ impl<T: AccountManagementProtocolServerTrait<CI>, CI> Protocol<CI>
             Some(AccountManagementProtocolMethod::CreateAccount) => {
                 let req = CreateAccountRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .create_account(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.create_account(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::DeleteAccount) => {
                 let req = DeleteAccountRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .delete_account(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.delete_account(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::DisableAccount) => {
                 let req = DisableAccountRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .disable_account(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.disable_account(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::ChangePassword) => {
                 let req = ChangePasswordRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .change_password(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.change_password(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::TestCapability) => {
                 let req = TestCapabilityRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .test_capability(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.test_capability(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::GetName) => {
                 let req = GetNameRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_name(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_name(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::GetAccountData) => {
                 let req = GetAccountDataRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_account_data(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_account_data(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::GetPrivateData) => {
                 let req = GetPrivateDataRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_private_data(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_private_data(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::GetPublicData) => {
                 let req = GetPublicDataRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_public_data(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_public_data(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::GetMultiplePublicData) => {
                 let req = GetMultiplePublicDataRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .get_multiple_public_data(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_multiple_public_data(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::UpdateAccountName) => {
                 let req = UpdateAccountNameRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .update_account_name(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.update_account_name(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::UpdateAccountEmail) => {
                 let req = UpdateAccountEmailRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .update_account_email(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.update_account_email(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::UpdateCustomData) => {
                 let req = UpdateCustomDataRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .update_custom_data(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.update_custom_data(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::FindByNameRegex) => {
                 let req = FindByNameRegexRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .find_by_name_regex(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.find_by_name_regex(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::UpdateAccountExpiryDate) => {
                 let req = UpdateAccountExpiryDateRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.update_account_expiry_date(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self.0.update_account_expiry_date(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::UpdateAccountEffectiveDate) => {
                 let req = UpdateAccountEffectiveDateRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.update_account_effective_date(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self.0.update_account_effective_date(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::UpdateStatus) => {
                 let req = UpdateStatusRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .update_status(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.update_status(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::GetStatus) => {
                 let req = GetStatusRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .get_status(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_status(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::GetLastConnectionStats) => {
                 let req = GetLastConnectionStatsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .get_last_connection_stats(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_last_connection_stats(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::ResetPassword) => {
                 let req = ResetPasswordRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .reset_password(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.reset_password(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::CreateAccountWithCustomData) => {
                 let req = CreateAccountWithCustomDataRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.create_account_with_custom_data(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self.0.create_account_with_custom_data(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::RetrieveAccount) => {
                 let req = RetrieveAccountRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .retrieve_account(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.retrieve_account(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::UpdateAccount) => {
                 let req = UpdateAccountRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .update_account(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.update_account(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::ChangePasswordByGuest) => {
                 let req = ChangePasswordByGuestRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .change_password_by_guest(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.change_password_by_guest(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::FindByNameLike) => {
                 let req = FindByNameLikeRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .find_by_name_like(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.find_by_name_like(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::CustomCreateAccount) => {
                 let req = CustomCreateAccountRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .custom_create_account(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.custom_create_account(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::LookupOrCreateAccount) => {
                 let req = LookupOrCreateAccountRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .lookup_or_create_account(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.lookup_or_create_account(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::CreateAccountEx) => {
                 let req = CreateAccountExRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .create_account_ex(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.create_account_ex(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::DisconnectPrincipal) => {
                 let req = DisconnectPrincipalRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .disconnect_principal(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.disconnect_principal(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(AccountManagementProtocolMethod::DisconnectAllPrincipals) => {
                 let req = DisconnectAllPrincipalsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .disconnect_all_principals(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.disconnect_all_principals(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
         }
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        AccountManagementProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        AccountManagementProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
@@ -655,12 +573,7 @@ pub trait AccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<CreateAccountResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(create_account)
-        );
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(create_account));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn delete_account(
@@ -672,12 +585,7 @@ pub trait AccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<DeleteAccountResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(delete_account)
-        );
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(delete_account));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn disable_account(
@@ -689,12 +597,7 @@ pub trait AccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<DisableAccountResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(disable_account)
-        );
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(disable_account));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn change_password(
@@ -706,12 +609,7 @@ pub trait AccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<ChangePasswordResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(change_password)
-        );
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(change_password));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn test_capability(
@@ -723,12 +621,7 @@ pub trait AccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<TestCapabilityResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(test_capability)
-        );
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(test_capability));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_name(
@@ -740,12 +633,7 @@ pub trait AccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetNameResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(get_name)
-        );
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(get_name));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_account_data(
@@ -757,12 +645,7 @@ pub trait AccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetAccountDataResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(get_account_data)
-        );
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(get_account_data));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_private_data(
@@ -774,12 +657,7 @@ pub trait AccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetPrivateDataResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(get_private_data)
-        );
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(get_private_data));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_public_data(
@@ -791,12 +669,7 @@ pub trait AccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetPublicDataResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(get_public_data)
-        );
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(get_public_data));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_multiple_public_data(
@@ -808,12 +681,7 @@ pub trait AccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetMultiplePublicDataResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(get_multiple_public_data)
-        );
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(get_multiple_public_data));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn update_account_name(
@@ -825,12 +693,7 @@ pub trait AccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<UpdateAccountNameResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(update_account_name)
-        );
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(update_account_name));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn update_account_email(
@@ -842,12 +705,7 @@ pub trait AccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<UpdateAccountEmailResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(update_account_email)
-        );
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(update_account_email));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn update_custom_data(
@@ -859,12 +717,7 @@ pub trait AccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<UpdateCustomDataResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(update_custom_data)
-        );
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(update_custom_data));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn find_by_name_regex(
@@ -876,12 +729,7 @@ pub trait AccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<FindByNameRegexResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(find_by_name_regex)
-        );
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(find_by_name_regex));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn update_account_expiry_date(
@@ -893,12 +741,7 @@ pub trait AccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<UpdateAccountExpiryDateResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(update_account_expiry_date)
-        );
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(update_account_expiry_date));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn update_account_effective_date(
@@ -927,12 +770,7 @@ pub trait AccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<UpdateStatusResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(update_status)
-        );
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(update_status));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_status(
@@ -944,12 +782,7 @@ pub trait AccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetStatusResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(get_status)
-        );
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(get_status));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_last_connection_stats(
@@ -961,12 +794,7 @@ pub trait AccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetLastConnectionStatsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(get_last_connection_stats)
-        );
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(get_last_connection_stats));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn reset_password(
@@ -978,12 +806,7 @@ pub trait AccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<ResetPasswordResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(reset_password)
-        );
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(reset_password));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn create_account_with_custom_data(
@@ -1012,12 +835,7 @@ pub trait AccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<RetrieveAccountResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(retrieve_account)
-        );
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(retrieve_account));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn update_account(
@@ -1029,12 +847,7 @@ pub trait AccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<UpdateAccountResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(update_account)
-        );
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(update_account));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn change_password_by_guest(
@@ -1046,12 +859,7 @@ pub trait AccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<ChangePasswordByGuestResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(change_password_by_guest)
-        );
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(change_password_by_guest));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn find_by_name_like(
@@ -1063,12 +871,7 @@ pub trait AccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<FindByNameLikeResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(find_by_name_like)
-        );
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(find_by_name_like));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn custom_create_account(
@@ -1080,12 +883,7 @@ pub trait AccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<CustomCreateAccountResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(custom_create_account)
-        );
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(custom_create_account));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn lookup_or_create_account(
@@ -1097,12 +895,7 @@ pub trait AccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<LookupOrCreateAccountResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(lookup_or_create_account)
-        );
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(lookup_or_create_account));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn create_account_ex(
@@ -1114,12 +907,7 @@ pub trait AccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<CreateAccountExResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(create_account_ex)
-        );
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(create_account_ex));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn disconnect_principal(
@@ -1131,12 +919,7 @@ pub trait AccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<DisconnectPrincipalResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(disconnect_principal)
-        );
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(disconnect_principal));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn disconnect_all_principals(
@@ -1148,12 +931,7 @@ pub trait AccountManagementProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<DisconnectAllPrincipalsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(disconnect_all_principals)
-        );
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(disconnect_all_principals));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }
@@ -1179,209 +957,54 @@ impl<CI> ClientProtocol<CI> for AccountManagementProtocolClient<CI> {
         30u32
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        AccountManagementProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        AccountManagementProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
 impl<CI> AccountManagementProtocolClient<CI> {
-    pub fn create_account(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: CreateAccountRequest,
-    ) -> Result<CreateAccountResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(create_account)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            AccountManagementProtocolMethod::CreateAccount as u32,
-            request.to_bytes(),
-        );
+    pub fn create_account(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: CreateAccountRequest) -> Result<CreateAccountResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(create_account));
+        self.send(logger, ctx, ci, AccountManagementProtocolMethod::CreateAccount as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn delete_account(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: DeleteAccountRequest,
-    ) -> Result<DeleteAccountResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(delete_account)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            AccountManagementProtocolMethod::DeleteAccount as u32,
-            request.to_bytes(),
-        );
+    pub fn delete_account(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: DeleteAccountRequest) -> Result<DeleteAccountResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(delete_account));
+        self.send(logger, ctx, ci, AccountManagementProtocolMethod::DeleteAccount as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn disable_account(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: DisableAccountRequest,
-    ) -> Result<DisableAccountResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(disable_account)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            AccountManagementProtocolMethod::DisableAccount as u32,
-            request.to_bytes(),
-        );
+    pub fn disable_account(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: DisableAccountRequest) -> Result<DisableAccountResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(disable_account));
+        self.send(logger, ctx, ci, AccountManagementProtocolMethod::DisableAccount as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn change_password(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: ChangePasswordRequest,
-    ) -> Result<ChangePasswordResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(change_password)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            AccountManagementProtocolMethod::ChangePassword as u32,
-            request.to_bytes(),
-        );
+    pub fn change_password(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: ChangePasswordRequest) -> Result<ChangePasswordResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(change_password));
+        self.send(logger, ctx, ci, AccountManagementProtocolMethod::ChangePassword as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn test_capability(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: TestCapabilityRequest,
-    ) -> Result<TestCapabilityResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(test_capability)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            AccountManagementProtocolMethod::TestCapability as u32,
-            request.to_bytes(),
-        );
+    pub fn test_capability(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: TestCapabilityRequest) -> Result<TestCapabilityResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(test_capability));
+        self.send(logger, ctx, ci, AccountManagementProtocolMethod::TestCapability as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn get_name(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetNameRequest,
-    ) -> Result<GetNameResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(get_name)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            AccountManagementProtocolMethod::GetName as u32,
-            request.to_bytes(),
-        );
+    pub fn get_name(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetNameRequest) -> Result<GetNameResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(get_name));
+        self.send(logger, ctx, ci, AccountManagementProtocolMethod::GetName as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn get_account_data(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetAccountDataRequest,
-    ) -> Result<GetAccountDataResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(get_account_data)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            AccountManagementProtocolMethod::GetAccountData as u32,
-            request.to_bytes(),
-        );
+    pub fn get_account_data(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetAccountDataRequest) -> Result<GetAccountDataResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(get_account_data));
+        self.send(logger, ctx, ci, AccountManagementProtocolMethod::GetAccountData as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn get_private_data(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetPrivateDataRequest,
-    ) -> Result<GetPrivateDataResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(get_private_data)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            AccountManagementProtocolMethod::GetPrivateData as u32,
-            request.to_bytes(),
-        );
+    pub fn get_private_data(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetPrivateDataRequest) -> Result<GetPrivateDataResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(get_private_data));
+        self.send(logger, ctx, ci, AccountManagementProtocolMethod::GetPrivateData as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn get_public_data(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetPublicDataRequest,
-    ) -> Result<GetPublicDataResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(get_public_data)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            AccountManagementProtocolMethod::GetPublicData as u32,
-            request.to_bytes(),
-        );
+    pub fn get_public_data(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetPublicDataRequest) -> Result<GetPublicDataResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(get_public_data));
+        self.send(logger, ctx, ci, AccountManagementProtocolMethod::GetPublicData as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn get_multiple_public_data(
@@ -1391,107 +1014,28 @@ impl<CI> AccountManagementProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: GetMultiplePublicDataRequest,
     ) -> Result<GetMultiplePublicDataResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(get_multiple_public_data)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            AccountManagementProtocolMethod::GetMultiplePublicData as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(get_multiple_public_data));
+        self.send(logger, ctx, ci, AccountManagementProtocolMethod::GetMultiplePublicData as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn update_account_name(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: UpdateAccountNameRequest,
-    ) -> Result<UpdateAccountNameResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(update_account_name)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            AccountManagementProtocolMethod::UpdateAccountName as u32,
-            request.to_bytes(),
-        );
+    pub fn update_account_name(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: UpdateAccountNameRequest) -> Result<UpdateAccountNameResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(update_account_name));
+        self.send(logger, ctx, ci, AccountManagementProtocolMethod::UpdateAccountName as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn update_account_email(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: UpdateAccountEmailRequest,
-    ) -> Result<UpdateAccountEmailResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(update_account_email)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            AccountManagementProtocolMethod::UpdateAccountEmail as u32,
-            request.to_bytes(),
-        );
+    pub fn update_account_email(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: UpdateAccountEmailRequest) -> Result<UpdateAccountEmailResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(update_account_email));
+        self.send(logger, ctx, ci, AccountManagementProtocolMethod::UpdateAccountEmail as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn update_custom_data(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: UpdateCustomDataRequest,
-    ) -> Result<UpdateCustomDataResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(update_custom_data)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            AccountManagementProtocolMethod::UpdateCustomData as u32,
-            request.to_bytes(),
-        );
+    pub fn update_custom_data(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: UpdateCustomDataRequest) -> Result<UpdateCustomDataResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(update_custom_data));
+        self.send(logger, ctx, ci, AccountManagementProtocolMethod::UpdateCustomData as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn find_by_name_regex(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: FindByNameRegexRequest,
-    ) -> Result<FindByNameRegexResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(find_by_name_regex)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            AccountManagementProtocolMethod::FindByNameRegex as u32,
-            request.to_bytes(),
-        );
+    pub fn find_by_name_regex(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: FindByNameRegexRequest) -> Result<FindByNameRegexResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(find_by_name_regex));
+        self.send(logger, ctx, ci, AccountManagementProtocolMethod::FindByNameRegex as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn update_account_expiry_date(
@@ -1501,19 +1045,8 @@ impl<CI> AccountManagementProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: UpdateAccountExpiryDateRequest,
     ) -> Result<UpdateAccountExpiryDateResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(update_account_expiry_date)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            AccountManagementProtocolMethod::UpdateAccountExpiryDate as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(update_account_expiry_date));
+        self.send(logger, ctx, ci, AccountManagementProtocolMethod::UpdateAccountExpiryDate as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn update_account_effective_date(
@@ -1529,57 +1062,17 @@ impl<CI> AccountManagementProtocolClient<CI> {
             "AccountManagementProtocol",
             stringify!(update_account_effective_date)
         );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            AccountManagementProtocolMethod::UpdateAccountEffectiveDate as u32,
-            request.to_bytes(),
-        );
+        self.send(logger, ctx, ci, AccountManagementProtocolMethod::UpdateAccountEffectiveDate as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn update_status(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: UpdateStatusRequest,
-    ) -> Result<UpdateStatusResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(update_status)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            AccountManagementProtocolMethod::UpdateStatus as u32,
-            request.to_bytes(),
-        );
+    pub fn update_status(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: UpdateStatusRequest) -> Result<UpdateStatusResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(update_status));
+        self.send(logger, ctx, ci, AccountManagementProtocolMethod::UpdateStatus as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn get_status(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetStatusRequest,
-    ) -> Result<GetStatusResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(get_status)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            AccountManagementProtocolMethod::GetStatus as u32,
-            request.to_bytes(),
-        );
+    pub fn get_status(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetStatusRequest) -> Result<GetStatusResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(get_status));
+        self.send(logger, ctx, ci, AccountManagementProtocolMethod::GetStatus as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn get_last_connection_stats(
@@ -1589,41 +1082,13 @@ impl<CI> AccountManagementProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: GetLastConnectionStatsRequest,
     ) -> Result<GetLastConnectionStatsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(get_last_connection_stats)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            AccountManagementProtocolMethod::GetLastConnectionStats as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(get_last_connection_stats));
+        self.send(logger, ctx, ci, AccountManagementProtocolMethod::GetLastConnectionStats as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn reset_password(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: ResetPasswordRequest,
-    ) -> Result<ResetPasswordResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(reset_password)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            AccountManagementProtocolMethod::ResetPassword as u32,
-            request.to_bytes(),
-        );
+    pub fn reset_password(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: ResetPasswordRequest) -> Result<ResetPasswordResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(reset_password));
+        self.send(logger, ctx, ci, AccountManagementProtocolMethod::ResetPassword as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn create_account_with_custom_data(
@@ -1639,57 +1104,17 @@ impl<CI> AccountManagementProtocolClient<CI> {
             "AccountManagementProtocol",
             stringify!(create_account_with_custom_data)
         );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            AccountManagementProtocolMethod::CreateAccountWithCustomData as u32,
-            request.to_bytes(),
-        );
+        self.send(logger, ctx, ci, AccountManagementProtocolMethod::CreateAccountWithCustomData as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn retrieve_account(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: RetrieveAccountRequest,
-    ) -> Result<RetrieveAccountResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(retrieve_account)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            AccountManagementProtocolMethod::RetrieveAccount as u32,
-            request.to_bytes(),
-        );
+    pub fn retrieve_account(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: RetrieveAccountRequest) -> Result<RetrieveAccountResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(retrieve_account));
+        self.send(logger, ctx, ci, AccountManagementProtocolMethod::RetrieveAccount as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn update_account(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: UpdateAccountRequest,
-    ) -> Result<UpdateAccountResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(update_account)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            AccountManagementProtocolMethod::UpdateAccount as u32,
-            request.to_bytes(),
-        );
+    pub fn update_account(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: UpdateAccountRequest) -> Result<UpdateAccountResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(update_account));
+        self.send(logger, ctx, ci, AccountManagementProtocolMethod::UpdateAccount as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn change_password_by_guest(
@@ -1699,41 +1124,13 @@ impl<CI> AccountManagementProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: ChangePasswordByGuestRequest,
     ) -> Result<ChangePasswordByGuestResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(change_password_by_guest)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            AccountManagementProtocolMethod::ChangePasswordByGuest as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(change_password_by_guest));
+        self.send(logger, ctx, ci, AccountManagementProtocolMethod::ChangePasswordByGuest as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn find_by_name_like(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: FindByNameLikeRequest,
-    ) -> Result<FindByNameLikeResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(find_by_name_like)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            AccountManagementProtocolMethod::FindByNameLike as u32,
-            request.to_bytes(),
-        );
+    pub fn find_by_name_like(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: FindByNameLikeRequest) -> Result<FindByNameLikeResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(find_by_name_like));
+        self.send(logger, ctx, ci, AccountManagementProtocolMethod::FindByNameLike as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn custom_create_account(
@@ -1743,19 +1140,8 @@ impl<CI> AccountManagementProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: CustomCreateAccountRequest,
     ) -> Result<CustomCreateAccountResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(custom_create_account)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            AccountManagementProtocolMethod::CustomCreateAccount as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(custom_create_account));
+        self.send(logger, ctx, ci, AccountManagementProtocolMethod::CustomCreateAccount as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn lookup_or_create_account(
@@ -1765,63 +1151,18 @@ impl<CI> AccountManagementProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: LookupOrCreateAccountRequest,
     ) -> Result<LookupOrCreateAccountResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(lookup_or_create_account)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            AccountManagementProtocolMethod::LookupOrCreateAccount as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(lookup_or_create_account));
+        self.send(logger, ctx, ci, AccountManagementProtocolMethod::LookupOrCreateAccount as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn create_account_ex(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: CreateAccountExRequest,
-    ) -> Result<CreateAccountExResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(create_account_ex)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            AccountManagementProtocolMethod::CreateAccountEx as u32,
-            request.to_bytes(),
-        );
+    pub fn create_account_ex(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: CreateAccountExRequest) -> Result<CreateAccountExResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(create_account_ex));
+        self.send(logger, ctx, ci, AccountManagementProtocolMethod::CreateAccountEx as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn disconnect_principal(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: DisconnectPrincipalRequest,
-    ) -> Result<DisconnectPrincipalResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(disconnect_principal)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            AccountManagementProtocolMethod::DisconnectPrincipal as u32,
-            request.to_bytes(),
-        );
+    pub fn disconnect_principal(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: DisconnectPrincipalRequest) -> Result<DisconnectPrincipalResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(disconnect_principal));
+        self.send(logger, ctx, ci, AccountManagementProtocolMethod::DisconnectPrincipal as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn disconnect_all_principals(
@@ -1831,19 +1172,8 @@ impl<CI> AccountManagementProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: DisconnectAllPrincipalsRequest,
     ) -> Result<DisconnectAllPrincipalsResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "AccountManagementProtocol",
-            stringify!(disconnect_all_principals)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            AccountManagementProtocolMethod::DisconnectAllPrincipals as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "AccountManagementProtocol", stringify!(disconnect_all_principals));
+        self.send(logger, ctx, ci, AccountManagementProtocolMethod::DisconnectAllPrincipals as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }

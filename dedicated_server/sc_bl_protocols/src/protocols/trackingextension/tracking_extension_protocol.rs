@@ -45,18 +45,13 @@ pub struct GetTrackingUserGroupTagsRequest {
 pub struct GetTrackingUserGroupTagsResponse {
     pub tags: Vec<String>,
 }
-pub struct TrackingExtensionProtocolServer<T: TrackingExtensionProtocolServerTrait<CI>, CI>(
-    T,
-    ::std::marker::PhantomData<CI>,
-);
+pub struct TrackingExtensionProtocolServer<T: TrackingExtensionProtocolServerTrait<CI>, CI>(T, ::std::marker::PhantomData<CI>);
 impl<T: TrackingExtensionProtocolServerTrait<CI>, CI> TrackingExtensionProtocolServer<T, CI> {
     pub fn new(implementation: T) -> Self {
         Self(implementation, ::std::marker::PhantomData)
     }
 }
-impl<T: TrackingExtensionProtocolServerTrait<CI>, CI> Protocol<CI>
-    for TrackingExtensionProtocolServer<T, CI>
-{
+impl<T: TrackingExtensionProtocolServerTrait<CI>, CI> Protocol<CI> for TrackingExtensionProtocolServer<T, CI> {
     fn id(&self) -> u16 {
         TRACKING_EXTENSION_PROTOCOL_ID
     }
@@ -81,32 +76,21 @@ impl<T: TrackingExtensionProtocolServerTrait<CI>, CI> Protocol<CI>
             Some(TrackingExtensionProtocolMethod::GetTrackingUserGroup) => {
                 let req = GetTrackingUserGroupRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .get_tracking_user_group(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_tracking_user_group(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(TrackingExtensionProtocolMethod::GetTrackingUserGroupTags) => {
                 let req = GetTrackingUserGroupTagsRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.get_tracking_user_group_tags(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self.0.get_tracking_user_group_tags(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
         }
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        TrackingExtensionProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        TrackingExtensionProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
@@ -120,12 +104,7 @@ pub trait TrackingExtensionProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetTrackingUserGroupResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "TrackingExtensionProtocol",
-            stringify!(get_tracking_user_group)
-        );
+        warn!(logger, "Method {}.{} not implemented", "TrackingExtensionProtocol", stringify!(get_tracking_user_group));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_tracking_user_group_tags(
@@ -168,9 +147,7 @@ impl<CI> ClientProtocol<CI> for TrackingExtensionProtocolClient<CI> {
         2u32
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        TrackingExtensionProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        TrackingExtensionProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
@@ -182,19 +159,8 @@ impl<CI> TrackingExtensionProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: GetTrackingUserGroupRequest,
     ) -> Result<GetTrackingUserGroupResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "TrackingExtensionProtocol",
-            stringify!(get_tracking_user_group)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            TrackingExtensionProtocolMethod::GetTrackingUserGroup as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "TrackingExtensionProtocol", stringify!(get_tracking_user_group));
+        self.send(logger, ctx, ci, TrackingExtensionProtocolMethod::GetTrackingUserGroup as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn get_tracking_user_group_tags(
@@ -210,13 +176,7 @@ impl<CI> TrackingExtensionProtocolClient<CI> {
             "TrackingExtensionProtocol",
             stringify!(get_tracking_user_group_tags)
         );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            TrackingExtensionProtocolMethod::GetTrackingUserGroupTags as u32,
-            request.to_bytes(),
-        );
+        self.send(logger, ctx, ci, TrackingExtensionProtocolMethod::GetTrackingUserGroupTags as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }

@@ -1,0 +1,103 @@
+- where is 020542e0 called from?
+
+
+is this the reason for the connection issues?
+
+2024-05-06T23:14:53.758870Z  INFO ThreadId(58) recvfrom: hooks::hooks::storm: 144: recvfrom: 01053300000000dc4a8d7b503160000088a0338a8c0c8329603e900000338a8c0c8323aaaaab7000000000000000000000044000000457fffffff80060000000023dc833e81018b28a978df8000006cf978f805a632b0b232b91025b4b1b5c437e5079
+2024-05-06T23:14:53.759186Z  INFO ThreadId(58) sendto: hooks::hooks::storm: 119: sendto: 01053300000000dc4a8d7b50316000017fb0138a8c0c8329603ea00000138a8c0c8323aaaaab9000000000000000000000045800000447fffffff800580000054833ea3dc81018b28a978df8000006cf8f8f805a632b0b232b91025b4b1b5c437e5079
+2024-05-06T23:14:53.759334Z  INFO ThreadId(58) gear_str_destructor: hooks::hooks: 553: ~GearStr("Leader Kick")
+2024-05-06T23:14:53.759446Z  INFO ThreadId(58) event_queue_pop{this=598295112}: hooks::hooks::storm: 156: event: "storm::echo::session::outEvent::Leave"
+2024-05-06T23:14:53.759535Z  INFO ThreadId(58) gear_str_destructor: hooks::hooks: 553: ~GearStr("Leader Kick")
+
+
+other side:
+
+2024-05-06T23:18:12.647147Z  INFO ThreadId(01) some_event_hook{this=0x3997f474 a=0x19e458 b=0x19e3f4}:some_event2{d=0x90010006 e=0x0}: hooks::hooks::storm: 97: event2: "storm::echo::session::inEvent::Kick"
+2024-05-06T23:18:12.647311Z  INFO ThreadId(01) gear_str_destructor: hooks::hooks: 553: ~GearStr("Leader Kick")
+2024-05-06T23:18:12.648514Z  INFO ThreadId(60) event_queue_pop{this=1022489208}: hooks::hooks::storm: 156: event: "storm::echo::session::inEvent::Kick"
+2024-05-06T23:18:12.648713Z  INFO ThreadId(60) sendto: hooks::hooks::storm: 119: sendto: 01053300000000dc4a8d7b5031600001a200138a8c0c8329603ea00000138a8c0c8323aaaaabb00000000000000000000004b8000004c7fffffff80060000002321da1f3d81018b28a978df8000006cfa78f805a632b0b232b91025b4b1b5c437e5079
+2024-05-06T23:18:12.648853Z  INFO ThreadId(60) some_event2{d=0x80010004 e=0x1}: hooks::hooks::storm: 97: event2: "storm::echo::session::outEvent::PeerGone"
+2024-05-06T23:18:12.648933Z  INFO ThreadId(60) some_event2{d=0x90010007 e=0x1}: hooks::hooks::storm: 97: event2: "storm::echo::session::outEvent::PeerGone"
+2024-05-06T23:18:12.649002Z  INFO ThreadId(60) some_event2{d=0x90010007 e=0x1}:gear_str_destructor: hooks::hooks: 553: ~GearStr("Leader Kick")
+2024-05-06T23:18:12.649082Z  INFO ThreadId(60) some_event2{d=0x8001000b e=0x1}: hooks::hooks::storm: 97: event2: "storm::echo::session::ResultEvent"
+2024-05-06T23:18:12.649154Z  INFO ThreadId(60) gear_str_destructor: hooks::hooks: 553: ~GearStr("Leader Kick")
+2024-05-06T23:18:12.649216Z  INFO ThreadId(60) gear_str_destructor: hooks::hooks: 553: ~GearStr("Leader Kick")
+2024-05-06T23:18:12.654399Z  INFO ThreadId(60) recvfrom: hooks::hooks::storm: 144: recvfrom: 01053300000000dc4a8d7b5031600003a990338a8c0c8329603e900000338a8c0c8323aaaaab700000000000000000000004c8000004bffffffff8005800000319f3da1da01018b28a978df8000006cf8f8f805a632b0b232b91025b4b1b5c437e5079
+2024-05-06T23:18:12.654649Z  INFO ThreadId(60) gear_str_destructor: hooks::hooks: 553: ~GearStr("Leader Kick")
+2024-05-06T23:18:12.654772Z  INFO ThreadId(60) event_queue_pop{this=1042176024}: hooks::hooks::storm: 156: event: "storm::echo::session::outEvent::PeerGone"
+2024-05-06T23:18:12.654861Z  INFO ThreadId(60) something_with_goal: hooks::hooks: 212: goal: Some("eGoal_PlayerLeave") (this: 0x2435a774 -> 0x345a3a8)
+2024-05-06T23:18:12.654939Z  INFO ThreadId(60) gear_str_destructor: hooks::hooks: 553: ~GearStr("Leader Kick")
+2024-05-06T23:18:12.655121Z  INFO ThreadId(60) event_queue_pop{this=1042176024}: hooks::hooks::storm: 156: event: "storm::echo::session::outEvent::PeerGone"
+2024-05-06T23:18:12.655373Z  INFO ThreadId(60) some_event2{d=0xc021000f e=0x1}: hooks::hooks::storm: 97: event2: "storm::echo::object::outEvent::ReplicaGone"
+2024-05-06T23:18:12.655566Z  INFO ThreadId(60) gear_str_destructor: hooks::hooks: 553: ~GearStr("Leader Kick")
+2024-05-06T23:18:12.655880Z  INFO ThreadId(60) event_queue_pop{this=1042176024}: hooks::hooks::storm: 156: event: "storm::echo::session::outEvent::PlayerLeft"
+2024-05-06T23:18:12.656066Z  INFO ThreadId(60) event_queue_pop{this=1042176024}: hooks::hooks::storm: 156: event: "storm::echo::session::ResultEvent"
+2024-05-06T23:18:12.660934Z  INFO ThreadId(01) change_state: hooks::hooks: 277: Goal Some("eGoal_PlayerLeave") with 8, state=StateIdle(id=32bf864), next_state_id=StatePlayerLeave(id=12315a9e)
+2024-05-06T23:18:12.661463Z  INFO ThreadId(01) next_state: hooks::hooks: 171: Next state: StatePlayerLeave StateMachine(inst=0x2435a740, vtable=0x298c0bc, name=NetOnlineSessionServiceRdv(Party)(id=5f3ed41e)) current=StateIdle(inst=0x2435ac70, vtable=0x297eeb4, id=32bf864) last=StatePlatformModifySettings(inst=0x2435b788, vtable=0x297f424, id=32bf6e4)
+2024-05-06T23:18:12.661723Z  INFO ThreadId(01) next_state:gear_str_destructor: hooks::hooks: 553: ~GearStr("0x343EC3FB")
+2024-05-06T23:18:12.661917Z  INFO ThreadId(01) next_state:gear_str_destructor: hooks::hooks: 553: ~GearStr("0x12315A9E")
+2024-05-06T23:18:12.662210Z  INFO ThreadId(01) next_state:gear_str_destructor: hooks::hooks: 553: ~GearStr("0x5F3ED41E")
+2024-05-06T23:18:12.662396Z  INFO ThreadId(01) next_state:leave_state: hooks::hooks: 149: Leaving state StateIdle(inst=0x2435ac70, vtable=0x297eeb4, id=32bf864)
+2024-05-06T23:18:12.662574Z  INFO ThreadId(01) next_state:gear_str_destructor: hooks::hooks: 553: ~GearStr("0x5F3ED41E")
+2024-05-06T23:18:12.662760Z  INFO ThreadId(01) next_state:gear_str_destructor: hooks::hooks: 553: ~GearStr("0x12315A9E")
+2024-05-06T23:18:12.662938Z  INFO ThreadId(01) next_state:gear_str_destructor: hooks::hooks: 553: ~GearStr("0x343EC3FB")
+2024-05-06T23:18:12.663231Z  INFO ThreadId(01) next_state: hooks::hooks: 171: Next state: StateIdle StateMachine(inst=0x2426ecb0, vtable=0x298c5d8, name=NetOnlinePartyController(id=a0132cf8)) current=StateLeaderPartyWaitSync(inst=0x2426f2f0, vtable=0x298261c, id=32bfc08) last=StateIdle(inst=0x2426f0f0, vtable=0x29822ec, id=32bf894)
+2024-05-06T23:18:12.663408Z  INFO ThreadId(01) next_state:gear_str_destructor: hooks::hooks: 553: ~GearStr("0x41165779")
+2024-05-06T23:18:12.663582Z  INFO ThreadId(01) next_state:gear_str_destructor: hooks::hooks: 553: ~GearStr("0x343EC3FB")
+2024-05-06T23:18:12.663889Z  INFO ThreadId(01) next_state:gear_str_destructor: hooks::hooks: 553: ~GearStr("0xA0132CF8")
+2024-05-06T23:18:12.664044Z  INFO ThreadId(01) next_state:leave_state: hooks::hooks: 149: Leaving state StateLeaderPartyWaitSync(inst=0x2426f2f0, vtable=0x298261c, id=32bfc08)
+2024-05-06T23:18:12.664134Z  INFO ThreadId(01) next_state:gear_str_destructor: hooks::hooks: 553: ~GearStr("0xA0132CF8")
+2024-05-06T23:18:12.664210Z  INFO ThreadId(01) next_state:gear_str_destructor: hooks::hooks: 553: ~GearStr("0x343EC3FB")
+2024-05-06T23:18:12.664291Z  INFO ThreadId(01) next_state:gear_str_destructor: hooks::hooks: 553: ~GearStr("0x41165779")
+2024-05-06T23:18:12.664374Z  INFO ThreadId(01) gear_str_destructor: hooks::hooks: 553: ~GearStr("0x343EC3FB")
+2024-05-06T23:18:12.664446Z  INFO ThreadId(01) gear_str_destructor: hooks::hooks: 553: ~GearStr("0x41165779")
+2024-05-06T23:18:12.664516Z  INFO ThreadId(01) gear_str_destructor: hooks::hooks: 553: ~GearStr("0x343EC3FB")
+2024-05-06T23:18:12.668786Z  INFO ThreadId(01) next_state: hooks::hooks: 171: Next state: StateRemoveParticipant StateMachine(inst=0x2435a740, vtable=0x298c0bc, name=NetOnlineSessionServiceRdv(Party)(id=5f3ed41e)) current=StatePlayerLeave(inst=0x2435b5b8, vtable=0x297f314, id=32bfa50) last=StateIdle(inst=0x2435ac70, vtable=0x297eeb4, id=32bf864)
+2024-05-06T23:18:12.668969Z  INFO ThreadId(01) next_state:gear_str_destructor: hooks::hooks: 553: ~GearStr("0x12315A9E")
+2024-05-06T23:18:12.669066Z  INFO ThreadId(01) next_state:gear_str_destructor: hooks::hooks: 553: ~GearStr("0x390618E4")
+2024-05-06T23:18:12.669275Z  INFO ThreadId(01) next_state:gear_str_destructor: hooks::hooks: 553: ~GearStr("0x5F3ED41E")
+2024-05-06T23:18:12.669517Z  INFO ThreadId(01) next_state:leave_state: hooks::hooks: 149: Leaving state StatePlayerLeave(inst=0x2435b5b8, vtable=0x297f314, id=32bfa50)
+2024-05-06T23:18:12.669836Z  INFO ThreadId(01) next_state:gear_str_destructor: hooks::hooks: 553: ~GearStr("0x5F3ED41E")
+2024-05-06T23:18:12.670034Z  INFO ThreadId(01) next_state:gear_str_destructor: hooks::hooks: 553: ~GearStr("0x390618E4")
+2024-05-06T23:18:12.670220Z  INFO ThreadId(01) next_state:gear_str_destructor: hooks::hooks: 553: ~GearStr("0x12315A9E")
+2024-05-06T23:18:12.671288Z  INFO ThreadId(60) sendto: hooks::hooks::storm: 119: sendto: 01053300000000dc4a8d7bc022d00001a260138a8c0c8329603ea00000138a8c0c8323aaaaabb00000000000000000000004c0000004cffffffff80000031a1da1f3d818116f
+2024-05-06T23:18:12.674978Z  INFO ThreadId(01) next_state: hooks::hooks: 171: Next state: StateIdle StateMachine(inst=0x2426da88, vtable=0x298c53c, name=NetOnlineMatchController(id=af62011e)) current=StateNetMatchEnter(inst=0x2426e2a8, vtable=0x2981f94, id=32bfe44) last=StateNetSetupVoice(inst=0x2426e268, vtable=0x2981f3c, id=32bfc90)
+2024-05-06T23:18:12.675144Z  INFO ThreadId(01) next_state:gear_str_destructor: hooks::hooks: 553: ~GearStr("0x4C3577A1")
+2024-05-06T23:18:12.675243Z  INFO ThreadId(01) next_state:gear_str_destructor: hooks::hooks: 553: ~GearStr("0x343EC3FB")
+2024-05-06T23:18:12.675376Z  INFO ThreadId(01) next_state:gear_str_destructor: hooks::hooks: 553: ~GearStr("0xAF62011E")
+2024-05-06T23:18:12.675456Z  INFO ThreadId(01) next_state:leave_state: hooks::hooks: 149: Leaving state StateNetMatchEnter(inst=0x2426e2a8, vtable=0x2981f94, id=32bfe44)
+2024-05-06T23:18:12.675534Z  INFO ThreadId(01) next_state:gear_str_destructor: hooks::hooks: 553: ~GearStr("0xAF62011E")
+2024-05-06T23:18:12.675625Z  INFO ThreadId(01) next_state:gear_str_destructor: hooks::hooks: 553: ~GearStr("0x343EC3FB")
+2024-05-06T23:18:12.675735Z  INFO ThreadId(01) next_state:gear_str_destructor: hooks::hooks: 553: ~GearStr("0x4C3577A1")
+2024-05-06T23:18:12.675843Z  INFO ThreadId(01) gear_str_destructor: hooks::hooks: 553: ~GearStr("0x343EC3FB")
+2024-05-06T23:18:12.675930Z  INFO ThreadId(01) gear_str_destructor: hooks::hooks: 553: ~GearStr("0x02D9EF52")
+2024-05-06T23:18:12.676020Z  INFO ThreadId(01) gear_str_destructor: hooks::hooks: 553: ~GearStr("0x9DBE26A1")
+2024-05-06T23:18:12.676095Z  INFO ThreadId(01) gear_str_destructor: hooks::hooks: 553: ~GearStr("0x4C3577A1")
+2024-05-06T23:18:12.676186Z  INFO ThreadId(01) gear_str_destructor: hooks::hooks: 553: ~GearStr("0x343EC3FB")
+2024-05-06T23:18:12.687304Z  INFO ThreadId(01) gear_str_destructor: hooks::hooks: 553: ~GearStr("eGhostMapBillionairesYacht")
+2024-05-06T23:18:12.687515Z  INFO ThreadId(01) gear_str_destructor: hooks::hooks: 553: ~GearStr("eGhostMapBillionairesYacht")
+2024-05-06T23:18:12.687628Z  INFO ThreadId(01) gear_str_destructor: hooks::hooks: 553: ~GearStr("eHunterMapDeadCoast")
+2024-05-06T23:18:12.688676Z  INFO ThreadId(01) something_with_goal: hooks::hooks: 212: goal: Some("eGoal_Run") (this: 0x2426e494 -> 0x345a3a8)
+2024-05-06T23:18:12.691603Z  INFO ThreadId(01) next_state: hooks::hooks: 171: Next state: StateIdle StateMachine(inst=0x2435a740, vtable=0x298c0bc, name=NetOnlineSessionServiceRdv(Party)(id=5f3ed41e)) current=StateRemoveParticipant(inst=0x2435b5f8, vtable=0x297f36c, id=32bfcf0) last=StatePlayerLeave(inst=0x2435b5b8, vtable=0x297f314, id=32bfa50)
+2024-05-06T23:18:12.691729Z  INFO ThreadId(01) next_state:gear_str_destructor: hooks::hooks: 553: ~GearStr("0x390618E4")
+2024-05-06T23:18:12.691816Z  INFO ThreadId(01) next_state:gear_str_destructor: hooks::hooks: 553: ~GearStr("0x343EC3FB")
+2024-05-06T23:18:12.691982Z  INFO ThreadId(01) next_state:gear_str_destructor: hooks::hooks: 553: ~GearStr("0x5F3ED41E")
+2024-05-06T23:18:12.692062Z  INFO ThreadId(01) next_state:leave_state: hooks::hooks: 149: Leaving state StateRemoveParticipant(inst=0x2435b5f8, vtable=0x297f36c, id=32bfcf0)
+2024-05-06T23:18:12.692142Z  INFO ThreadId(01) next_state:gear_str_destructor: hooks::hooks: 553: ~GearStr("0x5F3ED41E")
+2024-05-06T23:18:12.692263Z  INFO ThreadId(01) next_state:gear_str_destructor: hooks::hooks: 553: ~GearStr("0x343EC3FB")
+2024-05-06T23:18:12.692347Z  INFO ThreadId(01) next_state:gear_str_destructor: hooks::hooks: 553: ~GearStr("0x390618E4")
+2024-05-06T23:18:12.692433Z  INFO ThreadId(01) gear_str_destructor: hooks::hooks: 553: ~GearStr("0x343EC3FB")
+2024-05-06T23:18:12.692508Z  INFO ThreadId(01) gear_str_destructor: hooks::hooks: 553: ~GearStr("0x12315A9E")
+2024-05-06T23:18:12.692610Z  INFO ThreadId(01) gear_str_destructor: hooks::hooks: 553: ~GearStr("0x390618E4")
+2024-05-06T23:18:12.692700Z  INFO ThreadId(01) gear_str_destructor: hooks::hooks: 553: ~GearStr("0x343EC3FB")
+2024-05-06T23:18:12.692779Z  INFO ThreadId(01) gear_str_destructor: hooks::hooks: 553: ~GearStr("WINDEV2311EVAL")
+2024-05-06T23:18:12.692851Z  INFO ThreadId(01) gear_str_destructor: hooks::hooks: 553: ~GearStr("AAAABBBB")
+2024-05-06T23:18:12.692934Z  INFO ThreadId(01) change_state: hooks::hooks: 277: Goal Some("eGoal_Run") with 2, state=StateLobbyTransitionSync(id=32bfaf8), next_state_id=StateWaitingForPlayers(id=9175d146)
+2024-05-06T23:18:12.693153Z  INFO ThreadId(01) next_state: hooks::hooks: 171: Next state: StateWaitingForPlayers StateMachine(inst=0x2426e460, vtable=0x298c4e0, name=NetOnlineLobbyController(id=3d3da115)) current=StateLobbyTransitionSync(inst=0x2426e9d8, vtable=0x29818a4, id=32bfaf8) last=StateLogin(inst=0x2426e968, vtable=0x2981804, id=32bfb48)
+2024-05-06T23:18:12.693266Z  INFO ThreadId(01) next_state:gear_str_destructor: hooks::hooks: 553: ~GearStr("0xE6641305")
+2024-05-06T23:18:12.693354Z  INFO ThreadId(01) next_state:gear_str_destructor: hooks::hooks: 553: ~GearStr("0x9175D146")
+2024-05-06T23:18:12.693484Z  INFO ThreadId(01) next_state:gear_str_destructor: hooks::hooks: 553: ~GearStr("0x3D3DA115")
+2024-05-06T23:18:12.693619Z  INFO ThreadId(01) next_state:leave_state: hooks::hooks: 149: Leaving state StateLobbyTransitionSync(inst=0x2426e9d8, vtable=0x29818a4, id=32bfaf8)
+2024-05-06T23:18:12.693810Z  INFO ThreadId(01) next_state:gear_str_destructor: hooks::hooks: 553: ~GearStr("0x3D3DA115")
+2024-05-06T23:18:12.693903Z  INFO ThreadId(01) next_state:gear_str_destructor: hooks::hooks: 553: ~GearStr("0x9175D146")
+2024-05-06T23:18:12.693999Z  INFO ThreadId(01) next_state:gear_str_destructor: hooks::hooks: 553: ~GearStr("0xE6641305")

@@ -41,10 +41,7 @@ pub struct GetClusterMembersRequest;
 pub struct GetClusterMembersResponse {
     pub str_values: Vec<String>,
 }
-pub struct MonitoringProtocolServer<T: MonitoringProtocolServerTrait<CI>, CI>(
-    T,
-    ::std::marker::PhantomData<CI>,
-);
+pub struct MonitoringProtocolServer<T: MonitoringProtocolServerTrait<CI>, CI>(T, ::std::marker::PhantomData<CI>);
 impl<T: MonitoringProtocolServerTrait<CI>, CI> MonitoringProtocolServer<T, CI> {
     pub fn new(implementation: T) -> Self {
         Self(implementation, ::std::marker::PhantomData)
@@ -75,27 +72,21 @@ impl<T: MonitoringProtocolServerTrait<CI>, CI> Protocol<CI> for MonitoringProtoc
             Some(MonitoringProtocolMethod::PingDaemon) => {
                 let req = PingDaemonRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .ping_daemon(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.ping_daemon(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(MonitoringProtocolMethod::GetClusterMembers) => {
                 let req = GetClusterMembersRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .get_cluster_members(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.get_cluster_members(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
         }
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        MonitoringProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        MonitoringProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
@@ -109,12 +100,7 @@ pub trait MonitoringProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<PingDaemonResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "MonitoringProtocol",
-            stringify!(ping_daemon)
-        );
+        warn!(logger, "Method {}.{} not implemented", "MonitoringProtocol", stringify!(ping_daemon));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn get_cluster_members(
@@ -126,12 +112,7 @@ pub trait MonitoringProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<GetClusterMembersResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "MonitoringProtocol",
-            stringify!(get_cluster_members)
-        );
+        warn!(logger, "Method {}.{} not implemented", "MonitoringProtocol", stringify!(get_cluster_members));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }
@@ -157,55 +138,19 @@ impl<CI> ClientProtocol<CI> for MonitoringProtocolClient<CI> {
         2u32
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        MonitoringProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        MonitoringProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
 impl<CI> MonitoringProtocolClient<CI> {
-    pub fn ping_daemon(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: PingDaemonRequest,
-    ) -> Result<PingDaemonResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "MonitoringProtocol",
-            stringify!(ping_daemon)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            MonitoringProtocolMethod::PingDaemon as u32,
-            request.to_bytes(),
-        );
+    pub fn ping_daemon(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: PingDaemonRequest) -> Result<PingDaemonResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "MonitoringProtocol", stringify!(ping_daemon));
+        self.send(logger, ctx, ci, MonitoringProtocolMethod::PingDaemon as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn get_cluster_members(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: GetClusterMembersRequest,
-    ) -> Result<GetClusterMembersResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "MonitoringProtocol",
-            stringify!(get_cluster_members)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            MonitoringProtocolMethod::GetClusterMembers as u32,
-            request.to_bytes(),
-        );
+    pub fn get_cluster_members(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: GetClusterMembersRequest) -> Result<GetClusterMembersResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "MonitoringProtocol", stringify!(get_cluster_members));
+        self.send(logger, ctx, ci, MonitoringProtocolMethod::GetClusterMembers as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }

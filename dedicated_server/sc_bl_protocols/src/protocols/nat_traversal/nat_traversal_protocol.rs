@@ -49,18 +49,13 @@ pub struct RequestProbeInitiationExtRequest {
 }
 #[derive(Debug, ToStream, FromStream)]
 pub struct RequestProbeInitiationExtResponse;
-pub struct NatTraversalProtocolServer<T: NatTraversalProtocolServerTrait<CI>, CI>(
-    T,
-    ::std::marker::PhantomData<CI>,
-);
+pub struct NatTraversalProtocolServer<T: NatTraversalProtocolServerTrait<CI>, CI>(T, ::std::marker::PhantomData<CI>);
 impl<T: NatTraversalProtocolServerTrait<CI>, CI> NatTraversalProtocolServer<T, CI> {
     pub fn new(implementation: T) -> Self {
         Self(implementation, ::std::marker::PhantomData)
     }
 }
-impl<T: NatTraversalProtocolServerTrait<CI>, CI> Protocol<CI>
-    for NatTraversalProtocolServer<T, CI>
-{
+impl<T: NatTraversalProtocolServerTrait<CI>, CI> Protocol<CI> for NatTraversalProtocolServer<T, CI> {
     fn id(&self) -> u16 {
         NAT_TRAVERSAL_PROTOCOL_ID
     }
@@ -85,41 +80,28 @@ impl<T: NatTraversalProtocolServerTrait<CI>, CI> Protocol<CI>
             Some(NatTraversalProtocolMethod::RequestProbeInitiation) => {
                 let req = RequestProbeInitiationRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp =
-                    self.0
-                        .request_probe_initiation(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.request_probe_initiation(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(NatTraversalProtocolMethod::InitiateProbe) => {
                 let req = InitiateProbeRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self
-                    .0
-                    .initiate_probe(logger, ctx, ci, req, client_registry, socket);
+                let resp = self.0.initiate_probe(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
             Some(NatTraversalProtocolMethod::RequestProbeInitiationExt) => {
                 let req = RequestProbeInitiationExtRequest::from_bytes(&request.parameters)?;
                 debug!(logger, "Request: {:?}", req);
-                let resp = self.0.request_probe_initiation_ext(
-                    logger,
-                    ctx,
-                    ci,
-                    req,
-                    client_registry,
-                    socket,
-                );
+                let resp = self.0.request_probe_initiation_ext(logger, ctx, ci, req, client_registry, socket);
                 debug!(logger, "Response: {:?}", resp);
                 Ok(resp?.to_bytes())
             }
         }
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        NatTraversalProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        NatTraversalProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
@@ -133,12 +115,7 @@ pub trait NatTraversalProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<RequestProbeInitiationResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "NatTraversalProtocol",
-            stringify!(request_probe_initiation)
-        );
+        warn!(logger, "Method {}.{} not implemented", "NatTraversalProtocol", stringify!(request_probe_initiation));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn initiate_probe(
@@ -150,12 +127,7 @@ pub trait NatTraversalProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<InitiateProbeResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "NatTraversalProtocol",
-            stringify!(initiate_probe)
-        );
+        warn!(logger, "Method {}.{} not implemented", "NatTraversalProtocol", stringify!(initiate_probe));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     fn request_probe_initiation_ext(
@@ -167,12 +139,7 @@ pub trait NatTraversalProtocolServerTrait<CI> {
         client_registry: &ClientRegistry<CI>,
         _socket: &std::net::UdpSocket,
     ) -> Result<RequestProbeInitiationExtResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "NatTraversalProtocol",
-            stringify!(request_probe_initiation_ext)
-        );
+        warn!(logger, "Method {}.{} not implemented", "NatTraversalProtocol", stringify!(request_probe_initiation_ext));
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }
@@ -198,9 +165,7 @@ impl<CI> ClientProtocol<CI> for NatTraversalProtocolClient<CI> {
         3u32
     }
     fn method_name(&self, method_id: u32) -> Option<String> {
-        NatTraversalProtocolMethod::try_from(method_id)
-            .ok()
-            .map(|e| format!("{:?}", e))
+        NatTraversalProtocolMethod::try_from(method_id).ok().map(|e| format!("{:?}", e))
     }
 }
 #[allow(unused_variables)]
@@ -212,41 +177,13 @@ impl<CI> NatTraversalProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: RequestProbeInitiationRequest,
     ) -> Result<RequestProbeInitiationResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "NatTraversalProtocol",
-            stringify!(request_probe_initiation)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            NatTraversalProtocolMethod::RequestProbeInitiation as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "NatTraversalProtocol", stringify!(request_probe_initiation));
+        self.send(logger, ctx, ci, NatTraversalProtocolMethod::RequestProbeInitiation as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
-    pub fn initiate_probe(
-        &self,
-        logger: &Logger,
-        ctx: &Context,
-        ci: &mut ClientInfo<CI>,
-        request: InitiateProbeRequest,
-    ) -> Result<InitiateProbeResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "NatTraversalProtocol",
-            stringify!(initiate_probe)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            NatTraversalProtocolMethod::InitiateProbe as u32,
-            request.to_bytes(),
-        );
+    pub fn initiate_probe(&self, logger: &Logger, ctx: &Context, ci: &mut ClientInfo<CI>, request: InitiateProbeRequest) -> Result<InitiateProbeResponse, Error> {
+        warn!(logger, "Method {}.{} not implemented", "NatTraversalProtocol", stringify!(initiate_probe));
+        self.send(logger, ctx, ci, NatTraversalProtocolMethod::InitiateProbe as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
     pub fn request_probe_initiation_ext(
@@ -256,19 +193,8 @@ impl<CI> NatTraversalProtocolClient<CI> {
         ci: &mut ClientInfo<CI>,
         request: RequestProbeInitiationExtRequest,
     ) -> Result<RequestProbeInitiationExtResponse, Error> {
-        warn!(
-            logger,
-            "Method {}.{} not implemented",
-            "NatTraversalProtocol",
-            stringify!(request_probe_initiation_ext)
-        );
-        self.send(
-            logger,
-            ctx,
-            ci,
-            NatTraversalProtocolMethod::RequestProbeInitiationExt as u32,
-            request.to_bytes(),
-        );
+        warn!(logger, "Method {}.{} not implemented", "NatTraversalProtocol", stringify!(request_probe_initiation_ext));
+        self.send(logger, ctx, ci, NatTraversalProtocolMethod::RequestProbeInitiationExt as u32, request.to_bytes());
         Err(quazal::rmc::Error::UnimplementedMethod)
     }
 }

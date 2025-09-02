@@ -20,50 +20,18 @@ const MAGIC: u32 = 0xCD65_2312;
 #[allow(clippy::too_many_lines)]
 fn main() {
     let matches = App::new("DDL Binary parser")
-        .arg(
-            Arg::with_name("verbose")
-                .long("verbose")
-                .short("v")
-                .takes_value(false),
-        )
-        .arg(
-            Arg::with_name("debug")
-                .long("debug")
-                .short("d")
-                .takes_value(false),
-        )
-        .arg(
-            Arg::with_name("output")
-                .long("output")
-                .short("o")
-                .takes_value(true),
-        )
-        .arg(
-            Arg::with_name("generate")
-                .long("generate")
-                .short("g")
-                .takes_value(true),
-        )
-        .arg(
-            Arg::with_name("id_mapping")
-                .long("ids")
-                .short("i")
-                .takes_value(true),
-        )
+        .arg(Arg::with_name("verbose").long("verbose").short("v").takes_value(false))
+        .arg(Arg::with_name("debug").long("debug").short("d").takes_value(false))
+        .arg(Arg::with_name("output").long("output").short("o").takes_value(true))
+        .arg(Arg::with_name("generate").long("generate").short("g").takes_value(true))
+        .arg(Arg::with_name("id_mapping").long("ids").short("i").takes_value(true))
         .arg(Arg::with_name("binary").required(true))
         .get_matches();
 
-    DEBUG.store(
-        matches.is_present("debug"),
-        std::sync::atomic::Ordering::Relaxed,
-    );
+    DEBUG.store(matches.is_present("debug"), std::sync::atomic::Ordering::Relaxed);
     let binary_path = Path::new(matches.value_of("binary").expect("binary is required"));
 
-    assert!(
-        binary_path.exists(),
-        "{} does not exist",
-        binary_path.to_string_lossy()
-    );
+    assert!(binary_path.exists(), "{} does not exist", binary_path.to_string_lossy());
 
     let generate_dir: Option<&Path> = matches.value_of("generate").map(Path::new).map(|p| {
         if p.exists() {
@@ -82,8 +50,7 @@ fn main() {
         .transpose()
         .expect("Couldn't parse id mapping");
 
-    let file_data = fs::read(binary_path)
-        .unwrap_or_else(|e| panic!("Couldn\'t read {}: {}", binary_path.to_string_lossy(), e));
+    let file_data = fs::read(binary_path).unwrap_or_else(|e| panic!("Couldn\'t read {}: {}", binary_path.to_string_lossy(), e));
 
     println!("[*] Extracting and parsing DDL from {binary_path:?}");
     let magic_bytes = &MAGIC.to_be_bytes()[..];
@@ -105,10 +72,9 @@ fn main() {
             if id_mapping.is_some() {
                 for el in &mut namespace.elements {
                     if let Element::ProtocolDeclaration(p) = el {
-                        let id = id_mapping.as_ref().and_then(|m| {
-                            m.get(&format!("{}::{}", p.namespace, p.name1))
-                                .or_else(|| m.get(&p.name1))
-                        });
+                        let id = id_mapping
+                            .as_ref()
+                            .and_then(|m| m.get(&format!("{}::{}", p.namespace, p.name1)).or_else(|| m.get(&p.name1)));
                         p.id = id.copied();
                     }
                 }
@@ -124,11 +90,7 @@ fn main() {
 
     if let Some(output) = matches.value_of("output") {
         println!("[*] Writing parsed DDL to {output}");
-        serde_json::to_writer_pretty(
-            fs::File::create(output).expect("could not open output file"),
-            &namespaces,
-        )
-        .expect("error writing output");
+        serde_json::to_writer_pretty(fs::File::create(output).expect("could not open output file"), &namespaces).expect("error writing output");
     }
 
     if let Some(generate) = generate_dir {
