@@ -204,72 +204,93 @@ do_proto.fields.size = ProtoField.uint32("do.size", "Size")
 do_proto.fields.message_id = ProtoField.uint8("do.message_id", "Message", base.DEC, do_message_types)
 local message_id_field = Field.new("do.message_id")
 
-local function do_parse_join_request(buffer, pinfo, tree)
+-- Reads `Quazal::String`.
+local function read_string(buffer) 
+    local size = buffer(0, 2):le_uint()
+    local off = 2
+    local string = buffer(off, size):string()
+    return string, off + size
+end
+
+local function do_parse_join_request(buffer, pinfo, tree, subtree)
     
 end
 
-local function do_parse_join_response(buffer, pinfo, tree)
+local function do_parse_join_response(buffer, pinfo, tree, subtree)
     
 end
 
-local function do_parse_update(buffer, pinfo, tree)
+local function do_parse_update(buffer, pinfo, tree, subtree)
     
 end
 
-local function do_parse_delete(buffer, pinfo, tree)
+local function do_parse_delete(buffer, pinfo, tree, subtree)
     
 end
 
-local function do_parse_action(buffer, pinfo, tree)
+local function do_parse_action(buffer, pinfo, tree, subtree)
     
 end
 
-local function do_parse_call_outcome(buffer, pinfo, tree)
+local function do_parse_call_outcome(buffer, pinfo, tree, subtree)
     
 end
 
-local function do_parse_rmc_call(buffer, pinfo, tree)
+local function do_parse_rmc_call(buffer, pinfo, tree, subtree)
     
 end
 
-local function do_parse_rmc_response(buffer, pinfo, tree)
+local function do_parse_rmc_response(buffer, pinfo, tree, subtree)
     
 end
 
-local function do_parse_fetch_request(buffer, pinfo, tree)
+local function do_parse_fetch_request(buffer, pinfo, tree, subtree)
     
 end
 
-local function do_parse_bundle(buffer, pinfo, tree)
+local function do_parse_bundle(buffer, pinfo, tree, subtree)
     
 end
 
-local function do_parse_migration(buffer, pinfo, tree)
+local function do_parse_migration(buffer, pinfo, tree, subtree)
     
 end
 
-local function do_parse_create_duplica(buffer, pinfo, tree)
+local function do_parse_create_duplica(buffer, pinfo, tree, subtree)
     
 end
 
-local function do_parse_create_and_promote_duplica(buffer, pinfo, tree)
+local function do_parse_create_and_promote_duplica(buffer, pinfo, tree, subtree)
     
 end
 
-local function do_parse_get_participants_request(buffer, pinfo, tree)
-    
+-- GetParticipantsRequest definition
+do_proto.fields.get_participants_request_urls = ProtoField.uint32("do.get_participants_request.urls", "Station URLs")
+do_proto.fields.get_participants_request_url = ProtoField.string("do.get_participants_request.url", "URL")
+local function do_parse_get_participants_request(buffer, pinfo, tree, subtree)
+    local url_count = buffer(0, 4):le_uint()
+    local urls = subtree:add_le(do_proto.fields.get_participants_request_urls, buffer(0, 4))
+    local off = 4
+    if url_count > 0 then
+        for idx=1,url_count do
+            local str, str_len = read_string(buffer(off))
+            urls:add(do_proto.fields.get_participants_request_url, buffer(off, str_len), str)
+            off = off + str_len
+        end
+    end
+    return off
 end
 
-local function do_parse_get_participants_response(buffer, pinfo, tree)
+local function do_parse_get_participants_response(buffer, pinfo, tree, subtree)
     
 end
 
 -- This message carries no payload.
-local function do_parse_empty(buffer, pinfo, tree)
+local function do_parse_empty(buffer, pinfo, tree, subtree)
     return 0
 end
 
-local function do_parse_eos(buffer, pinfo, tree)
+local function do_parse_eos(buffer, pinfo, tree, subtree)
     
 end
 
@@ -309,9 +330,9 @@ local function do_proto_dissector(buffer, pinfo, tree)
     local parser = do_message_parsers[msg_name]
     off = off + 1
     if parser then
-        off = off + parser(buffer(off), pinfo, tree)
+        off = off + parser(buffer(off), pinfo, tree, subtree)
     end
-    if buffer:len() > off then
+    if size > off then
         do_proto_dissector(buffer(off), pinfo, tree)
     end
 end
