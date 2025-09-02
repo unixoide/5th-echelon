@@ -212,8 +212,51 @@ local function read_string(buffer)
     return string, off + size
 end
 
+-- JoinRequest definition
+do_proto.fields.join_request_process_auth = ProtoField.none("do.join_request.process_auth", "ProcessAuthentication")
+do_proto.fields.join_request_process_auth_struct_ver = ProtoField.uint8("do.join_request.process_auth.struct_ver", "Structure version")
+do_proto.fields.join_request_process_auth_lib_ver = ProtoField.uint8("do.join_request.process_auth.lib_ver", "Library protocol version")
+do_proto.fields.join_request_process_auth_unknown_ver = ProtoField.uint8("do.join_request.process_auth.unknown_ver", "Unknown version")
+do_proto.fields.join_request_process_major_ver = ProtoField.uint32("do.join_request.process_auth.major_ver", "Major version", base.HEX)
+do_proto.fields.join_request_process_minor_ver = ProtoField.uint32("do.join_request.process_auth.minor_ver", "Minor version", base.HEX)
+do_proto.fields.join_request_process_title_checksum = ProtoField.uint32("do.join_request.process_auth.title_checksum", "Title checksum", base.HEX)
+do_proto.fields.join_request_process_proto_flags = ProtoField.uint32("do.join_request.process_auth.proto_flags", "Protocol flags", base.HEX)
+do_proto.fields.join_request_station_ident = ProtoField.none("do.join_request.station_ident", "StationIdentification")
+do_proto.fields.join_request_station_ident_token = ProtoField.string("do.join_request.station_ident.token", "Identification token")
+do_proto.fields.join_request_station_ident_process_name = ProtoField.string("do.join_request.station_ident.process_name", "Process name")
+do_proto.fields.join_request_station_ident_process_type = ProtoField.uint32("do.join_request.station_ident.process_type", "Process type")
+do_proto.fields.join_request_station_ident_product_ver = ProtoField.uint32("do.join_request.station_ident.product_ver", "Product version")
 local function do_parse_join_request(buffer, pinfo, tree, subtree)
-    
+    -- `Quazal::ProcessAuthentication`
+    local pa = subtree:add(do_proto.fields.join_request_process_auth, buffer(0, 19))
+    local off = 0
+    pa:add_le(do_proto.fields.join_request_process_auth_struct_ver, buffer(off, 1))
+    off = off + 1
+    pa:add_le(do_proto.fields.join_request_process_auth_lib_ver, buffer(off, 1))
+    off = off + 1
+    pa:add_le(do_proto.fields.join_request_process_auth_unknown_ver, buffer(off, 1))
+    off = off + 1
+    pa:add_le(do_proto.fields.join_request_process_major_ver, buffer(off, 4))
+    off = off + 4
+    pa:add_le(do_proto.fields.join_request_process_minor_ver, buffer(off, 4))
+    off = off + 4
+    pa:add_le(do_proto.fields.join_request_process_title_checksum, buffer(off, 4))
+    off = off + 4
+    pa:add_le(do_proto.fields.join_request_process_proto_flags, buffer(off, 4))
+    off = off + 4
+    -- `Quazal::StationIdentification`
+    local si = subtree:add(do_proto.fields.join_request_station_ident, buffer(off))
+    local str, str_len = read_string(buffer(off))
+    si:add(do_proto.fields.join_request_station_ident_token, buffer(off, str_len), str)
+    off = off + str_len
+    str, str_len = read_string(buffer(off))
+    si:add(do_proto.fields.join_request_station_ident_process_name, buffer(off, str_len), str)
+    off = off + str_len
+    si:add_le(do_proto.fields.join_request_station_ident_process_type, buffer(off, 4))
+    off = off + 4
+    si:add_le(do_proto.fields.join_request_station_ident_product_ver, buffer(off, 4))
+    off = off + 4
+    return off
 end
 
 local function do_parse_join_response(buffer, pinfo, tree, subtree)
