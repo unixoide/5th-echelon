@@ -290,8 +290,40 @@ local function do_parse_action(buffer, pinfo, tree, subtree)
     
 end
 
+-- CallOutcome definition
+local call_outcomes = {
+    [0x10001] = "Success",
+    [0x60001] = "Success",
+    [0x60002] = "CallPostponed",
+    [0x80010001] = "UnknownOutcome",
+    [0x80010006] = "ErrorAccessDenied",
+    [0x8001000A] = "ErrorInvalidParameters",
+    [0x80060001] = "ErrorStationNotReached",
+    [0x80060002] = "ErrorTargetStationDisconnect",
+    [0x80060003] = "ErrorLocalStationLeaving",
+    [0x80060004] = "ErrorObjectNotFound",
+    [0x80060005] = "ErrorInvalidRole",
+    [0x80060006] = "ErrorCallTimeout",
+    [0x80060007] = "ErrorRMCDispatchFailed",
+    [0x80060008] = "ErrorMigrationInProgress",
+    [0x80060009] = "ErrorNoAuthority",
+}
+
+do_proto.fields.call_outcome_call_id = ProtoField.uint16("do.call_outcome.call_id", "Call ID")
+do_proto.fields.call_outcome_outcome = ProtoField.string("do.call_outcome.call_id", "Outcome")
 local function do_parse_call_outcome(buffer, pinfo, tree, subtree)
-    
+    local off = 0
+    subtree:add_le(do_proto.fields.call_outcome_call_id, buffer(off, 2))
+    off = off + 2
+    local outcomeCode = buffer(off, 4):le_uint()
+    local outcome = call_outcomes[outcomeCode]
+    if outcome == nil then
+        outcome = "UnknownOutcome"
+    end
+    outcome = string.format("%s (0x%X)", outcome, outcomeCode)
+    subtree:add(do_proto.fields.call_outcome_outcome, buffer(off, 4), outcome)
+    off = off + 4
+    return off
 end
 
 -- RMCCall definition
