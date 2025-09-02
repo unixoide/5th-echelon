@@ -294,8 +294,26 @@ local function do_parse_call_outcome(buffer, pinfo, tree, subtree)
     
 end
 
+-- RMCCall definition
+do_proto.fields.rmc_call_call_id = ProtoField.uint16("do.rmc_call.call_id", "Call ID")
+do_proto.fields.rmc_call_flags = ProtoField.uint32("do.rmc_call.flags", "Flags", base.HEX)
+do_proto.fields.rmc_call_source_id = ProtoField.uint32("do.rmc_call.source_id", "Source ID", base.HEX)
+do_proto.fields.rmc_call_target_object = ProtoField.uint32("do.rmc_call.target_object", "Target DOC object", base.HEX)
+do_proto.fields.rmc_call_method_id = ProtoField.uint16("do.rmc_call.method_id", "Method ID")
 local function do_parse_rmc_call(buffer, pinfo, tree, subtree)
-    
+    local off = 0
+    subtree:add_le(do_proto.fields.rmc_call_call_id, buffer(off, 2))
+    off = off + 2
+    subtree:add_le(do_proto.fields.rmc_call_flags, buffer(off, 4))
+    off = off + 4
+    subtree:add_le(do_proto.fields.rmc_call_source_id, buffer(off, 4))
+    off = off + 4
+    subtree:add_le(do_proto.fields.rmc_call_target_object, buffer(off, 4))
+    off = off + 4
+    subtree:add_le(do_proto.fields.rmc_call_method_id, buffer(off, 2))
+    off = off + 2
+    -- TODO: implement reading for optional fields
+    return buffer:len()
 end
 
 local function do_parse_rmc_response(buffer, pinfo, tree, subtree)
