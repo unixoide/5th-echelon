@@ -343,8 +343,115 @@ local function do_parse_create_duplica(buffer, pinfo, tree, subtree)
     
 end
 
+-- CreateAndPromoteDuplica definition
+do_proto.fields.create_promote_duplica_call_id = ProtoField.uint16("do.create_promote_duplica.call_id", "Call ID")
+do_proto.fields.create_promote_duplica_client_station_id = ProtoField.uint32("do.create_promote_duplica.client_station_id", "Client station ID", base.HEX)
+do_proto.fields.create_promote_duplica_master_station_id = ProtoField.uint32("do.create_promote_duplica.master_station_id", "Master station ID", base.HEX)
+do_proto.fields.create_promote_duplica_version = ProtoField.uint8("do.create_promote_duplica.version", "Version")
+do_proto.fields.create_promote_duplica_list = ProtoField.uint32("do.create_promote_duplica.list", "Duplicas")
+do_proto.fields.create_promote_duplica_duplica = ProtoField.uint32("do.create_promote_duplica.duplica", "Duplica")
+do_proto.fields.create_promote_duplica_discovery_msg = ProtoField.none("do.create_promote_duplica.discovery_msg", "DiscoveryMessage")
+do_proto.fields.create_promote_duplica_connect_info = ProtoField.none("do.create_promote_duplica.connect_info", "DS_ConnectionInfo")
+do_proto.fields.create_promote_duplica_connect_info_exists = ProtoField.bool("do.create_promote_duplica.connect_info.exists", "Exists")
+do_proto.fields.create_promote_duplica_connect_info_url_init = ProtoField.bool("do.create_promote_duplica.connect_info.url_init", "URL initialized")
+do_proto.fields.create_promote_duplica_connect_info_url1 = ProtoField.string("do.create_promote_duplica.connect_info.url1", "URL1")
+do_proto.fields.create_promote_duplica_connect_info_url2 = ProtoField.string("do.create_promote_duplica.connect_info.url2", "URL2")
+do_proto.fields.create_promote_duplica_connect_info_url3 = ProtoField.string("do.create_promote_duplica.connect_info.url3", "URL3")
+do_proto.fields.create_promote_duplica_connect_info_url4 = ProtoField.string("do.create_promote_duplica.connect_info.url4", "URL4")
+do_proto.fields.create_promote_duplica_connect_info_url5 = ProtoField.string("do.create_promote_duplica.connect_info.url5", "URL5")
+do_proto.fields.create_promote_duplica_connect_info_in_bandwidth = ProtoField.uint32("do.create_promote_duplica.connect_info.in_bandwidth", "Input bandwidth")
+do_proto.fields.create_promote_duplica_connect_info_in_latency = ProtoField.uint32("do.create_promote_duplica.connect_info.in_latency", "Input latency")
+do_proto.fields.create_promote_duplica_connect_info_out_bandwidth = ProtoField.uint32("do.create_promote_duplica.connect_info.out_bandwidth", "Output bandwidth")
+do_proto.fields.create_promote_duplica_connect_info_out_latency = ProtoField.uint32("do.create_promote_duplica.connect_info.out_latency", "Output latency")
+do_proto.fields.create_promote_duplica_station_ident = ProtoField.none("do.create_promote_duplica.station_ident", "StationIdentification")
+do_proto.fields.create_promote_duplica_station_ident_exists = ProtoField.bool("do.create_promote_duplica.station_ident.exists", "Exists")
+do_proto.fields.create_promote_duplica_station_ident_token = ProtoField.string("do.create_promote_duplica.station_ident.token", "Identification token")
+do_proto.fields.create_promote_duplica_station_ident_process_name = ProtoField.string("do.create_promote_duplica.station_ident.process_name", "Process name")
+do_proto.fields.create_promote_duplica_station_ident_process_type = ProtoField.uint32("do.create_promote_duplica.station_ident.process_type", "Process type")
+do_proto.fields.create_promote_duplica_station_ident_product_ver = ProtoField.uint32("do.create_promote_duplica.station_ident.product_ver", "Product version")
+do_proto.fields.create_promote_duplica_station_info = ProtoField.none("do.create_promote_duplica.station_info", "StationInfo")
+do_proto.fields.create_promote_duplica_station_info_exists = ProtoField.bool("do.create_promote_duplica.station_info.exists", "Exists")
+do_proto.fields.create_promote_duplica_station_info_observer = ProtoField.uint32("do.create_promote_duplica.station_info.observer", "Observer")
+do_proto.fields.create_promote_duplica_station_info_machine_uid = ProtoField.uint32("do.create_promote_duplica.station_info.machine_uid", "Machine UID")
+do_proto.fields.create_promote_duplica_station_state = ProtoField.none("do.create_promote_duplica.station_state", "StationState")
+do_proto.fields.create_promote_duplica_station_state_exists = ProtoField.bool("do.create_promote_duplica.station_state.exists", "Exists")
+do_proto.fields.create_promote_duplica_station_state_state = ProtoField.uint16("do.create_promote_duplica.station_state.state", "Station state")
 local function do_parse_create_and_promote_duplica(buffer, pinfo, tree, subtree)
-    
+    local off = 0
+    -- header
+    subtree:add_le(do_proto.fields.create_promote_duplica_call_id, buffer(off, 2))
+    off = off + 2
+    subtree:add_le(do_proto.fields.create_promote_duplica_client_station_id, buffer(off, 4))
+    off = off + 4
+    subtree:add_le(do_proto.fields.create_promote_duplica_master_station_id, buffer(off, 4))
+    off = off + 4
+    subtree:add_le(do_proto.fields.create_promote_duplica_version, buffer(off, 1))
+    off = off + 1
+    local duplicas = subtree:add_le(do_proto.fields.create_promote_duplica_list, buffer(off, 4))
+    local duplica_count = buffer(off, 4):le_uint()
+    off = off + 4
+    for idx=1, duplica_count do
+        duplicas:add_le(do_proto.fields.create_promote_duplica_duplica, buffer(off, 4))
+        off = off + 4
+    end
+    -- `DS_ConnectionInfo`
+    local connect_info = subtree:add(do_proto.fields.create_promote_duplica_connect_info, buffer(off))
+    connect_info:add_le(do_proto.fields.create_promote_duplica_connect_info_exists, buffer(off, 1))
+    off = off + 1
+    connect_info:add_le(do_proto.fields.create_promote_duplica_connect_info_url_init, buffer(off, 1))
+    off = off + 1
+    local str, str_len = read_string(buffer(off))
+    connect_info:add(do_proto.fields.create_promote_duplica_connect_info_url1, buffer(off, str_len), str)
+    off = off + str_len
+    str, str_len = read_string(buffer(off))
+    connect_info:add(do_proto.fields.create_promote_duplica_connect_info_url2, buffer(off, str_len), str)
+    off = off + str_len
+    str, str_len = read_string(buffer(off))
+    connect_info:add(do_proto.fields.create_promote_duplica_connect_info_url3, buffer(off, str_len), str)
+    off = off + str_len
+    str, str_len = read_string(buffer(off))
+    connect_info:add(do_proto.fields.create_promote_duplica_connect_info_url4, buffer(off, str_len), str)
+    off = off + str_len
+    str, str_len = read_string(buffer(off))
+    connect_info:add(do_proto.fields.create_promote_duplica_connect_info_url5, buffer(off, str_len), str)
+    off = off + str_len
+    connect_info:add_le(do_proto.fields.create_promote_duplica_connect_info_in_bandwidth, buffer(off, 4))
+    off = off + 4
+    connect_info:add_le(do_proto.fields.create_promote_duplica_connect_info_in_latency, buffer(off, 4))
+    off = off + 4
+    connect_info:add_le(do_proto.fields.create_promote_duplica_connect_info_out_bandwidth, buffer(off, 4))
+    off = off + 4
+    connect_info:add_le(do_proto.fields.create_promote_duplica_connect_info_out_latency, buffer(off, 4))
+    off = off + 4
+    -- `Quazal::StationIdentification`
+    local station_ident = subtree:add(do_proto.fields.create_promote_duplica_station_ident, buffer(off))
+    station_ident:add(do_proto.fields.create_promote_duplica_station_ident_exists, buffer(off, 1))
+    off = off + 1
+    str, str_len = read_string(buffer(off))
+    station_ident:add(do_proto.fields.create_promote_duplica_station_ident_token, buffer(off, str_len), str)
+    off = off + str_len
+    str, str_len = read_string(buffer(off))
+    station_ident:add(do_proto.fields.create_promote_duplica_station_ident_process_name, buffer(off, str_len), str)
+    off = off + str_len
+    station_ident:add_le(do_proto.fields.create_promote_duplica_station_ident_process_type, buffer(off, 4))
+    off = off + 4
+    station_ident:add_le(do_proto.fields.create_promote_duplica_station_ident_product_ver, buffer(off, 4))
+    off = off + 4
+    -- `Quazal::StationInfo`
+    local station_info = subtree:add(do_proto.fields.create_promote_duplica_station_info, buffer(off))
+    station_info:add_le(do_proto.fields.create_promote_duplica_station_info_exists, buffer(off, 1))
+    off = off + 1
+    station_info:add_le(do_proto.fields.create_promote_duplica_station_info_observer, buffer(off, 4))
+    off = off + 4
+    station_info:add_le(do_proto.fields.create_promote_duplica_station_info_machine_uid, buffer(off, 4))
+    off = off + 4
+    -- `Quazal::StationState`
+    local station_state = subtree:add(do_proto.fields.create_promote_duplica_station_state, buffer(off))
+    station_state:add_le(do_proto.fields.create_promote_duplica_station_state_exists, buffer(off, 1))
+    off = off + 1
+    station_state:add_le(do_proto.fields.create_promote_duplica_station_state_state, buffer(off, 2))
+    off = off + 2
+    return off
 end
 
 -- GetParticipantsRequest definition
