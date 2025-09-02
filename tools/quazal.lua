@@ -348,8 +348,23 @@ local function do_parse_rmc_call(buffer, pinfo, tree, subtree)
     return buffer:len()
 end
 
+-- RMCResponse definition
+do_proto.fields.rmc_response_call_id = ProtoField.uint16("do.rmc_response.call_id", "Call ID")
+do_proto.fields.rmc_response_outcome = ProtoField.string("do.rmc_response.outcome", "Outcome")
 local function do_parse_rmc_response(buffer, pinfo, tree, subtree)
-    
+    local off = 0
+    subtree:add_le(do_proto.fields.rmc_response_call_id, buffer(off, 2))
+    off = off + 2
+    local outcomeCode = buffer(off, 4):le_uint()
+    local outcome = call_outcomes[outcomeCode]
+    if outcome == nil then
+        outcome = "UnknownOutcome"
+    end
+    outcome = string.format("%s (0x%X)", outcome, outcomeCode)
+    subtree:add(do_proto.fields.rmc_response_outcome, buffer(off, 4), outcome)
+    off = off + 4
+    -- TODO: range? (0x00000101 - 0x00000201 for RequestIDRangeFromMaster calls)
+    return buffer:len()
 end
 
 local function do_parse_fetch_request(buffer, pinfo, tree, subtree)
