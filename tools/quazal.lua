@@ -311,14 +311,14 @@ do_proto.fields.bundle_msg = ProtoField.none("do.bundle.msg", "DO Message")
 local function do_parse_bundle(buffer, pinfo, tree, subtree)
     local off = 0
     while off < buffer:len() do
-        local subsubtree = subtree:add(do_proto.fields.bundle_msg, buffer())
-        subsubtree:add_le(do_proto.fields.size, buffer(off, 4))
         local size = buffer(off, 4):le_uint()
-        off = off + 4
         -- end of bundle
         if size == 0 then
             break
         end
+        local subsubtree = subtree:add(do_proto.fields.bundle_msg, buffer())
+        subsubtree:add_le(do_proto.fields.size, buffer(off, 4))
+        off = off + 4
         subsubtree:add_le(do_proto.fields.message_id, buffer(off, 1))
         local msg_id = buffer(off, 1):uint()
         local msg_name = do_message_types[msg_id]
@@ -335,8 +335,34 @@ local function do_parse_bundle(buffer, pinfo, tree, subtree)
     return off
 end
 
+-- Migration definition
+do_proto.fields.migration_call_id = ProtoField.uint16("do.migration.call_id", "Call ID")
+do_proto.fields.migration_source_station = ProtoField.uint32("do.migration.source_station", "Source station", base.HEX)
+do_proto.fields.migration_recipient_station = ProtoField.uint32("do.migration.recipient_station", "Recipient station", base.HEX)
+do_proto.fields.migration_target_station = ProtoField.uint32("do.migration.target_station", "Target station", base.HEX)
+do_proto.fields.migration_unknown = ProtoField.uint8("do.migration.unknown", "Unknown byte")
+do_proto.fields.migration_duplicas = ProtoField.uint32("do.migration.duplicas", "Duplicas")
+do_proto.fields.migration_duplica = ProtoField.uint32("do.migration.duplica", "Duplica")
 local function do_parse_migration(buffer, pinfo, tree, subtree)
-    
+    local off = 0
+    subtree:add_le(do_proto.fields.migration_call_id, buffer(off, 2))
+    off = off + 2
+    subtree:add_le(do_proto.fields.migration_source_station, buffer(off, 4))
+    off = off + 4
+    subtree:add_le(do_proto.fields.migration_recipient_station, buffer(off, 4))
+    off = off + 4
+    subtree:add_le(do_proto.fields.migration_target_station, buffer(off, 4))
+    off = off + 4
+    subtree:add_le(do_proto.fields.migration_unknown, buffer(off, 1))
+    off = off + 1
+    local duplicas = subtree:add_le(do_proto.fields.migration_duplicas, buffer(off, 4))
+    local duplica_count = buffer(off, 4):le_uint()
+    off = off + 4
+    for idx=1, duplica_count do
+        duplicas:add_le(do_proto.fields.migration_duplica, buffer(off, 4))
+        off = off + 4
+    end
+    return off
 end
 
 local function do_parse_create_duplica(buffer, pinfo, tree, subtree)
@@ -375,7 +401,7 @@ do_proto.fields.create_promote_duplica_station_info_observer = ProtoField.uint32
 do_proto.fields.create_promote_duplica_station_info_machine_uid = ProtoField.uint32("do.create_promote_duplica.station_info.machine_uid", "Machine UID")
 do_proto.fields.create_promote_duplica_station_state = ProtoField.none("do.create_promote_duplica.station_state", "StationState")
 do_proto.fields.create_promote_duplica_station_state_exists = ProtoField.bool("do.create_promote_duplica.station_state.exists", "Exists")
-do_proto.fields.create_promote_duplica_station_state_state = ProtoField.uint16("do.create_promote_duplica.station_state.state", "Station state")
+do_proto.fields.create_promote_duplica_station_state_state = ProtoField.uint16("do.create_promote_duplica.station_state.state", "State")
 local function do_parse_create_and_promote_duplica(buffer, pinfo, tree, subtree)
     local off = 0
     -- header
