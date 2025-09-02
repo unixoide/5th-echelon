@@ -281,8 +281,28 @@ local function do_parse_get_participants_request(buffer, pinfo, tree, subtree)
     return off
 end
 
+-- GetParticipantsResponse definition
+do_proto.fields.get_participants_response_success = ProtoField.bool("do.get_participants_response.success", "Success")
+do_proto.fields.get_participants_response_participants = ProtoField.uint32("do.get_participants_response.participants", "Participants")
+do_proto.fields.get_participants_response_urls = ProtoField.uint32("do.get_participants_response.urls", "Station URLs")
+do_proto.fields.get_participants_response_url = ProtoField.string("do.get_participants_response.url", "URL")
 local function do_parse_get_participants_response(buffer, pinfo, tree, subtree)
-    
+    subtree:add_le(do_proto.fields.get_participants_response_success, buffer(0, 1))
+    local off = 1
+    local participants = subtree:add_le(do_proto.fields.get_participants_response_participants, buffer(off, 4))
+    local participants_count = buffer(off, 4):le_uint()
+    off = off + 4
+    for idx=1, participants_count do
+        local urls = participants:add_le(do_proto.fields.get_participants_response_urls, buffer(off, 4))
+        local urls_count = buffer(off, 4):le_uint()
+        off = off + 4
+        for i=1, urls_count do
+            local str, str_len = read_string(buffer(off))
+            urls:add(do_proto.fields.get_participants_response_url, buffer(off, str_len), str)
+            off = off + str_len
+        end
+    end
+    return off
 end
 
 -- This message carries no payload.
