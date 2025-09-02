@@ -1,6 +1,6 @@
 local PROTO_MAPPING = {}
 
-path_ext = "/rmc.txt"
+local path_ext = "/rmc.txt"
 -- windows check
 if string.find(Dir.personal_plugins_path(), "\\") then
     path_ext = "\\rmc.txt"
@@ -259,8 +259,23 @@ local function do_parse_join_request(buffer, pinfo, tree, subtree)
     return off
 end
 
+-- JoinResponse definition
+do_proto.fields.join_response_success = ProtoField.bool("do.join_response.success", "Success")
+do_proto.fields.join_response_client_station_id = ProtoField.uint32("do.join_response.client_station_id", "Client station ID", base.HEX)
+do_proto.fields.join_response_master_station_id = ProtoField.uint32("do.join_response.master_station_id", "Master station ID", base.HEX)
+do_proto.fields.join_response_bootstrap_urls_count = ProtoField.uint16("do.join_response.bootstrap_urls_count", "Bootstrap URLs")
 local function do_parse_join_response(buffer, pinfo, tree, subtree)
-    
+    local off = 0
+    subtree:add_le(do_proto.fields.join_response_success, buffer(off, 1))
+    off = off + 1
+    subtree:add_le(do_proto.fields.join_response_client_station_id, buffer(off, 4))
+    off = off + 4
+    subtree:add_le(do_proto.fields.join_response_master_station_id, buffer(off, 4))
+    off = off + 4
+    subtree:add_le(do_proto.fields.join_response_bootstrap_urls_count, buffer(off, 2))
+    off = off + 2
+    -- TODO: read bootstrap URLs
+    return off
 end
 
 local function do_parse_update(buffer, pinfo, tree, subtree)
@@ -291,8 +306,33 @@ local function do_parse_fetch_request(buffer, pinfo, tree, subtree)
     
 end
 
+-- Bundle definition
+do_proto.fields.bundle_msg = ProtoField.none("do.bundle.msg", "DO Message")
 local function do_parse_bundle(buffer, pinfo, tree, subtree)
-    
+    local off = 0
+    while off < buffer:len() do
+        local subsubtree = subtree:add(do_proto.fields.bundle_msg, buffer())
+        subsubtree:add_le(do_proto.fields.size, buffer(off, 4))
+        local size = buffer(off, 4):le_uint()
+        off = off + 4
+        -- end of bundle
+        if size == 0 then
+            break
+        end
+        subsubtree:add_le(do_proto.fields.message_id, buffer(off, 1))
+        local msg_id = buffer(off, 1):uint()
+        local msg_name = do_message_types[msg_id]
+        if msg_name == nil then
+            msg_name = "Empty"
+        end
+        pinfo.cols.info:append(" " .. msg_name)
+        local parser = DO_message_parsers[msg_name]
+        off = off + 1
+        if parser then
+            off = off + parser(buffer(off), pinfo, subtree, subsubtree)
+        end
+    end
+    return off
 end
 
 local function do_parse_migration(buffer, pinfo, tree, subtree)
@@ -357,7 +397,7 @@ local function do_parse_eos(buffer, pinfo, tree, subtree)
     
 end
 
-local do_message_parsers = {
+DO_message_parsers = {
     ["JoinRequest"] = do_parse_join_request,
     ["JoinResponse"] = do_parse_join_response,
     ["Update"] = do_parse_update,
@@ -390,7 +430,7 @@ local function do_proto_dissector(buffer, pinfo, tree)
        msg_name = "Empty"
     end
     pinfo.cols.info:append(" " .. msg_name)
-    local parser = do_message_parsers[msg_name]
+    local parser = DO_message_parsers[msg_name]
     off = off + 1
     if parser then
         off = off + parser(buffer(off), pinfo, tree, subtree)
