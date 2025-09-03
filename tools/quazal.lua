@@ -340,7 +340,7 @@ end
 -- JoinRequest definition
 do_proto.fields.join_request_process_auth = ProtoField.none("do.join_request.process_auth", "ProcessAuthentication")
 do_proto.fields.join_request_station_ident = ProtoField.none("do.join_request.station_ident", "StationIdentification")
-local function do_parse_join_request(buffer, pinfo, tree, subtree)
+local function do_parse_join_request(buffer, pinfo, tree, subtree, in_bundle)
     local off = 0
     -- process authentication
     local process_auth = subtree:add(do_proto.fields.join_request_process_auth, buffer(off, 19))
@@ -356,7 +356,7 @@ do_proto.fields.join_response_success = ProtoField.bool("do.join_response.succes
 do_proto.fields.join_response_client_station_id = ProtoField.uint32("do.join_response.client_station_id", "Client station ID", base.HEX)
 do_proto.fields.join_response_master_station_id = ProtoField.uint32("do.join_response.master_station_id", "Master station ID", base.HEX)
 do_proto.fields.join_response_bootstrap_urls_count = ProtoField.uint16("do.join_response.bootstrap_urls_count", "Bootstrap URLs")
-local function do_parse_join_response(buffer, pinfo, tree, subtree)
+local function do_parse_join_response(buffer, pinfo, tree, subtree, in_bundle)
     local off = 0
     subtree:add_le(do_proto.fields.join_response_success, buffer(off, 1))
     off = off + 1
@@ -383,7 +383,7 @@ do_proto.fields.update_connection_info = ProtoField.none("do.update.connection_i
 do_proto.fields.update_station_ident = ProtoField.none("do.update.station_ident", "StationIdentification")
 do_proto.fields.update_station_info = ProtoField.none("do.update.station_info", "StationInfo")
 do_proto.fields.update_station_state = ProtoField.none("do.update.station_state", "StationState")
-local function do_parse_update(buffer, pinfo, tree, subtree)
+local function do_parse_update(buffer, pinfo, tree, subtree, in_bundle)
     local off = 0
     local do_handle = buffer(off, 4):le_uint()
     subtree:add_le(do_proto.fields.update_do_handle, buffer(off, 4))
@@ -418,12 +418,15 @@ local function do_parse_update(buffer, pinfo, tree, subtree)
         return off
     end
     -- negative bytes read by this function in case we cant read the payload (for bundle processing)
-    return -off
+    if in_bundle then
+        return -off
+    end
+    return buffer:len()
 end
 
 -- Delete definition
 do_proto.fields.delete_do_handle = ProtoField.uint32("do.delete.do_handle", "DO handle", base.HEX)
-local function do_parse_delete(buffer, pinfo, tree, subtree)
+local function do_parse_delete(buffer, pinfo, tree, subtree, in_bundle)
     local off = 0
     local do_handle = buffer(off, 4):le_uint()
     pinfo.cols.info:append(string.format(" 0x%X", do_handle))
@@ -435,7 +438,7 @@ end
 -- Action definition
 do_proto.fields.action_do_handle = ProtoField.uint32("do.action.do_handle", "DO handle", base.HEX)
 do_proto.fields.action_method_id = ProtoField.uint16("do.action.method_id", "Method ID")
-local function do_parse_action(buffer, pinfo, tree, subtree)
+local function do_parse_action(buffer, pinfo, tree, subtree, in_bundle)
     local off = 0
     local do_handle = buffer(off, 4):le_uint()
     pinfo.cols.info:append(string.format(" 0x%X", do_handle))
@@ -468,7 +471,7 @@ local call_outcomes = {
 
 do_proto.fields.call_outcome_call_id = ProtoField.uint16("do.call_outcome.call_id", "Call ID")
 do_proto.fields.call_outcome_outcome = ProtoField.string("do.call_outcome.call_id", "Outcome")
-local function do_parse_call_outcome(buffer, pinfo, tree, subtree)
+local function do_parse_call_outcome(buffer, pinfo, tree, subtree, in_bundle)
     local off = 0
     subtree:add_le(do_proto.fields.call_outcome_call_id, buffer(off, 2))
     off = off + 2
@@ -489,7 +492,7 @@ do_proto.fields.rmc_call_flags = ProtoField.uint32("do.rmc_call.flags", "Flags",
 do_proto.fields.rmc_call_source_id = ProtoField.uint32("do.rmc_call.source_id", "Source ID", base.HEX)
 do_proto.fields.rmc_call_target_object = ProtoField.uint32("do.rmc_call.target_object", "Target DOC object", base.HEX)
 do_proto.fields.rmc_call_method_id = ProtoField.uint16("do.rmc_call.method_id", "Method ID")
-local function do_parse_rmc_call(buffer, pinfo, tree, subtree)
+local function do_parse_rmc_call(buffer, pinfo, tree, subtree, in_bundle)
     local off = 0
     subtree:add_le(do_proto.fields.rmc_call_call_id, buffer(off, 2))
     off = off + 2
@@ -502,13 +505,16 @@ local function do_parse_rmc_call(buffer, pinfo, tree, subtree)
     subtree:add_le(do_proto.fields.rmc_call_method_id, buffer(off, 2))
     off = off + 2
     -- TODO: implement reading for optional fields
+    if in_bundle then
+        return -off
+    end
     return buffer:len()
 end
 
 -- RMCResponse definition
 do_proto.fields.rmc_response_call_id = ProtoField.uint16("do.rmc_response.call_id", "Call ID")
 do_proto.fields.rmc_response_outcome = ProtoField.string("do.rmc_response.outcome", "Outcome")
-local function do_parse_rmc_response(buffer, pinfo, tree, subtree)
+local function do_parse_rmc_response(buffer, pinfo, tree, subtree, in_bundle)
     local off = 0
     subtree:add_le(do_proto.fields.rmc_response_call_id, buffer(off, 2))
     off = off + 2
@@ -521,6 +527,9 @@ local function do_parse_rmc_response(buffer, pinfo, tree, subtree)
     subtree:add(do_proto.fields.rmc_response_outcome, buffer(off, 4), outcome)
     off = off + 4
     -- TODO: Quazal::_DS_Range? (0x00000101 - 0x00000201 for RequestIDRangeFromMaster calls)
+    if in_bundle then
+        return -off
+    end
     return buffer:len()
 end
 
@@ -528,7 +537,7 @@ end
 do_proto.fields.fetch_request_call_id = ProtoField.uint16("do.fetch_request.call_id", "Call ID")
 do_proto.fields.fetch_request_fetched_do = ProtoField.uint32("do.fetch_request.fetched_do", "Fetched DO", base.HEX)
 do_proto.fields.fetch_request_master = ProtoField.uint32("do.fetch_request.master", "Master station", base.HEX)
-local function do_parse_fetch_request(buffer, pinfo, tree, subtree)
+local function do_parse_fetch_request(buffer, pinfo, tree, subtree, in_bundle)
     local off = 0
     subtree:add_le(do_proto.fields.fetch_request_call_id, buffer(off, 2))
     off = off + 2
@@ -541,7 +550,7 @@ end
 
 -- Bundle definition
 do_proto.fields.bundle_msg = ProtoField.none("do.bundle.msg", "DO Message")
-local function do_parse_bundle(buffer, pinfo, tree, subtree)
+local function do_parse_bundle(buffer, pinfo, tree, subtree, in_bundle)
     local off = 0
     while off < buffer:len() do
         local size = buffer(off, 4):le_uint()
@@ -562,7 +571,7 @@ local function do_parse_bundle(buffer, pinfo, tree, subtree)
         local parser = DO_message_parsers[msg_name]
         off = off + 1
         if parser then
-            local parser_off = parser(buffer(off), pinfo, subtree, subsubtree)
+            local parser_off = parser(buffer(off), pinfo, subtree, subsubtree, true)
             if parser_off < 0 then
                 off = off - 1 + size
             else
@@ -581,7 +590,7 @@ do_proto.fields.migration_target_station = ProtoField.uint32("do.migration.targe
 do_proto.fields.migration_unknown = ProtoField.uint8("do.migration.unknown", "Unknown byte")
 do_proto.fields.migration_duplicas = ProtoField.uint32("do.migration.duplicas", "Duplicas")
 do_proto.fields.migration_duplica = ProtoField.uint32("do.migration.duplica", "Duplica")
-local function do_parse_migration(buffer, pinfo, tree, subtree)
+local function do_parse_migration(buffer, pinfo, tree, subtree, in_bundle)
     local off = 0
     subtree:add_le(do_proto.fields.migration_call_id, buffer(off, 2))
     off = off + 2
@@ -603,8 +612,25 @@ local function do_parse_migration(buffer, pinfo, tree, subtree)
     return off
 end
 
-local function do_parse_create_duplica(buffer, pinfo, tree, subtree)
-    
+-- CreateDuplica definition
+do_proto.fields.create_duplica_do_handle = ProtoField.uint32("do.create_duplica.do_handle", "DO handle")
+do_proto.fields.create_duplica_master = ProtoField.uint32("do.create_duplica.master", "Master station")
+do_proto.fields.create_duplica_version = ProtoField.uint32("do.create_duplica.version", "Version")
+local function do_parse_create_duplica(buffer, pinfo, tree, subtree, in_bundle)
+    local off = 0
+    local do_handle = buffer(off, 4):le_uint()
+    subtree:add_le(do_proto.fields.create_duplica_do_handle, buffer(off, 4))
+    pinfo.cols.info:append(string.format(" 0x%X", do_handle))
+    off = off + 4
+    subtree:add_le(do_proto.fields.create_duplica_master, buffer(off, 4))
+    off = off + 4
+    subtree:add_le(do_proto.fields.create_duplica_version, buffer(off, 1))
+    off = off + 1
+    -- TODO: implement DO payload reading
+    if in_bundle then
+        return -off
+    end
+    return buffer:len()
 end
 
 -- CreateAndPromoteDuplica definition
@@ -624,7 +650,7 @@ do_proto.fields.create_promote_duplica_station_info_exists = ProtoField.bool("do
 do_proto.fields.create_promote_duplica_station_state = ProtoField.none("do.create_promote_duplica.station_state", "StationState")
 do_proto.fields.create_promote_duplica_station_state_exists = ProtoField.bool("do.create_promote_duplica.station_state.exists", "Exists")
 do_proto.fields.create_promote_duplica_station_state_state = ProtoField.uint16("do.create_promote_duplica.station_state.state", "State")
-local function do_parse_create_and_promote_duplica(buffer, pinfo, tree, subtree)
+local function do_parse_create_and_promote_duplica(buffer, pinfo, tree, subtree, in_bundle)
     local off = 0
     -- header
     subtree:add_le(do_proto.fields.create_promote_duplica_call_id, buffer(off, 2))
@@ -680,7 +706,7 @@ end
 -- GetParticipantsRequest definition
 do_proto.fields.get_participants_request_urls = ProtoField.uint32("do.get_participants_request.urls", "Station URLs")
 do_proto.fields.get_participants_request_url = ProtoField.string("do.get_participants_request.url", "URL")
-local function do_parse_get_participants_request(buffer, pinfo, tree, subtree)
+local function do_parse_get_participants_request(buffer, pinfo, tree, subtree, in_bundle)
     local url_count = buffer(0, 4):le_uint()
     local urls = subtree:add_le(do_proto.fields.get_participants_request_urls, buffer(0, 4))
     local off = 4
@@ -699,7 +725,7 @@ do_proto.fields.get_participants_response_success = ProtoField.bool("do.get_part
 do_proto.fields.get_participants_response_participants = ProtoField.uint32("do.get_participants_response.participants", "Participants")
 do_proto.fields.get_participants_response_urls = ProtoField.uint32("do.get_participants_response.urls", "Station URLs")
 do_proto.fields.get_participants_response_url = ProtoField.string("do.get_participants_response.url", "URL")
-local function do_parse_get_participants_response(buffer, pinfo, tree, subtree)
+local function do_parse_get_participants_response(buffer, pinfo, tree, subtree, in_bundle)
     subtree:add_le(do_proto.fields.get_participants_response_success, buffer(0, 1))
     local off = 1
     local participants = subtree:add_le(do_proto.fields.get_participants_response_participants, buffer(off, 4))
@@ -719,11 +745,11 @@ local function do_parse_get_participants_response(buffer, pinfo, tree, subtree)
 end
 
 -- This message carries no payload.
-local function do_parse_empty(buffer, pinfo, tree, subtree)
+local function do_parse_empty(buffer, pinfo, tree, subtree, in_bundle)
     return 0
 end
 
-local function do_parse_eos(buffer, pinfo, tree, subtree)
+local function do_parse_eos(buffer, pinfo, tree, subtree, in_bundle)
     
 end
 
@@ -763,7 +789,7 @@ local function do_proto_dissector(buffer, pinfo, tree)
     local parser = DO_message_parsers[msg_name]
     off = off + 1
     if parser then
-        off = off + parser(buffer(off), pinfo, tree, subtree)
+        off = off + parser(buffer(off), pinfo, tree, subtree, false)
     end
     if size > off then
         do_proto_dissector(buffer(off), pinfo, tree)
