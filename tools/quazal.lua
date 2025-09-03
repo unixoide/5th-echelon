@@ -421,8 +421,15 @@ local function do_parse_update(buffer, pinfo, tree, subtree)
     return -off
 end
 
+-- Delete definition
+do_proto.fields.delete_do_handle = ProtoField.uint32("do.delete.do_handle", "DO handle", base.HEX)
 local function do_parse_delete(buffer, pinfo, tree, subtree)
-    
+    local off = 0
+    local do_handle = buffer(off, 4):le_uint()
+    pinfo.cols.info:append(string.format(" 0x%X", do_handle))
+    subtree:add_le(do_proto.fields.delete_do_handle, buffer(off, 4))
+    off = off + 4
+    return off
 end
 
 local function do_parse_action(buffer, pinfo, tree, subtree)
