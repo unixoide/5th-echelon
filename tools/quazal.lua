@@ -231,7 +231,16 @@ do_proto.fields.station_ident_product_ver = ProtoField.uint32("do.station_ident.
 do_proto.fields.station_info_observer = ProtoField.uint32("do.station_info.observer", "Observer")
 do_proto.fields.station_info_machine_uid = ProtoField.uint32("do.station_info.machine_uid", "Machine UID")
 -- `Quazal::_DS_StationState`
-do_proto.fields.station_state_state = ProtoField.uint16("do.station_state.state", "State")
+do_proto.fields.station_state_state = ProtoField.string("do.station_state.state", "State")
+local station_states = {
+    [0] = "Unknown",
+    [1] = "JoiningSession",
+    [2] = "CreatingSession",
+    [3] = "Participating",
+    [4] = "PreparingToLeave",
+    [5] = "Leaving",
+    [6] = "LeavingOnFault"
+}
 
 -- Reads `Quazal::String`.
 local function read_string(buffer)
@@ -321,7 +330,9 @@ end
 -- Reads `Quazal::_DS_StationState`.
 local function read_station_state(buffer, tree)
     local off = 0
-    tree:add_le(do_proto.fields.station_state_state, buffer(off, 2))
+    local state = buffer(off, 2):le_uint()
+    local state_name = station_states[state]
+    tree:add_le(do_proto.fields.station_state_state, buffer(off, 2), string.format("%s (%d)", state_name, state))
     off = off + 2
     return off
 end
@@ -360,8 +371,54 @@ local function do_parse_join_response(buffer, pinfo, tree, subtree)
 end
 
 -- Update definition
+local station_datasets = {
+    [1] = "ConnectionInfo",
+    [2] = "StationIdentification",
+    [3] = "StationInfo",
+    [4] = "StationState"
+}
+do_proto.fields.update_do_handle = ProtoField.uint32("do.update.do_handle", "DO handle", base.HEX)
+do_proto.fields.update_dataset_id = ProtoField.uint8("do.update.dataset_id", "Dataset ID")
+do_proto.fields.update_connection_info = ProtoField.none("do.update.connection_info", "ConnectionInfo")
+do_proto.fields.update_station_ident = ProtoField.none("do.update.station_ident", "StationIdentification")
+do_proto.fields.update_station_info = ProtoField.none("do.update.station_info", "StationInfo")
+do_proto.fields.update_station_state = ProtoField.none("do.update.station_state", "StationState")
 local function do_parse_update(buffer, pinfo, tree, subtree)
-    
+    local off = 0
+    local do_handle = buffer(off, 4):le_uint()
+    subtree:add_le(do_proto.fields.update_do_handle, buffer(off, 4))
+    off = off + 4
+    pinfo.cols.info:append(string.format(" 0x%X", do_handle))
+    local dataset_id = buffer(off, 1):le_uint()
+    subtree:add_le(do_proto.fields.update_dataset_id, buffer(off, 1))
+    off = off + 1
+    -- `Quazal::_DO_Station::s_uiClassID` (value from Ghost Recon Online)
+    local station_DOC_ID = 23
+    -- TODO: handle updates for other OSDK DO classes
+    -- handle station updates
+    if do_handle >> 22 == station_DOC_ID then
+        local dataset_name = station_datasets[dataset_id]
+        if dataset_name == nil then
+            dataset_name = "Invalid dataset index"
+        end
+        pinfo.cols.info:append(string.format(" %s", dataset_name))
+        if dataset_name == "ConnectionInfo" then
+            local connect_info = subtree:add(do_proto.fields.update_connection_info, buffer(off))
+            off = off + read_connection_info(buffer(off), connect_info)
+        elseif dataset_name == "StationIdentification" then
+            local station_ident = subtree:add(do_proto.fields.update_station_ident, buffer(off))
+            off = off + read_station_identification(buffer(off), station_ident)
+        elseif dataset_name == "StationInfo" then
+            local station_info = subtree:add(do_proto.fields.update_station_info, buffer(off))
+            off = off + read_station_info(buffer(off), station_info)
+        elseif dataset_name == "StationState" then
+            local station_state = subtree:add(do_proto.fields.update_station_state, buffer(off))
+            off = off + read_station_state(buffer(off), station_state)
+        end
+        return off
+    end
+    -- negative bytes read by this function in case we cant read the payload (for bundle processing)
+    return -off
 end
 
 local function do_parse_delete(buffer, pinfo, tree, subtree)
@@ -476,7 +533,12 @@ local function do_parse_bundle(buffer, pinfo, tree, subtree)
         local parser = DO_message_parsers[msg_name]
         off = off + 1
         if parser then
-            off = off + parser(buffer(off), pinfo, subtree, subsubtree)
+            local parser_off = parser(buffer(off), pinfo, subtree, subsubtree)
+            if parser_off < 0 then
+                off = off - 1 + size
+            else
+                off = off + parser_off
+            end
         end
     end
     return off
@@ -524,7 +586,7 @@ do_proto.fields.create_promote_duplica_version = ProtoField.uint8("do.create_pro
 do_proto.fields.create_promote_duplica_list = ProtoField.uint32("do.create_promote_duplica.list", "Duplicas")
 do_proto.fields.create_promote_duplica_duplica = ProtoField.uint32("do.create_promote_duplica.duplica", "Duplica")
 do_proto.fields.create_promote_duplica_discovery_msg = ProtoField.none("do.create_promote_duplica.discovery_msg", "DiscoveryMessage")
-do_proto.fields.create_promote_duplica_connect_info = ProtoField.none("do.create_promote_duplica.connect_info", "DS_ConnectionInfo")
+do_proto.fields.create_promote_duplica_connect_info = ProtoField.none("do.create_promote_duplica.connect_info", "ConnectionInfo")
 do_proto.fields.create_promote_duplica_connect_info_exists = ProtoField.bool("do.create_promote_duplica.connect_info.exists", "Exists")
 do_proto.fields.create_promote_duplica_station_ident = ProtoField.none("do.create_promote_duplica.station_ident", "StationIdentification")
 do_proto.fields.create_promote_duplica_station_ident_exists = ProtoField.bool("do.create_promote_duplica.station_ident.exists", "Exists")
@@ -553,24 +615,36 @@ local function do_parse_create_and_promote_duplica(buffer, pinfo, tree, subtree)
     end
     -- connection info
     local connect_info = subtree:add(do_proto.fields.create_promote_duplica_connect_info, buffer(off))
-    connect_info:add_le(do_proto.fields.create_promote_duplica_connect_info_exists, buffer(off, 1))
+    local conn_info_exists = buffer(off, 1):le_uint()
+    connect_info:add_le(do_proto.fields.create_promote_duplica_connect_info_exists, conn_info_exists)
     off = off + 1
-    off = off + read_connection_info(buffer(off), connect_info)
+    if conn_info_exists == 1 then
+        off = off + read_connection_info(buffer(off), connect_info)
+    end
     -- station identification
     local station_ident = subtree:add(do_proto.fields.create_promote_duplica_station_ident, buffer(off))
-    station_ident:add(do_proto.fields.create_promote_duplica_station_ident_exists, buffer(off, 1))
+    local station_ident_exists = buffer(off, 1):le_uint()
+    station_ident:add(do_proto.fields.create_promote_duplica_station_ident_exists, station_ident_exists)
     off = off + 1
-    off = off + read_station_identification(buffer(off), station_ident)
+    if station_ident_exists == 1 then
+        off = off + read_station_identification(buffer(off), station_ident)
+    end
     -- station info
     local station_info = subtree:add(do_proto.fields.create_promote_duplica_station_info, buffer(off))
-    station_info:add_le(do_proto.fields.create_promote_duplica_station_info_exists, buffer(off, 1))
+    local station_info_exists = buffer(off, 1):le_uint()
+    station_info:add_le(do_proto.fields.create_promote_duplica_station_info_exists, station_info_exists)
     off = off + 1
-    off = off + read_station_info(buffer(off), station_info)
+    if station_info_exists == 1 then
+        off = off + read_station_info(buffer(off), station_info)
+    end
     -- station state
     local station_state = subtree:add(do_proto.fields.create_promote_duplica_station_state, buffer(off))
-    station_state:add_le(do_proto.fields.create_promote_duplica_station_state_exists, buffer(off, 1))
+    local station_state_exists = buffer(off, 1):le_uint()
+    station_state:add_le(do_proto.fields.create_promote_duplica_station_state_exists, station_state_exists)
     off = off + 1
-    off = off + read_station_state(buffer(off), station_state)
+    if station_state_exists == 1 then
+        off = off + read_station_state(buffer(off), station_state)
+    end
     return off
 end
 
