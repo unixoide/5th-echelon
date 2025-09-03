@@ -524,8 +524,19 @@ local function do_parse_rmc_response(buffer, pinfo, tree, subtree)
     return buffer:len()
 end
 
+-- FetchRequest definition
+do_proto.fields.fetch_request_call_id = ProtoField.uint16("do.fetch_request.call_id", "Call ID")
+do_proto.fields.fetch_request_fetched_do = ProtoField.uint32("do.fetch_request.fetched_do", "Fetched DO", base.HEX)
+do_proto.fields.fetch_request_master = ProtoField.uint32("do.fetch_request.master", "Master station", base.HEX)
 local function do_parse_fetch_request(buffer, pinfo, tree, subtree)
-    
+    local off = 0
+    subtree:add_le(do_proto.fields.fetch_request_call_id, buffer(off, 2))
+    off = off + 2
+    subtree:add_le(do_proto.fields.fetch_request_fetched_do, buffer(off, 4))
+    off = off + 4
+    subtree:add_le(do_proto.fields.fetch_request_master, buffer(off, 4))
+    off = off + 4
+    return off
 end
 
 -- Bundle definition
