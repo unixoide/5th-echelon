@@ -432,8 +432,19 @@ local function do_parse_delete(buffer, pinfo, tree, subtree)
     return off
 end
 
+-- Action definition
+do_proto.fields.action_do_handle = ProtoField.uint32("do.action.do_handle", "DO handle", base.HEX)
+do_proto.fields.action_method_id = ProtoField.uint16("do.action.method_id", "Method ID")
 local function do_parse_action(buffer, pinfo, tree, subtree)
-    
+    local off = 0
+    local do_handle = buffer(off, 4):le_uint()
+    pinfo.cols.info:append(string.format(" 0x%X", do_handle))
+    subtree:add_le(do_proto.fields.action_do_handle, buffer(off, 4))
+    off = off + 4
+    subtree:add_le(do_proto.fields.action_method_id, buffer(off, 2))
+    off = off + 2
+    -- TODO: implement further payload reading
+    return off
 end
 
 -- CallOutcome definition
