@@ -744,13 +744,18 @@ local function do_parse_get_participants_response(buffer, pinfo, tree, subtree, 
     return off
 end
 
--- This message carries no payload.
+-- Empty definition - this message carries no payload
 local function do_parse_empty(buffer, pinfo, tree, subtree, in_bundle)
     return 0
 end
 
+-- EOS definition
+do_proto.fields.eos_station_id = ProtoField.uint32("do.eos.station_id", "Station ID", base.HEX)
 local function do_parse_eos(buffer, pinfo, tree, subtree, in_bundle)
-    
+    local off = 0
+    subtree:add_le(do_proto.fields.eos_station_id, buffer(off, 4))
+    off = off + 4
+    return off
 end
 
 DO_message_parsers = {
