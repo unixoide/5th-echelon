@@ -200,62 +200,143 @@ local do_message_types = {
     [255] = "EOS",
 }
 local do_proto = Proto("DO", "Quazal DO")
+-- DO header
 do_proto.fields.size = ProtoField.uint32("do.size", "Size")
 do_proto.fields.message_id = ProtoField.uint8("do.message_id", "Message", base.DEC, do_message_types)
-local message_id_field = Field.new("do.message_id")
+-- `Quazal::ProcessAuthentication`
+do_proto.fields.process_auth_struct_ver = ProtoField.uint8("do.process_auth.struct_ver", "Structure version")
+do_proto.fields.process_auth_lib_ver = ProtoField.uint8("do.process_auth.lib_ver", "Library protocol version")
+do_proto.fields.process_auth_unknown_ver = ProtoField.uint8("do.process_auth.unknown_ver", "Unknown version")
+do_proto.fields.process_auth_major_ver = ProtoField.uint32("do.process_auth.major_ver", "Major version", base.HEX)
+do_proto.fields.process_auth_minor_ver = ProtoField.uint32("do.process_auth.minor_ver", "Minor version", base.HEX)
+do_proto.fields.process_auth_title_checksum = ProtoField.uint32("do.process_auth.title_checksum", "Title checksum", base.HEX)
+do_proto.fields.process_auth_proto_flags = ProtoField.uint32("do.process_auth.proto_flags", "Protocol flags", base.HEX)
+-- `Quazal::_DS_ConnectionInfo`
+do_proto.fields.connect_info_url_init = ProtoField.bool("do.connect_info.url_init", "URL initialized")
+do_proto.fields.connect_info_url1 = ProtoField.string("do.connect_info.url1", "URL1")
+do_proto.fields.connect_info_url2 = ProtoField.string("do.connect_info.url2", "URL2")
+do_proto.fields.connect_info_url3 = ProtoField.string("do.connect_info.url3", "URL3")
+do_proto.fields.connect_info_url4 = ProtoField.string("do.connect_info.url4", "URL4")
+do_proto.fields.connect_info_url5 = ProtoField.string("do.connect_info.url5", "URL5")
+do_proto.fields.connect_info_in_bandwidth = ProtoField.uint32("do.connect_info.in_bandwidth", "Input bandwidth")
+do_proto.fields.connect_info_in_latency = ProtoField.uint32("do.connect_info.in_latency", "Input latency")
+do_proto.fields.connect_info_out_bandwidth = ProtoField.uint32("do.connect_info.out_bandwidth", "Output bandwidth")
+do_proto.fields.connect_info_out_latency = ProtoField.uint32("do.connect_info.out_latency", "Output latency")
+-- `Quazal::_DS_StationIdentification`
+do_proto.fields.station_ident_token = ProtoField.string("do.station_ident.token", "Identification token")
+do_proto.fields.station_ident_process_name = ProtoField.string("do.station_ident.process_name", "Process name")
+do_proto.fields.station_ident_process_type = ProtoField.uint32("do.station_ident.process_type", "Process type")
+do_proto.fields.station_ident_product_ver = ProtoField.uint32("do.station_ident.product_ver", "Product version")
+-- `Quazal::_DS_StationInfo`
+do_proto.fields.station_info_observer = ProtoField.uint32("do.station_info.observer", "Observer")
+do_proto.fields.station_info_machine_uid = ProtoField.uint32("do.station_info.machine_uid", "Machine UID")
+-- `Quazal::_DS_StationState`
+do_proto.fields.station_state_state = ProtoField.uint16("do.station_state.state", "State")
 
 -- Reads `Quazal::String`.
-local function read_string(buffer) 
+local function read_string(buffer)
     local size = buffer(0, 2):le_uint()
     local off = 2
     local string = buffer(off, size):string()
     return string, off + size
 end
 
--- JoinRequest definition
-do_proto.fields.join_request_process_auth = ProtoField.none("do.join_request.process_auth", "ProcessAuthentication")
-do_proto.fields.join_request_process_auth_struct_ver = ProtoField.uint8("do.join_request.process_auth.struct_ver", "Structure version")
-do_proto.fields.join_request_process_auth_lib_ver = ProtoField.uint8("do.join_request.process_auth.lib_ver", "Library protocol version")
-do_proto.fields.join_request_process_auth_unknown_ver = ProtoField.uint8("do.join_request.process_auth.unknown_ver", "Unknown version")
-do_proto.fields.join_request_process_major_ver = ProtoField.uint32("do.join_request.process_auth.major_ver", "Major version", base.HEX)
-do_proto.fields.join_request_process_minor_ver = ProtoField.uint32("do.join_request.process_auth.minor_ver", "Minor version", base.HEX)
-do_proto.fields.join_request_process_title_checksum = ProtoField.uint32("do.join_request.process_auth.title_checksum", "Title checksum", base.HEX)
-do_proto.fields.join_request_process_proto_flags = ProtoField.uint32("do.join_request.process_auth.proto_flags", "Protocol flags", base.HEX)
-do_proto.fields.join_request_station_ident = ProtoField.none("do.join_request.station_ident", "StationIdentification")
-do_proto.fields.join_request_station_ident_token = ProtoField.string("do.join_request.station_ident.token", "Identification token")
-do_proto.fields.join_request_station_ident_process_name = ProtoField.string("do.join_request.station_ident.process_name", "Process name")
-do_proto.fields.join_request_station_ident_process_type = ProtoField.uint32("do.join_request.station_ident.process_type", "Process type")
-do_proto.fields.join_request_station_ident_product_ver = ProtoField.uint32("do.join_request.station_ident.product_ver", "Product version")
-local function do_parse_join_request(buffer, pinfo, tree, subtree)
-    -- `Quazal::ProcessAuthentication`
-    local pa = subtree:add(do_proto.fields.join_request_process_auth, buffer(0, 19))
+-- Reads `Quazal::ProcessAuthentication`
+local function read_process_auth(buffer, tree)
     local off = 0
-    pa:add_le(do_proto.fields.join_request_process_auth_struct_ver, buffer(off, 1))
+    tree:add_le(do_proto.fields.process_auth_struct_ver, buffer(off, 1))
     off = off + 1
-    pa:add_le(do_proto.fields.join_request_process_auth_lib_ver, buffer(off, 1))
+    tree:add_le(do_proto.fields.process_auth_lib_ver, buffer(off, 1))
     off = off + 1
-    pa:add_le(do_proto.fields.join_request_process_auth_unknown_ver, buffer(off, 1))
+    tree:add_le(do_proto.fields.process_auth_unknown_ver, buffer(off, 1))
     off = off + 1
-    pa:add_le(do_proto.fields.join_request_process_major_ver, buffer(off, 4))
+    tree:add_le(do_proto.fields.process_auth_major_ver, buffer(off, 4))
     off = off + 4
-    pa:add_le(do_proto.fields.join_request_process_minor_ver, buffer(off, 4))
+    tree:add_le(do_proto.fields.process_auth_minor_ver, buffer(off, 4))
     off = off + 4
-    pa:add_le(do_proto.fields.join_request_process_title_checksum, buffer(off, 4))
+    tree:add_le(do_proto.fields.process_auth_title_checksum, buffer(off, 4))
     off = off + 4
-    pa:add_le(do_proto.fields.join_request_process_proto_flags, buffer(off, 4))
+    tree:add_le(do_proto.fields.process_auth_proto_flags, buffer(off, 4))
     off = off + 4
-    -- `Quazal::StationIdentification`
-    local si = subtree:add(do_proto.fields.join_request_station_ident, buffer(off))
+    return off
+end
+
+-- Reads `Quazal::_DS_ConnectionInfo`.
+local function read_connection_info(buffer, tree)
+    local off = 0
+    tree:add_le(do_proto.fields.connect_info_url_init, buffer(off, 1))
+    off = off + 1
     local str, str_len = read_string(buffer(off))
-    si:add(do_proto.fields.join_request_station_ident_token, buffer(off, str_len), str)
+    tree:add(do_proto.fields.connect_info_url1, buffer(off, str_len), str)
     off = off + str_len
     str, str_len = read_string(buffer(off))
-    si:add(do_proto.fields.join_request_station_ident_process_name, buffer(off, str_len), str)
+    tree:add(do_proto.fields.connect_info_url2, buffer(off, str_len), str)
     off = off + str_len
-    si:add_le(do_proto.fields.join_request_station_ident_process_type, buffer(off, 4))
+    str, str_len = read_string(buffer(off))
+    tree:add(do_proto.fields.connect_info_url3, buffer(off, str_len), str)
+    off = off + str_len
+    str, str_len = read_string(buffer(off))
+    tree:add(do_proto.fields.connect_info_url4, buffer(off, str_len), str)
+    off = off + str_len
+    str, str_len = read_string(buffer(off))
+    tree:add(do_proto.fields.connect_info_url5, buffer(off, str_len), str)
+    off = off + str_len
+    tree:add_le(do_proto.fields.connect_info_in_bandwidth, buffer(off, 4))
     off = off + 4
-    si:add_le(do_proto.fields.join_request_station_ident_product_ver, buffer(off, 4))
+    tree:add_le(do_proto.fields.connect_info_in_latency, buffer(off, 4))
     off = off + 4
+    tree:add_le(do_proto.fields.connect_info_out_bandwidth, buffer(off, 4))
+    off = off + 4
+    tree:add_le(do_proto.fields.connect_info_out_latency, buffer(off, 4))
+    off = off + 4
+    return off
+end
+
+-- Reads `Quazal::_DS_StationIdentification`.
+local function read_station_identification(buffer, tree)
+    local off = 0
+    local str, str_len = read_string(buffer(off))
+    tree:add(do_proto.fields.station_ident_token, buffer(off, str_len), str)
+    off = off + str_len
+    str, str_len = read_string(buffer(off))
+    tree:add(do_proto.fields.station_ident_process_name, buffer(off, str_len), str)
+    off = off + str_len
+    tree:add_le(do_proto.fields.station_ident_process_type, buffer(off, 4))
+    off = off + 4
+    tree:add_le(do_proto.fields.station_ident_product_ver, buffer(off, 4))
+    off = off + 4
+    return off
+end
+
+-- Reads `Quazal::_DS_StationInfo`.
+local function read_station_info(buffer, tree)
+    local off = 0
+    tree:add_le(do_proto.fields.station_info_observer, buffer(off, 4))
+    off = off + 4
+    tree:add_le(do_proto.fields.station_info_machine_uid, buffer(off, 4))
+    off = off + 4
+    return off
+end
+
+-- Reads `Quazal::_DS_StationState`.
+local function read_station_state(buffer, tree)
+    local off = 0
+    tree:add_le(do_proto.fields.station_state_state, buffer(off, 2))
+    off = off + 2
+    return off
+end
+
+-- JoinRequest definition
+do_proto.fields.join_request_process_auth = ProtoField.none("do.join_request.process_auth", "ProcessAuthentication")
+do_proto.fields.join_request_station_ident = ProtoField.none("do.join_request.station_ident", "StationIdentification")
+local function do_parse_join_request(buffer, pinfo, tree, subtree)
+    local off = 0
+    -- process authentication
+    local process_auth = subtree:add(do_proto.fields.join_request_process_auth, buffer(off, 19))
+    off = off + read_process_auth(buffer(off), process_auth)
+    -- station identification
+    local station_ident = subtree:add(do_proto.fields.join_request_station_ident, buffer(off))
+    off = off + read_station_identification(buffer(off), station_ident)
     return off
 end
 
@@ -278,6 +359,7 @@ local function do_parse_join_response(buffer, pinfo, tree, subtree)
     return off
 end
 
+-- Update definition
 local function do_parse_update(buffer, pinfo, tree, subtree)
     
 end
@@ -363,7 +445,7 @@ local function do_parse_rmc_response(buffer, pinfo, tree, subtree)
     outcome = string.format("%s (0x%X)", outcome, outcomeCode)
     subtree:add(do_proto.fields.rmc_response_outcome, buffer(off, 4), outcome)
     off = off + 4
-    -- TODO: range? (0x00000101 - 0x00000201 for RequestIDRangeFromMaster calls)
+    -- TODO: Quazal::_DS_Range? (0x00000101 - 0x00000201 for RequestIDRangeFromMaster calls)
     return buffer:len()
 end
 
@@ -444,26 +526,10 @@ do_proto.fields.create_promote_duplica_duplica = ProtoField.uint32("do.create_pr
 do_proto.fields.create_promote_duplica_discovery_msg = ProtoField.none("do.create_promote_duplica.discovery_msg", "DiscoveryMessage")
 do_proto.fields.create_promote_duplica_connect_info = ProtoField.none("do.create_promote_duplica.connect_info", "DS_ConnectionInfo")
 do_proto.fields.create_promote_duplica_connect_info_exists = ProtoField.bool("do.create_promote_duplica.connect_info.exists", "Exists")
-do_proto.fields.create_promote_duplica_connect_info_url_init = ProtoField.bool("do.create_promote_duplica.connect_info.url_init", "URL initialized")
-do_proto.fields.create_promote_duplica_connect_info_url1 = ProtoField.string("do.create_promote_duplica.connect_info.url1", "URL1")
-do_proto.fields.create_promote_duplica_connect_info_url2 = ProtoField.string("do.create_promote_duplica.connect_info.url2", "URL2")
-do_proto.fields.create_promote_duplica_connect_info_url3 = ProtoField.string("do.create_promote_duplica.connect_info.url3", "URL3")
-do_proto.fields.create_promote_duplica_connect_info_url4 = ProtoField.string("do.create_promote_duplica.connect_info.url4", "URL4")
-do_proto.fields.create_promote_duplica_connect_info_url5 = ProtoField.string("do.create_promote_duplica.connect_info.url5", "URL5")
-do_proto.fields.create_promote_duplica_connect_info_in_bandwidth = ProtoField.uint32("do.create_promote_duplica.connect_info.in_bandwidth", "Input bandwidth")
-do_proto.fields.create_promote_duplica_connect_info_in_latency = ProtoField.uint32("do.create_promote_duplica.connect_info.in_latency", "Input latency")
-do_proto.fields.create_promote_duplica_connect_info_out_bandwidth = ProtoField.uint32("do.create_promote_duplica.connect_info.out_bandwidth", "Output bandwidth")
-do_proto.fields.create_promote_duplica_connect_info_out_latency = ProtoField.uint32("do.create_promote_duplica.connect_info.out_latency", "Output latency")
 do_proto.fields.create_promote_duplica_station_ident = ProtoField.none("do.create_promote_duplica.station_ident", "StationIdentification")
 do_proto.fields.create_promote_duplica_station_ident_exists = ProtoField.bool("do.create_promote_duplica.station_ident.exists", "Exists")
-do_proto.fields.create_promote_duplica_station_ident_token = ProtoField.string("do.create_promote_duplica.station_ident.token", "Identification token")
-do_proto.fields.create_promote_duplica_station_ident_process_name = ProtoField.string("do.create_promote_duplica.station_ident.process_name", "Process name")
-do_proto.fields.create_promote_duplica_station_ident_process_type = ProtoField.uint32("do.create_promote_duplica.station_ident.process_type", "Process type")
-do_proto.fields.create_promote_duplica_station_ident_product_ver = ProtoField.uint32("do.create_promote_duplica.station_ident.product_ver", "Product version")
 do_proto.fields.create_promote_duplica_station_info = ProtoField.none("do.create_promote_duplica.station_info", "StationInfo")
 do_proto.fields.create_promote_duplica_station_info_exists = ProtoField.bool("do.create_promote_duplica.station_info.exists", "Exists")
-do_proto.fields.create_promote_duplica_station_info_observer = ProtoField.uint32("do.create_promote_duplica.station_info.observer", "Observer")
-do_proto.fields.create_promote_duplica_station_info_machine_uid = ProtoField.uint32("do.create_promote_duplica.station_info.machine_uid", "Machine UID")
 do_proto.fields.create_promote_duplica_station_state = ProtoField.none("do.create_promote_duplica.station_state", "StationState")
 do_proto.fields.create_promote_duplica_station_state_exists = ProtoField.bool("do.create_promote_duplica.station_state.exists", "Exists")
 do_proto.fields.create_promote_duplica_station_state_state = ProtoField.uint16("do.create_promote_duplica.station_state.state", "State")
@@ -485,63 +551,26 @@ local function do_parse_create_and_promote_duplica(buffer, pinfo, tree, subtree)
         duplicas:add_le(do_proto.fields.create_promote_duplica_duplica, buffer(off, 4))
         off = off + 4
     end
-    -- `DS_ConnectionInfo`
+    -- connection info
     local connect_info = subtree:add(do_proto.fields.create_promote_duplica_connect_info, buffer(off))
     connect_info:add_le(do_proto.fields.create_promote_duplica_connect_info_exists, buffer(off, 1))
     off = off + 1
-    connect_info:add_le(do_proto.fields.create_promote_duplica_connect_info_url_init, buffer(off, 1))
-    off = off + 1
-    local str, str_len = read_string(buffer(off))
-    connect_info:add(do_proto.fields.create_promote_duplica_connect_info_url1, buffer(off, str_len), str)
-    off = off + str_len
-    str, str_len = read_string(buffer(off))
-    connect_info:add(do_proto.fields.create_promote_duplica_connect_info_url2, buffer(off, str_len), str)
-    off = off + str_len
-    str, str_len = read_string(buffer(off))
-    connect_info:add(do_proto.fields.create_promote_duplica_connect_info_url3, buffer(off, str_len), str)
-    off = off + str_len
-    str, str_len = read_string(buffer(off))
-    connect_info:add(do_proto.fields.create_promote_duplica_connect_info_url4, buffer(off, str_len), str)
-    off = off + str_len
-    str, str_len = read_string(buffer(off))
-    connect_info:add(do_proto.fields.create_promote_duplica_connect_info_url5, buffer(off, str_len), str)
-    off = off + str_len
-    connect_info:add_le(do_proto.fields.create_promote_duplica_connect_info_in_bandwidth, buffer(off, 4))
-    off = off + 4
-    connect_info:add_le(do_proto.fields.create_promote_duplica_connect_info_in_latency, buffer(off, 4))
-    off = off + 4
-    connect_info:add_le(do_proto.fields.create_promote_duplica_connect_info_out_bandwidth, buffer(off, 4))
-    off = off + 4
-    connect_info:add_le(do_proto.fields.create_promote_duplica_connect_info_out_latency, buffer(off, 4))
-    off = off + 4
-    -- `Quazal::StationIdentification`
+    off = off + read_connection_info(buffer(off), connect_info)
+    -- station identification
     local station_ident = subtree:add(do_proto.fields.create_promote_duplica_station_ident, buffer(off))
     station_ident:add(do_proto.fields.create_promote_duplica_station_ident_exists, buffer(off, 1))
     off = off + 1
-    str, str_len = read_string(buffer(off))
-    station_ident:add(do_proto.fields.create_promote_duplica_station_ident_token, buffer(off, str_len), str)
-    off = off + str_len
-    str, str_len = read_string(buffer(off))
-    station_ident:add(do_proto.fields.create_promote_duplica_station_ident_process_name, buffer(off, str_len), str)
-    off = off + str_len
-    station_ident:add_le(do_proto.fields.create_promote_duplica_station_ident_process_type, buffer(off, 4))
-    off = off + 4
-    station_ident:add_le(do_proto.fields.create_promote_duplica_station_ident_product_ver, buffer(off, 4))
-    off = off + 4
-    -- `Quazal::StationInfo`
+    off = off + read_station_identification(buffer(off), station_ident)
+    -- station info
     local station_info = subtree:add(do_proto.fields.create_promote_duplica_station_info, buffer(off))
     station_info:add_le(do_proto.fields.create_promote_duplica_station_info_exists, buffer(off, 1))
     off = off + 1
-    station_info:add_le(do_proto.fields.create_promote_duplica_station_info_observer, buffer(off, 4))
-    off = off + 4
-    station_info:add_le(do_proto.fields.create_promote_duplica_station_info_machine_uid, buffer(off, 4))
-    off = off + 4
-    -- `Quazal::StationState`
+    off = off + read_station_info(buffer(off), station_info)
+    -- station state
     local station_state = subtree:add(do_proto.fields.create_promote_duplica_station_state, buffer(off))
     station_state:add_le(do_proto.fields.create_promote_duplica_station_state_exists, buffer(off, 1))
     off = off + 1
-    station_state:add_le(do_proto.fields.create_promote_duplica_station_state_state, buffer(off, 2))
-    off = off + 2
+    off = off + read_station_state(buffer(off), station_state)
     return off
 end
 
