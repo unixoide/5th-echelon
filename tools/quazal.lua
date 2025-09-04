@@ -242,6 +242,13 @@ local station_states = {
     [6] = "LeavingOnFault"
 }
 
+-- RC4 key for DO packets (AC Brotherhood)
+local do_key = {
+    0x37, 0x1E, 0x29, 0xAD, 0xFA, 0xAB, 0xF0, 0x8D, 0xCA, 0xBA, 0x9D, 0xD8, 0x63, 0xBC, 0x0A, 0x8E,
+    0x79, 0x5E, 0xC7, 0xBB, 0x9D, 0x90, 0x05, 0x9C, 0xDA, 0x8F, 0x82, 0xCD, 0xFE, 0x55, 0xCC, 0xDC,
+    0x0F, 0xBC, 0xA0, 0x8F, 0x4F, 0x9B, 0x67, 0x9D, 0xDE, 0x9E, 0x90, 0xCE, 0xF9, 0xAF, 0xFA, 0xFD
+}
+
 -- Reads `Quazal::String`.
 local function read_string(buffer)
     local size = buffer(0, 2):le_uint()
@@ -892,15 +899,29 @@ function quazal_proto.init()
 end
 
 local function new_rc4(key)
+    local function to_bytes(key)
+        if type(key) == "string" then
+            local t = {}
+            for i = 1, #key do
+                t[i] = key:byte(i)
+            end
+            return t
+        elseif type(key) == "table" then
+            return key
+        else
+            error("Unsupported RC4 key type: must be string or byte array")
+        end
+    end
     -- plain Lua implementation
     local function new_ks(key)
+        local key_buf = to_bytes(key)
         local st = {}
         for i = 0, 255 do st[i] = i end
 
-        local len = #key
+        local len = #key_buf
         local j = 0
         for i = 0, 255 do
-            j = (j + st[i] + key:byte((i % len) + 1)) % 256
+            j = (j + st[i] + key_buf[(i % len) + 1]) % 256
             st[i], st[j] = st[j], st[i]
         end
 
@@ -995,9 +1016,15 @@ local function quazal_proto_dissector(buffer, pinfo, tree, fragments)
     -- DO decryption
     -- DO decompression
     if ptype ~= "Syn" and stype == "DO" then
-        -- local dec = new_rc4("CD&ML")
-        -- payload = ByteArray.new(dec(payload:raw()), true):tvb("Decrypted")
         if payload:len() > 0 then
+            -- check for rc4 as some games dont implement DO encryption (e.g. Ghost Recon Online)
+            -- raw payloads begin with 00 compression flag
+            -- compressed payloads begin with 0X compression flag
+            local upper_nibble = payload(0, 1):le_uint() >> 4
+            if upper_nibble ~= 0 then
+                local dec = new_rc4(do_key)
+                payload = ByteArray.new(dec(payload:raw()), true):tvb("Decrypted")
+            end
             local compressed = payload(0, 1):uint() ~= 0
             payload = payload(1)
             if compressed then
