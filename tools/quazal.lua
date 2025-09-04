@@ -1,11 +1,16 @@
 local PROTO_MAPPING = {}
+local DO_RMC_METHODS = {}
 
-local path_ext = "/rmc.txt"
+local rmc_path_ext = "/rmc.txt"
+local dormc_path_ext = "/dormc.txt"
+
 -- windows check
 if string.find(Dir.personal_plugins_path(), "\\") then
-    path_ext = "\\rmc.txt"
+    rmc_path_ext = "\\rmc.txt"
+    dormc_path_ext = "\\dormc.txt"
 end
-for line in io.lines(Dir.personal_plugins_path() .. path_ext) do
+-- RMC
+for line in io.lines(Dir.personal_plugins_path() .. rmc_path_ext) do
     local parts = {}
     for m in line:gmatch("%w+") do
         parts[#parts + 1] = m
@@ -16,6 +21,17 @@ for line in io.lines(Dir.personal_plugins_path() .. path_ext) do
         PROTO_MAPPING[pid] = { name = parts[3], methods = {} }
     end
     PROTO_MAPPING[pid].methods[mid] = parts[4]
+end
+-- DO RMC
+for line in io.lines(Dir.personal_plugins_path() .. dormc_path_ext) do
+    local parts = {}
+    for m in line:gmatch("[%w_]+") do
+        parts[#parts + 1] = m
+    end
+    local method_id = tonumber(parts[1])
+    if method_id ~= nil and DO_RMC_METHODS[method_id] == nil then
+        DO_RMC_METHODS[method_id] = parts[2]
+    end
 end
 
 local quazal_proto = Proto("prudp", "Pretty Reliable UDP (Quazal)")
@@ -248,6 +264,9 @@ local do_key = {
     0x79, 0x5E, 0xC7, 0xBB, 0x9D, 0x90, 0x05, 0x9C, 0xDA, 0x8F, 0x82, 0xCD, 0xFE, 0x55, 0xCC, 0xDC,
     0x0F, 0xBC, 0xA0, 0x8F, 0x4F, 0x9B, 0x67, 0x9D, 0xDE, 0x9E, 0x90, 0xCE, 0xF9, 0xAF, 0xFA, 0xFD
 }
+
+local dormc_proto = Proto("DORMC", "Quazal DO RMC")
+dormc_proto.fields.payload = ProtoField.bytes("dormc.payload", "Payload")
 
 -- Reads `Quazal::String`.
 local function read_string(buffer)
@@ -494,6 +513,19 @@ local function do_parse_call_outcome(buffer, pinfo, tree, subtree, in_bundle)
 end
 
 -- RMCCall definition
+local function dormc_proto_dissector(buffer, pinfo, tree, method_id)
+    pinfo.cols.protocol = "DO RMC"
+    local method = DO_RMC_METHODS[method_id]
+    if method == nil then
+        method = tostring(method_id)
+    end
+    pinfo.cols.info:append(string.format(" %s", method))
+    local subtree = tree:add(dormc_proto, buffer(), string.format("DO RMC (%s)", method))
+    local off = 0
+    subtree:add(dormc_proto.fields.payload, buffer(off, buffer:len() - 1))
+    return buffer:len()
+end
+
 do_proto.fields.rmc_call_call_id = ProtoField.uint16("do.rmc_call.call_id", "Call ID")
 do_proto.fields.rmc_call_flags = ProtoField.uint32("do.rmc_call.flags", "Flags", base.HEX)
 do_proto.fields.rmc_call_source_id = ProtoField.uint32("do.rmc_call.source_id", "Source ID", base.HEX)
@@ -510,12 +542,14 @@ local function do_parse_rmc_call(buffer, pinfo, tree, subtree, in_bundle)
     subtree:add_le(do_proto.fields.rmc_call_target_object, buffer(off, 4))
     off = off + 4
     subtree:add_le(do_proto.fields.rmc_call_method_id, buffer(off, 2))
+    local method_id = buffer(off, 2):le_uint()
     off = off + 2
-    -- TODO: implement reading for optional fields
-    if in_bundle then
-        return -off
+    if not in_bundle then
+        off = off + dormc_proto_dissector(buffer(off), pinfo, tree, method_id)    
+    else
+        off = -off
     end
-    return buffer:len()
+    return off
 end
 
 -- RMCResponse definition
@@ -1013,8 +1047,6 @@ local function quazal_proto_dissector(buffer, pinfo, tree, fragments)
         end
     end
 
-    -- DO decryption
-    -- DO decompression
     if ptype ~= "Syn" and stype == "DO" then
         if payload:len() > 0 then
             -- check for rc4 as some games dont implement DO encryption (e.g. Ghost Recon Online)
