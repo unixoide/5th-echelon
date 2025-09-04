@@ -143,8 +143,7 @@ There is a rudimentary wireshark dissector for PRUDP/RMC in rust available. You 
 $ ./scripts/build_dissector.sh
 ```
 
-Alternatively there is also a lua based dissector. To install, put `.\tools\quazal.lua` and `.\tools\rmc.txt` into the 
-wireshark plugin user directory.
+Alternatively there is also a lua based dissector with added support for DO protocol. To install, put `.\tools\quazal.lua`, `.\tools\dormc.txt` and `.\tools\rmc.txt` into the wireshark plugin user directory.
 
 Additionally there is a very basic lua dissector for the Storm P2P protocol.
 
