@@ -86,6 +86,8 @@ The new launcher comes with an integrated server. You can start it from the `Ser
 
   ![Overlay Player Settings](./docs/overlay_player_requirements.png)
 
+- [X] Automated detection of supported executables (should work with most mods)
+
 ## Build
 
 Last tested rust version: 1.85.0-nightly (d117b7f21 2024-12-31). You can download the rust compiler via https://rustup.rs/.
