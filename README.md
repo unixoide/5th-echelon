@@ -10,7 +10,7 @@ of the games with the great Sam Fisher alive.
 For now it is focused on SC:BL, but the net code should be relatively
 similar for previous games as well.
 
-<video src="./docs/demo.webm" controls poster="./docs/demo_thumb.png"></video>
+[demo.webm](https://github.com/user-attachments/assets/89b33088-aa56-441c-bedc-866c7fa15f1f)
 
 ## Quick Start
 
