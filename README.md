@@ -38,7 +38,7 @@ similar for previous games as well.
 
 8.  `Save` and click `Launch` to start the game (make sure the right profile was selected).
 
-> ![NOTE]
+> [!TIP]
 > If you're having problems connecting, use the `Diagnose` button for more information and suggestions to fix the problem.
 > ![Diagose](./docs/launcher_diagnose_red.png)
 > ![Diagose](./docs/launcher_diagnose_green.png)
