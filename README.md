@@ -10,71 +10,81 @@ of the games with the great Sam Fisher alive.
 For now it is focused on SC:BL, but the net code should be relatively
 similar for previous games as well.
 
-![demo](./docs/demo.webm)
+[![demo](./docs/demo_thumb.png)](./docs/demo.mov)
+
+## Quick Start
+
+1.  **Download** the latest [launcher](https://github.com/unixoide/5th-echelon/releases/latest).
+2.  **Optional: Install Radmin VPN** or a similar VPN client and join a network with other players. Not a strict requirement, but most players are using this approach
+3.  **Start the launcher** (`launcher.exe`).
+4.  On the first start, you will be asked to choose a UI version. The new UI is recommended.
+
+    ![UI Version Selection](./docs/ui_version_selection_startup.png)
+
+5.  Select `Join Server`
+
+    ![Main Menu](./docs/launcher_main_menu_annotated.png)
+
+6.  Create a new server profile.
+
+    ![Client Window](./docs/launcher_client_menu.png)
+    Ask on the [Discord servers](#community) for active server IPs
+
+    ![New Server Profile](./docs/add_profile_annotated.png)
+
+7.  If you connect to a server for the first time, you'll have the option to register a new account.
+
+    ![Register Profile](./docs/add_profile_register.png)
+
+8.  `Save` and click `Launch` to start the game (make sure the right profile was selected).
+
+> ![NOTE]
+> If you're having problems connecting, use the `Diagnose` button for more information and suggestions to fix the problem.
+> ![Diagose](./docs/launcher_diagnose_red.png)
+> ![Diagose](./docs/launcher_diagnose_green.png)
+
+## Community
+
+Join our Discord servers to find other players and get help.
+
+- [Spy vs Merc Community](https://discord.com/invite/YgccjKPUNm)
+- [Splinter Cell Community Hub](https://discord.com/invite/ubX9D9v)
+- [/r/SplinterCell](https://discord.gg/ywdszwF)
+- [SCBL Multiplayer](https://discord.gg/uJH5Sv5Zw3)
 
 ## Usage
 
-Download the binaries from the latest [release](https://github.com/unixoide/5th-echelon/releases/latest).
+### Starting your own server for others to use
 
-> [!NOTE]
-> Microsoft Defender started flagging the launcher with their AI based detections (`!ml` suffix).
-> I don't know why (probably because it is written in rust and many ransomware gangs started using it?).
-> You either have to tell Defender to allow it, or if you don't want to trust the binaries, feel free to
-> build them yourself. See the [Build](#build) section.
+The new launcher comes with an integrated server. You can start it from the `Server Management` tab.
 
-### On the server host (can be the same as a player, but there should be only one running)
+1.  Start the launcher.
+2.  Go to the `Server Management` tab.
+3.  On first use, the launcher will ask you to download the server executable
+4.  Select the network adapter to use (or keep the default of all)
+5.  Optional: provide you public IP address in case you're using port forwarding for you server. 
+3.  Click `Start` to start the server.
 
-1. Start the server `dedicated_server.exe`
-2. Note the (public) IP address of the server (like your VPN IP if you're using radmin/hamachi)
-3. Open `service.toml` file and change all Values, secure_server_addr, storage_host, from 127.0.0.1 to your address from step 2
-3. Make sure the ports tcp/80, tcp/50051, tcp/8000, udp/21126 and udp/21127 are open to your peers (allowed in firewall or firewall off)
+    ![Launcher Server Menu](./docs/launcher_server_menu_started.png)
 
-### On the clients (all players who want to connect to the community server)
 
-1. Make sure that the port UDP 13000 is open in your firewall (and router if you are not using a VPN)
-2. Start the launcher
-3. Under networking
-    1. Enable `Use custom config server`
-    2. Enter the addresses of the server (like `127.0.0.1` for `Config Server` and `http://127.0.0.1:50051/` for `API Server`). Change the IP accordingly
-    3. Test if it is configured correctly by using `Test Login` with a test account
-    4. Optional: Register a new account (clear the username/password fields to enable the button)
-    5. Optional: Enforce a network adapter if you have multiple (like VPN or Hyper-V)
+## Features
 
-![launcher settings](./docs/launcher_settings.png)
+- [X] Entering online mode (successful authenticate and fetch settings etc.)
+- [X] Entering the COOP lobby
+- [X] Starting a COOP game via `Find Teammate`
+- [X] Starting a Spy vs Merc game
+- [X] Invite other players (press <kbd>F5</kbd> to open the overlay to accept the invite) into the main lobby.
+- [ ] Invite players into a private game lobby (use the `Find Teammate`/`Quick Match` buttons instead)
+- [X] Import save games from the original game
+- [X] Create a base L5 save game for SvM gameplay
+- [X] In-game overlay
 
-3. Launch the game with `Launch`
+  ![Overlay](./docs/overlay_msg.png)
+- [X] Modify the min/max amount of players in a game session (Press `F5` in a game lobby to alter the restrictions). 
+      Allows to do COOP missions with more then 2 players or start SvM matches with less then 4.
 
-> [!IMPORTANT]  
-> I haven't managed to get private matches working yet. It only works in COOP through the "Find Teammate" option.
-> SvM
-
-### Uninstalling the mod
-
-1. Remove the `uplay_r1_loader.dll` from the `src/SYSTEM` directory of your game installation. For example `C:\Program Files (x86)\Steam\steamapps\common\Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\`
-2. Rename the `uplay_r1_loader.orig.dll` to `uplay_r1_loader.dll`
-
-### Available test accounts
-
-The server currently knows these test accounts which you can use to experiment. Use the credentials in the `uplay.toml` file at `Tom Clancy's Splinter Cell Blacklist\src\SYSTEM\uplay.toml` (generated during first startup).
-
-| Username | Password |
-|----------|---------|
-| AAAABBBB | CCCCDDDD |
-| sam_the_fisher | password1234 |
-
-### What works
-
-- Entering online mode (successful authenticate and fetch settings etc.)
-- Entering the COOP lobby
-- Starting a COOP game
-- Starting a Spy vs Merc game
-- Invite other players (press <kbd>F5</kbd> to open the overlay to accept the invite) into the main lobby.
-- Matchmaking
-
-### What doesn't work
-
-- Shared save games between modded and genuine game version (stored at different locations so no progress is lost)
-- Invite players into a private COOP/SvM game (use the "Find Teammate"/"Quick Match" buttons instead)
+  ![Overlay Player Settings](./docs/overlay_player_requirements.png)
 
 ## Build
 
@@ -96,12 +106,12 @@ $ just launch
 $ just launch_release
 ```
 
-### Quickstart
+### Developing Quickstart
 
 Prerequisites:
 
 - You have a Powershell window open.
-- Rustup was downloaded from [https://rustup.rs] and is in your Downloads folder.
+- Rustup was downloaded from [https://rustup.rs](https://rustup.rs) and is in your Downloads folder.
 - Protoc was downloaded from [GitHub](https://github.com/protocolbuffers/protobuf/releases/latest) (e.g. `protoc-30.0-win64.zip`) and is unpacked to `protoc` in your `Downloads` folder.
 - You've downloaded the source code from [GitHub](https://github.com/unixoide/5th-echelon/releases/latest/) and unpacked to 5th-echelon
 
@@ -151,172 +161,6 @@ You can use all dissectors with `tshark` as well:
 
 ```
 $ tshark -r pcaps/sc_bl.pcapng -d udp.port==3074,prudp -d udp.port==13000,prudp -V -Y udp -x -O prudp,rmc -Y 'udp.port==3074'
-Frame 16: 57 bytes on wire (456 bits), 57 bytes captured (456 bits) on interface [...], id 0
-Ethernet II, Src: [...], Dst: [...]
-Internet Protocol Version 4, Src: 192.168.178.30, Dst: 216.98.55.174
-User Datagram Protocol, Src Port: 3074, Dst Port: 21170
-Pretty Reliable UDP (Quazal)
-    Source: 3f
-        .... 1111 = Port: 15
-        0011 .... = Type: RVSec (3)
-    Destination: 31
-        .... 0001 = Port: 1
-        0011 .... = Type: RVSec (3)
-    .... .000 = Type: SYN (0)
-    0010 0... = Flags: 4, NeedAck
-        .0.. . = Ack: False
-        0... . = Reliable: False
-        .... . = NeedAck: True
-        .... . = HasSize: False
-    SessionID: 0x00
-    Signature: 0x00000000
-    Sequence: 0
-    Connection Signature: 0x00000000
-    Checksum: 0x40
-
-0000  ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? 08 00 45 00   ..............E.
-0010  00 2b e3 9f 00 00 80 11 00 00 c0 a8 b2 1e d8 62   .+.............b
-0020  37 ae 0c 02 52 b2 00 17 d0 ff 3f 31 20 00 00 00   7...R.....?1 ...
-0030  00 00 00 00 00 00 00 00 40                        ........@
-
-Frame 17: 60 bytes on wire (480 bits), 60 bytes captured (480 bits) on interface [...], id 0
-Ethernet II, Src: [...], Dst: [...]
-Internet Protocol Version 4, Src: 216.98.55.174, Dst: 192.168.178.30
-User Datagram Protocol, Src Port: 21170, Dst Port: 3074
-Pretty Reliable UDP (Quazal)
-    Source: 31
-        .... 0001 = Port: 1
-        0011 .... = Type: RVSec (3)
-    Destination: 3f
-        .... 1111 = Port: 15
-        0011 .... = Type: RVSec (3)
-    .... .000 = Type: SYN (0)
-    0100 1... = Flags: 9, Ack, HasSize
-        .1.. . = Ack: True
-        0... . = Reliable: False
-        .... . = NeedAck: False
-        .... . = HasSize: True
-    SessionID: 0x00
-    Signature: 0x00000000
-    Sequence: 0
-    Connection Signature: 0xdd929391
-    Size: 0
-    Checksum: 0xfc
-
-0000  ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? 08 00 45 00   ..............E.
-0010  00 2d 18 b6 40 00 6f 11 22 33 d8 62 37 ae c0 a8   .-..@.o."3.b7...
-0020  00 1e 52 b2 0c 02 00 19 36 7f 31 3f 48 00 00 00   ..R.....6.1?H...
-0030  00 00 00 00 91 93 92 dd 00 00 fc 00               ............
-
-Frame 18: 57 bytes on wire (456 bits), 57 bytes captured (456 bits) on interface [...], id 0
-Ethernet II, Src: [...], Dst: [...]
-Internet Protocol Version 4, Src: 192.168.178.30, Dst: 216.98.55.174
-User Datagram Protocol, Src Port: 3074, Dst Port: 21170
-Pretty Reliable UDP (Quazal)
-    Source: 3f
-        .... 1111 = Port: 15
-        0011 .... = Type: RVSec (3)
-    Destination: 31
-        .... 0001 = Port: 1
-        0011 .... = Type: RVSec (3)
-    .... .001 = Type: CONNECT (1)
-    0011 0... = Flags: 6, Reliable, NeedAck
-        .0.. . = Ack: False
-        1... . = Reliable: True
-        .... . = NeedAck: True
-        .... . = HasSize: False
-    SessionID: 0x80
-    Signature: 0xdd929391
-    Sequence: 1
-    Connection Signature: 0xdaf237ae
-    Checksum: 0x17
-
-0000  ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? 08 00 45 00   ..............E.
-0010  00 2b e3 a0 00 00 80 11 00 00 c0 a8 b2 1e d8 62   .+.............b
-0020  37 ae 0c 02 52 b2 00 17 d0 ff 3f 31 31 80 91 93   7...R.....?11...
-0030  92 dd 01 00 ae 37 f2 da 17                        .....7...
-
-[...]
-
-Frame 59: 72 bytes on wire (576 bits), 72 bytes captured (576 bits) on interface [...], id 0
-Ethernet II, Src: [...], Dst: [...]
-Internet Protocol Version 4, Src: 192.168.178.30, Dst: 216.98.55.174
-User Datagram Protocol, Src Port: 3074, Dst Port: 21176
-Pretty Reliable UDP (Quazal)
-    Source: 3f
-        .... 1111 = Port: 15
-        0011 .... = Type: RVSec (3)
-    Destination: 31
-        .... 0001 = Port: 1
-        0011 .... = Type: RVSec (3)
-    .... .010 = Type: DATA (2)
-    0011 0... = Flags: 6, Reliable, NeedAck
-        .0.. . = Ack: False
-        1... . = Reliable: True
-        .... . = NeedAck: True
-        .... . = HasSize: False
-    SessionID: 0xa7
-    Signature: 0xdd929391
-    Sequence: 8
-    FragmentID: 0
-    Checksum: 0xc7
-RMC (Quazal)
-    1... .... = IsRequest: True
-    .110 1010 = Protocol: 106
-    CallID: 29
-    .... .... .... .... .000 0000 0000 0101 = Method: 5
-    Parameters: 31????00
-
-Frame (72 bytes):
-0000  ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? 08 00 45 00   ..............E.
-0010  00 3a e3 b3 00 00 80 11 00 00 c0 a8 b2 1e d8 62   .:.............b
-0020  37 ae 0c 02 52 b8 00 26 d1 0e 3f 31 32 a7 91 93   7...R..&..?12...
-0030  92 dd 08 00 00 0f 8a 44 db 13 15 31 50 05 a2 64   .......D...1P..d
-0040  fd 2a 16 c3 84 e6 56 c7                           .*....V.
-Decoded Data (17 bytes):
-0000  0d 00 00 00 ea 1d 00 00 00 05 00 00 00 31 ?? ??   .............1..
-0010  00                                                .
-
-Frame 60: 76 bytes on wire (608 bits), 76 bytes captured (608 bits) on interface [...], id 0
-Ethernet II, Src: [...], Dst: [...]
-Internet Protocol Version 4, Src: 192.168.178.30, Dst: 216.98.55.174
-User Datagram Protocol, Src Port: 3074, Dst Port: 21176
-Pretty Reliable UDP (Quazal)
-    Source: 3f
-        .... 1111 = Port: 15
-        0011 .... = Type: RVSec (3)
-    Destination: 31
-        .... 0001 = Port: 1
-        0011 .... = Type: RVSec (3)
-    .... .010 = Type: DATA (2)
-    0011 0... = Flags: 6, Reliable, NeedAck
-        .0.. . = Ack: False
-        1... . = Reliable: True
-        .... . = NeedAck: True
-        .... . = HasSize: False
-    SessionID: 0xa7
-    Signature: 0xdd929391
-    Sequence: 9
-    FragmentID: 0
-    Checksum: 0x94
-RMC (Quazal)
-    1... .... = IsRequest: True
-    .010 0011 = Protocol: 35
-    CallID: 31
-    .... .... .... .... .000 0000 0000 0001 = Method: 1
-    Parameters: 0600656e2d555300
-
-Frame (76 bytes):
-0000  ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? 08 00 45 00   ..............E.
-0010  00 3e e3 b4 00 00 80 11 00 00 c0 a8 b2 1e d8 62   .>.............b
-0020  37 ae 0c 02 52 b8 00 2a d1 12 3f 31 32 a7 91 93   7...R..*..?12...
-0030  92 dd 09 00 00 0f 96 44 db 13 5c 33 50 05 a2 60   .......D..\3P..`
-0040  fd 2a 16 f4 b1 9a 38 cb a0 c4 56 94               .*....8...V.
-Decoded Data (21 bytes):
-0000  11 00 00 00 a3 1f 00 00 00 01 00 00 00 06 00 65   ...............e
-0010  6e 2d 55 53 00                                    n-US.
-
-[...]
 ```
 
 ## Special Thanks
