@@ -10,7 +10,7 @@ of the games with the great Sam Fisher alive.
 For now it is focused on SC:BL, but the net code should be relatively
 similar for previous games as well.
 
-<video src="./docs/demo.webm" controls poster="./docs/demo_thumb.png"></video>
+[demo.webm](https://github.com/user-attachments/assets/89b33088-aa56-441c-bedc-866c7fa15f1f)
 
 ## Quick Start
 
@@ -38,7 +38,7 @@ similar for previous games as well.
 
 8.  `Save` and click `Launch` to start the game (make sure the right profile was selected).
 
-> ![NOTE]
+> [!TIP]
 > If you're having problems connecting, use the `Diagnose` button for more information and suggestions to fix the problem.
 > ![Diagose](./docs/launcher_diagnose_red.png)
 > ![Diagose](./docs/launcher_diagnose_green.png)
@@ -85,6 +85,8 @@ The new launcher comes with an integrated server. You can start it from the `Ser
       Allows to do COOP missions with more then 2 players or start SvM matches with less then 4.
 
   ![Overlay Player Settings](./docs/overlay_player_requirements.png)
+
+- [X] Automated detection of supported executables (should work with most mods)
 
 ## Build
 
