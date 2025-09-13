@@ -237,6 +237,16 @@ fn main() -> color_eyre::Result<()> {
         let logger = build_term_logger();
         Logger::root(slog::Duplicate(logger, build_file_logger()).fuse(), o!())
     };
+
+    {
+        let logger = logger.clone();
+        let old_hook = std::panic::take_hook();
+        std::panic::set_hook(Box::new(move |panic_info| {
+            error!(logger, "Panic occurred: {panic_info}");
+            old_hook(panic_info);
+        }));
+    }
+
     let storage = Arc::new(Storage::init(logger.clone())?);
 
     let config_filename = args.config_path.unwrap_or_else(|| PathBuf::from("service.toml"));
