@@ -291,11 +291,13 @@ where
     fn handle_connect(&mut self, logger: &Logger, mut packet: QPacket, client: SocketAddr) {
         debug!(logger, "Handling connect packet");
         let Some(signature) = packet.conn_signature else {
-            todo!("deny connect. no signature");
+            error!(logger, "Client {:x} did not provide a connection signature. This should not happen", packet.signature);
+            return;
         };
 
         let Some(mut ci) = self.new_clients.remove(&packet.signature) else {
-            todo!("deny connect. no client");
+            warn!(logger, "Unknown client {:x} tried to connect. Ignoring the attempt", packet.signature);
+            return;
         };
         ci.client_signature = Some(signature);
         ci.server_session = rand::random();
