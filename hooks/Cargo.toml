@@ -21,6 +21,7 @@ patch-free = []
 [dependencies]
 anyhow = { workspace = true }
 crossbeam-channel = { workspace = true }
+goblin = { workspace = true }
 hooks-addresses = { path = "hooks-addresses" }
 hooks-config = { path = "hooks-config" }
 hooks-proc = { path = "hooks-proc" }
@@ -68,3 +69,4 @@ ProductName = "UPlay R1 Loader for 5th Echelon"
 FileDescription = "Library from https://github.com/unixoide/5th-echelon"
 OriginalFilename = "uplay_r1_loader.dll"
 InternalName = "hooks"
+CompanyName = "5th Echelon"

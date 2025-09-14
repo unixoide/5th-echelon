@@ -1624,6 +1624,7 @@ dependencies = [
  "api",
  "crossbeam-channel",
  "dll-syringe",
+ "goblin 0.10.1",
  "hooks-addresses",
  "hooks-config",
  "hooks-proc",

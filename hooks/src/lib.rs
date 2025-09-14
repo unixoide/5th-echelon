@@ -14,6 +14,7 @@ use std::path::PathBuf;
 
 use addresses::Addresses;
 use hooks_config as config;
+use tracing::debug;
 use tracing::error;
 use tracing::info;
 use tracing::instrument;
@@ -31,6 +32,7 @@ use windows::Win32::UI::WindowsAndMessaging::MB_OK;
 
 mod addresses;
 mod api;
+mod dll_utils;
 mod hooks;
 mod macros;
 mod overlay;
@@ -117,10 +119,32 @@ unsafe fn enable_debug_print(addrs: &Addresses) {
     }
 }
 
+#[instrument]
+fn check_orig_library(hmodule: Option<HMODULE>) {
+    let myself = get_dll_path(hmodule).expect("couldn't find myself");
+    let orig = myself.with_file_name("uplay_r1_loader.orig.dll");
+
+    debug!("Myself: {:?}", myself);
+    debug!("Original library path: {:?}", orig);
+    if !orig.exists() {
+        fatal_error!("Original library not found at {orig:?}");
+    }
+
+    let my_info = dll_utils::get_dll_info(myself).expect("couldn't parse myself");
+    let orig_info = dll_utils::get_dll_info(orig).expect("couldn't parse uplay_r1_loader.orig.dll");
+    info!("My info: {:?}", my_info);
+    info!("Orig info: {:?}", orig_info);
+
+    if matches!(orig_info.company.as_deref(), Some("5th Echelon")) {
+        fatal_error!("uplay_r1_loader.orig.dll is invalid: Not Ubisoft version");
+    }
+}
+
 #[instrument(skip_all)]
 fn init(hmodule: Option<HMODULE>) {
     let dir = get_target_dir(hmodule);
     let reload_handle = init_log(&dir);
+    check_orig_library(hmodule);
     if let Some(cmdline) = get_arguments() {
         info!("Cmdline: {}", cmdline);
     }
@@ -231,8 +255,8 @@ fn get_arguments() -> Option<String> {
     cmdline.ok()
 }
 
-fn get_target_dir(hinst: Option<HMODULE>) -> PathBuf {
-    let mut path = hinst.ok_or(anyhow::anyhow!("no hinst")).and_then(|hinst| {
+fn get_dll_path(hinst: Option<HMODULE>) -> anyhow::Result<PathBuf> {
+    hinst.ok_or(anyhow::anyhow!("no hinst")).and_then(|hinst| {
         let mut path = vec![0u16; 4096];
         let sz = unsafe { GetModuleFileNameW(hinst, &mut path) } as usize;
         let err = std::io::Error::last_os_error();
@@ -241,14 +265,19 @@ fn get_target_dir(hinst: Option<HMODULE>) -> PathBuf {
         };
         let path = OsString::from_wide(&path[..sz]);
         // cannot fail
-        let mut path = PathBuf::from(path);
-        path.pop();
+        let path = PathBuf::from(path);
         Ok(path)
-    });
-    if path.is_err() {
-        path = std::env::current_dir().map_err(anyhow::Error::from);
-    }
-    path.unwrap_or_default()
+    })
+}
+
+fn get_target_dir(hinst: Option<HMODULE>) -> PathBuf {
+    get_dll_path(hinst).map_or_else(
+        |_| std::env::current_dir().unwrap_or_default(),
+        |mut p| {
+            p.pop();
+            p
+        },
+    )
 }
 
 type ReconfigurableLogger = tracing_subscriber::reload::Handle<
