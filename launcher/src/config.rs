@@ -16,7 +16,7 @@ use crate::games::GameVersion;
 // Default port numbers for various services.
 pub const RPC_DEFAULT_PORT: u16 = 50051;
 pub const QUAZAL_DEFAULT_PORT: u16 = 21126;
-pub const QUAZAL_DEFAULT_LOCAL_PORT: u16 = 3128;
+pub const QUAZAL_DEFAULT_LOCAL_PORT: u16 = 3074;
 pub const P2P_DEFAULT_PORT: u16 = 13000;
 
 /// Represents the version of the UI to use.
