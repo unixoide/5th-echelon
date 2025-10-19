@@ -78,7 +78,7 @@ where
 {
     /// Creates a new PRUDP server.
     #[must_use]
-    pub fn new(logger: slog::Logger, ctx: &Context, registry: StreamHandlerRegistry<T>) -> Server<ECH, DH, T> {
+    pub fn new(logger: slog::Logger, ctx: &Context, registry: StreamHandlerRegistry<T>) -> Server<'_, ECH, DH, T> {
         let client_registry = ClientRegistry {
             clients: HashMap::default(),
             connection_id_session_ids: HashMap::default(),
@@ -145,7 +145,7 @@ where
                 if let Err(e) = packet.validate(self.ctx, packet_data) {
                     error!(logger, "Invalid packet received: {:?}", packet; "error" =>  %e);
                     continue;
-                };
+                }
 
                 self.handle_packet(&logger.new(o!("seq" => packet.sequence, "session" => packet.session_id)), packet, client);
             }

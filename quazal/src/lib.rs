@@ -1,4 +1,4 @@
-#![feature(seek_stream_len, proc_macro_hygiene, cursor_split, hash_extract_if, associated_type_defaults)]
+#![feature(seek_stream_len, proc_macro_hygiene, cursor_split, associated_type_defaults)]
 #![deny(clippy::pedantic)]
 #![allow(clippy::missing_errors_doc)]
 #![allow(clippy::missing_panics_doc)]

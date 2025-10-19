@@ -103,7 +103,7 @@ impl GearBasicStringInternal {
         }
     }
 
-    pub fn as_str(&self) -> std::borrow::Cow<str> {
+    pub fn as_str(&self) -> std::borrow::Cow<'_, str> {
         String::from_utf8_lossy(self.as_bytes())
     }
 }
@@ -118,7 +118,7 @@ pub struct GearBasicString {
 
 impl GearBasicString {
     #[allow(dead_code)]
-    pub fn as_str(&self) -> std::borrow::Cow<str> {
+    pub fn as_str(&self) -> std::borrow::Cow<'_, str> {
         unsafe {
             if let Some(int) = self.internal.as_ref() {
                 int.as_str()

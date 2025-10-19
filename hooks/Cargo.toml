@@ -2,7 +2,7 @@ cargo-features = ["per-package-target"]
 
 [package]
 name = "hooks"
-version = "0.2.4"
+version = "0.2.5"
 edition = "2021"
 forced-target = "i686-pc-windows-msvc"
 
@@ -40,8 +40,11 @@ tracing-subscriber = { workspace = true, features = ["env-filter"] }
 url = { workspace = true, features = ["serde"] }
 
 [target.'cfg(target_os = "windows")'.dependencies]
-dll-syringe = "0.15"
-retour = { version = "0.3", features = ["thiscall-abi", "static-detour"] }
+dll-syringe = "0.17"
+retour = { version = "0.4.0-alpha.4", features = [
+    "thiscall-abi",
+    "static-detour",
+] }
 
 [target.'cfg(target_os = "windows")'.dependencies.hudhook]
 version = "0.8"

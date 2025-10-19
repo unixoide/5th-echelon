@@ -1,6 +1,6 @@
 [package]
 name = "quazal"
-version = "0.2.4"
+version = "0.2.5"
 authors = ["unixoide"]
 edition = "2021"
 
