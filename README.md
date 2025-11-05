@@ -90,7 +90,7 @@ The new launcher comes with an integrated server. You can start it from the `Ser
 
 ## Build
 
-Last tested rust version: 1.85.0-nightly (d117b7f21 2024-12-31). You can download the rust compiler via https://rustup.rs/.
+Last tested rust version: 1.92.0-nightly (844264add 2025-10-14). You can download the rust compiler via https://rustup.rs/.
 
 You'll also need the [Protobuf compiler](https://github.com/protocolbuffers/protobuf/releases/latest). `protoc.exe` should either
 be in your `PATH` or pointed at by an environment variable called `PROTOC` (see [this](https://docs.rs/prost-build/latest/prost_build/#sourcing-protoc) for details).
