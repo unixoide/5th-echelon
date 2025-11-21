@@ -5,7 +5,7 @@
 //! user interface and provides a simple `render` function to run the application.
 
 use std::num::NonZeroU32;
-use std::time::Instant;
+use std::time::{Duration, Instant};
 
 use glow::Context;
 use glow::HasContext;
@@ -98,6 +98,9 @@ pub fn render(initial_size: winit::dpi::LogicalSize<u32>, mut imgui_context: img
     let old_logo_texture = ig_renderer.texture_map_mut().register(old_logo_texture).unwrap();
 
     let mut last_frame = Instant::now();
+    let mut last_redraw = Instant::now();
+    const TARGET_FPS: u32 = 60;
+    const FRAME_DURATION: Duration = Duration::from_nanos(1_000_000_000 / TARGET_FPS as u64);
 
     // Start the winit event loop.
     #[allow(deprecated)]
@@ -111,9 +114,19 @@ pub fn render(initial_size: winit::dpi::LogicalSize<u32>, mut imgui_context: img
                     last_frame = now;
                 }
                 winit::event::Event::AboutToWait => {
-                    // Prepare for the next frame.
-                    winit_platform.prepare_frame(imgui_context.io_mut(), &window).unwrap();
-                    window.request_redraw();
+                    // Limit FPS to avoid excessive CPU usage
+                    let now = Instant::now();
+                    let time_since_last_redraw = now.duration_since(last_redraw);
+                    
+                    if time_since_last_redraw >= FRAME_DURATION {
+                        // Prepare for the next frame.
+                        winit_platform.prepare_frame(imgui_context.io_mut(), &window).unwrap();
+                        window.request_redraw();
+                        last_redraw = now;
+                    }
+                    
+                    // Use Wait to avoid busy-looping
+                    window_target.set_control_flow(winit::event_loop::ControlFlow::Wait);
                 }
                 winit::event::Event::WindowEvent {
                     event: winit::event::WindowEvent::RedrawRequested,
