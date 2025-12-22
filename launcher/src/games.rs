@@ -15,6 +15,7 @@ use crate::registry;
 pub enum GameVersion {
     SplinterCellBlacklistDx9,
     SplinterCellBlacklistDx11,
+    SplinterCellBlacklistDx11ForceBindIP,
 }
 
 impl GameVersion {
@@ -23,6 +24,7 @@ impl GameVersion {
         match self {
             GameVersion::SplinterCellBlacklistDx9 => "Blacklist_game.exe",
             GameVersion::SplinterCellBlacklistDx11 => "Blacklist_DX11_game.exe",
+            GameVersion::SplinterCellBlacklistDx11ForceBindIP => "Blacklist_DX11_game.bat",
         }
     }
 
