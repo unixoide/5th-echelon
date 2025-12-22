@@ -218,7 +218,7 @@ impl<'a> Main<'a> {
                     ui.set_window_font_scale(0.8);
                     if let Some(hooks) = self.exe_loader.borrow_mut().try_mut() {
                         ui.text("Game Versions: ");
-                        for gv in [GameVersion::SplinterCellBlacklistDx9, GameVersion::SplinterCellBlacklistDx11] {
+                        for gv in [GameVersion::SplinterCellBlacklistDx9, GameVersion::SplinterCellBlacklistDx11, GameVersion::SplinterCellBlacklistDx11ForceBindIP] {
                             ui.same_line();
                             let (color, tooltip) = if let Some(gh) = hooks.get(gv) {
                                 (game_hook_state_to_color(&gh.state), game_hook_state_to_text(&gh.state))
