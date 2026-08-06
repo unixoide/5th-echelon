@@ -1,6 +1,4 @@
-use std::ffi;
 use std::io;
-use std::os::windows::ffi::OsStringExt as _;
 
 use crate::version::Version;
 
@@ -144,7 +142,7 @@ pub fn parse(data: &[u8]) -> io::Result<Dll> {
             version_data.u8()?;
         }
 
-        assert_eq!(ffi::OsString::from_wide(&name).to_str().unwrap(), "VS_VERSION_INFO");
+        assert_eq!(String::from_utf16(&name).unwrap(), "VS_VERSION_INFO");
         let _signature = version_data.u32()?;
         let _struct_version = version_data.u32()?;
         let file_version_minor = version_data.u16()? as usize;
