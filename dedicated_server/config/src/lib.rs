@@ -12,10 +12,46 @@ use slog::error;
 use slog::Logger;
 
 #[allow(clippy::module_name_repetitions)]
-#[derive(Debug, Deserialize, Serialize, Default, Clone, Copy)]
+#[derive(Debug, Deserialize, Serialize, Clone, Copy)]
 pub struct DebugConfig {
+    #[serde(default)]
     pub mark_all_as_online: bool,
+    #[serde(default)]
     pub force_joins: bool,
+    /// Pushes a notification to get a guest into a private match.
+    ///
+    /// This is the mechanism the game expects, not a workaround, hence on by default. A guest
+    /// joining a private match deliberately sends no `JoinSession`: `StateJoin::vf08` reads
+    /// `[object+0x5A8]`, sees the room is private, skips the join and waits on
+    /// `[session+0x42A]`. Only `NetOnlineSessionServiceRdv::vf28` (0x007BDFB0) sets that byte,
+    /// and it is reached solely through a notification from the server.
+    ///
+    /// Without one the guest sits at "creating game session" and opens sessions of its own in
+    /// a loop. See `add_participants` for the three fields that have to be right.
+    #[serde(default = "enabled")]
+    pub push_notifications: bool,
+    /// Sends that notification reliably (with `Reliable`/`NeedAck`).
+    ///
+    /// On by default: the client acknowledges the packet. The concern that an unacknowledged
+    /// packet could stall the ordered stream does not materialise as long as the push only
+    /// goes to private rooms.
+    #[serde(default = "enabled")]
+    pub push_notifications_reliable: bool,
+}
+
+const fn enabled() -> bool {
+    true
+}
+
+impl Default for DebugConfig {
+    fn default() -> Self {
+        Self {
+            mark_all_as_online: false,
+            force_joins: false,
+            push_notifications: true,
+            push_notifications_reliable: true,
+        }
+    }
 }
 
 #[derive(Debug, Deserialize, Serialize)]

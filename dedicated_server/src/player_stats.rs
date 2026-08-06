@@ -27,7 +27,7 @@ impl<T> PlayerStatsProtocolServerTrait<T> for PlayerStatsProtocolServerImpl {
     /// This function requires the client to be logged in.
     fn read_stats_by_players(
         &self,
-        _logger: &Logger,
+        logger: &Logger,
         _ctx: &Context,
         ci: &mut ClientInfo<T>,
         request: ReadStatsByPlayersRequest,
@@ -37,20 +37,30 @@ impl<T> PlayerStatsProtocolServerTrait<T> for PlayerStatsProtocolServerImpl {
         // Ensure the client is logged in.
         login_required(&*ci)?;
 
+        info!(logger, "ReadStatsByPlayers: pids={:?}", request.player_pids);
+
+        // Nothing to report without players. Answering with an empty result keeps the client
+        // moving; an invented pid 0 would be a lie, and the previous `unwrap` on the first
+        // element panicked the worker thread, leaving the request unanswered until the
+        // client's 60 second timeout.
+        if request.player_pids.is_empty() {
+            return Ok(ReadStatsByPlayersResponse { results: vec![].into() });
+        }
+
         Ok(ReadStatsByPlayersResponse {
             results: vec![StatboardResult {
                 board_id: 1,
                 context_id: 0,
                 reset_frequency: 1,
                 player_stat_sets: vec![PlayerStatSet {
-                    player_pid: *request.player_pids.first().unwrap(),
+                    player_pid: request.player_pids.first().copied().unwrap_or(0),
                     player_name: "foobar".to_string(),
                     submitted_time: quazal::rmc::types::DateTime(0x1f_9635_4343),
                     stats: vec![
-                        // PropertyVariant {
-                        //     id: 0x87, // money
-                        //     value: quazal::rmc::types::Variant::I64(10),
-                        // },
+                        PropertyVariant {
+                            id: 0x87, // money
+                            value: quazal::rmc::types::Variant::I64(10_000_000),
+                        },
                         // PropertyVariant {
                         //     id: 0x84,
                         //     value: quazal::rmc::types::Variant::I64(20),

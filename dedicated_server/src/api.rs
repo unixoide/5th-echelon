@@ -37,8 +37,21 @@ use tonic::Response;
 use tonic::Status;
 
 use crate::config::DebugConfig;
+use crate::storage::GameSession;
 use crate::storage::LoginError;
 use crate::storage::Storage;
+
+/// Property 113 tells a private room (0) from an ordinary lobby session (1).
+///
+/// Both live in the same session type, so the attribute is the only thing distinguishing
+/// "the match I configured and want my friend in" from "the anteroom every client opens on
+/// entering multiplayer".
+fn is_private_room(session: &GameSession) -> bool {
+    session
+        .attributes
+        .parse::<QList<Property>>()
+        .is_ok_and(|attributes| attributes.0.iter().any(|property| property.id == 113 && property.value == 0))
+}
 
 /// Implements the `Friends` gRPC service.
 pub struct MyFriends {
@@ -67,8 +80,37 @@ impl Friends for MyFriends {
             return Err(Status::not_found("User not found"));
         };
 
+        // Bind the invitation to the room the sender is actually in. The event the game
+        // receives carries only the sender, so without this the invited client has no way to
+        // learn which session it is supposed to join. If the host has no joinable session at
+        // all, the invitation stays unbound and behaves as it did before room tracking.
+        let host_sessions = self
+            .storage
+            .find_host_sessions_async(sender)
+            .await
+            .map_err(|e| Status::internal(format!("Couldn't resolve invite room: {e:?}")))?;
+        // A host who opened a private match sits in two sessions at once: the anteroom
+        // every client opens on entering multiplayer (attribute 113 == 1) and the configured
+        // match room itself (113 == 0). Bind the invitation to the match room, so the guest
+        // ends up in the match rather than in the host's lobby.
+        //
+        // The client sorts both rooms by that same attribute when it answers the invitation,
+        // and it gives the match room precedence - see `search_sessions_with_participants`
+        // in `game_session.rs` for the full picture.
+        let room = host_sessions.iter().find(|session| is_private_room(session)).or_else(|| host_sessions.first());
+
+        match room {
+            Some(room) => info!(
+                self.logger,
+                "Binding invitation to {} {} of host {sender}",
+                if is_private_room(room) { "private room" } else { "party session" },
+                room.session_id
+            ),
+            None => warn!(self.logger, "Host {sender} has no joinable session; invitation to {receiver_id} stays unbound"),
+        }
+
         self.storage
-            .add_invite_async(sender, receiver_id)
+            .add_invite_async(sender, receiver_id, room.map(|r| r.session_type), room.map(|r| r.session_id))
             .await
             .map_err(|e| Status::internal(format!("Couldn't add invite: {e:?}")))?;
 
@@ -88,16 +130,53 @@ impl Friends for MyFriends {
             request.metadata().get("user_id").unwrap().to_str().unwrap()
         );
         let users = self.storage.list_users_async().await.map_err(|e| Status::internal(format!("{e}")))?;
+        // Which session everybody is in. The game looks for a friend's session right here in
+        // the friend list - it never asks separately - so an accepted invitation is dead
+        // without it.
+        let sessions = self
+            .storage
+            .list_advertised_sessions_async()
+            .await
+            .map_err(|e| Status::internal(format!("{e}")))?;
         let friends = users
             .into_iter()
-            .map(|u| Friend {
-                id: u.ubi_id,
-                username: u.username,
-                is_online: u.is_online || self.debug_config.mark_all_as_online,
+            .map(|u| {
+                let (session_id, invite_only, session_data) = sessions.get(&u.id).cloned().unwrap_or_default();
+                Friend {
+                    pid: u.id,
+                    id: u.ubi_id,
+                    username: u.username,
+                    is_online: u.is_online || self.debug_config.mark_all_as_online,
+                    session_id,
+                    invite_only,
+                    session_data,
+                }
             })
             .collect();
         let resp = friends::ListResponse { friends };
         Ok(Response::new(resp))
+    }
+
+    /// Publishes the caller's current game session so their friends can join it.
+    ///
+    /// A `session_id` of 0 clears the advertisement; that is what the game's
+    /// `UPLAY_USER_ClearGameSession` boils down to.
+    async fn set_session(&self, request: Request<friends::SetSessionRequest>) -> Result<Response<friends::SetSessionResponse>, Status> {
+        let user_id: u32 = request.metadata().get("user_id").unwrap().to_str().unwrap().parse().unwrap();
+        let request = request.into_inner();
+        debug!(self.logger, "SetSession request from {}: {:?}", user_id, request);
+
+        self.storage
+            .set_advertised_session_async(
+                user_id,
+                (request.session_id != 0).then_some(request.session_id),
+                request.invite_only,
+                &request.session_data,
+            )
+            .await
+            .map_err(|e| Status::internal(format!("Couldn't store session: {e:?}")))?;
+
+        Ok(Response::new(friends::SetSessionResponse {}))
     }
 }
 
@@ -240,6 +319,19 @@ impl Misc for MyMisc {
         else {
             return Err(Status::not_found(""));
         };
+
+        // Worth a line of its own: if the room is missing here, the invited client will search
+        // for a session the server cannot name, and the join fails for that reason alone.
+        match (invite.session_type, invite.session_id) {
+            (Some(session_type), Some(session_id)) => info!(
+                self.logger,
+                "Delivering invitation from {} to {}, bound to session {session_id} (type {session_type})", invite.sender, invite.receiver
+            ),
+            _ => warn!(
+                self.logger,
+                "Delivering UNBOUND invitation from {} to {} - the receiver will not find a room to join", invite.sender, invite.receiver
+            ),
+        }
 
         Ok(Response::new(misc::EventResponse {
             invite: Some(misc::InviteEvent {

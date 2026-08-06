@@ -76,6 +76,11 @@ pub struct ClientInfo<T = ()> {
     address: SocketAddr,
     /// The time the client was last seen.
     last_seen: Instant,
+    /// The vports of this client's last message (theirs, ours).
+    ///
+    /// An answer swaps them out of the incoming packet. Anything the server sends on its own
+    /// has no incoming packet to take them from, so they are remembered here.
+    pub last_vports: Option<(crate::prudp::packet::VPort, crate::prudp::packet::VPort)>,
     /// The client's connection ID, if available.
     pub connection_id: Option<ConnectionID>,
     /// The client's user ID, if available.
@@ -103,6 +108,7 @@ impl<T> ClientInfo<T> {
             address,
             additional: Default::default(),
             last_seen: std::time::Instant::now(),
+            last_vports: None,
             connection_id: None,
         }
     }

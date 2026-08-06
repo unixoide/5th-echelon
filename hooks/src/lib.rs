@@ -1,3 +1,4 @@
+#![recursion_limit = "512"] // one more static_detour! exceeds the default
 #![feature(unboxed_closures, tuple_trait, c_variadic, once_cell_try, mapped_lock_guards)]
 #![deny(clippy::pedantic)]
 
@@ -148,7 +149,7 @@ fn init(hmodule: Option<HMODULE>) {
     if let Some(cmdline) = get_arguments() {
         info!("Cmdline: {}", cmdline);
     }
-    let path = config::get_config_path(dir);
+    let path = config::get_config_path(dir.clone());
     info!("Config path={:?}", path);
     let config = match config::get_or_load(path) {
         Err(e) => {
@@ -193,6 +194,7 @@ fn init(hmodule: Option<HMODULE>) {
 
         enable_debug_print(&addr);
     }
+
 
     // needs to be done in a separate thread, otherwise it'll block indefinitely
     std::thread::Builder::new()

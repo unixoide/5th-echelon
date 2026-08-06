@@ -46,13 +46,36 @@ impl<CI> GameSessionExProtocolServerTrait<CI> for GameSessionExProtocolServerImp
     ) -> Result<SearchSessionsResponse, Error> {
         #![allow(clippy::unreadable_literal)]
 
-        login_required(&*ci)?;
+        let user_id = login_required(&*ci)?;
         info!(logger, "Client searches for session: {:?}", request);
-        let sessions = rmc_err!(
-            self.storage.search_sessions(request.game_session_query.type_id, ci.user_id),
-            logger,
-            "Error searching game sessions"
-        )?;
+
+        // A client that just accepted an invitation looks for the room with query 8, but it
+        // sends the ordinary matchmaking attributes along - and a private room carries
+        // property 103 = 0, which no ordinary query matches. So it never found the room it
+        // had just been invited into. When an invitation is pending, answer with exactly that
+        // room and skip the attribute comparison below.
+        let session_type = request.game_session_query.type_id;
+        let invited_session = if request.game_session_query.query_id == 8 {
+rmc_err!(self.storage.find_pending_invited_session(user_id, session_type), logger, "Error resolving invited room")?
+        } else {
+            None
+        };
+        let invitation_search = invited_session.is_some();
+
+        let sessions = if let Some(mut session) = invited_session {
+            let opened = crate::game_session::advertise_private_slots_as_public(&session.attributes);
+            if opened != session.attributes {
+                info!(logger, "Opening a seat in room {}: {} -> {}", session.session_id, session.attributes, opened);
+                session.attributes = opened;
+            }
+            info!(
+                logger,
+                "Answering invitation search of {user_id} with session {} of host {}", session.session_id, session.creator_id
+            );
+            vec![session]
+        } else {
+            rmc_err!(self.storage.search_sessions(session_type, ci.user_id), logger, "Error searching game sessions")?
+        };
         // search svm
         // 103 => 2165463540
         // 106 => 3564829
@@ -85,6 +108,9 @@ impl<CI> GameSessionExProtocolServerTrait<CI> for GameSessionExProtocolServerImp
         let sessions: Vec<_> = sessions
             .into_iter()
             .filter(|session| {
+                if invitation_search {
+                    return true;
+                }
                 let sess_attrs: QList<Property> = session.attributes.parse().unwrap();
                 let sess_attrs = sess_attrs.0.into_iter().map(|p| (p.id, p.value)).collect::<HashMap<_, _>>();
                 for (id, value) in &req_attrs {

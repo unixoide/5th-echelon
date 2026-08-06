@@ -19,6 +19,7 @@ use windows::Win32::Foundation::HANDLE;
 use windows::Win32::NetworkManagement::IpHelper::IP_ADAPTER_INFO;
 use windows::Win32::Networking::WinSock::gethostname;
 use windows::Win32::Networking::WinSock::HOSTENT;
+use windows::Win32::System::LibraryLoader::GetModuleHandleA;
 use windows::Win32::System::LibraryLoader::GetProcAddress;
 use windows::Win32::System::LibraryLoader::LoadLibraryA;
 use windows::Win32::System::Threading::GetThreadId;
@@ -65,6 +66,7 @@ static_detour! {
     static NetResultSessionHook: unsafe extern "thiscall" fn(*mut c_void, usize, *mut GearBasicString) -> *mut c_void;
     static NetResultRdvSessionHook: unsafe extern "thiscall" fn(*mut c_void, usize, *mut GearBasicString) -> *mut c_void;
     static NetResultLobbyHook: unsafe extern "thiscall" fn(*mut c_void, usize, *mut GearBasicString) -> *mut c_void;
+    static NlaEnumerateHook: unsafe extern "thiscall" fn(*mut c_void);
 }
 
 #[repr(C)]
@@ -650,6 +652,52 @@ where
     }
 }
 
+/// Is this process running under Wine/Proton?
+///
+/// Wine identifies itself through `wine_get_version` in ntdll, the way Wine itself documents.
+/// On real Windows that symbol does not exist.
+fn running_under_wine() -> bool {
+    // GetModuleHandleA, not LoadLibraryA: this runs from DllMain, where the process already
+    // holds the loader lock, and LoadLibrary can deadlock there. ntdll is always mapped
+    // anyway, so a handle is enough.
+    unsafe {
+        let Ok(ntdll) = GetModuleHandleA(s!("ntdll.dll")) else {
+            return false;
+        };
+        GetProcAddress(ntdll, s!("wine_get_version")).is_some()
+    }
+}
+
+/// Reports the network location that Windows' Network Location Awareness would supply but
+/// Wine cannot.
+///
+/// `NLAThread::enumerate` queries the NLA namespace via `WSALookupServiceBeginA` and stores
+/// the outcome in the status field at `+0x9C` of the thread object. Wine's ws2_32 does not
+/// know that namespace ("Unsupported namespace_id"), the call fails, and the game stores 0 -
+/// "no network". The client's online check requires a non-zero value there; otherwise it
+/// requests `eGoal_LogOut` roughly 3 ms after `StateOnline`. What the player sees is
+/// "Splinter Cell Blacklist service is not available", even though the whole login against
+/// the server succeeded.
+///
+/// The field is a status value, not a pointer - its readers compare it against 1 - so writing
+/// 1 after the original call is enough. Only under Wine: on Windows the OS answers for itself,
+/// and claiming a connection it just reported as absent would be wrong.
+fn nla_enumerate(this: *mut c_void) {
+    unsafe {
+        NlaEnumerateHook.call(this);
+        if this.is_null() {
+            return;
+        }
+        let status = this.cast::<u8>().add(0x9C).cast::<u32>();
+        let connectivity = this.cast::<u8>().add(0xA0).cast::<u32>();
+        if std::ptr::read_unaligned(status) == 0 {
+            std::ptr::write_unaligned(status, 1);
+            std::ptr::write_unaligned(connectivity, 1);
+            debug!("NLA: reported a connected network to the game");
+        }
+    }
+}
+
 macro_rules! hook {
     ($hook:expr, $addr:expr, $func:ident) => {
         $crate::hooks::hook_with_name(&$hook, $addr.map(|a| unsafe { ::std::mem::transmute(a) }), $func, stringify!($hook));
@@ -686,6 +734,13 @@ pub unsafe fn init(config: &Config, addr: &Addresses) {
     configurable_hook!(config, Hook::StormStateMachineActionExecute, StormStateMachineActionExecuteHook ; 
         addr.func_storm_statemachineaction_execute => storm_statemachineaction_execute);
     configurable_hook!(config, Hook::Thread, ThreadStarterHook ; addr.func_thread_starter => set_thread_name);
+    // Compensates for a missing Windows facility, so it is not opt-in - same as
+    // GetAdaptersInfo and Gethostbyname below. Anyone affected cannot get online at all
+    // otherwise, and would have to know about NLA first to switch it on.
+    // if config.enable_all_hooks || config.enable_hooks.contains(&Hook::NetworkLocation)
+    if running_under_wine() {
+        hook!(NlaEnumerateHook, addr.func_nla_enumerate, nla_enumerate);
+    }
     #[cfg(feature = "modding")]
     configurable_hook!(config, Hook::OverridePackaged, ArcOpenFileHook; addr.func_open_file_from_archive => arc_open_file);
 

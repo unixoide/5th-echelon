@@ -77,6 +77,10 @@ pub struct Addresses {
     pub func_storm_event_handler: Option<Address>,
     pub func_another_gear_str_destructor: Option<Address>,
     pub func_open_file_from_archive: Option<Address>,
+    /// NLAThread::enumerate - queries the network location via the NLA namespace.
+    /// `serde(default)` keeps address files written by older versions loadable.
+    #[serde(default)]
+    pub func_nla_enumerate: Option<Address>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -128,6 +132,8 @@ impl Addresses {
             ),
             Hook::RMCMessages => option2vec!(self.func_rmc_init_message, self.func_rmc_add_method_id, self.func_rmc_send_message),
             // dynamically found at runtime
+            Hook::NetworkLocation => option2vec!(self.func_nla_enumerate),
+            // dynamically found at runtime
             Hook::GetAdaptersInfo | Hook::Gethostbyname | Hook::StormPackets => Some(vec![]),
             #[cfg(feature = "modding")]
             Hook::OverridePackaged => option2vec!(self.func_open_file_from_archive),
@@ -171,6 +177,7 @@ impl Addresses {
                 self.func_rmc_add_method_id = addrs.next();
                 self.func_rmc_send_message = addrs.next();
             }
+            Hook::NetworkLocation => self.func_nla_enumerate = addrs.next(),
             // dynamically found at runtime
             Hook::GetAdaptersInfo | Hook::Gethostbyname | Hook::StormPackets => {}
             #[cfg(feature = "modding")]
@@ -219,6 +226,7 @@ fn dx9_addresses() -> HashMap<[u8; 32], Addresses> {
         func_storm_event_handler: Some(0x020ca850),
         func_another_gear_str_destructor: Some(0x004c58a0),
         func_open_file_from_archive: Some(0x070_9040),
+        func_nla_enumerate: Some(0x00A1_99D0),
     };
 
     let dx9_hashes = [
@@ -468,6 +476,7 @@ fn dx11_addresses() -> HashMap<[u8; 32], Addresses> {
         func_storm_event_handler: Some(0x20f1d40),
         func_another_gear_str_destructor: Some(0x41F630),
         func_open_file_from_archive: Some(0x45ab20),
+        func_nla_enumerate: Some(0x0077_B7C0),
     };
     HashMap::from(dx11_hashes.map(|h| (h, dx11_addrs.clone())))
 }
@@ -757,6 +766,16 @@ static HOOK_PATTERNS: LazyLock<Vec<(Hook, Vec<Pattern>)>> = LazyLock::new(|| {
             ],
         ),
         (
+            Hook::NetworkLocation,
+            // NLAThread::enumerate: WSALookupServiceBeginA on the NLA namespace, then the
+            // status store to +0x9C. Generated from the Uplay DX11 build; matches exactly
+            // once there and once in the DX9 build.
+            vec![Pattern::from_str(
+                "55 8B EC B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? A1 ?? ?? ?? ?? 33 C5 89 45 ?? 56 57 33 F6 6A ?? 8D 85 ?? ?? ?? ?? 8B F9 56 50 89 BD ?? ?? ?? ??",
+            )
+            .unwrap()],
+        ),
+        (
             Hook::RMCMessages,
             vec![
                 Pattern::from_str("55 8B EC 8B 45 ?? 8B 4D ?? 8B 55 ?? 50 51 52 E8 ?? ?? ?? ?? 83 C4 ?? 5D C3 CC CC CC CC CC CC CC C3").unwrap(),
@@ -863,6 +882,7 @@ pub fn search_patterns(filepath: &Path) -> Result<Addresses, Error> {
         func_storm_event_handler: None,
         func_another_gear_str_destructor: None,
         func_open_file_from_archive: None,
+        func_nla_enumerate: None,
     };
 
     for (hook, patterns) in HOOK_PATTERNS.iter() {

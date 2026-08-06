@@ -82,10 +82,44 @@ fn init_message_hook(message: *mut c_void, protocol_id: u32, x: u32) {
     InitMessageHook.call(message, protocol_id, x);
 }
 
+/// The game's .text, as loaded. Relocations are stripped and DYNAMICBASE is off, so this is
+/// fixed and an address inside the range is a game code address rather than one of ours.
+const GAME_TEXT: std::ops::Range<usize> = 0x0040_1000..0x0297_1291;
+
+/// Walks the stack for return addresses that point into the game.
+///
+/// The point is to learn *who* asks for a given RMC method - `JoinSession` is issued on the
+/// route that works and never on the invitation route, and its call site is the anchor for
+/// finding out what gates it. A naked stub would read the return address exactly; scanning is
+/// good enough here and costs no assembly. Values that merely look like code addresses do slip
+/// through, hence several candidates rather than one.
+pub(crate) fn game_callers() -> Vec<usize> {
+    let anchor = 0usize;
+    let base = std::ptr::addr_of!(anchor) as usize;
+    let mut found = Vec::new();
+    for slot in 0..192usize {
+        let addr = base + slot * 4;
+        let value = unsafe { std::ptr::read_unaligned(addr as *const usize) };
+        if GAME_TEXT.contains(&value) {
+            found.push(value);
+            if found.len() == 6 {
+                break;
+            }
+        }
+    }
+    found
+}
+
 fn add_method_id_hook(message: *mut c_void, method_id: u32) {
-    {
+    let protocol_id = {
         let mut rmc_msg = RmcMessage::get_for_pointer(message.cast_const());
         rmc_msg.method_id = method_id;
+        rmc_msg.protocol_id
+    };
+    // Only the session protocol, otherwise the login chatter drowns it out.
+    if protocol_id == 42 {
+        let callers = game_callers().iter().map(|a| format!("{a:#010x}")).collect::<Vec<_>>().join(" <- ");
+        info!("RMC caller for {}: {callers}", resolve_protocol_method(protocol_id, method_id));
     }
     AddMethodIDHook.call(message, method_id);
 }

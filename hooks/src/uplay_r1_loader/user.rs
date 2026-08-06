@@ -2,6 +2,7 @@ use std::ffi::CString;
 
 use hooks_proc::forwardable_export;
 use tracing::error;
+use tracing::info;
 
 use super::List;
 use super::UplayList;
@@ -10,6 +11,11 @@ use crate::config::get;
 
 #[forwardable_export]
 unsafe extern "cdecl" fn UPLAY_USER_ClearGameSession() -> bool {
+    // Counterpart to UPLAY_USER_SetGameSession: the player left their session and should no
+    // longer show up as joinable in anybody's friend list.
+    if let Err(e) = crate::api::set_game_session(None, false, &[]) {
+        error!("Withdrawing the announced session failed: {e:?}");
+    }
     true
 }
 
@@ -115,6 +121,31 @@ unsafe extern "cdecl" fn UPLAY_USER_SetGameSession(game_session_identifier: *mut
     if crate::hooks::is_modded() {
         crate::show_msgbox("Fatal error. Game modified", "MOD");
         std::process::exit(1);
+    }
+
+    // The game announces here which session it is in - genuine Uplay would pass that on to
+    // Ubisoft's presence service, from where friends' clients read it back. Dropping it is
+    // what breaks invitations: when the other side accepts, the game looks for the inviter's
+    // session in its friend list, finds nothing and gives up with
+    // "Failed to find party session for invite."
+    //
+    // The identifier is not a pointer despite its type - the game passes small numbers that
+    // match the session ids of the dedicated server (0x33 = session 51).
+    #[allow(clippy::cast_possible_truncation)]
+    let session_id = game_session_identifier as usize as u32;
+
+    // The payload has to travel along: the id alone gets an accepted invitation past the
+    // lookup, but the other side then opens a session of its own instead of joining. The
+    // block is passed through byte for byte - nothing in it needs interpreting, and `size`
+    // comes from the game itself (496 bytes).
+    let payload = std::slice::from_raw_parts(std::ptr::from_ref(session_data.data).cast::<u8>(), session_data.size as usize);
+
+    if let Err(e) = crate::api::set_game_session(Some(session_id), invite_only, payload) {
+        // Not fatal: announcing failed, the session itself is fine. Invitations into it will
+        // not work, everything else keeps running.
+        error!("Announcing session {session_id} failed: {e:?}");
+    } else {
+        info!("Session {session_id} announced (invite_only={invite_only})");
     }
     true
 }

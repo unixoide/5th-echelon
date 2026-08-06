@@ -69,12 +69,13 @@ mod uplay_win;
 mod user_storage;
 
 use crate::config::Config;
+use crate::config::DebugConfig;
 
 /// Starts a Quazal server (either secure or authentication).
 ///
 /// This function sets up the necessary protocols and handlers for the server
 /// and then enters the server loop.
-fn start_server(logger: &slog::Logger, ctx: &Context, storage: &Arc<Storage>, is_secure: bool) -> io::Result<()> {
+fn start_server(logger: &slog::Logger, ctx: &Context, storage: &Arc<Storage>, debug_config: &Arc<DebugConfig>, is_secure: bool) -> io::Result<()> {
     use quazal::prudp::packet::StreamHandlerRegistry;
     use quazal::prudp::packet::StreamType;
     use quazal::prudp::packet::VPort;
@@ -87,7 +88,7 @@ fn start_server(logger: &slog::Logger, ctx: &Context, storage: &Arc<Storage>, is
         handler.register_protocol(challenge::new_protocol());
         handler.register_protocol(clan::new_protocol());
         handler.register_protocol(game_session_ex::new_protocol(Arc::clone(storage)));
-        handler.register_protocol(game_session::new_protocol(Arc::clone(storage)));
+        handler.register_protocol(game_session::new_protocol(Arc::clone(storage), Arc::clone(debug_config)));
         handler.register_protocol(ladder::new_protocol());
         handler.register_protocol(locale::new_protocol());
         handler.register_protocol(nat_traversal::new_protocol());
@@ -258,19 +259,22 @@ fn main() -> color_eyre::Result<()> {
     warn!(logger, "Clearing stale sessions");
     storage.invalidate_sessions()?;
 
+    let debug_config = Arc::new(config.debug);
+
     let mut threads = vec![];
     for (name, svc) in config.quazal.into_services()? {
         let logger = logger.new(o!("service" => name.clone()));
         info!(logger, "Loaded service {:#?}", svc);
         let storage = Arc::clone(&storage);
+        let debug_config = Arc::clone(&debug_config);
         let handle = match svc {
             quazal::Service::Authentication(ctx) => std::thread::Builder::new().name(name).spawn(move || {
-                if let Err(e) = start_server(&logger, &ctx, &storage, false) {
+                if let Err(e) = start_server(&logger, &ctx, &storage, &debug_config, false) {
                     crit!(logger, "Error running authentication server: {e:?}");
                 }
             }),
             quazal::Service::Secure(ctx) => std::thread::Builder::new().name(name).spawn(move || {
-                if let Err(e) = start_server(&logger, &ctx, &storage, true) {
+                if let Err(e) = start_server(&logger, &ctx, &storage, &debug_config, true) {
                     crit!(logger, "Error running secure server: {e:?}");
                 }
             }),
@@ -303,7 +307,7 @@ fn main() -> color_eyre::Result<()> {
                 if let Err(e) =
                     tokio::runtime::Runtime::new()
                         .unwrap()
-                        .block_on(api::start_server(logger.clone(), storage, config.api_server, Arc::new(config.debug), args.launcher))
+                        .block_on(api::start_server(logger.clone(), storage, config.api_server, debug_config, args.launcher))
                 {
                     crit!(logger, "Error running api server: {e:?}");
                 }

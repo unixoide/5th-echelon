@@ -137,6 +137,17 @@ struct MyRenderLoop {
     initial_popup: Instant,
 }
 
+/// Builds the Uplay event that hands an accepted invitation to the game.
+///
+/// The event kind decides which join route the game takes from there; see
+/// [`hooks_config::InviteAcceptEvent`].
+fn invite_accept_event(user_id: String) -> Event {
+    match hooks_config::get().map(|cfg| cfg.invite_accept_event).unwrap_or_default() {
+        hooks_config::InviteAcceptEvent::Friends => Event::FriendsGameInviteAccepted(user_id),
+        hooks_config::InviteAcceptEvent::Party => Event::PartyGameInviteAccepted(user_id),
+    }
+}
+
 impl MyRenderLoop {
     fn render_show(&mut self, ui: &imgui::Ui) {
         self.show_debug(ui);
@@ -147,7 +158,9 @@ impl MyRenderLoop {
     fn render_hide(&mut self, ui: &mut imgui::Ui) {}
 
     fn join_session(&self, sender: &User) {
-        self.tx.send(Event::FriendsGameInviteAccepted(sender.id.clone())).unwrap();
+        let event = invite_accept_event(sender.id.clone());
+        info!("Invitation accepted, event: {event:?}");
+        self.tx.send(event).unwrap();
     }
 
     fn show_invites(&mut self, ui: &imgui::Ui) {
@@ -291,7 +304,7 @@ impl MyRenderLoop {
                         ui.text(sender.username.as_str());
                         ui.disabled(invite.clicked, || {
                             if ui.button("Accept") {
-                                self.tx.send(Event::FriendsGameInviteAccepted(sender.id.clone())).unwrap();
+                                self.tx.send(invite_accept_event(sender.id.clone())).unwrap();
                                 self.ui_state = UiState::Hide;
                                 invite.clicked = true;
                             }

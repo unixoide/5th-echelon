@@ -334,6 +334,86 @@ pub trait Protocol<T> {
     fn method_name(&self, method_id: u32) -> Option<String>;
 }
 
+/// Call ids for requests the server initiates.
+///
+/// An RMC request needs a call id so the other side can match its answer to it. Answers reuse
+/// the client's id; a request we start ourselves needs one of its own. Started high so it
+/// cannot collide with the client's.
+static NEXT_CALL_ID: std::sync::atomic::AtomicU32 = std::sync::atomic::AtomicU32::new(0x8000_0000);
+
+/// Sends an RMC request **to a client** without the client having asked for anything.
+///
+/// `ClientProtocol::send` was a stub with `todo!()`, so the server could never push anything
+/// on its own. That is what leaves a guest hanging when it joins a **private** match: there
+/// the client deliberately sends no `JoinSession` and waits to be pushed instead
+/// (`nsNetSessionRdv::StateJoin::vf00` waits on `[session+0x42A]`, which only
+/// `NetOnlineSessionServiceRdv::vf28` sets, on an incoming notification).
+///
+/// The vports come from the client's last message; without them we do not know which service
+/// on its side the packet belongs to.
+///
+/// `reliable = false` sends without `Reliable`/`NeedAck`. PRUDP is otherwise an ordered
+/// stream: a packet the client does not accept makes it wait on that sequence number and
+/// buffer everything after it, which stalls the connection. Sending unreliably costs no more
+/// than the failed attempt itself, and the signal that matters still arrives or does not.
+pub fn call_client<T>(
+    logger: &Logger,
+    ctx: &Context,
+    socket: &std::net::UdpSocket,
+    ci: &mut ClientInfo<T>,
+    protocol_id: u16,
+    method_id: u32,
+    parameters: Vec<u8>,
+    reliable: bool,
+) -> std::result::Result<usize, Box<dyn std::error::Error>> {
+    let Some((client_vport, server_vport)) = ci.last_vports else {
+        return Err("client has not sent anything yet - vports unknown".into());
+    };
+    let request = Request {
+        protocol_id,
+        call_id: NEXT_CALL_ID.fetch_add(1, std::sync::atomic::Ordering::Relaxed),
+        method_id,
+        parameters,
+    };
+    let packet = QPacket {
+        source: server_vport,
+        destination: client_vport,
+        packet_type: super::prudp::packet::PacketType::Data,
+        payload: request.to_bytes(),
+        fragment_id: Some(0),
+        ..Default::default()
+    };
+    let target = *ci.address();
+    // `send_response`, not `send_request`, despite this being a request.
+    //
+    // `send_request` is written from a simulated *client's* point of view: it takes
+    // `client_sequence_id`, `server_signature` and `client_session`. All three are wrong for a
+    // packet the server sends out, and the client drops it at the PRUDP layer before RMC ever
+    // sees it. `send_response` uses `server_sequence_id`, `client_signature` and
+    // `server_session` - the same values as any ordinary answer, which do arrive. That this is
+    // a request rather than an answer is stated in the payload (RMC request with the 0x80 bit
+    // set), not in the PRUDP header.
+    let sequence = ci.server_sequence_id;
+    let result = if reliable {
+        super::prudp::send_response(logger, ctx, &target, socket, packet, ci)
+    } else {
+        // No Reliable/NeedAck and no advance of the sequence counter: if the client drops the
+        // packet it is not left waiting for anything and the stream keeps running.
+        let mut packet = packet;
+        packet.sequence = ci.server_sequence_id;
+        packet.signature = ci.client_signature.unwrap_or_default();
+        packet.session_id = ci.server_session;
+        packet.flags.insert(super::prudp::packet::PacketFlag::HasSize);
+        super::prudp::send_packet(logger, ctx, &target, socket, packet)
+    };
+    info!(
+        logger,
+        "Pushed request to {target}: protocol {protocol_id}, method {method_id}, sequence {sequence}, {}",
+        if reliable { "reliable" } else { "unreliable" }
+    );
+    result
+}
+
 /// A trait for RMC client protocols.
 pub trait ClientProtocol<T> {
     /// Returns the protocol ID.

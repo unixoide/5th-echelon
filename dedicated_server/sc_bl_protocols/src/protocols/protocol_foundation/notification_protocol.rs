@@ -22,7 +22,11 @@ use slog::Logger;
 
 #[allow(unused)]
 use super::types::*;
-pub const NOTIFICATION_PROTOCOL_ID: u16 = todo!();
+/// Quazal Rendez-Vous lists the notification protocol as 14.
+///
+/// The generator could not derive the number from the DDL and left a `todo!()` behind, which
+/// never showed because the server never sent a notification in the first place.
+pub const NOTIFICATION_PROTOCOL_ID: u16 = 14;
 #[derive(Debug, TryFromPrimitive)]
 #[repr(u32)]
 pub enum NotificationProtocolMethod {

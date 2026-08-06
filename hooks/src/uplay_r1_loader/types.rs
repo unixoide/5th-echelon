@@ -24,6 +24,14 @@ pub struct UplayFriend {
     pub id: String,
     pub username: String,
     pub is_online: bool,
+    /// Session this friend is in; 0 means none. Where it lands in the C structure is decided
+    /// by [`SessionField`].
+    pub session_id: u32,
+    /// Payload of that session, byte for byte as their game handed it over. Ends up in
+    /// `FriendDetails.unknown4`.
+    pub session_data: Vec<u8>,
+    /// Principal id, for the session search. Where it lands is decided by [`PidField`].
+    pub pid: u32,
 }
 
 #[repr(C)]
@@ -93,6 +101,9 @@ struct Save {
     pub name: *mut c_char,
     pub size: usize,
 }
+
+use hooks_config::PidField;
+use hooks_config::SessionField;
 
 #[repr(C)]
 struct Friend {
@@ -190,7 +201,17 @@ impl List {
                 let username = unsafe { CString::from_raw(item.username) };
                 let id = id.into_string().map_err(anyhow::Error::from)?;
                 let username = username.into_string().map_err(anyhow::Error::from)?;
-                Ok(UplayFriend { id, username, is_online })
+                // Reverse direction: a list coming back from the game. Which field would hold
+                // a session is exactly what is being determined here, so nothing is read out
+                // of it - this path only needs id, name and online state.
+                Ok(UplayFriend {
+                    id,
+                    username,
+                    is_online,
+                    session_id: 0,
+                    session_data: Vec::new(),
+                    pid: 0,
+                })
             })
             .collect()
     }
@@ -239,21 +260,66 @@ impl From<UplayList> for List {
                 List::from_vec(saves, ListType::Saves)
             }
             UplayList::Friends(friends) => {
+                let cfg = crate::config::get();
+                let feld = cfg.map(|c| c.session_field).unwrap_or_default();
+                // Passing the payload along can be switched off separately, so that a
+                // counter-test does not need a rebuild.
+                let daten = cfg.is_none_or(|c| c.share_session_data);
+                let pid_feld = cfg.map(|c| c.pid_field).unwrap_or_default();
                 let friends = friends
                     .into_iter()
                     .map(|f| {
+                        // Where the friend's session goes is decided at runtime, see
+                        // [`SessionField`]. Everything not selected keeps its previous value,
+                        // so a wrong guess behaves exactly like before.
+                        let session = f.session_id as usize;
+                        // The friend's principal id - without it the game has nothing to look
+                        // their session up by.
+                        let pid = f.pid as usize;
                         Ok::<Friend, std::ffi::NulError>(Friend {
                             id: CString::new(f.id)?.into_raw(),
                             username: CString::new(f.username)?.into_raw(),
-                            unknown1: 0,
-                            unknown2: 0,
+                            unknown1: if feld == SessionField::FriendUnknown1 { session } else { 0 },
+                            unknown2: if feld == SessionField::FriendUnknown2 {
+                                session
+                            } else if pid_feld == PidField::FriendUnknown2 {
+                                pid
+                            } else {
+                                0
+                            },
                             details: Box::into_raw(Box::new(FriendDetails {
                                 unknown1: if f.is_online { 0 } else { 2 }, // >1 is offline?
-                                unknown2: null_mut(),                      // another string?
-                                unknown3: 0,
-                                unknown4: null_mut(), // only used when fetching, but not after??
+                                unknown2: if feld == SessionField::DetailsUnknown2Str && session != 0 {
+                                    CString::new(session.to_string())?.into_raw()
+                                } else {
+                                    null_mut() // another string?
+                                },
+                                unknown3: if feld == SessionField::DetailsUnknown3 {
+                                    session
+                                } else if pid_feld == PidField::DetailsUnknown3 {
+                                    pid
+                                } else {
+                                    0
+                                },
+                                // The session payload of that friend, byte for byte as their
+                                // game handed it over. Without it the other side does get past
+                                // the lookup, but opens a session of its own instead of
+                                // joining - the id alone is not enough to enter one.
+                                // Deliberately leaked: the game keeps the pointer beyond this
+                                // call, exactly like the strings above.
+                                unknown4: if daten && !f.session_data.is_empty() {
+                                    Box::into_raw(f.session_data.clone().into_boxed_slice()).cast::<c_void>()
+                                } else {
+                                    null_mut() // only used when fetching, but not after??
+                                },
                             })),
-                            unknown3: 0, // must be 0?
+                            unknown3: if feld == SessionField::FriendUnknown3 {
+                                session
+                            } else if pid_feld == PidField::FriendUnknown3 {
+                                pid
+                            } else {
+                                0 // must be 0?
+                            },
                         })
                     })
                     .map(std::result::Result::unwrap)

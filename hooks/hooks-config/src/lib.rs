@@ -154,10 +154,61 @@ enum_gui! {
         StormPackets,
         #[label="Log RMC messages"]
         RMCMessages,
+        #[label="Report a network location (Wine has no NLA namespace)"]
+        NetworkLocation,
         #[cfg(feature = "modding")]
         #[label="Override packaged files"]
         OverridePackaged,
     }
+}
+
+/// Which field of Uplay's friend structure carries the session a friend can be joined in.
+///
+/// Blacklist reads a friend's session straight out of the structure that
+/// `UPLAY_FRIENDS_GetFriendList` fills in - it does not ask a second time. Either it finds
+/// the session there, or an accepted invitation dies with "Failed to find party session for
+/// invite." Which of the unnamed fields holds it has not been established, so the candidates
+/// are selectable here: trying one out costs a game restart instead of a rebuild.
+///
+/// The names follow the fields of the `Friend` and `FriendDetails` structures in
+/// `hooks/src/uplay_r1_loader/types.rs`.
+#[derive(Debug, Deserialize, Serialize, Clone, Copy, Default, PartialEq, Eq)]
+#[serde(rename_all = "PascalCase")]
+pub enum SessionField {
+    /// Fill nothing in - how it behaved before this existed.
+    #[default]
+    None,
+    /// `Friend.unknown1`
+    FriendUnknown1,
+    /// `Friend.unknown2`
+    FriendUnknown2,
+    /// `Friend.unknown3`
+    FriendUnknown3,
+    /// `FriendDetails.unknown3`
+    DetailsUnknown3,
+    /// `FriendDetails.unknown2`, as a decimal string
+    DetailsUnknown2Str,
+}
+
+/// Which Uplay event an accepted invitation raises.
+///
+/// The kind of event decides which join route the game takes afterwards:
+///
+/// * `Friends` (`FriendsGameInviteAccepted`, event 10002) makes the client search with
+///   `SearchSessionsWithParticipants` (protocol 42, method 24) and then run
+///   `AbandonSession` -> `SplitSession` -> `AddParticipants`.
+/// * `Party` (`PartyGameInviteAccepted`, event 20004) goes through the party layer instead.
+///
+/// The client picks its route on its own; no server answer redirects it. That is why this
+/// switch lives here and not in the server.
+#[derive(Debug, Deserialize, Serialize, Clone, Copy, Default, PartialEq, Eq)]
+#[serde(rename_all = "PascalCase")]
+pub enum InviteAcceptEvent {
+    /// `FriendsGameInviteAccepted` - the previous behaviour.
+    #[default]
+    Friends,
+    /// `PartyGameInviteAccepted`.
+    Party,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Eq)]
@@ -189,6 +240,52 @@ pub struct Config {
     pub logging: Logging,
     #[serde(default)]
     pub auto_join_invite: bool,
+    /// Which Uplay event an accepted invitation raises. See [`InviteAcceptEvent`]; switching
+    /// costs a game restart rather than a rebuild.
+    #[serde(default)]
+    pub invite_accept_event: InviteAcceptEvent,
+    /// Where a friend's session is written into the Uplay friend structure. See
+    /// [`SessionField`]; only needed while the right field is still being determined.
+    #[serde(default)]
+    pub session_field: SessionField,
+    /// Whether a friend's session payload is passed on in `FriendDetails.unknown4`.
+    ///
+    /// Without it the other side gets past the lookup but opens a session of its own instead
+    /// of joining. Switchable so that a counter-test does not need a rebuild.
+    #[serde(default = "default_share_session_data")]
+    pub share_session_data: bool,
+
+    /// Where a friend's principal id is written into the Uplay friend structure. See
+    /// [`PidField`].
+    #[serde(default)]
+    pub pid_field: PidField,
+}
+
+const fn default_share_session_data() -> bool {
+    true
+}
+
+/// Which field of Uplay's friend structure carries a friend's Quazal principal id.
+///
+/// On the working matchmaking path the guest finds the host through
+/// `SearchSessionsWithParticipants`, which takes participant ids. On the invitation path the
+/// game never makes that call - the suspicion being that it has no pid to search with,
+/// because the friend structure only ever held the ubi id as a string.
+///
+/// `Friend.unknown1` is taken by the session (see [`SessionField`]), so the remaining
+/// candidates are the ones below.
+#[derive(Debug, Deserialize, Serialize, Clone, Copy, Default, PartialEq, Eq)]
+#[serde(rename_all = "PascalCase")]
+pub enum PidField {
+    /// Fill nothing in.
+    #[default]
+    None,
+    /// `Friend.unknown2`
+    FriendUnknown2,
+    /// `Friend.unknown3`
+    FriendUnknown3,
+    /// `FriendDetails.unknown3`
+    DetailsUnknown3,
 }
 
 #[derive(Debug, Default, Deserialize, Serialize, Clone, PartialEq, Eq)]
@@ -296,6 +393,9 @@ ConfigServer = "127.0.0.1"
 ApiServer = "http://127.0.0.1:50051"
 # Automatically join invites without user intervention
 AutoJoinInvite = false
+# Which Uplay event an accepted invitation raises: "Friends" or "Party".
+# It decides which join route the game takes - see InviteAcceptEvent.
+InviteAcceptEvent = "Friends"
 
 [User]
 # Username for the community server

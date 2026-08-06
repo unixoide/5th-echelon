@@ -11,6 +11,8 @@ use crate::protocols::ubi_account_management_service::ubi_account_management_pro
 use crate::protocols::ubi_account_management_service::ubi_account_management_protocol::LookupPrincipalIdsResponse;
 use crate::protocols::ubi_account_management_service::ubi_account_management_protocol::LookupUbiAccountIDsByPidsRequest;
 use crate::protocols::ubi_account_management_service::ubi_account_management_protocol::LookupUbiAccountIDsByPidsResponse;
+use crate::protocols::ubi_account_management_service::ubi_account_management_protocol::LookupUsernamesByUbiAccountIDsRequest;
+use crate::protocols::ubi_account_management_service::ubi_account_management_protocol::LookupUsernamesByUbiAccountIDsResponse;
 use crate::protocols::ubi_account_management_service::ubi_account_management_protocol::UbiAccountManagementProtocolServer;
 use crate::protocols::ubi_account_management_service::ubi_account_management_protocol::UbiAccountManagementProtocolServerTrait;
 use crate::storage::Storage;
@@ -103,6 +105,58 @@ impl<T> UbiAccountManagementProtocolServerTrait<T> for UbiAccountManagementProto
             ubiaccount_ids,
         );
         Ok(LookupUbiAccountIDsByPidsResponse { ubiaccount_ids })
+    }
+
+    /// Handles the `LookupUsernamesByUbiAccountIDs` request, mapping Ubisoft account IDs to
+    /// display names.
+    ///
+    /// The game calls this whenever it has to put a name next to an account: friend lists,
+    /// party members and - the reason this was implemented - the invitation dialogs of a
+    /// private lobby. Without it the client gets an error instead of a name, so those lists
+    /// stay empty and the private lobby never fills.
+    ///
+    /// Unknown IDs are simply left out of the map rather than reported as an error; that is
+    /// how the two lookup methods above behave and the client copes with a partial result.
+    ///
+    /// This function requires the client to be logged in.
+    fn lookup_usernames_by_ubi_account_ids(
+        &self,
+        logger: &slog::Logger,
+        _ctx: &quazal::Context,
+        ci: &mut quazal::ClientInfo<T>,
+        request: LookupUsernamesByUbiAccountIDsRequest,
+        _client_registry: &ClientRegistry<T>,
+        _socket: &std::net::UdpSocket,
+    ) -> Result<LookupUsernamesByUbiAccountIDsResponse, quazal::rmc::Error> {
+        login_required(&*ci)?;
+        if request.ubi_account_ids.is_empty() {
+            return Ok(LookupUsernamesByUbiAccountIDsResponse {
+                usernames: HashMap::default(),
+            });
+        }
+        let ubi_len = request.ubi_account_ids.len();
+        let usernames: HashMap<_, _> = request
+            .ubi_account_ids
+            .iter()
+            .filter_map(|ubi_id| {
+                self.storage
+                    .find_user_by_ubi_id(ubi_id)
+                    .map_err(|e| error!(logger, "storage lookup failed"; "error" => ?e))
+                    .ok()
+                    .flatten()
+                    .map(|user| (ubi_id.clone(), user.username))
+            })
+            .collect();
+        info!(
+            logger,
+            "Username lookup requested for {} ubi ids ({:?}). Found {} ({:?})",
+            ubi_len,
+            request.ubi_account_ids,
+            usernames.len(),
+            usernames,
+        );
+
+        Ok(LookupUsernamesByUbiAccountIDsResponse { usernames })
     }
 
     /// Handles the `HasAcceptedLatestTos` request, checking if the user has accepted the latest Terms of Service.

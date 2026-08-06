@@ -5,6 +5,7 @@ use std::sync::OnceLock;
 use server_api::friends::friends_client::FriendsClient;
 use server_api::friends::InviteRequest;
 use server_api::friends::ListRequest;
+use server_api::friends::SetSessionRequest;
 use server_api::misc::misc_client::MiscClient;
 use server_api::misc::EventRequest;
 use server_api::misc::EventResponse;
@@ -82,6 +83,14 @@ pub struct Friend {
     pub id: String,
     pub username: String,
     pub is_online: bool,
+    /// Session this friend is currently in; 0 means none.
+    pub session_id: u32,
+    /// Their session is private and can only be entered through an invitation.
+    pub invite_only: bool,
+    /// Opaque payload of that session, exactly as the host handed it to Uplay.
+    pub session_data: Vec<u8>,
+    /// Principal id as Quazal uses it - needed to search for the session this friend is in.
+    pub pid: u32,
 }
 
 static RUNTIME: OnceLock<tokio::runtime::Runtime> = OnceLock::new();
@@ -123,8 +132,32 @@ pub fn list_friends() -> Result<Vec<Friend>, Error> {
                 id: f.id,
                 username: f.username,
                 is_online: f.is_online,
+                session_id: f.session_id,
+                invite_only: f.invite_only,
+                session_data: f.session_data,
+                pid: f.pid,
             })
             .collect())
+    })
+}
+
+/// Publishes the session this player is in, so it reaches their friends' friend lists.
+///
+/// `session_id` of `None` clears the advertisement. Called from
+/// `UPLAY_USER_SetGameSession` / `UPLAY_USER_ClearGameSession`.
+pub fn set_game_session(session_id: Option<u32>, invite_only: bool, session_data: &[u8]) -> Result<(), Error> {
+    let session_data = session_data.to_vec();
+    run(async {
+        let mut client = connect!(FriendsClient);
+
+        let request = tonic::Request::new(SetSessionRequest {
+            session_id: session_id.unwrap_or(0),
+            invite_only,
+            session_data,
+        });
+
+        client.set_session(request).await?;
+        Ok(())
     })
 }
 

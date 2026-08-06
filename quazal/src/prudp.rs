@@ -47,6 +47,39 @@ impl<T> ClientRegistry<T> {
     pub fn client_by_connection_id(&self, conn_id: ConnectionID) -> Option<&RefCell<ClientInfo<T>>> {
         self.connection_id_session_ids.get(&conn_id).and_then(|sig| self.clients.get(&sig.0))
     }
+
+    /// Whether the given user still holds a live connection in this registry.
+    ///
+    /// A restarting client registers its new connection before the old one is torn down, so
+    /// for a while the same user owns two of them. Callers use this to tell a genuine goodbye
+    /// from the tail end of a reconnect.
+    #[must_use]
+    fn has_live_connection_for(&self, user_id: Option<u32>) -> bool {
+        user_id.is_some() && self.clients.values().any(|other| other.try_borrow().is_ok_and(|o| o.user_id == user_id))
+    }
+
+    /// Finds a logged-in client by its player id.
+    ///
+    /// Needed to send something to a *different* client on our own initiative: whoever adds a
+    /// participant has to be able to notify the one being added, and that is not the caller.
+    #[must_use]
+    pub fn client_by_user_id(&self, user_id: u32) -> Option<&RefCell<ClientInfo<T>>> {
+        // `try_borrow`, not `borrow`: the caller's cell is mutably borrowed for the duration
+        // of their own request, and the search unavoidably passes over it. `borrow()` panics
+        // the service thread. An already borrowed cell is always the caller itself, and the
+        // caller is never the one to notify anyway.
+        //
+        // Take the MOST RECENTLY SEEN stream, not just any. A player holds several PRUDP
+        // streams to the same service, each with its own session id, sequence counter and
+        // `ClientInfo`. Picking an arbitrary HashMap hit lands on the wrong one about half the
+        // time: the client acknowledges the packet (the address matches) and then drops it,
+        // because session and sequence do not fit - it never reaches the RMC dispatcher. The
+        // RMC stream is the busy one, hence the most recently seen.
+        self.clients
+            .values()
+            .filter(|c| c.try_borrow().is_ok_and(|ci| ci.user_id == Some(user_id)))
+            .max_by_key(|c| c.borrow().last_seen)
+    }
 }
 
 /// A PRUDP server.
@@ -156,7 +189,7 @@ where
     fn handle_packet(&mut self, logger: &Logger, packet: QPacket, client: SocketAddr) {
         debug!(logger, "packet: {:?}", packet);
         if packet.flags.contains(PacketFlag::Ack) {
-            debug!(logger, "Received ACK");
+            debug!(logger, "Received ACK"; "sequence" => packet.sequence);
             return;
         }
         match packet.packet_type {
@@ -171,8 +204,16 @@ where
                 if self.send_ack(logger, &client, &packet, &ci.borrow(), false).is_err() {
                     // ignore
                 }
+                // Only say goodbye if this was the user's last connection. A restarting
+                // client sends `Disconnect` for its old connection *after* registering the new
+                // one, and tearing down that user's sessions at this point would wipe out the
+                // rooms of the login that just succeeded.
+                let ci = ci.into_inner();
+                if self.client_registry.has_live_connection_for(ci.user_id) {
+                    return;
+                }
                 if let Some(handler) = self.disconnect_handler.as_mut() {
-                    (handler)(ci.into_inner());
+                    (handler)(ci);
                 }
             }
             PacketType::Ping => {
@@ -243,6 +284,7 @@ where
         let resp = self
             .registry
             .handle_packet(&logger, self.ctx, ci, &packet.destination, &payload, &self.client_registry, self.socket.as_ref().unwrap());
+        ci.last_vports = Some((packet.source, packet.destination));
         match resp {
             Some(Ok(payload)) => {
                 let chunks = payload.chunks(MAX_PAYLOAD_SIZE);
@@ -392,18 +434,33 @@ where
     }
 
     /// Clears expired clients from the client registry.
+    ///
+    /// Expiry only counts as a goodbye when the same user has no live connection left. A
+    /// player who restarts their client keeps the previous entry in the registry until
+    /// `SESSION_TIMEOUT` elapses; if they log back in and open a match within that minute, the
+    /// expiring stale entry would take the fresh rooms down with it, because cleanup keys on
+    /// the creator rather than on the connection.
     fn clear_clients(&mut self) {
         let now = Instant::now();
-        for (_, ci) in self
+        let expired: Vec<_> = self
             .client_registry
             .clients
             .extract_if(|_k, v| v.try_borrow().map(|ci| (now - ci.last_seen) > SESSION_TIMEOUT).unwrap_or(false))
-        {
+            .collect();
+
+        for (_, ci) in expired {
+            let ci = ci.into_inner();
+            if let Some(conn_id) = ci.connection_id {
+                self.client_registry.connection_id_session_ids.remove(&conn_id);
+            }
+
+            // `extract_if` has already taken the expired entries out, so the registry now
+            // holds live connections only.
+            if self.client_registry.has_live_connection_for(ci.user_id) {
+                continue;
+            }
+
             if let Some(handler) = self.expired_client_handler.as_mut() {
-                let ci = ci.into_inner();
-                if let Some(conn_id) = ci.connection_id {
-                    self.client_registry.connection_id_session_ids.remove(&conn_id);
-                }
                 (handler)(ci);
             }
         }
@@ -449,7 +506,7 @@ pub fn send_request<T>(
 }
 
 /// Sends a packet to a client.
-pub(crate) fn send_packet(logger: &Logger, ctx: &Context, src: &SocketAddr, socket: &UdpSocket, mut resp: QPacket) -> Result<usize, Box<dyn std::error::Error>> {
+pub fn send_packet(logger: &Logger, ctx: &Context, src: &SocketAddr, socket: &UdpSocket, mut resp: QPacket) -> Result<usize, Box<dyn std::error::Error>> {
     if matches!(resp.packet_type, PacketType::Data) {
         resp.use_compression = true;
         if resp.fragment_id.is_none() {

@@ -5,12 +5,41 @@ package friends;
 service Friends {
     rpc List (ListRequest) returns (ListResponse);
     rpc Invite (InviteRequest) returns (InviteResponse);
+    // Publishes the game session the caller is currently in, so that it shows up in the
+    // friend lists of everybody else. The game announces its session through
+    // UPLAY_USER_SetGameSession and expects to find a friend's session in the friend list -
+    // without this, an accepted invitation has no destination and the game gives up with
+    // "Failed to find party session for invite."
+    rpc SetSession (SetSessionRequest) returns (SetSessionResponse);
 }
 
 message Friend {
     string id = 1;
     string username = 2;
     bool is_online = 3;
+    // Game session this player currently advertises; 0 means "not in a session".
+    uint32 session_id = 4;
+    // Session is private, i.e. it can only be entered through an invitation.
+    bool invite_only = 5;
+    // Opaque session payload the game handed to UPLAY_USER_SetGameSession (496 bytes).
+    // The session id alone gets an invitation past the lookup, but the game then opens a
+    // session of its own instead of joining - it needs this block to actually enter one.
+    bytes session_data = 6;
+    // Principal id of this player, as Quazal uses it. On the working matchmaking path the
+    // guest finds the host through SearchSessionsWithParticipants, which takes participant
+    // ids - so without the pid the game has nothing to search with.
+    uint32 pid = 7;
+}
+
+message SetSessionRequest {
+    // 0 clears the advertisement (the game does that through UPLAY_USER_ClearGameSession).
+    uint32 session_id = 1;
+    bool invite_only = 2;
+    // The raw session payload, passed through unchanged.
+    bytes session_data = 3;
+}
+
+message SetSessionResponse {
 }
 
 message ListRequest {
